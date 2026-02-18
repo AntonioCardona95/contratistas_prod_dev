@@ -1,0 +1,13 @@
+*.zip
+*.rar
+*.log
+*.csv
+*.xlsx
+/httpdocs/app1/src/public/Descargas/
+/logs/
+/httpdocs/storage/logs/
+.vscode-server/
+.cache/
+vendor/
+node_modules/
+.env
