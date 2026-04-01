@@ -1,0 +1,9 @@
+services:
+  contratistas-app:
+    build: .
+    container_name: contratistas_container
+    ports:
+      - "8087:80"
+    volumes:
+      - ./app:/var/www/html
+    restart: always

@@ -1,3 +1,0 @@
-Options All
-AddType application/x-httpd-cgi .pl
-AddHandler cgi-script .pl
