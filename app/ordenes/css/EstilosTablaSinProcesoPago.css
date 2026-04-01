@@ -1,0 +1,79 @@
+/* Texto general dentro de la tabla */
+table.dataTable,
+table.dataTable td,
+table.dataTable th {
+    color: #000 !important; /* texto negro */
+    font-weight: 600; /* negrito */
+}
+
+/* Encabezados */
+table.dataTable thead th {
+    background-color: #f8f9fa !important; /* gris muy claro */
+    color: #000 !important; /* negro negrito */
+    font-weight: 800 !important;
+    text-align: center;
+}
+
+/* Filas al pasar mouse */
+table.dataTable tbody tr:hover {
+    background-color: #e9ecef !important; /* gris muy suave */
+}
+
+/* Botones de exportación */
+.dt-buttons button {
+    background-color: #4e73df !important; /* azul */
+    color: #fff !important; /* texto blanco */
+    font-weight: 600 !important;
+    border-radius: 4px !important;
+    border: none !important;
+    padding: 5px 10px !important;
+    margin-right: 5px !important;
+}
+
+/* Mantener color de botones igual al pasar mouse */
+.dt-buttons button:hover,
+.dt-buttons button:focus,
+.dt-buttons button:active {
+    background-color: #4e73df !important;
+    color: #fff !important;
+}
+
+/* Etiqueta Search */
+.dataTables_filter label {
+    color: #000 !important;
+    font-weight: 600 !important;
+}
+
+/* Input de búsqueda */
+.dataTables_filter input {
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
+    padding: 3px 6px !important;
+    font-weight: 600 !important;
+    color: #000 !important;
+    background-color: #fff !important;
+}
+
+/* Información de tabla (Showing x to y) */
+.dataTables_info {
+    color: #000 !important;
+    font-weight: 600 !important;
+}
+
+/* Paginación */
+.dataTables_paginate .paginate_button {
+    color: #000 !important;
+    font-weight: 600 !important;
+    background: #fff !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
+    margin: 0 2px !important;
+    padding: 2px 6px !important;
+}
+
+/* Quitar remarcado azul al botón actual o hover */
+.dataTables_paginate .paginate_button.current,
+.dataTables_paginate .paginate_button:hover {
+    background-color: #fff !important; /* fondo blanco */
+    color: #000 !important; /* texto negro */
+}

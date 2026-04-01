@@ -1,0 +1,120 @@
+/* ===========================
+   ESTILOS DATATABLE
+=========================== */
+
+/* Texto general dentro de la tabla */
+table.dataTable,
+table.dataTable td,
+table.dataTable th {
+    color: #000 !important;
+    font-weight: 600;
+}
+
+/* Encabezados */
+table.dataTable thead th {
+    background-color: #f8f9fa !important;
+    color: #000 !important;
+    font-weight: 800 !important;
+    text-align: center;
+}
+
+/* Hover filas */
+table.dataTable tbody tr:hover {
+    background-color: #e9ecef !important;
+}
+
+/* Botones exportación */
+.dt-buttons button {
+    background-color: #4e73df !important;
+    color: #fff !important;
+    font-weight: 600 !important;
+    border-radius: 4px !important;
+    border: none !important;
+    padding: 5px 10px !important;
+    margin-right: 5px !important;
+}
+
+.dt-buttons button:hover,
+.dt-buttons button:focus,
+.dt-buttons button:active {
+    background-color: #4e73df !important;
+    color: #fff !important;
+}
+
+/* Buscador */
+.dataTables_filter label {
+    color: #000 !important;
+    font-weight: 600 !important;
+}
+
+.dataTables_filter input {
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
+    padding: 3px 6px !important;
+    font-weight: 600 !important;
+    color: #000 !important;
+    background-color: #fff !important;
+}
+
+/* Info tabla */
+.dataTables_info {
+    color: #000 !important;
+    font-weight: 600 !important;
+}
+
+/* Paginación */
+.dataTables_paginate .paginate_button {
+    color: #000 !important;
+    font-weight: 600 !important;
+    background: #fff !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
+    margin: 0 2px !important;
+    padding: 2px 6px !important;
+}
+
+.dataTables_paginate .paginate_button.current,
+.dataTables_paginate .paginate_button:hover {
+    background-color: #fff !important;
+    color: #000 !important;
+}
+
+/* ===========================
+   GALERÍA MODAL
+=========================== */
+
+.galeria-fotos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.galeria-fotos div {
+    text-align: center;
+}
+
+.galeria-fotos img {
+    width: 150px;
+    height: auto;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    padding: 2px;
+    border-radius: 5px;
+    transition: transform 0.2s;
+}
+
+.galeria-fotos img:hover {
+    transform: scale(1.05);
+}
+
+
+/* Fijar SOLO Folio Pisa */
+#ventas th:first-child,
+#ventas td:first-child {
+    position: sticky;
+    left: 0;
+    background: #fff;
+    z-index: 3;
+    white-space: nowrap;
+}

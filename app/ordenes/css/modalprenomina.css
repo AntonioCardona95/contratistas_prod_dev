@@ -1,0 +1,92 @@
+.btn-close-white 
+{ 
+    filter: invert(1) 
+    grayscale(100%) 
+    brightness(200%); 
+}
+
+/* Tamaño del modal */
+.modal-galeria-custom {
+    max-width: 1000px;
+}
+
+/* Header azul elegante */
+.header-galeria {
+    background-color: #0d6efd;
+    color: #fff;
+    border-bottom: none;
+}
+
+/* Botón cerrar blanco visible */
+.btn-close-white {
+    filter: invert(1);
+    opacity: 1;
+}
+
+.btn-close-white:hover {
+    opacity: 0.7;
+}
+
+/* Scroll interno */
+.modal-body {
+    max-height: 75vh;
+    overflow-y: auto;
+}
+
+/* Información superior */
+.info-galeria {
+    margin-bottom: 15px;
+}
+
+.info-galeria p {
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+/* ============================= */
+/* GALERÍA */
+/* ============================= */
+
+/* Fila superior (4 fotos) */
+.fila-superior {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+/* Fila inferior */
+.fila-inferior {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+/* Contenedor individual */
+.foto-item {
+    text-align: center;
+}
+
+/* Títulos */
+.foto-item p {
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+/* Imágenes */
+.foto-item img {
+    width: 180px;
+    height: 230px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #ddd;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hover elegante */
+.foto-item img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+}
