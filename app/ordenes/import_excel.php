@@ -78,10 +78,6 @@ if (isset($_POST['submit'])) {
     $semana = $_POST['semana'] ?? '';
     $anio   = $_POST['anio'] ?? date('Y');
 
-    if ($semana === '') {
-        die("Debes seleccionar una semana.");
-    }
-
     $file = $_FILES['excelFile']['tmp_name'] ?? '';
 
     if ($file === '') {
@@ -120,19 +116,32 @@ if (isset($_POST['submit'])) {
 
         $foliosExcel[$folio] = true;
 
-        // Duplicado en BD
-        if ($modal->ExisteFolioProduccion($folio, $idContratistas, $semana)) {
-            $foliosDuplicados[] = $folio;
-            continue;
-        }
-
         $fechaLiquidacion = normalizarFechaExcel($fechaExcel);
 
         if ($fechaLiquidacion === null) {
             continue;
         }
 
-        // INSERTAR Y CAPTURAR RESULTADO
+        // =========================
+        // CALCULAR SEMANA ISO SI NO VIENE SELECCIONADA
+        // =========================
+        $dt = new DateTime($fechaLiquidacion);
+
+        if ($semana === '') {
+            $semanaCalculada = (int)$dt->format('W'); // semana ISO
+            $anioCalculado   = (int)$dt->format('o'); // año ISO (IMPORTANTE)
+        } else {
+            $semanaCalculada = (int)$semana;
+            $anioCalculado   = (int)$anio;
+        }
+
+        // Duplicado en BD
+        if ($modal->ExisteFolioProduccion($folio, $idContratistas, $semanaCalculada)) {
+            $foliosDuplicados[] = $folio;
+            continue;
+        }
+
+        // INSERTAR
         $resultado = $modal->InsertarProduccion(
             $folio,
             $telefono,
@@ -140,8 +149,8 @@ if (isset($_POST['submit'])) {
             $cope,
             $fechaLiquidacion,
             $idContratistas,
-            $semana,
-            $anio,
+            $semanaCalculada,
+            $anioCalculado,
             $metraje
         );
 
@@ -210,7 +219,6 @@ Swal.fire({
 });
 
 <?php } ?>
-
 </script>
 </body>
 </html>
