@@ -240,10 +240,13 @@
                         <div>
                             <label>Semana</label>
 
-                            <select name="semana"
-                                    class="form-control"
-                                    style="width:250px;"
-                                    required>
+                           
+
+
+                                    <select name="semanas"
+        class="form-control"
+        style="width:250px;">
+
 
                                 <option value="">Seleccionar Semana</option>
 
