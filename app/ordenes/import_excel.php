@@ -91,15 +91,9 @@ if (isset($_POST['submit'])) {
     $modal = new Ops();
 
     $insertados = 0;
-
-    // FOLIOS
     $foliosExcel = [];
     $foliosDuplicados = [];
-    $foliosRevision = [];
-
-    // TELEFONOS
-    $telefonosExcel = [];
-    $telefonosDuplicados = [];
+    $foliosRevision = []; 
 
     for ($i = 2; $i <= $highestRow; $i++) {
 
@@ -114,23 +108,13 @@ if (isset($_POST['submit'])) {
             continue;
         }
 
-        // =========================
-        // DUPLICADO FOLIO EN EXCEL
-        // =========================
+        // Duplicado en Excel
         if (isset($foliosExcel[$folio])) {
             $foliosDuplicados[] = $folio;
             continue;
         }
-        $foliosExcel[$folio] = true;
 
-        // =========================
-        // DUPLICADO TELEFONO EN EXCEL
-        // =========================
-        if ($telefono !== '' && isset($telefonosExcel[$telefono])) {
-            $telefonosDuplicados[] = $telefono;
-            continue;
-        }
-        $telefonosExcel[$telefono] = true;
+        $foliosExcel[$folio] = true;
 
         $fechaLiquidacion = normalizarFechaExcel($fechaExcel);
 
@@ -139,37 +123,25 @@ if (isset($_POST['submit'])) {
         }
 
         // =========================
-        // CALCULAR SEMANA ISO
+        // CALCULAR SEMANA ISO SI NO VIENE SELECCIONADA
         // =========================
         $dt = new DateTime($fechaLiquidacion);
 
         if ($semana === '') {
-            $semanaCalculada = (int)$dt->format('W');
-            $anioCalculado   = (int)$dt->format('o');
+            $semanaCalculada = (int)$dt->format('W'); // semana ISO
+            $anioCalculado   = (int)$dt->format('o'); // año ISO (IMPORTANTE)
         } else {
             $semanaCalculada = (int)$semana;
             $anioCalculado   = (int)$anio;
         }
 
-        // =========================
-        // DUPLICADO FOLIO EN BD
-        // =========================
+        // Duplicado en BD
         if ($modal->ExisteFolioProduccion($folio, $idContratistas, $semanaCalculada)) {
             $foliosDuplicados[] = $folio;
             continue;
         }
 
-        // =========================
-        // DUPLICADO TELEFONO EN BD
-        // =========================
-        if ($telefono !== '' && $modal->ExisteTelefonoProduccion($telefono, $idContratistas, $semanaCalculada)) {
-            $telefonosDuplicados[] = $telefono;
-            continue;
-        }
-
-        // =========================
         // INSERTAR
-        // =========================
         $resultado = $modal->InsertarProduccion(
             $folio,
             $telefono,
@@ -191,9 +163,8 @@ if (isset($_POST['submit'])) {
         }
     }
 
-    $foliosDuplicados    = array_unique($foliosDuplicados);
-    $telefonosDuplicados = array_unique($telefonosDuplicados);
-    $foliosRevision      = array_unique($foliosRevision);
+    $foliosDuplicados = array_unique($foliosDuplicados);
+    $foliosRevision   = array_unique($foliosRevision);
 }
 ?>
 
@@ -207,7 +178,7 @@ if (isset($_POST['submit'])) {
 
 <script>
 
-<?php if (!empty($foliosDuplicados) || !empty($telefonosDuplicados) || !empty($foliosRevision)) { ?>
+<?php if (!empty($foliosDuplicados) || !empty($foliosRevision)) { ?>
 
 Swal.fire({
     icon: 'warning',
@@ -221,16 +192,8 @@ Swal.fire({
             <br>
         <?php } ?>
 
-        <?php if (!empty($telefonosDuplicados)) { ?>
-            <p><b>Teléfonos duplicados (NO insertados):</b></p>
-            <div style="max-height:150px;overflow:auto;text-align:left">
-            <?= implode("<br>", $telefonosDuplicados) ?>
-            </div>
-            <br>
-        <?php } ?>
-
         <?php if (!empty($foliosRevision)) { ?>
-            <p style="color:red;"><b>Folios enviados a revisión (+30 días):</b></p>
+            <p style="color:red;"><b> Folios enviados a revisión (+30 días):</b></p>
             <div style="max-height:150px;overflow:auto;text-align:left">
             <?= implode("<br>", $foliosRevision) ?>
             </div>
