@@ -238,12 +238,12 @@
                         </div>
 
                         <div>
-                            <label>Semana</label>
+                            <label>Semanas</label>
 
                            
 
 
-                                    <select name="semanas"
+                                    <select name="semana"
         class="form-control"
         style="width:250px;">
 
