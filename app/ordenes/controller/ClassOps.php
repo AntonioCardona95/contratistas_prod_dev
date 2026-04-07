@@ -560,8 +560,7 @@ public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaL
     // ===============================
     $sqlTac = "SELECT FECHA_LIQ 
                FROM qm_tac 
-               
-               WHERE Telefono = :telefono
+               WHERE Folio_Pisa = :folio 
                AND TRIM(UPPER(Calificador_Edo)) = 'COMPLETADA'
                LIMIT 1";
 
