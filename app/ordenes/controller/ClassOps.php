@@ -433,18 +433,19 @@ public function VerificarFolios($folio, $telefono)
     return $statement->execute();
 } */
 
-public function ExisteFolioProduccion($folio, $idContratistas)
+public function ExisteFolioProduccion($folio, $telefono, $idContratistas)
 {
     $conexion = $this->get_conexion();
 
     $sql = "SELECT 1
             FROM Produccion_contratista
-            WHERE Folio_Pisa = :folio
-              AND FK_Contratista = :idContratistas
+            WHERE FK_Contratista = :idContratistas
+              AND (Folio_Pisa = :folio OR TELEFONO = :telefono)
             LIMIT 1";
 
     $statement = $conexion->prepare($sql);
     $statement->bindParam(':folio', $folio, PDO::PARAM_STR);
+    $statement->bindParam(':telefono', $telefono, PDO::PARAM_STR);
     $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
     $statement->execute();
 
