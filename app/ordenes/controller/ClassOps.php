@@ -1290,7 +1290,8 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
 
         // ALERTAS ESCI
         if ($nsEsci !== '' && $totalTelefonos > 1) {
-            echo "ENTRA AQUI";
+            var_dump(">>> ALERTA ESCI ACTIVADA", $nsEsci, $totalTelefonos);
+    exit; // detiene el script aquí y no deja que se pinte la tabla
             $this->agregarAlerta($alertas, $valorEsci, "Serie ONT duplicada en ESCI", "Serie ESCI: $nsEsci");
         }
 
