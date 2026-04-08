@@ -1266,21 +1266,20 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
         $telefonoLimpio = $this->soloNumeros($telefonoProduccion);
 
         $stmtEsci = $conexion_analisis->prepare("
-            SELECT 
-                M_SERIE, 
-                COUNT(DISTINCT TELEFONO) as total,
-                MAX(DID_ACTIVO) as estado
-            FROM seg_ns_eci
-            WHERE M_SERIE = (
-                SELECT M_SERIE 
-                FROM seg_ns_eci 
-                WHERE TELEFONO = ? 
-                LIMIT 1
-            )
-            GROUP BY M_SERIE
-            LIMIT 1
-        ");
-
+    SELECT 
+        M_SERIE, 
+        COUNT(*) as total,
+        MAX(DID_ACTIVO) as estado
+    FROM seg_ns_eci
+    WHERE M_SERIE = (
+        SELECT M_SERIE 
+        FROM seg_ns_eci 
+        WHERE TELEFONO = ? 
+        LIMIT 1
+    )
+    GROUP BY M_SERIE
+    LIMIT 1
+");
         $stmtEsci->execute([$telefonoLimpio]);
         $dataEsci = $stmtEsci->fetch(PDO::FETCH_ASSOC) ?: [];
 
