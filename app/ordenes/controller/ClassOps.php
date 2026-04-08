@@ -1267,19 +1267,19 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
 
         $stmtEsci = $conexion_analisis->prepare("
             SELECT 
-                M_SERIE, 
-                COUNT(DISTINCT TELEFONO) as total,
-                SUM(CASE WHEN TELEFONO <> ? THEN 1 ELSE 0 END) as otros_telefonos,
-                MAX(DID_ACTIVO) as estado
-            FROM seg_ns_eci
-            WHERE M_SERIE = (
-                SELECT M_SERIE 
-                FROM seg_ns_eci 
-                WHERE TELEFONO = ? 
-                LIMIT 1
-            )
-            GROUP BY M_SERIE
-            LIMIT 1
+    M_SERIE, 
+    COUNT(DISTINCT TELEFONO) as total,
+    COUNT(DISTINCT CASE WHEN TELEFONO <> ? THEN TELEFONO END) as otros_telefonos,
+    MAX(DID_ACTIVO) as estado
+FROM seg_ns_eci
+WHERE M_SERIE = (
+    SELECT M_SERIE 
+    FROM seg_ns_eci 
+    WHERE TELEFONO = ? 
+    LIMIT 1
+)
+GROUP BY M_SERIE
+LIMIT 1
         ");
 
         $stmtEsci->execute([$telefonoLimpio, $telefonoLimpio]);
