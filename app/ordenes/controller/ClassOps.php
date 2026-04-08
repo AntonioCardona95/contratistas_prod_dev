@@ -1312,8 +1312,6 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
             }
         }
 
-        
-
         // ===============================
         // TAC EXACTO
         // ===============================
@@ -1340,6 +1338,30 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
         ");
         $stmtFolioData->execute([$folioPisa]);
         $tacData = $stmtFolioData->fetch(PDO::FETCH_ASSOC) ?: [];
+
+        // ===============================
+        // TAC - VALIDAR ONT DUPLICADA (OPTIMIZADO)
+        // ===============================
+        $nsTacValidar = $this->limpiar($tacData['Num__Serie'] ?? '');
+        $totalOntTac = 0;
+
+        if ($nsTacValidar !== '') {
+
+            $stmtOntTac = $conexion_analisis->prepare("
+                SELECT COUNT(*) 
+                FROM qm_tac
+                WHERE Num__Serie = ?
+                AND Calificador_Edo = 'COMPLETADA'
+            ");
+
+            $stmtOntTac->execute([$nsTacValidar]);
+            $totalOntTac = (int)$stmtOntTac->fetchColumn();
+        }
+
+        // ALERTA TAC - ONT DUPLICADA
+        if ($nsTacValidar !== '' && $totalOntTac > 1) {
+            $this->agregarAlerta($alertas, $valorTac, "ONT duplicada en TAC", "Serie TAC: $nsTacValidar");
+        }
 
         // ===============================
         // LOCAL
@@ -1456,25 +1478,6 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
                 }
             }
 
-            // TECNICO
-            /*$tecnicoLocal = '';
-            if (!empty($localData['FK_Tecnico_apps'])) {
-                $stmtTec = $conexion_local->prepare("
-                    SELECT CONCAT(Nombre_T, ' ', Apellidos_T)
-                    FROM tecnicos
-                    WHERE idTecnico = :id
-                ");
-                $stmtTec->execute([':id' => $localData['FK_Tecnico_apps']]);
-                $tecnicoLocal = $this->limpiar($stmtTec->fetchColumn());
-            }
-
-            if (!$this->sonMismoTecnico($this->limpiar($tacData['Tecnico'] ?? ''), $tecnicoLocal)) {
-                $alertas[] = "Técnicos diferentes";
-                $valorTac[] = "Técnico TAC: " . ($tacData['Tecnico'] ?? 'Vacío');
-                $valorLocal[] = "Técnico Coordiapp: " . ($tecnicoLocal ?: 'Vacío');
-            } */
-
-            // TIPO TAREA
             $tipoTacBase   = substr(strtoupper($this->limpiar($tacData['Tipo_De_Tarea'] ?? '')), 0, 7);
             $tipoLocalBase = substr(strtoupper($this->limpiar($localData['Tipo_Tarea'] ?? '')), 0, 7);
 
@@ -1511,7 +1514,6 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
         $usaOnt = false;
 
         if (strpos($tipoTarea, 'Q') === 0) {
-             //echo "ENTRÓ AL IF DE TIPO TAREA Q";
              if (in_array($codigoLiquidacion, ['JUMPER/PARALELO EXTERIOR','CONECTOR MECANICO DAÑADO','CAMBIO DE PUERTO','CAMBIO DE TERMINAL'])) {
                 $camposFotos = ['Foto_Casa_Cliente','Foto_Puerto'];
                 $usaPuertoCasa = true;
@@ -1527,7 +1529,6 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
             }
 
         } else {
-            //echo "ENTRÓ AL ELSE";
             $camposFotos = [
                 'Foto_Puerto' => "Falta Evidencia Fotografica del Puerto",
                 'Foto_Casa_Cliente' => "Falta evidencia de la casa",
