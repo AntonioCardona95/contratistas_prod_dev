@@ -1265,15 +1265,11 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
         // ===============================
         $telefonoLimpio = $this->soloNumeros($telefonoProduccion);
 
-       $stmtEsci = $conexion_analisis->prepare("
+$stmtEsci = $conexion_analisis->prepare("
     SELECT 
         M_SERIE, 
         COUNT(DISTINCT TELEFONO) AS total,
-        CASE 
-            WHEN COUNT(DISTINCT TELEFONO) > 1 
-            THEN COUNT(DISTINCT TELEFONO) - 1 
-            ELSE 0 
-        END AS otros_telefonos,
+        COUNT(DISTINCT TELEFONO) - 1 AS otros_telefonos,
         MAX(DID_ACTIVO) AS estado
     FROM seg_ns_eci
     WHERE M_SERIE = (
@@ -1298,6 +1294,7 @@ $estadoEsci = isset($dataEsci['estado']) ? (int)$dataEsci['estado'] : null;
 if ($nsEsci !== '' && $otrosTelefonos > 0) {
     $this->agregarAlerta($alertas, $valorEsci, "Serie ONT duplicada en ESCI", "Serie ESCI: $nsEsci");
 }
+
 
 
         if ($nsEsci !== '' && $estadoEsci !== null) {
