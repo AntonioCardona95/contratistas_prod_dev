@@ -1340,29 +1340,41 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
         $tacData = $stmtFolioData->fetch(PDO::FETCH_ASSOC) ?: [];
 
         // ===============================
-        // TAC - VALIDAR ONT DUPLICADA (OPTIMIZADO)
-        // ===============================
-        $nsTacValidar = $this->limpiar($tacData['Num__Serie'] ?? '');
-        $totalOntTac = 0;
+// TAC - VALIDAR ONT DUPLICADA (OPTIMIZADO REAL)
+// ===============================
+$nsTacValidar = '';
 
-        if ($nsTacValidar !== '') {
+$stmtSerieTac = $conexion_analisis->prepare("
+    SELECT Num__Serie
+    FROM qm_tac
+    WHERE Folio_Pisa = ?
+    AND TELEFONO = ?
+    AND Calificador_Edo = 'COMPLETADA'
+    LIMIT 1
+");
 
-            $stmtOntTac = $conexion_analisis->prepare("
-                SELECT COUNT(*) 
-                FROM qm_tac
-                WHERE Num__Serie = ?
-                AND Calificador_Edo = 'COMPLETADA'
-            ");
+$stmtSerieTac->execute([$folioPisa, $telefonoProduccion]);
+$nsTacValidar = $this->limpiar($stmtSerieTac->fetchColumn());
 
-            $stmtOntTac->execute([$nsTacValidar]);
-            $totalOntTac = (int)$stmtOntTac->fetchColumn();
-        }
+$totalOntTac = 0;
 
-        // ALERTA TAC - ONT DUPLICADA
-        if ($nsTacValidar !== '' && $totalOntTac > 1) {
-            $this->agregarAlerta($alertas, $valorTac, "ONT duplicada en TAC", "Serie TAC: $nsTacValidar");
-        }
+if ($nsTacValidar !== '') {
 
+    $stmtOntTac = $conexion_analisis->prepare("
+        SELECT COUNT(*) 
+        FROM qm_tac
+        WHERE Num__Serie = ?
+        AND Calificador_Edo = 'COMPLETADA'
+    ");
+
+    $stmtOntTac->execute([$nsTacValidar]);
+    $totalOntTac = (int)$stmtOntTac->fetchColumn();
+}
+
+// ALERTA TAC - ONT DUPLICADA
+if ($nsTacValidar !== '' && $totalOntTac > 1) {
+    $this->agregarAlerta($alertas, $valorTac, "ONT duplicada en TAC", "Serie TAC: $nsTacValidar ($totalOntTac registros)");
+}
         // ===============================
         // LOCAL
         // ===============================
