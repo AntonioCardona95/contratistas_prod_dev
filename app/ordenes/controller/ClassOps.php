@@ -1260,7 +1260,7 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
         $metrajeDistancia = 0;
         $diferenciaMetrajeDistancia = 0;
 
-        // ===============================
+         // ===============================
         // ESCI
         // ===============================
         $telefonoLimpio = $this->soloNumeros($telefonoProduccion);
@@ -1269,6 +1269,7 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
             SELECT 
                 M_SERIE, 
                 COUNT(DISTINCT TELEFONO) as total,
+                SUM(CASE WHEN TELEFONO <> ? THEN 1 ELSE 0 END) as otros_telefonos,
                 MAX(DID_ACTIVO) as estado
             FROM seg_ns_eci
             WHERE M_SERIE = (
@@ -1281,24 +1282,24 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
             LIMIT 1
         ");
 
-        $stmtEsci->execute([$telefonoLimpio]);
+        $stmtEsci->execute([$telefonoLimpio, $telefonoLimpio]);
         $dataEsci = $stmtEsci->fetch(PDO::FETCH_ASSOC) ?: [];
 
         $nsEsci = $this->limpiar($dataEsci['M_SERIE'] ?? '');
         $totalTelefonos = (int)($dataEsci['total'] ?? 0);
+        $otrosTelefonos = (int)($dataEsci['otros_telefonos'] ?? 0);
         $estadoEsci = isset($dataEsci['estado']) ? (int)$dataEsci['estado'] : null;
 
         echo "<pre>";
-print_r($dataEsci);
-echo "</pre>";
+        print_r($dataEsci);
+        echo "</pre>";
 
-echo "nsEsci: [$nsEsci] <br>";
-echo "totalTelefonos: [$totalTelefonos] <br>";
+        echo "nsEsci: [$nsEsci] <br>";
+        echo "totalTelefonos: [$totalTelefonos] <br>";
+        echo "otrosTelefonos: [$otrosTelefonos] <br>";
 
         // ALERTAS ESCI
-        if ($nsEsci !== '' && $totalTelefonos > 1) {
-           
-    
+        if ($nsEsci !== '' && $otrosTelefonos > 0) {
             $this->agregarAlerta($alertas, $valorEsci, "Serie ONT duplicada en ESCI", "Serie ESCI: $nsEsci");
         }
 
@@ -1310,6 +1311,8 @@ echo "totalTelefonos: [$totalTelefonos] <br>";
                 $this->agregarAlerta($alertas, $valorEsci, "Servicio inactivo en ESCI", "Serie ESCI: $nsEsci");
             }
         }
+
+        
 
         // ===============================
         // TAC EXACTO
