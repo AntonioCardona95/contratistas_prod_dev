@@ -1376,7 +1376,7 @@ if ($nsTacValidar !== '' && $totalOntTac > 1) {
     $this->agregarAlerta($alertas, $valorTac, "ONT duplicada en TAC", "Serie TAC: $nsTacValidar ($totalOntTac registros)");
 }
         // ===============================
-        // LOCAL
+        // LOCAL COORDIAPP
         // ===============================
         $stmtLocal = $conexion_local->prepare("
             SELECT Telefono, Tipo_Tarea, FK_Cope, FK_Tecnico_apps, Ont, 
