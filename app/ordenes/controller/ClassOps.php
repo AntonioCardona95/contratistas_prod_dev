@@ -1288,6 +1288,13 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
         $totalTelefonos = (int)($dataEsci['total'] ?? 0);
         $estadoEsci = isset($dataEsci['estado']) ? (int)$dataEsci['estado'] : null;
 
+        echo "<pre>";
+print_r($dataEsci);
+echo "</pre>";
+
+echo "nsEsci: [$nsEsci] <br>";
+echo "totalTelefonos: [$totalTelefonos] <br>";
+
         // ALERTAS ESCI
         if ($nsEsci !== '' && $totalTelefonos > 1) {
            
