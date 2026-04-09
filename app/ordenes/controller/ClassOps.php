@@ -1377,7 +1377,11 @@ if ($foliosTac !== '') {
 
 if ($nsTacValidar !== '' && $totalOntTac > 1) {
 
-   $mensajeDetalle = "El Numero de serie en TAC: $nsTacValidar se uso $totalOntTac veces";
+    // SOLO ALERTA (SIN DETALLE EN VALOR_TAC)
+    $alertas[] = "ONT duplicada en TAC";
+
+    // DETALLE SOLO EN NUEVA COLUMNA
+    $mensajeDetalle = "El Numero de serie en TAC: $nsTacValidar se uso $totalOntTac veces";
 
     if ($telefonosTac !== '') {
         $mensajeDetalle .= ", fue usada en los telefonos $telefonosTac";
@@ -1387,12 +1391,7 @@ if ($nsTacValidar !== '' && $totalOntTac > 1) {
         $mensajeDetalle .= ", y en los folios $foliosTac";
     }
 
-    $this->agregarAlerta(
-        $alertas,
-        $valorTac,
-        "ONT duplicada en TAC",
-        $mensajeDetalle
-    );
+    $detalleSerieDuplicadaTac[] = $mensajeDetalle;
 }
         
 // ===============================
