@@ -1334,42 +1334,68 @@ if ($nsEsci !== '' && $otrosTelefonos > 0) {
         $tacData = $stmtFolioData->fetch(PDO::FETCH_ASSOC) ?: [];
 
         // ===============================
-// TAC - VALIDAR ONT DUPLICADA (OPTIMIZADO REAL)
+// TAC - VALIDAR ONT DUPLICADA (OPTIMIZADO EN UNA SOLA QUERY)
 // ===============================
-$nsTacValidar = '';
 
-$stmtSerieTac = $conexion_analisis->prepare("
-    SELECT Num__Serie
+$stmtOntTac = $conexion_analisis->prepare("
+    SELECT 
+        Num__Serie,
+        COUNT(*) AS total,
+        GROUP_CONCAT(DISTINCT TELEFONO) AS telefonos,
+        GROUP_CONCAT(DISTINCT Folio_Pisa) AS folios
     FROM qm_tac
-    WHERE Folio_Pisa = ?
-    AND TELEFONO = ?
+    WHERE Num__Serie = (
+        SELECT Num__Serie
+        FROM qm_tac
+        WHERE Folio_Pisa = ?
+        AND TELEFONO = ?
+        AND Calificador_Edo = 'COMPLETADA'
+        LIMIT 1
+    )
     AND Calificador_Edo = 'COMPLETADA'
+    GROUP BY Num__Serie
     LIMIT 1
 ");
 
-$stmtSerieTac->execute([$folioPisa, $telefonoProduccion]);
-$nsTacValidar = $this->limpiar($stmtSerieTac->fetchColumn());
+$stmtOntTac->execute([$folioPisa, $telefonoProduccion]);
+$dataOntTac = $stmtOntTac->fetch(PDO::FETCH_ASSOC) ?: [];
 
-$totalOntTac = 0;
+$nsTacValidar = $this->limpiar($dataOntTac['Num__Serie'] ?? '');
+$totalOntTac = (int)($dataOntTac['total'] ?? 0);
+$telefonosTac = $dataOntTac['telefonos'] ?? '';
+$foliosTac = $dataOntTac['folios'] ?? '';
 
-if ($nsTacValidar !== '') {
-
-    $stmtOntTac = $conexion_analisis->prepare("
-        SELECT COUNT(*) 
-        FROM qm_tac
-        WHERE Num__Serie = ?
-        AND Calificador_Edo = 'COMPLETADA'
-    ");
-
-    $stmtOntTac->execute([$nsTacValidar]);
-    $totalOntTac = (int)$stmtOntTac->fetchColumn();
+// Limpieza (opcional)
+if ($telefonosTac !== '') {
+    $telefonosTac = implode(', ', array_unique(explode(',', $telefonosTac)));
 }
 
-// ALERTA TAC - ONT DUPLICADA
+if ($foliosTac !== '') {
+    $foliosTac = implode(', ', array_unique(explode(',', $foliosTac)));
+}
+
+// ALERTA
 if ($nsTacValidar !== '' && $totalOntTac > 1) {
-    $this->agregarAlerta($alertas, $valorTac, "ONT duplicada en TAC", "Serie TAC: $nsTacValidar ($totalOntTac registros)");
+
+    $mensajeDetalle = "Serie TAC: $nsTacValidar ($totalOntTac veces)";
+
+    if ($telefonosTac !== '') {
+        $mensajeDetalle .= " | Telefonos: $telefonosTac";
+    }
+
+    if ($foliosTac !== '') {
+        $mensajeDetalle .= " | Folios: $foliosTac";
+    }
+
+    $this->agregarAlerta(
+        $alertas,
+        $valorTac,
+        "ONT duplicada en TAC",
+        $mensajeDetalle
+    );
 }
-        // ===============================
+        
+// ===============================
         // LOCAL COORDIAPP
         // ===============================
         $stmtLocal = $conexion_local->prepare("
