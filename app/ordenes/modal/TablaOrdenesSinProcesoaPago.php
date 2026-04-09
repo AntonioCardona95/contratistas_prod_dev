@@ -67,6 +67,7 @@ $filas = is_array($filas) ? $filas : [];
             <th>Metraje</th>
             <th>Calificador</th>
             <th>Alerta</th>
+            <th>Detalle Serie Duplicada TAC</th>
             <th>Valor TAC</th>
             <th>Valor Coordiapp</th>
              <th>Valor ESCI</th>
@@ -106,7 +107,9 @@ $filas = is_array($filas) ? $filas : [];
                 <?= htmlspecialchars($row['Alerta'] ?? '') ?>
             </td>
 
-
+            <td style="color: #b30000; font-weight: bold;">
+    <?= htmlspecialchars($row['Detalle_Serie_Duplicada_TAC'] ?? '') ?>
+</td>
 
             <td>
                 <?= htmlspecialchars($row['Valor_TAC'] ?? '') ?>
