@@ -1377,15 +1377,15 @@ if ($foliosTac !== '') {
 // ALERTA
 if ($nsTacValidar !== '' && $totalOntTac > 1) {
 
-    $mensajeDetalle = "Serie TAC: $nsTacValidar ($totalOntTac veces)";
+   $mensajeDetalle = "El Numero de serie en TAC: $nsTacValidar se uso $totalOntTac veces";
 
-    if ($telefonosTac !== '') {
-        $mensajeDetalle .= " | Telefonos: $telefonosTac";
-    }
+if ($telefonosTac !== '') {
+    $mensajeDetalle .= ", fue usada en los telefonos $telefonosTac";
+}
 
-    if ($foliosTac !== '') {
-        $mensajeDetalle .= " | Folios: $foliosTac";
-    }
+if ($foliosTac !== '') {
+    $mensajeDetalle .= ", y en los folios $foliosTac";
+}
 
     $this->agregarAlerta(
         $alertas,
