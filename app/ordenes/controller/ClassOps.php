@@ -1141,6 +1141,7 @@ public function OrdenesConIncidencias($idContratistas, $expedientes = [], $seman
         if (!empty($alertaData['Alerta'])) {
 
             $result['Alerta'] = $alertaData['Alerta'];
+            $result['Detalle_Serie_Duplicada_TAC'] = $resultado['Detalle_Serie_Duplicada_TAC'] ?? '';
             $result['Valor_TAC'] = $alertaData['Valor_TAC'];
             $result['Valor_Coordiapp'] = $alertaData['Valor_Coordiapp'];
             $result['Valor_Contratista'] = $alertaData['Valor_Contratista'];
@@ -1150,7 +1151,7 @@ public function OrdenesConIncidencias($idContratistas, $expedientes = [], $seman
             // CAMPOS NUEVOS
             $result['Metraje_Distancia'] = $alertaData['Metraje_Distancia'];
             $result['Diferencia_Metraje_Distancia'] = $alertaData['Diferencia_Metraje_Distancia'];
-            $result['Detalle_Serie_Duplicada_TAC'] = $resultado['Detalle_Serie_Duplicada_TAC'] ?? '';
+            
 
             $rows[] = $result;
         }
