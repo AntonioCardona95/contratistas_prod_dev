@@ -1255,6 +1255,7 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
         $valorLocal = [];
         $valorContratista = [];
         $valorEsci = [];
+        $detalleSerieDuplicadaTac = [];
 
         $diferenciaMetraje = 0;
         $metrajeDistancia = 0;
@@ -1374,18 +1375,17 @@ if ($foliosTac !== '') {
     $foliosTac = implode(', ', array_unique(explode(',', $foliosTac)));
 }
 
-// ALERTA
 if ($nsTacValidar !== '' && $totalOntTac > 1) {
 
    $mensajeDetalle = "El Numero de serie en TAC: $nsTacValidar se uso $totalOntTac veces";
 
-if ($telefonosTac !== '') {
-    $mensajeDetalle .= ", fue usada en los telefonos $telefonosTac";
-}
+    if ($telefonosTac !== '') {
+        $mensajeDetalle .= ", fue usada en los telefonos $telefonosTac";
+    }
 
-if ($foliosTac !== '') {
-    $mensajeDetalle .= ", y en los folios $foliosTac";
-}
+    if ($foliosTac !== '') {
+        $mensajeDetalle .= ", y en los folios $foliosTac";
+    }
 
     $this->agregarAlerta(
         $alertas,
@@ -1603,6 +1603,7 @@ if ($foliosTac !== '') {
             'Valor_Coordiapp' => implode(' | ', $valorLocal),
             'Valor_Contratista' => implode(' | ', $valorContratista),
             'Valor_ESCI' => implode(' | ', $valorEsci),
+            'Detalle_Serie_Duplicada_TAC' => implode(' | ', $detalleSerieDuplicadaTac),
             'Diferencia_Metraje' => $diferenciaMetraje,
             'Metraje_Distancia' => $metrajeDistancia,
             'Diferencia_Metraje_Distancia' => $diferenciaMetrajeDistancia
@@ -1615,6 +1616,7 @@ if ($foliosTac !== '') {
             'Valor_Coordiapp' => '',
             'Valor_Contratista' => '',
             'Valor_ESCI' => '',
+            'Detalle_Serie_Duplicada_TAC' => '',
             'Diferencia_Metraje' => 0,
             'Metraje_Distancia' => 0,
             'Diferencia_Metraje_Distancia' => 0
