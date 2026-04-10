@@ -18,7 +18,7 @@
     $modal = new Ops();
 
     /* =====================================================
-       CONTROL DE SEMANA
+       CONTROL DE SEMANA (CORREGIDO)
     ===================================================== */
 
     $semanaSeleccionada = null;
@@ -26,22 +26,21 @@
     $totalCoordiapp     = 0;
     $totalRechazadas    = 0;
 
-    if (isset($_GET['semana']) && $_GET['semana'] != '') {
-        // Si el usuario selecciona semana, usamos esa
+    // 🔥 SOLO mostrar datos si vienes de importar Excel
+    if (
+        isset($_GET['cargado']) && $_GET['cargado'] == 1 &&
+        isset($_GET['semana']) && $_GET['semana'] != ''
+    ) {
         $semanaSeleccionada = (int)$_GET['semana'];
     } else {
-        // Si no selecciona semana, obtenemos la semana de la última Fecha_Carga
-        $semanaSeleccionada = $modal->ObtenerSemanaPorUltimaCarga($idContratistas);
+        $semanaSeleccionada = null; // 🔥 IMPORTANTE
     }
 
+    // 🔥 SOLO calcular si hay semana válida
     if ($semanaSeleccionada !== null) {
         $totalOrdenes   = $modal->CountOrdenesProduccion($idContratistas, $semanaSeleccionada);
         $totalCoordiapp = $modal->ConteoOrdenesCoordiapp($idContratistas, $semanaSeleccionada);
         $totalRechazadas= $modal->ConteoOrdenesRechazadas($idContratistas, $semanaSeleccionada);
-    } else {
-        $totalOrdenes   = 0;
-        $totalCoordiapp = 0;
-        $totalRechazadas= 0;
     }
 ?>
 
@@ -392,16 +391,19 @@
 <script>
 $(document).ready(function(){
 
-    // Tomamos directamente las variables desde PHP
+    // Variables desde PHP
     const semana = "<?php echo $semanaSeleccionada ?? ''; ?>";
-    const anio   = "<?php echo date('Y'); ?>"; // o la variable que uses en tu backend
+    const anio   = "<?php echo date('Y'); ?>";
 
     console.log("Semana PHP:", semana);
     console.log("Año PHP:", anio);
 
-    // Ejecutar SIEMPRE aunque semana/anio vengan vacíos
-    LoadOrdenesRechazadas(semana || '', anio || '');
-    sessionStorage.setItem("resultadosMostrados","1");
+    // 🔥 SOLO ejecutar si hay semana (cuando vienes de importar)
+    if(semana !== ''){
+        LoadOrdenesRechazadas(semana, anio);
+        sessionStorage.setItem("resultadosMostrados","1");
+    }
+
 });
 
 window.addEventListener("pageshow", function(){
@@ -412,15 +414,15 @@ window.addEventListener("pageshow", function(){
 
         const url = new URL(window.location.href);
 
-        // Solo limpia si existe el parámetro semana (aunque esté vacío)
-        if(url.searchParams.has("semana")){
+        // 🔥 Limpia parámetros para que al regresar ya no cargue nada
+        if(url.searchParams.has("semana") || url.searchParams.has("cargado")){
 
             sessionStorage.removeItem("resultadosMostrados");
 
             url.searchParams.delete("semana");
+            url.searchParams.delete("cargado");
 
             window.history.replaceState({}, document.title, url.pathname);
-
         }
 
     }
