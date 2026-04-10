@@ -23,6 +23,12 @@ if (empty($Contratista) || empty($idContratistas)) {
     exit;
 }
 
+// 👇 importante: normalizar vacío
+if ($semana === '' || $semana === 0) {
+    $semana = null;
+}
+
+
 // Instancia de la clase Ops
 $modal = new Ops();
 
