@@ -27,13 +27,25 @@
     $totalRechazadas    = 0;
 
     if (isset($_GET['semana']) && $_GET['semana'] != '') {
+    $semanaSeleccionada = (int)$_GET['semana'];
+} else {
+    // 👇 semana automática
+    $semanaSeleccionada = (int)date('W');
+}
+
+// 👇 SIEMPRE ejecuta
+$totalOrdenes   = $modal->CountOrdenesProduccion($idContratistas, $semanaSeleccionada);
+$totalCoordiapp = $modal->ConteoOrdenesCoordiapp($idContratistas, $semanaSeleccionada);
+$totalRechazadas= $modal->ConteoOrdenesRechazadas($idContratistas, $semanaSeleccionada);
+
+ /*  if (isset($_GET['semana']) && $_GET['semana'] != '') {
 
         $semanaSeleccionada = (int)$_GET['semana'];
 
         $totalOrdenes   = $modal->CountOrdenesProduccion($idContratistas, $semanaSeleccionada);
         $totalCoordiapp = $modal->ConteoOrdenesCoordiapp($idContratistas, $semanaSeleccionada);
         $totalRechazadas= $modal->ConteoOrdenesRechazadas($idContratistas, $semanaSeleccionada);
-    }
+    } */
 ?>
 <!DOCTYPE html>
 <html lang="en">
