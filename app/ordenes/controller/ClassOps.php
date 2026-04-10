@@ -870,6 +870,30 @@ public function ObtenerSemanaPorUltimaCarga($idContratistas)
     return $row ? (int)$row['Semana'] : null;
 }
 
+public function ObtenerUltimaSemanaReal($idContratistas)
+{
+    try {
+        $conexion = $this->get_conexion();
+
+        $sql = "SELECT Semana 
+                FROM Produccion_contratista 
+                WHERE FK_Contratista = :id
+                ORDER BY idProduccion DESC 
+                LIMIT 1";
+
+        $stmt = $conexion->prepare($sql);
+        $stmt->bindParam(':id', $idContratistas, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $row ? (int)$row['Semana'] : null;
+
+    } catch (Exception $e) {
+        return null;
+    }
+}
+
 
 
 
