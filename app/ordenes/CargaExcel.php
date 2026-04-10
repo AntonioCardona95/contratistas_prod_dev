@@ -22,26 +22,35 @@
     ===================================================== */
 
     $semanaSeleccionada = null;
-    $totalOrdenes       = 0;
-    $totalCoordiapp     = 0;
-    $totalRechazadas    = 0;
+$totalOrdenes       = 0;
+$totalCoordiapp     = 0;
+$totalRechazadas    = 0;
 
-    // 🔥 SOLO mostrar datos si vienes de importar Excel
-    if (
-        isset($_GET['cargado']) && $_GET['cargado'] == 1 &&
-        isset($_GET['semana']) && $_GET['semana'] != ''
-    ) {
+//  CASO 1: Vienes de importar Excel
+if (isset($_GET['cargado']) && $_GET['cargado'] == 1) {
+
+    // Si el usuario seleccionó semana
+    if (isset($_GET['semana']) && $_GET['semana'] != '') {
+
         $semanaSeleccionada = (int)$_GET['semana'];
+
     } else {
-        $semanaSeleccionada = null; // 🔥 IMPORTANTE
+
+        //  NUEVO: obtener la última semana REAL desde la BD
+        $semanaSeleccionada = $modal->ObtenerUltimaSemanaReal($idContratistas);
     }
 
-    // 🔥 SOLO calcular si hay semana válida
-    if ($semanaSeleccionada !== null) {
-        $totalOrdenes   = $modal->CountOrdenesProduccion($idContratistas, $semanaSeleccionada);
-        $totalCoordiapp = $modal->ConteoOrdenesCoordiapp($idContratistas, $semanaSeleccionada);
-        $totalRechazadas= $modal->ConteoOrdenesRechazadas($idContratistas, $semanaSeleccionada);
-    }
+} else {
+    $semanaSeleccionada = null;
+}
+
+//  SOLO calcular si hay semana
+if ($semanaSeleccionada !== null) {
+
+    $totalOrdenes   = $modal->CountOrdenesProduccion($idContratistas, $semanaSeleccionada);
+    $totalCoordiapp = $modal->ConteoOrdenesCoordiapp($idContratistas, $semanaSeleccionada);
+    $totalRechazadas= $modal->ConteoOrdenesRechazadas($idContratistas, $semanaSeleccionada);
+}
 ?>
 
 
