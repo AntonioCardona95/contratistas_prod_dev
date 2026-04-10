@@ -30,22 +30,21 @@
         // Si el usuario selecciona semana, usamos esa
         $semanaSeleccionada = (int)$_GET['semana'];
     } else {
-        // Si no selecciona semana, obtenemos la última registrada desde la clase
-        $semanaSeleccionada = $modal->ObtenerUltimaSemanaContratista($idContratistas);
+        // Si no selecciona semana, obtenemos la semana de la última Fecha_Carga
+        $semanaSeleccionada = $modal->ObtenerSemanaPorUltimaCarga($idContratistas);
     }
 
-    // Solo llamamos las funciones si tenemos una semana válida
     if ($semanaSeleccionada !== null) {
         $totalOrdenes   = $modal->CountOrdenesProduccion($idContratistas, $semanaSeleccionada);
         $totalCoordiapp = $modal->ConteoOrdenesCoordiapp($idContratistas, $semanaSeleccionada);
         $totalRechazadas= $modal->ConteoOrdenesRechazadas($idContratistas, $semanaSeleccionada);
     } else {
-        // Caso extremo: no hay registros para ese contratista
         $totalOrdenes   = 0;
         $totalCoordiapp = 0;
         $totalRechazadas= 0;
     }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
