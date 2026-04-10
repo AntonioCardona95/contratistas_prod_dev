@@ -18,12 +18,7 @@ $idContratistas = $_SESSION['idContratistas'] ?? null;
 $semana = $_POST['semana'] ?? null;
 $anio   = $_POST['anio'] ?? null;
 
-echo "<pre>";
-echo "Valor de Contratista: "; var_dump($Contratista);
-echo "Valor de idContratistas: "; var_dump($idContratistas);
-echo "Valor de semana: "; var_dump($semana);
-echo "Valor de anio: "; var_dump($anio);
-echo "</pre>"
+
 
 if (empty($Contratista) || empty($idContratistas)) {
     echo "<p>No se encontró información del contratista.</p>";
@@ -34,6 +29,15 @@ if (empty($Contratista) || empty($idContratistas)) {
 if ($semana === '' || $semana === 0) {
     $semana = null;
 }
+
+echo "<pre>";
+echo "Valor de Contratista: "; var_dump($Contratista);
+echo "Valor de idContratistas: "; var_dump($idContratistas);
+echo "Valor de semana: "; var_dump($semana);
+echo "Valor de anio: "; var_dump($anio);
+echo "</pre>";
+
+
 
 echo "<pre>Valor de \$semana: ";
 var_dump($semana);
