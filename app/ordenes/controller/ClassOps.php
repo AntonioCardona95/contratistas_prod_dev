@@ -850,6 +850,25 @@ public function ConteoOrdenesRechazadas($idContratistas, $semana)
     return $result ? $result['TOTAL'] : 0;
 }
 
+public function ObtenerUltimaSemanaContratista($idContratistas)
+{
+    $conexion = $this->get_conexion();
+
+    $sql = "SELECT Semana 
+            FROM Produccion_contratista
+            WHERE FK_Contratista = :idContratistas
+            ORDER BY Fecha_Carga DESC
+            LIMIT 1";
+
+    $stmt = $conexion->prepare($sql);
+    $stmt->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
+    $stmt->execute();
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return $row ? (int)$row['Semana'] : null;
+}
+
+
 
 /*public function ConteoOrdenesRechazadas($idContratistas, $semana)
 {
