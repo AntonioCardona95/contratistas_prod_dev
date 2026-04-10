@@ -230,7 +230,7 @@ Swal.fire({
     `,
     confirmButtonText: 'Aceptar'
 }).then(() => {
-    window.location.href = "CargaExcel.php?semana=<?= $semana ?>&anio=<?= $anio ?>";
+    window.location.href = "CargaExcel.php?cargado=1&semana=<?= $semana ?>&anio=<?= $anio ?>";
 });
 
 <?php } else { ?>
@@ -241,7 +241,7 @@ Swal.fire({
     text: 'Se insertaron <?= $insertados ?> registros correctamente.',
     confirmButtonText: 'Aceptar'
 }).then(() => {
-    window.location.href = "CargaExcel.php?semana=<?= $semana ?>&anio=<?= $anio ?>";
+    window.location.href = "CargaExcel.php?cargado=1&semana=<?= $semana ?>&anio=<?= $anio ?>";
 });
 
 <?php } ?>
