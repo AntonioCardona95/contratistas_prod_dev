@@ -29,6 +29,9 @@ $modal = new Ops();
 // Consulta de Producción
 $filas = $modal->OrdenesNoProcesadasPago($idContratistas, $semana, $anio);
 $filas = is_array($filas) ? $filas : [];
+echo "<pre>";
+print_r($filas);
+echo "</pre>"
 ?>
 
 <!-- Estilos personalizados para DataTable -->
