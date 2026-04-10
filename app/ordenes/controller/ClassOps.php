@@ -701,8 +701,8 @@ public function CountOrdenesProduccion($idContratistas, $semana)
             FROM Produccion_contratista
             WHERE FK_Contratista = :idContratistas
               AND Semana = :semana
-              AND Fecha_Carga = (
-                    SELECT MAX(Fecha_Carga)
+              AND DATE(Fecha_Carga) = (
+                    SELECT DATE(MAX(Fecha_Carga))
                     FROM Produccion_contratista
                     WHERE FK_Contratista = :idContratistas
               )";
@@ -715,6 +715,7 @@ public function CountOrdenesProduccion($idContratistas, $semana)
     $result = $statement->fetch(PDO::FETCH_ASSOC);
     return $result ? $result['TOTAL'] : 0;       
 }
+
 
 
 /*public function CountOrdenesProduccion($idContratistas, $semana)
@@ -748,8 +749,8 @@ public function ConteoOrdenesCoordiapp($idContratistas, $semana)
                 AND pc.Telefono = tic.Telefono
             WHERE pc.FK_Contratista = :idContratistas
               AND pc.Semana = :semana
-              AND pc.Fecha_Carga = (
-                    SELECT MAX(Fecha_Carga)
+              AND DATE(pc.Fecha_Carga) = (
+                    SELECT DATE(MAX(Fecha_Carga))
                     FROM Produccion_contratista
                     WHERE FK_Contratista = :idContratistas
               )";
@@ -834,8 +835,8 @@ public function ConteoOrdenesRechazadas($idContratistas, $semana)
                 AND pc.Telefono = tic.Telefono
             WHERE pc.FK_Contratista = :idContratistas
               AND pc.Semana = :semana
-              AND pc.Fecha_Carga = (
-                    SELECT MAX(Fecha_Carga)
+              AND DATE(pc.Fecha_Carga) = (
+                    SELECT DATE(MAX(Fecha_Carga))
                     FROM Produccion_contratista
                     WHERE FK_Contratista = :idContratistas
               )
@@ -849,6 +850,7 @@ public function ConteoOrdenesRechazadas($idContratistas, $semana)
     $result = $statement->fetch(PDO::FETCH_ASSOC);
     return $result ? $result['TOTAL'] : 0;
 }
+
 
 public function ObtenerSemanaPorUltimaCarga($idContratistas)
 {
