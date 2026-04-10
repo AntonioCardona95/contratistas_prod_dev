@@ -1006,7 +1006,8 @@ public function OrdenesNoProcesadasPago($idContratistas, $semana, $anio)
         pc.Tipo_Tarea, 
         pc.Cope, 
         pc.Fecha_Liquidacion, 
-        pc.Semana
+        pc.Semana,
+        pc.Fecha_Carga
     FROM Produccion_contratista pc
     LEFT JOIN tecnico_instalaciones_coordiapp tic
         ON pc.Folio_Pisa = tic.Folio_Pisa
@@ -1014,20 +1015,27 @@ public function OrdenesNoProcesadasPago($idContratistas, $semana, $anio)
     LEFT JOIN tecnicos t
         ON tic.FK_Tecnico_apps = t.idTecnico
     WHERE pc.FK_Contratista = :idContratistas
-      AND tic.Folio_Pisa IS NULL  
-      AND YEAR(pc.Fecha_Liquidacion) = :anio
+      AND tic.Folio_Pisa IS NULL
     ";
 
-    //  SOLO agregar esto
+    //  Condiciones dinámicas
+    if (!empty($anio)) {
+        $sql .= " AND YEAR(pc.Fecha_Liquidacion) = :anio";
+    }
+
     if (!empty($semana)) {
         $sql .= " AND pc.Semana = :semana";
+    } else {
+        // ⚡ Si no hay semana, usar la fecha de carga del día actual
+        $sql .= " AND DATE(pc.Fecha_Carga) = CURDATE()";
     }
 
     $statement = $conexion->prepare($sql);
     $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
-    $statement->bindParam(':anio', $anio, PDO::PARAM_INT);
 
-    //  SOLO bindear si existe
+    if (!empty($anio)) {
+        $statement->bindParam(':anio', $anio, PDO::PARAM_INT);
+    }
     if (!empty($semana)) {
         $statement->bindParam(':semana', $semana, PDO::PARAM_INT);
     }
