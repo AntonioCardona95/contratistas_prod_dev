@@ -1142,6 +1142,7 @@ public function OrdenesConIncidencias($idContratistas, $expedientes = [], $seman
 
             $result['Alerta'] = $alertaData['Alerta'];
             $result['Detalle_Serie_Duplicada_TAC'] = $alertaData['Detalle_Serie_Duplicada_TAC'] ?? '';
+            $result['Detalle_Serie_Duplicada_ESCI'] = $alertaData['Detalle_Serie_Duplicada_ESCI'] ?? '';
             $result['Valor_TAC'] = $alertaData['Valor_TAC'];
             $result['Valor_Coordiapp'] = $alertaData['Valor_Coordiapp'];
             $result['Valor_Contratista'] = $alertaData['Valor_Contratista'];
@@ -1258,21 +1259,23 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
         $valorContratista = [];
         $valorEsci = [];
         $detalleSerieDuplicadaTac = [];
+        $detalleSerieDuplicadaEsci = [];
 
         $diferenciaMetraje = 0;
         $metrajeDistancia = 0;
         $diferenciaMetrajeDistancia = 0;
 
-         // ===============================
-        // ESCI
-        // ===============================
-        $telefonoLimpio = $this->soloNumeros($telefonoProduccion);
+// ===============================
+// ESCI
+// ===============================
+$telefonoLimpio = $this->soloNumeros($telefonoProduccion);
 
 $stmtEsci = $conexion_analisis->prepare("
     SELECT 
         M_SERIE, 
         COUNT(DISTINCT TELEFONO) AS total,
         COUNT(DISTINCT TELEFONO) - 1 AS otros_telefonos,
+        GROUP_CONCAT(DISTINCT TELEFONO) AS telefonos,
         MAX(DID_ACTIVO) AS estado
     FROM seg_ns_eci
     WHERE M_SERIE = (
@@ -1293,21 +1296,44 @@ $totalTelefonos = (int)($dataEsci['total'] ?? 0);
 $otrosTelefonos = (int)($dataEsci['otros_telefonos'] ?? 0);
 $estadoEsci = isset($dataEsci['estado']) ? (int)$dataEsci['estado'] : null;
 
-// ALERTAS ESCI
-if ($nsEsci !== '' && $otrosTelefonos > 0) {
-    $this->agregarAlerta($alertas, $valorEsci, "Serie ONT duplicada en ESCI", "Serie ESCI: $nsEsci");
+// 🔹 NUEVO: teléfonos
+$telefonosEsci = $dataEsci['telefonos'] ?? '';
+
+if ($telefonosEsci !== '') {
+    $telefonosEsci = implode(', ', array_unique(explode(',', $telefonosEsci)));
 }
 
+// ===============================
+// ALERTA + DETALLE ESCI (NUEVO)
+// ===============================
+if ($nsEsci !== '' && $totalTelefonos > 1) {
 
+    // SOLO ALERTA (NO usar agregarAlerta)
+    $alertas[] = "Serie ONT duplicada en ESCI";
 
-        if ($nsEsci !== '' && $estadoEsci !== null) {
-            if ($estadoEsci === 0) {
-                $this->agregarAlerta($alertas, $valorEsci, "Servicio sin navegación en ESCI", "Serie ESCI: $nsEsci");
-            }
-            if ($estadoEsci === -1) {
-                $this->agregarAlerta($alertas, $valorEsci, "Servicio inactivo en ESCI", "Serie ESCI: $nsEsci");
-            }
-        }
+    // DETALLE (NUEVA COLUMNA)
+    $mensajeDetalleEsci = "El Numero de serie en ESCI: $nsEsci se uso $totalTelefonos veces";
+
+    if ($telefonosEsci !== '') {
+        $mensajeDetalleEsci .= ", fue usada en los telefonos $telefonosEsci";
+    }
+
+    $detalleSerieDuplicadaEsci[] = $mensajeDetalleEsci;
+}
+
+// ===============================
+// ALERTAS DE ESTADO (SE QUEDAN IGUAL)
+// ===============================
+if ($nsEsci !== '' && $estadoEsci !== null) {
+
+    if ($estadoEsci === 0) {
+        $this->agregarAlerta($alertas, $valorEsci, "Servicio sin navegación en ESCI", "Serie ESCI: $nsEsci");
+    }
+
+    if ($estadoEsci === -1) {
+        $this->agregarAlerta($alertas, $valorEsci, "Servicio inactivo en ESCI", "Serie ESCI: $nsEsci");
+    }
+}
 
         // ===============================
         // TAC EXACTO
@@ -1605,6 +1631,7 @@ if ($nsTacValidar !== '' && $totalOntTac > 1) {
             'Valor_Contratista' => implode(' | ', $valorContratista),
             'Valor_ESCI' => implode(' | ', $valorEsci),
             'Detalle_Serie_Duplicada_TAC' => implode(' | ', $detalleSerieDuplicadaTac),
+            'Detalle_Serie_Duplicada_ESCI' => implode(' | ', $detalleSerieDuplicadaEsci),
             'Diferencia_Metraje' => $diferenciaMetraje,
             'Metraje_Distancia' => $metrajeDistancia,
             'Diferencia_Metraje_Distancia' => $diferenciaMetrajeDistancia
@@ -1618,6 +1645,8 @@ if ($nsTacValidar !== '' && $totalOntTac > 1) {
             'Valor_Contratista' => '',
             'Valor_ESCI' => '',
             'Detalle_Serie_Duplicada_TAC' => '',
+            'Detalle_Serie_Duplicada_ESCI' => '',
+
             'Diferencia_Metraje' => 0,
             'Metraje_Distancia' => 0,
             'Diferencia_Metraje_Distancia' => 0
