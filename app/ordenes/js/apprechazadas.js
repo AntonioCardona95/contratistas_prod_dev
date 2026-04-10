@@ -1,4 +1,5 @@
 console.log('entra a rechazadas');
+
 function LoadOrdenesRechazadas(semana, anio){
 
     console.log("Semana recibida:", semana);
