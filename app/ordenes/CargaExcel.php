@@ -380,44 +380,45 @@
 
 <script>
 
-    $(document).ready(function(){
+$(document).ready(function(){
 
     const urlParams = new URLSearchParams(window.location.search);
-    const semana    = urlParams.get('semana');
+    const semana    = urlParams.get('semana'); // puede venir vacío ""
     const anio      = urlParams.get('anio');
 
-    if(semana){
+    console.log("Semana URL:", semana);
+    console.log("Año URL:", anio);
 
+    // 🔥 Ejecutar SIEMPRE aunque semana venga vacía
+    if(anio){
         LoadOrdenesRechazadas(semana, anio);
-
         sessionStorage.setItem("resultadosMostrados","1");
-
     }
 
 });
 
+window.addEventListener("pageshow", function(){
 
-    window.addEventListener("pageshow", function(){
+    const resultados = sessionStorage.getItem("resultadosMostrados");
 
-        const resultados = sessionStorage.getItem("resultadosMostrados");
+    if(resultados){
 
-        if(resultados){
+        const url = new URL(window.location.href);
 
-            const url = new URL(window.location.href);
+        // Solo limpia si existe el parámetro semana (aunque esté vacío)
+        if(url.searchParams.has("semana")){
 
-            if(url.searchParams.has("semana")){
+            sessionStorage.removeItem("resultadosMostrados");
 
-                sessionStorage.removeItem("resultadosMostrados");
+            url.searchParams.delete("semana");
 
-                url.searchParams.delete("semana");
-
-                window.history.replaceState({}, document.title, url.pathname);
-
-            }
+            window.history.replaceState({}, document.title, url.pathname);
 
         }
 
-    });
+    }
+
+});
 
 </script>
 
