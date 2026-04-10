@@ -912,7 +912,7 @@ public function ConteoOrdenesRechazadas($idContratistas, $semana)
     return $result ? $result['TOTAL'] : 0;
 } */
 
-public function OrdenesNoProcesadasPago($idContratistas, $semana, $anio)
+/* public function OrdenesNoProcesadasPago($idContratistas, $semana, $anio)
 {
     $rows = [];
     $conexion = $this->get_conexion();
@@ -942,6 +942,53 @@ WHERE pc.FK_Contratista = :idContratistas
     $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
     $statement->bindParam(':semana', $semana, PDO::PARAM_INT);
     $statement->bindParam(':anio', $anio, PDO::PARAM_INT);
+    $statement->execute();
+
+    while ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
+        $rows[] = $result;
+    }
+
+    return $rows;
+} */
+
+public function OrdenesNoProcesadasPago($idContratistas, $semana, $anio)
+{
+    $rows = [];
+    $conexion = $this->get_conexion();
+
+    $sql = "
+    SELECT 
+        pc.Folio_Pisa, 
+        pc.Telefono, 
+        pc.Tipo_Tarea, 
+        pc.Cope, 
+        pc.Fecha_Liquidacion, 
+        pc.Semana
+    FROM Produccion_contratista pc
+    LEFT JOIN tecnico_instalaciones_coordiapp tic
+        ON pc.Folio_Pisa = tic.Folio_Pisa
+        AND TRIM(pc.Telefono) = TRIM(tic.Telefono)  
+    LEFT JOIN tecnicos t
+        ON tic.FK_Tecnico_apps = t.idTecnico
+    WHERE pc.FK_Contratista = :idContratistas
+      AND tic.Folio_Pisa IS NULL  
+      AND YEAR(pc.Fecha_Liquidacion) = :anio
+    ";
+
+    // 👇 SOLO agregar esto
+    if (!empty($semana)) {
+        $sql .= " AND pc.Semana = :semana";
+    }
+
+    $statement = $conexion->prepare($sql);
+    $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
+    $statement->bindParam(':anio', $anio, PDO::PARAM_INT);
+
+    // 👇 SOLO bindear si existe
+    if (!empty($semana)) {
+        $statement->bindParam(':semana', $semana, PDO::PARAM_INT);
+    }
+
     $statement->execute();
 
     while ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
