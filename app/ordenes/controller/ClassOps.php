@@ -1311,6 +1311,8 @@ if ($nsEsci !== '' && $totalTelefonos > 1) {
     // SOLO ALERTA (NO usar agregarAlerta)
     $alertas[] = "Serie ONT duplicada en ESCI";
 
+     $valorEsci[] = "Serie ESCI: $nsEsci";
+
     // DETALLE (NUEVA COLUMNA)
     $mensajeDetalleEsci = "El Numero de serie en ESCI: $nsEsci se uso $totalTelefonos veces";
 
