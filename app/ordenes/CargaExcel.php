@@ -390,20 +390,18 @@
 <script src="js/apprechazadas.js"></script>
 
 <script>
-
 $(document).ready(function(){
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const semana    = urlParams.get('semana'); // puede venir vacío ""
-    const anio      = urlParams.get('anio');   // puede venir vacío ""
+    // Tomamos directamente las variables desde PHP
+    const semana = "<?php echo $semanaSeleccionada ?? ''; ?>";
+    const anio   = "<?php echo date('Y'); ?>"; // o la variable que uses en tu backend
 
-    console.log("Semana URL:", semana);
-    console.log("Año URL:", anio);
+    console.log("Semana PHP:", semana);
+    console.log("Año PHP:", anio);
 
-    // 🔥 Ejecutar SIEMPRE aunque semana/anio vengan vacíos
+    // Ejecutar SIEMPRE aunque semana/anio vengan vacíos
     LoadOrdenesRechazadas(semana || '', anio || '');
     sessionStorage.setItem("resultadosMostrados","1");
-
 });
 
 window.addEventListener("pageshow", function(){
@@ -428,8 +426,8 @@ window.addEventListener("pageshow", function(){
     }
 
 });
-
 </script>
+
 
 
 </body>
