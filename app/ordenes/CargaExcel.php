@@ -395,16 +395,14 @@ $(document).ready(function(){
 
     const urlParams = new URLSearchParams(window.location.search);
     const semana    = urlParams.get('semana'); // puede venir vacío ""
-    const anio      = urlParams.get('anio');
+    const anio      = urlParams.get('anio');   // puede venir vacío ""
 
     console.log("Semana URL:", semana);
     console.log("Año URL:", anio);
 
-    // 🔥 Ejecutar SIEMPRE aunque semana venga vacía
-    if(anio){
-        LoadOrdenesRechazadas(semana, anio);
-        sessionStorage.setItem("resultadosMostrados","1");
-    }
+    // 🔥 Ejecutar SIEMPRE aunque semana/anio vengan vacíos
+    LoadOrdenesRechazadas(semana || '', anio || '');
+    sessionStorage.setItem("resultadosMostrados","1");
 
 });
 
@@ -432,6 +430,7 @@ window.addEventListener("pageshow", function(){
 });
 
 </script>
+
 
 </body>
 </html>
