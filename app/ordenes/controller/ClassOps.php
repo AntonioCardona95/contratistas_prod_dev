@@ -693,30 +693,23 @@ public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaL
 
 // nueva con fecha carga //
 
-public function CountOrdenesProduccion($idContratistas, $semana = null)
+public function CountOrdenesProduccion($idContratistas, $semana)
 {
     $conexion = $this->get_conexion();  
 
     $sql = "SELECT COUNT(*) AS TOTAL 
             FROM Produccion_contratista
             WHERE FK_Contratista = :idContratistas
+              AND Semana = :semana
               AND Fecha_Carga = (
                     SELECT MAX(Fecha_Carga)
                     FROM Produccion_contratista
                     WHERE FK_Contratista = :idContratistas
               )";
 
-    if (!empty($semana)) {
-        $sql .= " AND Semana = :semana";
-    }
-
     $statement = $conexion->prepare($sql);
     $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
-
-    if (!empty($semana)) {
-        $statement->bindParam(':semana', $semana, PDO::PARAM_INT);
-    }
-
+    $statement->bindParam(':semana', $semana, PDO::PARAM_INT);
     $statement->execute();
 
     $result = $statement->fetch(PDO::FETCH_ASSOC);
@@ -744,7 +737,7 @@ public function CountOrdenesProduccion($idContratistas, $semana = null)
 
 // NUEVA CON FECHA DE CARGA //
 
-public function ConteoOrdenesCoordiapp($idContratistas, $semana = null)
+public function ConteoOrdenesCoordiapp($idContratistas, $semana)
 {
     $conexion = $this->get_conexion();  
 
@@ -754,23 +747,16 @@ public function ConteoOrdenesCoordiapp($idContratistas, $semana = null)
                 ON pc.Folio_Pisa = tic.Folio_Pisa
                 AND pc.Telefono = tic.Telefono
             WHERE pc.FK_Contratista = :idContratistas
+              AND pc.Semana = :semana
               AND pc.Fecha_Carga = (
                     SELECT MAX(Fecha_Carga)
                     FROM Produccion_contratista
                     WHERE FK_Contratista = :idContratistas
               )";
 
-    if (!empty($semana)) {
-        $sql .= " AND pc.Semana = :semana";
-    }
-
     $statement = $conexion->prepare($sql);
     $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
-
-    if (!empty($semana)) {
-        $statement->bindParam(':semana', $semana, PDO::PARAM_INT);
-    }
-
+    $statement->bindParam(':semana', $semana, PDO::PARAM_INT);
     $statement->execute();
 
     $result = $statement->fetch(PDO::FETCH_ASSOC);
@@ -837,7 +823,7 @@ public function ConteoOrdenesCoordiapp($idContratistas, $semana = null)
 } */
 
 // nueva con fecha carga //
-public function ConteoOrdenesRechazadas($idContratistas, $semana = null)
+public function ConteoOrdenesRechazadas($idContratistas, $semana)
 {
     $conexion = $this->get_conexion();  
 
@@ -847,6 +833,7 @@ public function ConteoOrdenesRechazadas($idContratistas, $semana = null)
                 ON pc.Folio_Pisa = tic.Folio_Pisa
                 AND pc.Telefono = tic.Telefono
             WHERE pc.FK_Contratista = :idContratistas
+              AND pc.Semana = :semana
               AND pc.Fecha_Carga = (
                     SELECT MAX(Fecha_Carga)
                     FROM Produccion_contratista
@@ -854,17 +841,9 @@ public function ConteoOrdenesRechazadas($idContratistas, $semana = null)
               )
               AND tic.Folio_Pisa IS NULL";
 
-    if (!empty($semana)) {
-        $sql .= " AND pc.Semana = :semana";
-    }
-
     $statement = $conexion->prepare($sql);
     $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
-
-    if (!empty($semana)) {
-        $statement->bindParam(':semana', $semana, PDO::PARAM_INT);
-    }
-
+    $statement->bindParam(':semana', $semana, PDO::PARAM_INT);
     $statement->execute();
 
     $result = $statement->fetch(PDO::FETCH_ASSOC);
