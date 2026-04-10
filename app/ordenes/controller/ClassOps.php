@@ -975,7 +975,7 @@ public function OrdenesNoProcesadasPago($idContratistas, $semana, $anio)
       AND YEAR(pc.Fecha_Liquidacion) = :anio
     ";
 
-    // 👇 SOLO agregar esto
+    //  SOLO agregar esto
     if (!empty($semana)) {
         $sql .= " AND pc.Semana = :semana";
     }
@@ -984,7 +984,7 @@ public function OrdenesNoProcesadasPago($idContratistas, $semana, $anio)
     $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
     $statement->bindParam(':anio', $anio, PDO::PARAM_INT);
 
-    // 👇 SOLO bindear si existe
+    //  SOLO bindear si existe
     if (!empty($semana)) {
         $statement->bindParam(':semana', $semana, PDO::PARAM_INT);
     }
