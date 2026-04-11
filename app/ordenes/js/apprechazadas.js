@@ -1,9 +1,9 @@
-console.log('entra a rechazadas');
-
 function LoadOrdenesRechazadas(semana, anio){
 
     console.log("Semana recibida:", semana);
     console.log("Año recibido:", anio);
+
+    let modo = (semana === '' || semana === null) ? 'hoy' : 'semana';
 
     $("#LoadOrdenesRechazadas").fadeIn('slow');
 
@@ -12,7 +12,8 @@ function LoadOrdenesRechazadas(semana, anio){
         url:'modal/TablaOrdenesSinPago.php',
         data:{
             semana: semana,
-            anio: anio
+            anio: anio,
+            modo: modo // 🔥 IMPORTANTE
         },
         beforeSend: function(){
             $("#LoadOrdenesRechazadas").html("<center><img src='../image/loading-46.gif'></center>");
@@ -20,6 +21,9 @@ function LoadOrdenesRechazadas(semana, anio){
         success:function(data){
             console.log("Respuesta AJAX recibida");
             $("#LoadOrdenesRechazadas").html(data);
+        },
+        error:function(xhr){
+            console.log("ERROR AJAX:", xhr.responseText);
         }
     });
 }
