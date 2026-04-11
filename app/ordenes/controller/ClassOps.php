@@ -870,6 +870,8 @@ public function ObtenerSemanaPorUltimaCarga($idContratistas)
     return $row ? (int)$row['Semana'] : null;
 }
 
+
+
 public function ObtenerUltimaSemanaReal($idContratistas)
 {
     try {
@@ -1064,6 +1066,42 @@ public function OrdenesNoProcesadasPago($idContratistas, $semana, $anio)
         $statement->bindParam(':semana', $semana, PDO::PARAM_INT);
     }
 
+    $statement->execute();
+
+    while ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
+        $rows[] = $result;
+    }
+
+    return $rows;
+}
+
+public function OrdenesNoProcesadasPagoHoy($idContratistas)
+{
+    $rows = [];
+    $conexion = $this->get_conexion();
+
+    $sql = "
+    SELECT 
+        pc.Folio_Pisa, 
+        pc.Telefono, 
+        pc.Tipo_Tarea, 
+        pc.Cope, 
+        pc.Fecha_Liquidacion, 
+        pc.Semana,
+        pc.Fecha_Carga
+    FROM Produccion_contratista pc
+    LEFT JOIN tecnico_instalaciones_coordiapp tic
+        ON pc.Folio_Pisa = tic.Folio_Pisa
+        AND TRIM(pc.Telefono) = TRIM(tic.Telefono)  
+    LEFT JOIN tecnicos t
+        ON tic.FK_Tecnico_apps = t.idTecnico
+    WHERE pc.FK_Contratista = :idContratistas
+      AND tic.Folio_Pisa IS NULL
+      AND DATE(pc.Fecha_Carga) = CURDATE()
+    ";
+
+    $statement = $conexion->prepare($sql);
+    $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
     $statement->execute();
 
     while ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
