@@ -391,22 +391,26 @@
 
 <script src="js/apprechazadas.js"></script>
 
+
+
 <script>
 $(document).ready(function(){
 
     console.log("🔥 READY EJECUTADO");
 
-    // Variables desde PHP
-    const semana = "<?php echo $semanaSeleccionada ?? ''; ?>";
-    const anio   = "<?php echo date('Y'); ?>";
+    const semana   = "<?php echo $semanaSeleccionada ?? ''; ?>";
+    const anio     = "<?php echo date('Y'); ?>";
+    const cargado  = "<?php echo isset($_GET['cargado']) ? '1' : '0'; ?>";
 
     console.log("Semana PHP:", semana);
     console.log("Año PHP:", anio);
+    console.log("Cargado:", cargado);
 
-    // 🚀 SIEMPRE ejecutar (CON o SIN semana)
-    LoadOrdenesRechazadas(semana, anio);
-
-    sessionStorage.setItem("resultadosMostrados","1");
+    // SOLO ejecutar cuando vienes de importar
+    if(cargado === '1'){
+        LoadOrdenesRechazadas(semana, anio);
+        sessionStorage.setItem("resultadosMostrados","1");
+    }
 
 });
 
@@ -418,7 +422,7 @@ window.addEventListener("pageshow", function(){
 
         const url = new URL(window.location.href);
 
-        // 🔥 Limpia parámetros para que al regresar ya no cargue nada
+        //  Limpia parámetros
         if(url.searchParams.has("semana") || url.searchParams.has("cargado")){
 
             sessionStorage.removeItem("resultadosMostrados");
@@ -428,6 +432,9 @@ window.addEventListener("pageshow", function(){
 
             window.history.replaceState({}, document.title, url.pathname);
         }
+
+        //  LIMPIAR TABLA AL REGRESAR
+        $("#LoadOrdenesRechazadas").html("");
 
     }
 
