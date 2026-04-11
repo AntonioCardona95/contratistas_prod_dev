@@ -18,39 +18,33 @@
     $modal = new Ops();
 
     /* =====================================================
-       CONTROL DE SEMANA (CORREGIDO)
+       CONTROL DE SEMANA (CORREGIDO FINAL)
     ===================================================== */
 
     $semanaSeleccionada = null;
-$totalOrdenes       = 0;
-$totalCoordiapp     = 0;
-$totalRechazadas    = 0;
+    $totalOrdenes       = 0;
+    $totalCoordiapp     = 0;
+    $totalRechazadas    = 0;
 
-//  CASO 1: Vienes de importar Excel
-if (isset($_GET['cargado']) && $_GET['cargado'] == 1) {
+    //  SOLO cuando vienes de importar Excel
+    if (isset($_GET['cargado']) && $_GET['cargado'] == 1) {
 
-    // Si el usuario seleccionó semana
-    if (isset($_GET['semana']) && $_GET['semana'] != '') {
+        //  Si seleccionó semana → usarla
+        if (isset($_GET['semana']) && $_GET['semana'] != '') {
 
-        $semanaSeleccionada = (int)$_GET['semana'];
+            $semanaSeleccionada = (int)$_GET['semana'];
 
-    } else {
+        } else {
 
-        //  NUEVO: obtener la última semana REAL desde la BD
-        $semanaSeleccionada = $modal->ObtenerUltimaSemanaReal($idContratistas);
+            //  NO seleccionó semana → traer TODO lo cargado ese día
+            $semanaSeleccionada = null;
+        }
+
+        //  IMPORTANTE: SIEMPRE calcular (aunque sea null)
+        $totalOrdenes   = $modal->CountOrdenesProduccion($idContratistas, $semanaSeleccionada);
+        $totalCoordiapp = $modal->ConteoOrdenesCoordiapp($idContratistas, $semanaSeleccionada);
+        $totalRechazadas= $modal->ConteoOrdenesRechazadas($idContratistas, $semanaSeleccionada);
     }
-
-} else {
-    $semanaSeleccionada = null;
-}
-
-//  SOLO calcular si hay semana
-if ($semanaSeleccionada !== null) {
-
-    $totalOrdenes   = $modal->CountOrdenesProduccion($idContratistas, $semanaSeleccionada);
-    $totalCoordiapp = $modal->ConteoOrdenesCoordiapp($idContratistas, $semanaSeleccionada);
-    $totalRechazadas= $modal->ConteoOrdenesRechazadas($idContratistas, $semanaSeleccionada);
-}
 ?>
 
 
