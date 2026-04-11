@@ -1,58 +1,62 @@
 <?php
 /**
  * Tabla de Producción Contratista
- * Muestra las órdenes de Producción para un contratista.
  */
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Inclusión de clases necesarias
 require_once("../controller/ClassOps.php");
 
-// Inicio de sesión y obtención de variables de sesión
 session_start();
-$Contratista = $_SESSION['Contratista'] ?? null;
-$idContratistas = $_SESSION['idContratistas'] ?? null;
+
+$Contratista     = $_SESSION['Contratista'] ?? null;
+$idContratistas  = $_SESSION['idContratistas'] ?? null;
+
 $semana = $_POST['semana'] ?? null;
 $anio   = $_POST['anio'] ?? null;
-
-
+$modo   = $_POST['modo'] ?? 'semana'; // 🔥 NUEVO
 
 if (empty($Contratista) || empty($idContratistas)) {
     echo "<p>No se encontró información del contratista.</p>";
     exit;
 }
 
-// 👇 importante: normalizar vacío
+//  normalizar semana
 if ($semana === '' || $semana === 0) {
     $semana = null;
 }
 
+// DEBUG (puedes quitar después)
 echo "<pre>";
-echo "Valor de Contratista: "; var_dump($Contratista);
-echo "Valor de idContratistas: "; var_dump($idContratistas);
-echo "Valor de semana: "; var_dump($semana);
-echo "Valor de anio: "; var_dump($anio);
+echo "Modo: "; var_dump($modo);
+echo "Semana: "; var_dump($semana);
+echo "Año: "; var_dump($anio);
 echo "</pre>";
 
-
-
-echo "<pre>Valor de \$semana: ";
-var_dump($semana);
-echo "</pre>";
-
-
-// Instancia de la clase Ops
+// Instancia
 $modal = new Ops();
 
-// Consulta de Producción
-$filas = $modal->OrdenesNoProcesadasPago($idContratistas, $semana, $anio);
+//  LÓGICA PRINCIPAL
+if ($modo === 'semana' && $semana !== null) {
+
+    // 🔹 Filtrar por semana
+    $filas = $modal->OrdenesNoProcesadasPago($idContratistas, $semana, $anio);
+
+} else {
+
+    //  Filtrar por lo cargado HOY (Fecha_Carga)
+    $filas = $modal->OrdenesNoProcesadasPagoHoy($idContratistas);
+}
+
+// asegurar array
 $filas = is_array($filas) ? $filas : [];
+
+// DEBUG (puedes quitar después)
 echo "<pre>";
 print_r($filas);
-echo "</pre>"
+echo "</pre>";
 ?>
 
 <!-- Estilos personalizados para DataTable -->
