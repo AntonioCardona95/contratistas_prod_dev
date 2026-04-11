@@ -16,47 +16,41 @@ $idContratistas  = $_SESSION['idContratistas'] ?? null;
 
 $semana = $_POST['semana'] ?? null;
 $anio   = $_POST['anio'] ?? null;
-$modo   = $_POST['modo'] ?? 'semana'; // 🔥 NUEVO
+$modo   = $_POST['modo'] ?? null;
 
+// Validación de sesión
 if (empty($Contratista) || empty($idContratistas)) {
     echo "<p>No se encontró información del contratista.</p>";
     exit;
 }
 
-//  normalizar semana
-if ($semana === '' || $semana === 0) {
+// Normalizar semana
+if ($semana === '' || $semana === '0' || $semana === 0) {
     $semana = null;
 }
 
-// DEBUG (puedes quitar después)
-echo "<pre>";
-echo "Modo: "; var_dump($modo);
-echo "Semana: "; var_dump($semana);
-echo "Año: "; var_dump($anio);
-echo "</pre>";
+// Determinar modo automáticamente si no viene definido
+if (!$modo) {
+    $modo = ($semana === null) ? 'hoy' : 'semana';
+}
 
 // Instancia
 $modal = new Ops();
 
-//  LÓGICA PRINCIPAL
+// Lógica principal
 if ($modo === 'semana' && $semana !== null) {
 
-    // 🔹 Filtrar por semana
+    // Filtrar por semana
     $filas = $modal->OrdenesNoProcesadasPago($idContratistas, $semana, $anio);
 
 } else {
 
-    //  Filtrar por lo cargado HOY (Fecha_Carga)
+    // Filtrar por lo cargado HOY
     $filas = $modal->OrdenesNoProcesadasPagoHoy($idContratistas);
 }
 
-// asegurar array
+// Asegurar array
 $filas = is_array($filas) ? $filas : [];
-
-// DEBUG (puedes quitar después)
-echo "<pre>";
-print_r($filas);
-echo "</pre>";
 ?>
 
 <!-- Estilos personalizados para DataTable -->
