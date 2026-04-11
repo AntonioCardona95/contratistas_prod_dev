@@ -693,26 +693,46 @@ public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaL
 
 // nueva con fecha carga //
 
-public function CountOrdenesProduccion($idContratistas, $semana)
+public function CountOrdenesProduccion($idContratistas, $semana = null)
 {
     $conexion = $this->get_conexion();  
 
-    $sql = "SELECT COUNT(*) AS TOTAL 
-            FROM Produccion_contratista
-            WHERE FK_Contratista = :idContratistas
-              AND Semana = :semana
-              AND DATE(Fecha_Carga) = (
-                    SELECT DATE(MAX(Fecha_Carga))
-                    FROM Produccion_contratista
-                    WHERE FK_Contratista = :idContratistas
-              )";
+    if ($semana !== null) {
 
-    $statement = $conexion->prepare($sql);
-    $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
-    $statement->bindParam(':semana', $semana, PDO::PARAM_INT);
+        //  CON semana
+        $sql = "SELECT COUNT(*) AS TOTAL 
+                FROM Produccion_contratista
+                WHERE FK_Contratista = :idContratistas
+                  AND Semana = :semana
+                  AND DATE(Fecha_Carga) = (
+                        SELECT DATE(MAX(Fecha_Carga))
+                        FROM Produccion_contratista
+                        WHERE FK_Contratista = :idContratistas
+                  )";
+
+        $statement = $conexion->prepare($sql);
+        $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
+        $statement->bindParam(':semana', $semana, PDO::PARAM_INT);
+
+    } else {
+
+        //  SIN semana → TODO lo del día
+        $sql = "SELECT COUNT(*) AS TOTAL 
+                FROM Produccion_contratista
+                WHERE FK_Contratista = :idContratistas
+                  AND DATE(Fecha_Carga) = (
+                        SELECT DATE(MAX(Fecha_Carga))
+                        FROM Produccion_contratista
+                        WHERE FK_Contratista = :idContratistas
+                  )";
+
+        $statement = $conexion->prepare($sql);
+        $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
+    }
+
     $statement->execute();
-
     $result = $statement->fetch(PDO::FETCH_ASSOC);
+
     return $result ? $result['TOTAL'] : 0;       
 }
 
@@ -738,29 +758,51 @@ public function CountOrdenesProduccion($idContratistas, $semana)
 
 // NUEVA CON FECHA DE CARGA //
 
-public function ConteoOrdenesCoordiapp($idContratistas, $semana)
+public function ConteoOrdenesCoordiapp($idContratistas, $semana = null)
 {
     $conexion = $this->get_conexion();  
 
-    $sql = "SELECT COUNT(DISTINCT pc.Folio_Pisa) AS TOTAL
-            FROM Produccion_contratista pc
-            INNER JOIN tecnico_instalaciones_coordiapp tic 
-                ON pc.Folio_Pisa = tic.Folio_Pisa
-                AND pc.Telefono = tic.Telefono
-            WHERE pc.FK_Contratista = :idContratistas
-              AND pc.Semana = :semana
-              AND DATE(pc.Fecha_Carga) = (
-                    SELECT DATE(MAX(Fecha_Carga))
-                    FROM Produccion_contratista
-                    WHERE FK_Contratista = :idContratistas
-              )";
+    if ($semana !== null) {
 
-    $statement = $conexion->prepare($sql);
-    $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
-    $statement->bindParam(':semana', $semana, PDO::PARAM_INT);
+        $sql = "SELECT COUNT(DISTINCT pc.Folio_Pisa) AS TOTAL
+                FROM Produccion_contratista pc
+                INNER JOIN tecnico_instalaciones_coordiapp tic 
+                    ON pc.Folio_Pisa = tic.Folio_Pisa
+                    AND pc.Telefono = tic.Telefono
+                WHERE pc.FK_Contratista = :idContratistas
+                  AND pc.Semana = :semana
+                  AND DATE(pc.Fecha_Carga) = (
+                        SELECT DATE(MAX(Fecha_Carga))
+                        FROM Produccion_contratista
+                        WHERE FK_Contratista = :idContratistas
+                  )";
+
+        $statement = $conexion->prepare($sql);
+        $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
+        $statement->bindParam(':semana', $semana, PDO::PARAM_INT);
+
+    } else {
+
+        //  SIN semana
+        $sql = "SELECT COUNT(DISTINCT pc.Folio_Pisa) AS TOTAL
+                FROM Produccion_contratista pc
+                INNER JOIN tecnico_instalaciones_coordiapp tic 
+                    ON pc.Folio_Pisa = tic.Folio_Pisa
+                    AND pc.Telefono = tic.Telefono
+                WHERE pc.FK_Contratista = :idContratistas
+                  AND DATE(pc.Fecha_Carga) = (
+                        SELECT DATE(MAX(Fecha_Carga))
+                        FROM Produccion_contratista
+                        WHERE FK_Contratista = :idContratistas
+                  )";
+
+        $statement = $conexion->prepare($sql);
+        $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
+    }
+
     $statement->execute();
-
     $result = $statement->fetch(PDO::FETCH_ASSOC);
+
     return $result ? $result['TOTAL'] : 0;
 }
 
@@ -824,30 +866,54 @@ public function ConteoOrdenesCoordiapp($idContratistas, $semana)
 } */
 
 // nueva con fecha carga //
-public function ConteoOrdenesRechazadas($idContratistas, $semana)
+
+public function ConteoOrdenesRechazadas($idContratistas, $semana = null)
 {
     $conexion = $this->get_conexion();  
 
-    $sql = "SELECT COUNT(DISTINCT pc.Folio_Pisa) AS TOTAL
-            FROM Produccion_contratista pc
-            LEFT JOIN tecnico_instalaciones_coordiapp tic 
-                ON pc.Folio_Pisa = tic.Folio_Pisa
-                AND pc.Telefono = tic.Telefono
-            WHERE pc.FK_Contratista = :idContratistas
-              AND pc.Semana = :semana
-              AND DATE(pc.Fecha_Carga) = (
-                    SELECT DATE(MAX(Fecha_Carga))
-                    FROM Produccion_contratista
-                    WHERE FK_Contratista = :idContratistas
-              )
-              AND tic.Folio_Pisa IS NULL";
+    if ($semana !== null) {
 
-    $statement = $conexion->prepare($sql);
-    $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
-    $statement->bindParam(':semana', $semana, PDO::PARAM_INT);
+        $sql = "SELECT COUNT(DISTINCT pc.Folio_Pisa) AS TOTAL
+                FROM Produccion_contratista pc
+                LEFT JOIN tecnico_instalaciones_coordiapp tic 
+                    ON pc.Folio_Pisa = tic.Folio_Pisa
+                    AND pc.Telefono = tic.Telefono
+                WHERE pc.FK_Contratista = :idContratistas
+                  AND pc.Semana = :semana
+                  AND DATE(pc.Fecha_Carga) = (
+                        SELECT DATE(MAX(Fecha_Carga))
+                        FROM Produccion_contratista
+                        WHERE FK_Contratista = :idContratistas
+                  )
+                  AND tic.Folio_Pisa IS NULL";
+
+        $statement = $conexion->prepare($sql);
+        $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
+        $statement->bindParam(':semana', $semana, PDO::PARAM_INT);
+
+    } else {
+
+        //  SIN semana
+        $sql = "SELECT COUNT(DISTINCT pc.Folio_Pisa) AS TOTAL
+                FROM Produccion_contratista pc
+                LEFT JOIN tecnico_instalaciones_coordiapp tic 
+                    ON pc.Folio_Pisa = tic.Folio_Pisa
+                    AND pc.Telefono = tic.Telefono
+                WHERE pc.FK_Contratista = :idContratistas
+                  AND DATE(pc.Fecha_Carga) = (
+                        SELECT DATE(MAX(Fecha_Carga))
+                        FROM Produccion_contratista
+                        WHERE FK_Contratista = :idContratistas
+                  )
+                  AND tic.Folio_Pisa IS NULL";
+
+        $statement = $conexion->prepare($sql);
+        $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
+    }
+
     $statement->execute();
-
     $result = $statement->fetch(PDO::FETCH_ASSOC);
+
     return $result ? $result['TOTAL'] : 0;
 }
 
