@@ -394,6 +394,8 @@
 <script>
 $(document).ready(function(){
 
+    console.log("🔥 READY EJECUTADO");
+
     // Variables desde PHP
     const semana = "<?php echo $semanaSeleccionada ?? ''; ?>";
     const anio   = "<?php echo date('Y'); ?>";
@@ -401,11 +403,10 @@ $(document).ready(function(){
     console.log("Semana PHP:", semana);
     console.log("Año PHP:", anio);
 
-    // 🔥 SOLO ejecutar si hay semana (cuando vienes de importar)
-    if(semana !== ''){
-        LoadOrdenesRechazadas(semana, anio);
-        sessionStorage.setItem("resultadosMostrados","1");
-    }
+    // 🚀 SIEMPRE ejecutar (CON o SIN semana)
+    LoadOrdenesRechazadas(semana, anio);
+
+    sessionStorage.setItem("resultadosMostrados","1");
 
 });
 
