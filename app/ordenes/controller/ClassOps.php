@@ -2490,7 +2490,8 @@ public function ConteoAlertas($idContratistas, $semana)
     return $rows;
 } */
 
-public function ObtenerProduccionContratistaSinIncidencias($idContratista, $emulador, $semana, $tecnologia, $tolerancia = 5,$expedientes = [])
+public function ObtenerProduccionContratistaSinIncidencias($idContratista, $emulador, $semana, $tecnologia,$expedientes = [],
+    $tolerancia = 5)
 {
     echo "<pre>";
 print_r($expedientes);
