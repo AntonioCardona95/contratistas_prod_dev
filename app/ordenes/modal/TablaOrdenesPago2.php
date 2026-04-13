@@ -43,7 +43,6 @@ echo "</pre>";  */
 
 
 
-
 // VALIDACIÓN DE FILTROS
 if (empty($emulador) || empty($semana) || empty($tecnologia)) {
     echo "<p>Faltan filtros para mostrar la información.</p>";
@@ -68,30 +67,12 @@ $foliopaco = $emulador . "_" . $semana;
 // INSTANCIA DE OPS
 $modal = new Ops();
 
-// OBTENER EXPEDIENTES DEL CONTRATISTA
-// ===============================
-$expedientesData = $modal->ObtenerExpedientesPorContratista($idContratistas);
-$expedientesData = is_array($expedientesData) ? $expedientesData : [];
-
-$expedientes = [];
-foreach ($expedientesData as $exp) {
-    $expedientes[] = $exp['NExpediente'];
-}
-
-// VALIDAR
-if (empty($expedientes)) {
-    echo "<p>No se encontraron expedientes de técnicos para este contratista.</p>";
-    exit;
-}
-
-
 // OBTENER PRODUCCIÓN SIN INCIDENCIAS
 $filas = $modal->ObtenerProduccionContratistaSinIncidencias(
     $idContratistas,
     $emulador,
     $semana,
-    $tecnologia,
-    $expedientes 
+    $tecnologia
 );
 
 // VALIDACIONES FINALES
