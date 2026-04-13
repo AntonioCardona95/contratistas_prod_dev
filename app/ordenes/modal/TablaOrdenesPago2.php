@@ -67,6 +67,26 @@ $foliopaco = $emulador . "_" . $semana;
 // INSTANCIA DE OPS
 $modal = new Ops();
 
+// Obtener expedientes de técnicos del contratista
+$expedientesData = $modal->ObtenerExpedientesPorContratista($idContratistas);
+$expedientesData = is_array($expedientesData) ? $expedientesData : [];
+
+// Convertir los expedientes a un arreglo simple
+$expedientes = [];
+foreach ($expedientesData as $exp) {
+    $expedientes[] = $exp['NExpediente'];
+}
+
+echo "<pre>";
+print_r($expedientes);
+echo "</pre>"; 
+
+// Si no hay expedientes, no continuar
+if (empty($expedientes)) {
+    echo "<p>No se encontraron expedientes de técnicos para este contratista.</p>";
+    exit;
+}
+
 // OBTENER PRODUCCIÓN SIN INCIDENCIAS
 $filas = $modal->ObtenerProduccionContratistaSinIncidencias(
     $idContratistas,
