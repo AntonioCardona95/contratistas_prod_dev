@@ -2614,7 +2614,7 @@ exit; */
             [$row['NExpediente']]
         );
 
-        // 🔍 DEBUG AQUÍ
+        //  DEBUG AQUÍ
     echo "<pre>";
     echo "Folio: " . $row['Folio_Pisa'] . "\n";
     print_r($alerta);
