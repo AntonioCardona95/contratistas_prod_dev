@@ -2490,7 +2490,7 @@ public function ConteoAlertas($idContratistas, $semana)
     return $rows;
 } */
 
-public function ObtenerProduccionContratistaSinIncidencias($idContratista, $emulador, $semana, $tecnologia, $tolerancia = 5,$expedientes = [])
+public function ObtenerProduccionContratistaSinIncidencias($idContratista, $emulador, $semana, $tecnologia, $tolerancia = 5)
 {
 
 
@@ -2611,14 +2611,14 @@ exit; */
             $row['Folio_Pisa'],
             $row['Telefono'],
             $row['Metraje_Contratista'],
-            $expedientes
+            [$row['NExpediente']]
         );
 
         //  DEBUG AQUÍ
-    echo "<pre>";
+    /* echo "<pre>";
     echo "Folio: " . $row['Folio_Pisa'] . "\n";
     print_r($alerta);
-    echo "</pre>";
+    echo "</pre>"; */
 
 
 
