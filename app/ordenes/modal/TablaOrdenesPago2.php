@@ -77,9 +77,9 @@ foreach ($expedientesData as $exp) {
     $expedientes[] = $exp['NExpediente'];
 }
 
-echo "<pre>";
+/* echo "<pre>";
 print_r($expedientes);
-echo "</pre>"; 
+echo "</pre>"; */
 
 // Si no hay expedientes, no continuar
 if (empty($expedientes)) {
@@ -92,7 +92,8 @@ $filas = $modal->ObtenerProduccionContratistaSinIncidencias(
     $idContratistas,
     $emulador,
     $semana,
-    $tecnologia
+    $tecnologia,
+    $expedientes
 );
 
 // VALIDACIONES FINALES
