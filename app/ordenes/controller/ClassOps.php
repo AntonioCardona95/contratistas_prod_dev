@@ -2551,46 +2551,55 @@ print_r($excluir_prefijos); */
         }
     }
 
+    $condicionExpedientes = "";
+
+if (!empty($expedientes)) {
+    $expedientes = array_map('intval', $expedientes); // seguridad
+    $listaExpedientes = implode(',', $expedientes);
+    $condicionExpedientes = " AND t.NExpediente IN ($listaExpedientes)";
+}
+
     $sql = "SELECT 
-                pc.Folio_Pisa,
-                tic.Telefono,
-                tic.Tecnologia,
-                tic.Tipo_Tarea,
-                c.COPE,
-                t.Nombre_T,
-                t.Apellidos_T,
-                t.NExpediente,
-                tic.Distrito,
-                tic.Ont AS Numero_Serie,
-                tic.Fecha_Coordiapp AS Fecha_Liquidacion,
-                a.area,
-                d.Division,
-                tic.FK_Cope,
-                tic.FK_Tecnico_apps,
-                tic.Metraje AS Metraje_Coordiapp,
-                pc.metraje AS Metraje_Contratista,
-                tic.Tipo_Instalacion,
-                tic.Direccion_Cliente,
-                tic.Terminal,
-                tic.Puerto,
-                tic.Latitud,
-                tic.Longitud,
-                tic.Cliente_Titular
-            FROM Produccion_contratista AS pc
-            INNER JOIN tecnico_instalaciones_coordiapp AS tic
-                ON pc.Folio_Pisa = tic.Folio_Pisa
-            LEFT JOIN tecnicos AS t
-                ON t.idTecnico = tic.FK_Tecnico_apps
-            LEFT JOIN copes AS c
-                ON c.id = tic.FK_Cope
-            LEFT JOIN areas AS a
-                ON a.idAreas = c.FK_Area
-            LEFT JOIN divisiones AS d
-                ON d.idDivision = a.FK_Division
-            WHERE pc.FK_Contratista = :idContratista
-              AND TRIM(pc.Semana) = :semana
-              AND UPPER(TRIM(tic.Tecnologia)) = :tecnologia
-              $condicionesTarea";
+    pc.Folio_Pisa,
+    tic.Telefono,
+    tic.Tecnologia,
+    tic.Tipo_Tarea,
+    c.COPE,
+    t.Nombre_T,
+    t.Apellidos_T,
+    t.NExpediente,
+    tic.Distrito,
+    tic.Ont AS Numero_Serie,
+    tic.Fecha_Coordiapp AS Fecha_Liquidacion,
+    a.area,
+    d.Division,
+    tic.FK_Cope,
+    tic.FK_Tecnico_apps,
+    tic.Metraje AS Metraje_Coordiapp,
+    pc.metraje AS Metraje_Contratista,
+    tic.Tipo_Instalacion,
+    tic.Direccion_Cliente,
+    tic.Terminal,
+    tic.Puerto,
+    tic.Latitud,
+    tic.Longitud,
+    tic.Cliente_Titular
+FROM Produccion_contratista AS pc
+INNER JOIN tecnico_instalaciones_coordiapp AS tic
+    ON pc.Folio_Pisa = tic.Folio_Pisa
+LEFT JOIN tecnicos AS t
+    ON t.idTecnico = tic.FK_Tecnico_apps
+LEFT JOIN copes AS c
+    ON c.id = tic.FK_Cope
+LEFT JOIN areas AS a
+    ON a.idAreas = c.FK_Area
+LEFT JOIN divisiones AS d
+    ON d.idDivision = a.FK_Division
+WHERE pc.FK_Contratista = :idContratista
+  AND TRIM(pc.Semana) = :semana
+  AND UPPER(TRIM(tic.Tecnologia)) = :tecnologia
+  $condicionesTarea
+  $condicionExpedientes";
 
     $stmt = $conexion_local->prepare($sql);
     $stmt->bindParam(':idContratista', $idContratista, PDO::PARAM_INT);
@@ -2616,7 +2625,7 @@ exit; */
             $row['Folio_Pisa'],
             $row['Telefono'],
             $row['Metraje_Contratista'],
-            [$row['NExpediente']]
+            $expedientes
         );
 
         //  DEBUG AQUÍ
