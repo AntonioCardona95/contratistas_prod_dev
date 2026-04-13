@@ -2614,6 +2614,13 @@ exit; */
             [$row['NExpediente']]
         );
 
+        // 🔍 DEBUG AQUÍ
+    echo "<pre>";
+    echo "Folio: " . $row['Folio_Pisa'] . "\n";
+    print_r($alerta);
+    echo "</pre>";
+
+
 
 
         // Se permite cierta tolerancia en diferencias

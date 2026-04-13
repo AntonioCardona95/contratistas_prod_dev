@@ -79,10 +79,10 @@ $filas = $modal->ObtenerProduccionContratistaSinIncidencias(
 $filas = is_array($filas) ? $filas : [];
 
 // DEPURACIÓN: ver qué contiene $filas
-echo "<h3>Contenido de \$filas:</h3>";
+/* echo "<h3>Contenido de \$filas:</h3>";
 echo "<pre>";
 print_r($filas);
-echo "</pre>"; 
+echo "</pre>"; */
 
 if (empty($filas)) {
     echo "<p>No se encontraron registros sin incidencias para los filtros seleccionados.</p>";
