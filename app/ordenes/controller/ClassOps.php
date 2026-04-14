@@ -1357,11 +1357,6 @@ public function OrdenesConIncidencias($idContratistas, $expedientes = [], $seman
 
     while ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
 
-    if (strpos($result['Folio_Pisa'], '42532878') !== false) {
-
-        echo "<pre>";
-        print_r($result);
-
         $alertaData = $this->verificarAlerta(
             $conexion_local,
             $conexion_analisis,
@@ -1370,11 +1365,6 @@ public function OrdenesConIncidencias($idContratistas, $expedientes = [], $seman
             $result['metraje'],
             $expedientes
         );
-
-        print_r($alertaData);
-        exit;
-    }
-
 
         if (!empty($alertaData['Alerta'])) {
 
