@@ -1360,6 +1360,10 @@ exit; */
 
     while ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
 
+    if ($result['Folio_Pisa'] == 42532878) {
+
+        echo "Folio: " . $result['Folio_Pisa'] . "<br>";
+
         $alertaData = $this->verificarAlerta(
             $conexion_local,
             $conexion_analisis,
@@ -1368,6 +1372,11 @@ exit; */
             $result['metraje'],
             $expedientes
         );
+
+        echo "Alerta: " . $alertaData['Alerta'] . "<br><hr>";
+        exit;
+    }
+}
 
         if (!empty($alertaData['Alerta'])) {
 
