@@ -28,6 +28,12 @@ date_default_timezone_set('America/Mexico_City');
 try {
     $nomina = new Nomina();
 
+     //  Obtener nombre completo del contratista
+    $nombreContratista = $nomina->obtenerNombreContratistaPorId((int)$idContratista);
+
+    // Echo para verificar el valor
+    echo "Nombre del contratista: " . ($nombreContratista ?? "No encontrado") . PHP_EOL;
+
     if ($idEmulador == 2 && strtoupper($tecnologia) === 'COBRE') {
 
         $nomina->insertarFoliosPacoCobre(
