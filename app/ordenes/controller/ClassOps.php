@@ -2567,39 +2567,10 @@ if (!empty($expedientes)) {
     tic.Telefono AS Tel_Coordiapp,
     tic.Tecnologia,
     tic.Tipo_Tarea,
-    c.COPE,
-    t.Nombre_T,
-    t.Apellidos_T,
-    t.NExpediente,
-    tic.Distrito,
-    tic.Ont AS Numero_Serie,
-    tic.Fecha_Coordiapp AS Fecha_Liquidacion,
-    a.area,
-    d.Division,
-    tic.FK_Cope,
-    tic.FK_Tecnico_apps,
-    tic.Metraje AS Metraje_Coordiapp,
-    pc.metraje AS Metraje_Contratista,
-    tic.Tipo_Instalacion,
-    tic.Direccion_Cliente,
-    tic.Terminal,
-    tic.Puerto,
-    tic.Latitud,
-    tic.Longitud,
-    tic.Cliente_Titular,
     tic.Estatus_Orden
-FROM Produccion_contratista AS pc
-INNER JOIN tecnico_instalaciones_coordiapp AS tic
+FROM Produccion_contratista pc
+INNER JOIN tecnico_instalaciones_coordiapp tic
     ON pc.Folio_Pisa = tic.Folio_Pisa
-    AND pc.Telefono = tic.Telefono
-LEFT JOIN tecnicos AS t
-    ON t.idTecnico = tic.FK_Tecnico_apps
-LEFT JOIN copes AS c
-    ON c.id = tic.FK_Cope
-LEFT JOIN areas AS a
-    ON a.idAreas = c.FK_Area
-LEFT JOIN divisiones AS d
-    ON d.idDivision = a.FK_Division
 WHERE pc.Folio_Pisa = 42532878";
 
     $stmt = $conexion_local->prepare($sql);
@@ -2607,6 +2578,10 @@ WHERE pc.Folio_Pisa = 42532878";
     $stmt->bindParam(':semana', $semana, PDO::PARAM_STR);
     $stmt->bindParam(':tecnologia', $tecnologia, PDO::PARAM_STR);
     $stmt->execute();
+
+    echo "<pre>";
+print_r($stmt->fetchAll(PDO::FETCH_ASSOC));
+exit;
 
     $filas = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
