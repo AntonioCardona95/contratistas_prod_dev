@@ -1360,7 +1360,6 @@ exit; */
 
     while ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
 
-        echo "Folio: " . $result['Folio_Pisa'] . "<br>";
         $alertaData = $this->verificarAlerta(
             $conexion_local,
             $conexion_analisis,
