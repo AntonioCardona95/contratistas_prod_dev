@@ -1436,21 +1436,9 @@ private function normalizarTecnologia($tec)
         return 'FIBRA';
     }
 
-    if (preg_match('/\bFIBRA$/', trim($tec))) {
-    return 'FIBRA';
-}
-
-    /*if (preg_match('/^FIBRA$/i', trim($tec))) {
-    return 'FIBRA';
-} */
-
-    /*if (strpos($tec, 'FIBRA') !== false) {
+    if (strpos($tec, 'FIBRA') !== false) {
         return 'FIBRA';
-    } */
-
-  /*      if (trim($tec) === 'FIBRA') {
-    return 'FIBRA';
-}*/
+    }
 
     if (strpos($tec, 'COBRE') !== false) {
         return 'COBRE';
@@ -2622,7 +2610,6 @@ WHERE pc.FK_Contratista = :idContratista
     $stmt->execute();
 
     $filas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
 
     if (!is_array($filas) || empty($filas)) {
         return [];
