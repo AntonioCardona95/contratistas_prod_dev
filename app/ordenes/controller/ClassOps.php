@@ -1357,6 +1357,24 @@ public function OrdenesConIncidencias($idContratistas, $expedientes = [], $seman
 
     while ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
 
+    // 🔍 DEBUG SOLO PARA ESE FOLIO
+    if ($result['Folio_Pisa'] == 42532878) {
+
+        echo "Folio: " . $result['Folio_Pisa'] . "<br>";
+
+        $alertaData = $this->verificarAlerta(
+            $conexion_local,
+            $conexion_analisis,
+            $result['Folio_Pisa'],
+            $result['Telefono'],
+            $result['metraje'],
+            $expedientes
+        );
+
+        echo "Alerta: " . $alertaData['Alerta'] . "<br><hr>";
+        exit;
+    }
+
         $alertaData = $this->verificarAlerta(
             $conexion_local,
             $conexion_analisis,
