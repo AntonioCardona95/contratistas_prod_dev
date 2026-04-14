@@ -2610,15 +2610,7 @@ WHERE pc.FK_Contratista = :idContratista
     $stmt->execute();
 
     $filas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    echo "<pre>";
-foreach ($filas as $f) {
-    if ($f['Folio_Pisa'] == 42532878) {
-        echo "SI ESTA EN QUERY\n";
-        print_r($f);
-    }
-}
-echo "</pre>";
+    
 
     if (!is_array($filas) || empty($filas)) {
         return [];
