@@ -327,6 +327,31 @@ public function insertarFoliosPacoCobre(
     $cnx->commit();
 }
 
+// Obtener nombre completo del contratista por ID
+    public function obtenerNombreContratistaPorId(int $idContratistas)
+    {
+        $cnx = $this->get_conexion();
+
+        $stmt = $cnx->prepare("
+            SELECT Contratista, apellido_paterno, apellido_materno
+            FROM contratistas
+            WHERE idContratistas = :idContratistas
+            LIMIT 1
+        ");
+        $stmt->execute([
+            ':idContratistas' => $idContratistas
+        ]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($row) {
+            // Concatenar nombre completo
+            return trim($row['Contratista'] . ' ' . $row['apellido_paterno'] . ' ' . $row['apellido_materno']);
+        }
+
+        return null; // Si no existe el contratista
+    }
+
 
 
 }

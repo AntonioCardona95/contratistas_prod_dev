@@ -5,8 +5,7 @@ error_reporting(E_ALL);
 require_once("../controller/ClassNomina.php");
 session_start();
 
-$Contratista = $_SESSION['Contratista'] ?? null;
-echo $Contratista;
+
 
 $idContratista = $_SESSION['idContratistas'] ?? null;
 $emulador      = $_POST['emulador'] ?? null;
