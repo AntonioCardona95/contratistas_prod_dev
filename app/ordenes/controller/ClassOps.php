@@ -1534,7 +1534,7 @@ if ($telefonosEsci !== '') {
 // ===============================
 // ALERTA + DETALLE ESCI (NUEVO)
 // ===============================
-if ($nsEsci !== '' && $totalTelefonos > 1) {
+/*if ($nsEsci !== '' && $totalTelefonos > 1) {
 
     // SOLO ALERTA (NO usar agregarAlerta)
     $alertas[] = "Serie ONT duplicada en ESCI";
@@ -1542,6 +1542,32 @@ if ($nsEsci !== '' && $totalTelefonos > 1) {
      $valorEsci[] = "Serie ESCI: $nsEsci";
 
     // DETALLE (NUEVA COLUMNA)
+    $mensajeDetalleEsci = "El Numero de serie en ESCI: $nsEsci se uso $totalTelefonos veces";
+
+    if ($telefonosEsci !== '') {
+        $mensajeDetalleEsci .= ", fue usada en los telefonos $telefonosEsci";
+    }
+
+    $detalleSerieDuplicadaEsci[] = $mensajeDetalleEsci;
+} */
+
+    $esSerieDesconocida = (
+    $nsEsci === '' || 
+    strtoupper($nsEsci) === 'DESCONOCIDO'
+);
+
+if ($esSerieDesconocida) {
+
+    // SOLO MENSAJE SIMPLE
+    $detalleSerieDuplicadaEsci[] = "Numero de serie en ESCI desconocido";
+
+} elseif ($totalTelefonos > 1) {
+
+    // ALERTA NORMAL SOLO SI NO ES DESCONOCIDO
+    $alertas[] = "Serie ONT duplicada en ESCI";
+
+    $valorEsci[] = "Serie ESCI: $nsEsci";
+
     $mensajeDetalleEsci = "El Numero de serie en ESCI: $nsEsci se uso $totalTelefonos veces";
 
     if ($telefonosEsci !== '') {
