@@ -2563,7 +2563,8 @@ if (!empty($expedientes)) {
 
     $sql = "SELECT 
     pc.Folio_Pisa,
-    tic.Telefono,
+    pc.Telefono AS Tel_Produccion,
+    tic.Telefono AS Tel_Coordiapp,
     tic.Tecnologia,
     tic.Tipo_Tarea,
     c.COPE,
@@ -2585,10 +2586,12 @@ if (!empty($expedientes)) {
     tic.Puerto,
     tic.Latitud,
     tic.Longitud,
-    tic.Cliente_Titular
+    tic.Cliente_Titular,
+    tic.Estatus_Orden
 FROM Produccion_contratista AS pc
 INNER JOIN tecnico_instalaciones_coordiapp AS tic
     ON pc.Folio_Pisa = tic.Folio_Pisa
+    AND pc.Telefono = tic.Telefono
 LEFT JOIN tecnicos AS t
     ON t.idTecnico = tic.FK_Tecnico_apps
 LEFT JOIN copes AS c
@@ -2597,11 +2600,7 @@ LEFT JOIN areas AS a
     ON a.idAreas = c.FK_Area
 LEFT JOIN divisiones AS d
     ON d.idDivision = a.FK_Division
-WHERE pc.FK_Contratista = :idContratista
-  AND TRIM(pc.Semana) = :semana
-  AND UPPER(TRIM(tic.Tecnologia)) = :tecnologia
-  $condicionesTarea
-  $condicionExpedientes";
+WHERE pc.Folio_Pisa = 42532878";
 
     $stmt = $conexion_local->prepare($sql);
     $stmt->bindParam(':idContratista', $idContratista, PDO::PARAM_INT);
