@@ -2611,6 +2611,15 @@ WHERE pc.FK_Contratista = :idContratista
 
     $filas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    echo "<pre>";
+foreach ($filas as $f) {
+    if ($f['Folio_Pisa'] == 42532878) {
+        echo "SI ESTA EN QUERY\n";
+        print_r($f);
+    }
+}
+echo "</pre>";
+
     if (!is_array($filas) || empty($filas)) {
         return [];
     }
@@ -2636,13 +2645,13 @@ exit; */
     print_r($alerta);
     echo "</pre>"; */
 
-    echo "<pre>";
+   /* echo "<pre>";
 echo "Folio: " . $row['Folio_Pisa'] . "\n";
 echo "Alerta: " . $alerta['Alerta'] . "\n";
 echo "Dif Metraje: " . $alerta['Diferencia_Metraje'] . "\n";
 echo "Dif Distancia: " . $alerta['Diferencia_Metraje_Distancia'] . "\n";
 echo "---------------------------------\n";
-echo "</pre>";
+echo "</pre>"; */
 
 
 
