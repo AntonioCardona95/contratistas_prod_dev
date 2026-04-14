@@ -1734,22 +1734,12 @@ if ($nsTacValidar !== '' && $totalOntTac > 1) {
                     'mensaje' => 'COPE diferentes',
                     'formato' => 'COPE %s: %s'
                 ],
-               /* [
+                [
                     'tac' => $this->normalizarTecnologia($this->limpiar($tacData['TECNOLOGIA'] ?? '')),
                     'local' => $this->normalizarTecnologia($this->limpiar($localData['Tecnologia'] ?? '')),
                     'mensaje' => 'Tecnología diferente',
                     'formato' => 'Tecnología %s: %s'
-                ], */
-                [
-    'tac' => $this->normalizarTecnologia($this->limpiar($tacData['TECNOLOGIA'] ?? '')),
-    'local' => $this->normalizarTecnologia($this->limpiar($localData['Tecnologia'] ?? '')),
-    'mensaje' => 'Tecnología diferente',
-    'formato' => 'Tecnología %s: %s',
-    'alerta' => (
-        //  Detectar "FIBRA" seguido de algo más (ej: FIBRA OPTI)
-        preg_match('/^FIBRA\s+.+$/', strtoupper(trim($localData['Tecnologia'] ?? '')))
-    )
-],
+                ],
                 [
                     'tac' => $nsTAC,
                     'local' => $nsLocal,
