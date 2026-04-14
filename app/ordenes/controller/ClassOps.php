@@ -1353,10 +1353,7 @@ public function OrdenesConIncidencias($idContratistas, $expedientes = [], $seman
 
     $statement->execute();
 
-   /* echo "<pre>";
-$data = $statement->fetchAll(PDO::FETCH_ASSOC);
-print_r($data);
-exit; */
+    
 
     while ($result = $statement->fetch(PDO::FETCH_ASSOC)) {
 
