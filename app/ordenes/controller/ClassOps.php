@@ -1436,9 +1436,13 @@ private function normalizarTecnologia($tec)
         return 'FIBRA';
     }
 
-    if (preg_match('/^FIBRA$/i', trim($tec))) {
+    if (preg_match('/\bFIBRA$/', trim($tec))) {
     return 'FIBRA';
 }
+
+    /*if (preg_match('/^FIBRA$/i', trim($tec))) {
+    return 'FIBRA';
+} */
 
     /*if (strpos($tec, 'FIBRA') !== false) {
         return 'FIBRA';
