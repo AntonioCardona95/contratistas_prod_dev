@@ -2599,7 +2599,10 @@ LEFT JOIN divisiones AS d
     ON d.idDivision = a.FK_Division
 WHERE pc.FK_Contratista = :idContratista
   AND TRIM(pc.Semana) = :semana
-  AND UPPER(TRIM(tic.Tecnologia)) = :tecnologia
+  AND (
+    UPPER(TRIM(tic.Tecnologia)) = 'FIBRA'
+    OR UPPER(TRIM(tic.Tecnologia)) LIKE 'FIBRA %'
+)
   $condicionesTarea
   $condicionExpedientes";
 
