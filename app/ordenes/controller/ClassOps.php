@@ -2636,6 +2636,14 @@ exit; */
     print_r($alerta);
     echo "</pre>"; */
 
+    echo "<pre>";
+echo "Folio: " . $row['Folio_Pisa'] . "\n";
+echo "Alerta: " . $alerta['Alerta'] . "\n";
+echo "Dif Metraje: " . $alerta['Diferencia_Metraje'] . "\n";
+echo "Dif Distancia: " . $alerta['Diferencia_Metraje_Distancia'] . "\n";
+echo "---------------------------------\n";
+echo "</pre>";
+
 
 
 
