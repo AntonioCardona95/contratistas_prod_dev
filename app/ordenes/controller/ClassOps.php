@@ -1617,7 +1617,7 @@ $stmtFolioData->execute([$folioPisa]);
 $tacData = $stmtFolioData->fetch(PDO::FETCH_ASSOC) ?: [];
 
 // ===============================
-// TAC - VALIDAR ONT DUPLICADA (CORREGIDO REAL)
+// TAC - VALIDAR ONT DUPLICADA (CORREGIDO FINAL)
 // ===============================
 $stmtOntTac = $conexion_analisis->prepare("
     SELECT 
@@ -1646,33 +1646,41 @@ $dataOntTac = $stmtOntTac->fetch(PDO::FETCH_ASSOC) ?: [];
 
 $nsTacValidar = $this->limpiar($dataOntTac['Num__Serie'] ?? '');
 $telefonosTac = $dataOntTac['telefonos'] ?? '';
-$foliosTac = $dataOntTac['folios'] ?? '';
+$foliosTac    = $dataOntTac['folios'] ?? '';
 
-// 🔥 NORMALIZAR TELÉFONO ACTUAL
-$telefonoActual = preg_replace('/\D/', '', $telefonoProduccion);
-
-// 🔥 PROCESAR TELÉFONOS
+// ===============================
+// 🔥 PROCESAR TELÉFONOS (CORRECTO)
+// ===============================
 $telefonosArray = [];
 
 if ($telefonosTac !== '') {
-    $telefonosArray = array_unique(array_map(function($tel) {
-        return preg_replace('/\D/', '', trim($tel)); // limpia formato
-    }, explode(',', $telefonosTac)));
+    $telefonosArray = array_map(function($tel) {
+        return preg_replace('/\D/', '', trim($tel)); // limpiar formato
+    }, explode(',', $telefonosTac));
 }
 
-// 🔥 BUSCAR TELEFONOS DIFERENTES
-$telefonosDiferentes = array_filter($telefonosArray, function($tel) use ($telefonoActual) {
-    return $tel !== '' && $tel !== '0' && $tel !== $telefonoActual;
+// 🔥 QUITAR VACÍOS Y CEROS
+$telefonosLimpios = array_filter($telefonosArray, function($tel) {
+    return $tel !== '' && $tel !== '0';
 });
 
+// 🔥 DEJAR SOLO TELÉFONOS ÚNICOS
+$telefonosUnicos = array_values(array_unique($telefonosLimpios));
+
 // ===============================
-// VALIDACIÓN FINAL (LA IMPORTANTE)
+// VALIDACIÓN FINAL (CORRECTA)
 // ===============================
-if ($nsTacValidar !== '' && count($telefonosDiferentes) > 0) {
+if ($nsTacValidar !== '' && count($telefonosUnicos) > 1) {
 
     $alertas[] = "ONT duplicada en TAC";
 
-    $telefonosMostrar = implode(', ', $telefonosDiferentes);
+    // 🔥 FORMATO BONITO (con "y" en el último)
+    if (count($telefonosUnicos) > 1) {
+        $ultimo = array_pop($telefonosUnicos);
+        $telefonosMostrar = implode(', ', $telefonosUnicos) . ' y ' . $ultimo;
+    } else {
+        $telefonosMostrar = $telefonosUnicos[0] ?? '';
+    }
 
     $mensajeDetalle = "El Numero de serie en TAC: $nsTacValidar se uso en telefonos diferentes";
 
