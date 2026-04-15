@@ -1686,6 +1686,8 @@ if ($nsTacValidar !== '' && count($telefonosDiferentes) > 0) {
 
     $detalleSerieDuplicadaTac[] = $mensajeDetalle;
 }
+
+// NUEVO //
         
 // ===============================
         // LOCAL COORDIAPP
