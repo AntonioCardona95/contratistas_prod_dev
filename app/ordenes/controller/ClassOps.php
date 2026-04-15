@@ -1494,16 +1494,18 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
         $diferenciaMetrajeDistancia = 0;
 
 // ===============================
-// ESCI
+// ESCI (CORREGIDO: TELEFONOS NORMALIZADOS DESDE SQL)
 // ===============================
 $telefonoLimpio = $this->soloNumeros($telefonoProduccion);
 
 $stmtEsci = $conexion_analisis->prepare("
     SELECT 
         M_SERIE, 
-        COUNT(DISTINCT TELEFONO) AS total,
-        COUNT(DISTINCT TELEFONO) - 1 AS otros_telefonos,
-        GROUP_CONCAT(DISTINCT TELEFONO) AS telefonos,
+
+        COUNT(DISTINCT TRIM(REPLACE(REPLACE(REPLACE(TELEFONO, ' ', ''), '-', ''), '.', ''))) AS total,
+
+        GROUP_CONCAT(DISTINCT TRIM(REPLACE(REPLACE(REPLACE(TELEFONO, ' ', ''), '-', ''), '.', ''))) AS telefonos,
+
         MAX(DID_ACTIVO) AS estado
     FROM seg_ns_eci
     WHERE M_SERIE = (
@@ -1512,6 +1514,9 @@ $stmtEsci = $conexion_analisis->prepare("
         WHERE TELEFONO = ? 
         LIMIT 1
     )
+    AND TELEFONO IS NOT NULL
+    AND TELEFONO <> ''
+    AND TELEFONO <> '0'
     GROUP BY M_SERIE
     LIMIT 1
 ");
@@ -1531,20 +1536,20 @@ if ($telefonosEsci !== '') {
     $telefonosArray = array_filter(
         array_unique(array_map('trim', explode(',', $telefonosEsci))),
         function($tel) {
-            return $tel !== '' && $tel !== '0'; // 🔥 elimina basura
+            return $tel !== '' && $tel !== '0';
         }
     );
 
     $telefonosEsci = implode(', ', $telefonosArray);
 }
 
+// 🔥 TOTAL REAL DE TELEFONOS DIFERENTES
 $totalTelefonos = count($telefonosArray);
-$otrosTelefonos = $totalTelefonos > 0 ? $totalTelefonos - 1 : 0;
 
 $estadoEsci = isset($dataEsci['estado']) ? (int)$dataEsci['estado'] : null;
 
 // ===============================
-// ALERTA + DETALLE ESCI (CORREGIDO)
+// ALERTA + DETALLE ESCI (FINAL)
 // ===============================
 $esSerieDesconocida = (
     $nsEsci === '' || 
@@ -1553,12 +1558,11 @@ $esSerieDesconocida = (
 
 if ($esSerieDesconocida) {
 
-    // SOLO MENSAJE SIMPLE
     $detalleSerieDuplicadaEsci[] = "Numero de serie en ESCI desconocido";
 
 } elseif ($totalTelefonos > 1) {
 
-    // ALERTA SOLO SI HAY TELEFONOS DIFERENTES REALES
+    // 🔥 SOLO SI SON TELEFONOS DIFERENTES
     $alertas[] = "Serie ONT duplicada en ESCI";
 
     $valorEsci[] = "Serie ESCI: $nsEsci";
@@ -1573,7 +1577,7 @@ if ($esSerieDesconocida) {
 }
 
 // ===============================
-// ALERTAS DE ESTADO (SE QUEDAN IGUAL)
+// ALERTAS DE ESTADO
 // ===============================
 if ($nsEsci !== '' && !$esSerieDesconocida && $estadoEsci !== null) {
 
