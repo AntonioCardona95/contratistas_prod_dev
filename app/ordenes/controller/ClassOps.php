@@ -1717,7 +1717,7 @@ if ($nsTacValidar !== '' && count($telefonosDiferentes) > 0) {
 if ($res = $this->validarOntAlmacen(
     $conexion_local,
     $localData['Ont'] ?? '',
-    $idContratista
+    $idContratistas
 )) {
     $this->agregarAlerta($alertas, $valorLocal, $res[0], $res[1]);
 }
