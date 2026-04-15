@@ -1591,7 +1591,7 @@ if ($nsEsci !== '' && $estadoEsci !== null) {
     }
 }
 
-       // ===============================
+// ===============================
 // TAC EXACTO
 // ===============================
 $stmtFolio = $conexion_analisis->prepare("
@@ -1619,12 +1619,11 @@ $stmtFolioData->execute([$folioPisa]);
 $tacData = $stmtFolioData->fetch(PDO::FETCH_ASSOC) ?: [];
 
 // ===============================
-// TAC - VALIDAR ONT DUPLICADA (OPTIMIZADO EN UNA SOLA QUERY)
+// TAC - VALIDAR ONT DUPLICADA (CORREGIDO REAL)
 // ===============================
 $stmtOntTac = $conexion_analisis->prepare("
     SELECT 
         Num__Serie,
-        COUNT(*) AS total,
         GROUP_CONCAT(DISTINCT TELEFONO) AS telefonos,
         GROUP_CONCAT(DISTINCT Folio_Pisa) AS folios
     FROM qm_tac
@@ -1637,6 +1636,9 @@ $stmtOntTac = $conexion_analisis->prepare("
         LIMIT 1
     )
     AND Calificador_Edo = 'COMPLETADA'
+    AND TELEFONO IS NOT NULL
+    AND TELEFONO <> ''
+    AND TELEFONO <> '0'
     GROUP BY Num__Serie
     LIMIT 1
 ");
@@ -1645,34 +1647,39 @@ $stmtOntTac->execute([$folioPisa, $telefonoProduccion]);
 $dataOntTac = $stmtOntTac->fetch(PDO::FETCH_ASSOC) ?: [];
 
 $nsTacValidar = $this->limpiar($dataOntTac['Num__Serie'] ?? '');
-$totalOntTac = (int)($dataOntTac['total'] ?? 0);
 $telefonosTac = $dataOntTac['telefonos'] ?? '';
 $foliosTac = $dataOntTac['folios'] ?? '';
 
-// Limpieza (opcional)
+// 🔥 NORMALIZAR TELÉFONO ACTUAL
+$telefonoActual = preg_replace('/\D/', '', $telefonoProduccion);
+
+// 🔥 PROCESAR TELÉFONOS
 $telefonosArray = [];
+
 if ($telefonosTac !== '') {
-    $telefonosArray = array_unique(explode(',', $telefonosTac));
-    $telefonosTac = implode(', ', $telefonosArray);
+    $telefonosArray = array_unique(array_map(function($tel) {
+        return preg_replace('/\D/', '', trim($tel)); // limpia formato
+    }, explode(',', $telefonosTac)));
 }
 
-if ($foliosTac !== '') {
-    $foliosTac = implode(', ', array_unique(explode(',', $foliosTac)));
-}
+// 🔥 BUSCAR TELEFONOS DIFERENTES
+$telefonosDiferentes = array_filter($telefonosArray, function($tel) use ($telefonoActual) {
+    return $tel !== '' && $tel !== '0' && $tel !== $telefonoActual;
+});
 
-// Validar duplicado solo si hay más de un teléfono distinto
-$totalTelefonosUnicos = count($telefonosArray);
+// ===============================
+// VALIDACIÓN FINAL (LA IMPORTANTE)
+// ===============================
+if ($nsTacValidar !== '' && count($telefonosDiferentes) > 0) {
 
-if ($nsTacValidar !== '' && $totalOntTac > 1 && $totalTelefonosUnicos > 1) {
-
-    // SOLO ALERTA (SIN DETALLE EN VALOR_TAC)
     $alertas[] = "ONT duplicada en TAC";
 
-    // DETALLE SOLO EN NUEVA COLUMNA
-    $mensajeDetalle = "El Numero de serie en TAC: $nsTacValidar se uso $totalOntTac veces";
+    $telefonosMostrar = implode(', ', $telefonosDiferentes);
 
-    if (!empty($telefonosArray)) {
-        $mensajeDetalle .= ", fue usada en los telefonos $telefonosTac";
+    $mensajeDetalle = "El Numero de serie en TAC: $nsTacValidar se uso en telefonos diferentes";
+
+    if ($telefonosMostrar !== '') {
+        $mensajeDetalle .= ": $telefonosMostrar";
     }
 
     if ($foliosTac !== '') {
@@ -1681,7 +1688,6 @@ if ($nsTacValidar !== '' && $totalOntTac > 1 && $totalTelefonosUnicos > 1) {
 
     $detalleSerieDuplicadaTac[] = $mensajeDetalle;
 }
-
         
 // ===============================
         // LOCAL COORDIAPP
