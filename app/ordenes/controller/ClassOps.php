@@ -1617,7 +1617,7 @@ $stmtFolioData->execute([$folioPisa]);
 $tacData = $stmtFolioData->fetch(PDO::FETCH_ASSOC) ?: [];
 
 // ===============================
-// TAC - VALIDAR ONT DUPLICADA (CORREGIDO FINAL)
+// TAC - VALIDAR ONT DUPLICADA (FINAL CORREGIDO)
 // ===============================
 $stmtOntTac = $conexion_analisis->prepare("
     SELECT 
@@ -1649,13 +1649,13 @@ $telefonosTac = $dataOntTac['telefonos'] ?? '';
 $foliosTac    = $dataOntTac['folios'] ?? '';
 
 // ===============================
-//  PROCESAR TELÉFONOS (CORRECTO)
+// PROCESAR TELÉFONOS
 // ===============================
 $telefonosArray = [];
 
 if ($telefonosTac !== '') {
     $telefonosArray = array_map(function($tel) {
-        return preg_replace('/\D/', '', trim($tel)); // limpiar formato
+        return preg_replace('/\D/', '', trim($tel));
     }, explode(',', $telefonosTac));
 }
 
@@ -1664,17 +1664,28 @@ $telefonosLimpios = array_filter($telefonosArray, function($tel) {
     return $tel !== '' && $tel !== '0';
 });
 
-//  DEJAR SOLO TELÉFONOS ÚNICOS
+// DEJAR SOLO ÚNICOS
 $telefonosUnicos = array_values(array_unique($telefonosLimpios));
 
 // ===============================
-// VALIDACIÓN FINAL (CORRECTA)
+// VALIDAR SERIE (EVITAR BASURA)
 // ===============================
-if ($nsTacValidar !== '' && count($telefonosUnicos) > 1) {
+$nsTacUpper = strtoupper(trim($nsTacValidar));
+
+$esSerieInvalida = (
+    $nsTacUpper === '' ||
+    strpos($nsTacUpper, 'NO OBTENIDO') !== false ||
+    strpos($nsTacUpper, 'DESCONOCIDO') !== false
+);
+
+// ===============================
+// VALIDACIÓN FINAL
+// ===============================
+if (!$esSerieInvalida && count($telefonosUnicos) > 1) {
 
     $alertas[] = "ONT duplicada en TAC";
 
-    //  FORMATO BONITO (con "y" en el último)
+    // FORMATO BONITO
     if (count($telefonosUnicos) > 1) {
         $ultimo = array_pop($telefonosUnicos);
         $telefonosMostrar = implode(', ', $telefonosUnicos) . ' y ' . $ultimo;
@@ -1694,7 +1705,6 @@ if ($nsTacValidar !== '' && count($telefonosUnicos) > 1) {
 
     $detalleSerieDuplicadaTac[] = $mensajeDetalle;
 }
-
 // NUEVO //
         
 // ===============================
