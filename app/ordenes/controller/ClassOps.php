@@ -1363,7 +1363,8 @@ public function OrdenesConIncidencias($idContratistas, $expedientes = [], $seman
             $result['Folio_Pisa'],
             $result['Telefono'],
             $result['metraje'],
-            $expedientes
+            $expedientes,
+            $idContratistas
         );
 
         if (!empty($alertaData['Alerta'])) {
@@ -1477,7 +1478,7 @@ private function agregarAlerta(&$alertas, &$origen, $mensaje, $valor) {
     $origen[] = $valor;
 }
 
-private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa, $telefonoProduccion, $metrajeProduccion, $expedientes = [])
+private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa, $telefonoProduccion, $metrajeProduccion, $expedientes = [],$idContratistas)
 {
     try {
 
@@ -1710,6 +1711,17 @@ if ($nsTacValidar !== '' && count($telefonosDiferentes) > 0) {
         $stmtLocal->execute([':folio' => $folioPisa, ':telefono' => $telefonoProduccion]);
         $localData = $stmtLocal->fetch(PDO::FETCH_ASSOC) ?: [];
 
+        // ===============================
+// VALIDAR ONT EN ALMACEN (LIMPIO)
+// ===============================
+if ($res = $this->validarOntAlmacen(
+    $conexion_local,
+    $localData['Ont'] ?? '',
+    $idContratista
+)) {
+    $this->agregarAlerta($alertas, $valorLocal, $res[0], $res[1]);
+}
+
         $esCambaceo = intval($localData['orden_cambaceo'] ?? 0);
 
         // ===============================
@@ -1916,6 +1928,43 @@ if ($nsTacValidar !== '' && count($telefonosDiferentes) > 0) {
             'Diferencia_Metraje_Distancia' => 0
         ];
     }
+}
+
+
+private function validarOntAlmacen($conexion_local, $ont, $idContratista)
+{
+    $ont = $this->normalizarSerie($ont);
+
+    if ($ont === '') {
+        return null;
+    }
+
+    $stmt = $conexion_local->prepare("
+        SELECT FK_Contratista_Salida
+        FROM material_det_salida
+        WHERE REPLACE(UPPER(Num_Serie_S), ' ', '') = ?
+        LIMIT 1
+    ");
+
+    $stmt->execute([$ont]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$row) {
+        return ["ONT no se encuentra en almacén", "Serie: $ont"];
+    }
+
+    if (empty($row['FK_Contratista_Salida'])) {
+        return ["ONT no asignada al contratista", "Serie: $ont"];
+    }
+
+    if ((int)$row['FK_Contratista_Salida'] !== (int)$idContratista) {
+        return [
+            "ONT asignada a otro contratista",
+            "Serie: $ont (Asignado a: ".$row['FK_Contratista_Salida'].")"
+        ];
+    }
+
+    return null;
 }
 
 public function ConteoAlertas($idContratistas, $semana)
