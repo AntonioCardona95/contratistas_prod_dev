@@ -1494,18 +1494,16 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
         $diferenciaMetrajeDistancia = 0;
 
 // ===============================
-// ESCI (CORREGIDO: TELEFONOS NORMALIZADOS DESDE SQL)
+// ESCI
 // ===============================
 $telefonoLimpio = $this->soloNumeros($telefonoProduccion);
 
 $stmtEsci = $conexion_analisis->prepare("
     SELECT 
         M_SERIE, 
-
-        COUNT(DISTINCT TRIM(REPLACE(REPLACE(REPLACE(TELEFONO, ' ', ''), '-', ''), '.', ''))) AS total,
-
-        GROUP_CONCAT(DISTINCT TRIM(REPLACE(REPLACE(REPLACE(TELEFONO, ' ', ''), '-', ''), '.', ''))) AS telefonos,
-
+        COUNT(DISTINCT TELEFONO) AS total,
+        COUNT(DISTINCT TELEFONO) - 1 AS otros_telefonos,
+        GROUP_CONCAT(DISTINCT TELEFONO) AS telefonos,
         MAX(DID_ACTIVO) AS estado
     FROM seg_ns_eci
     WHERE M_SERIE = (
@@ -1514,9 +1512,6 @@ $stmtEsci = $conexion_analisis->prepare("
         WHERE TELEFONO = ? 
         LIMIT 1
     )
-    AND TELEFONO IS NOT NULL
-    AND TELEFONO <> ''
-    AND TELEFONO <> '0'
     GROUP BY M_SERIE
     LIMIT 1
 ");
@@ -1524,50 +1519,56 @@ $stmtEsci = $conexion_analisis->prepare("
 $stmtEsci->execute([$telefonoLimpio]);
 $dataEsci = $stmtEsci->fetch(PDO::FETCH_ASSOC) ?: [];
 
-// 🔹 NORMALIZAR SERIE
-$nsEsci = strtoupper(trim($this->limpiar($dataEsci['M_SERIE'] ?? '')));
-
-// 🔹 TELEFONOS
-$telefonosEsci = $dataEsci['telefonos'] ?? '';
-$telefonosArray = [];
-
-if ($telefonosEsci !== '') {
-
-    $telefonosArray = array_filter(
-        array_unique(array_map('trim', explode(',', $telefonosEsci))),
-        function($tel) {
-            return $tel !== '' && $tel !== '0';
-        }
-    );
-
-    $telefonosEsci = implode(', ', $telefonosArray);
-}
-
-// 🔥 TOTAL REAL DE TELEFONOS DIFERENTES
-$totalTelefonos = count($telefonosArray);
-
+$nsEsci = $this->limpiar($dataEsci['M_SERIE'] ?? '');
+$totalTelefonos = (int)($dataEsci['total'] ?? 0);
+$otrosTelefonos = (int)($dataEsci['otros_telefonos'] ?? 0);
 $estadoEsci = isset($dataEsci['estado']) ? (int)$dataEsci['estado'] : null;
 
+// 🔹 NUEVO: teléfonos
+$telefonosEsci = $dataEsci['telefonos'] ?? '';
+
+if ($telefonosEsci !== '') {
+    $telefonosEsci = implode(', ', array_unique(explode(',', $telefonosEsci)));
+}
+
 // ===============================
-// ALERTA + DETALLE ESCI (FINAL)
+// ALERTA + DETALLE ESCI (NUEVO)
 // ===============================
-$esSerieDesconocida = (
+/*if ($nsEsci !== '' && $totalTelefonos > 1) {
+
+    // SOLO ALERTA (NO usar agregarAlerta)
+    $alertas[] = "Serie ONT duplicada en ESCI";
+
+     $valorEsci[] = "Serie ESCI: $nsEsci";
+
+    // DETALLE (NUEVA COLUMNA)
+    $mensajeDetalleEsci = "El Numero de serie en ESCI: $nsEsci se uso $totalTelefonos veces";
+
+    if ($telefonosEsci !== '') {
+        $mensajeDetalleEsci .= ", fue usada en los telefonos $telefonosEsci";
+    }
+
+    $detalleSerieDuplicadaEsci[] = $mensajeDetalleEsci;
+} */
+
+    $esSerieDesconocida = (
     $nsEsci === '' || 
-    $nsEsci === 'DESCONOCIDO'
+    strtoupper($nsEsci) === 'DESCONOCIDO'
 );
 
 if ($esSerieDesconocida) {
 
+    // SOLO MENSAJE SIMPLE
     $detalleSerieDuplicadaEsci[] = "Numero de serie en ESCI desconocido";
 
 } elseif ($totalTelefonos > 1) {
 
-    // 🔥 SOLO SI SON TELEFONOS DIFERENTES
+    // ALERTA NORMAL SOLO SI NO ES DESCONOCIDO
     $alertas[] = "Serie ONT duplicada en ESCI";
 
     $valorEsci[] = "Serie ESCI: $nsEsci";
 
-    $mensajeDetalleEsci = "El Numero de serie en ESCI: $nsEsci se uso en $totalTelefonos telefonos diferentes";
+    $mensajeDetalleEsci = "El Numero de serie en ESCI: $nsEsci se uso $totalTelefonos veces";
 
     if ($telefonosEsci !== '') {
         $mensajeDetalleEsci .= ", fue usada en los telefonos $telefonosEsci";
@@ -1577,9 +1578,9 @@ if ($esSerieDesconocida) {
 }
 
 // ===============================
-// ALERTAS DE ESTADO
+// ALERTAS DE ESTADO (SE QUEDAN IGUAL)
 // ===============================
-if ($nsEsci !== '' && !$esSerieDesconocida && $estadoEsci !== null) {
+if ($nsEsci !== '' && $estadoEsci !== null) {
 
     if ($estadoEsci === 0) {
         $this->agregarAlerta($alertas, $valorEsci, "Servicio sin navegación en ESCI", "Serie ESCI: $nsEsci");
