@@ -1591,37 +1591,36 @@ if ($nsEsci !== '' && $estadoEsci !== null) {
     }
 }
 
-        // ===============================
-        // TAC EXACTO
-        // ===============================
-        $stmtFolio = $conexion_analisis->prepare("
-            SELECT TELEFONO, Tipo_De_Tarea, NOM_CT, Tecnico, Num__Serie ,TECNOLOGIA,Expediente
-            FROM qm_tac 
-            WHERE Folio_Pisa = ? 
-            AND TELEFONO = ? 
-            AND Calificador_Edo = 'COMPLETADA'
-            LIMIT 1
-        ");
-        $stmtFolio->execute([$folioPisa, $telefonoProduccion]);
-        $tacDataExact = $stmtFolio->fetch(PDO::FETCH_ASSOC) ?: [];
+       // ===============================
+// TAC EXACTO
+// ===============================
+$stmtFolio = $conexion_analisis->prepare("
+    SELECT TELEFONO, Tipo_De_Tarea, NOM_CT, Tecnico, Num__Serie ,TECNOLOGIA,Expediente
+    FROM qm_tac 
+    WHERE Folio_Pisa = ? 
+    AND TELEFONO = ? 
+    AND Calificador_Edo = 'COMPLETADA'
+    LIMIT 1
+");
+$stmtFolio->execute([$folioPisa, $telefonoProduccion]);
+$tacDataExact = $stmtFolio->fetch(PDO::FETCH_ASSOC) ?: [];
 
-        // ===============================
-        // TAC GENERAL
-        // ===============================
-        $stmtFolioData = $conexion_analisis->prepare("
-            SELECT TELEFONO, Tipo_De_Tarea, NOM_CT, Tecnico, Num__Serie ,TECNOLOGIA,Expediente
-            FROM qm_tac
-            WHERE Folio_Pisa = ? 
-            AND Calificador_Edo = 'COMPLETADA'
-            LIMIT 1
-        ");
-        $stmtFolioData->execute([$folioPisa]);
-        $tacData = $stmtFolioData->fetch(PDO::FETCH_ASSOC) ?: [];
+// ===============================
+// TAC GENERAL
+// ===============================
+$stmtFolioData = $conexion_analisis->prepare("
+    SELECT TELEFONO, Tipo_De_Tarea, NOM_CT, Tecnico, Num__Serie ,TECNOLOGIA,Expediente
+    FROM qm_tac
+    WHERE Folio_Pisa = ? 
+    AND Calificador_Edo = 'COMPLETADA'
+    LIMIT 1
+");
+$stmtFolioData->execute([$folioPisa]);
+$tacData = $stmtFolioData->fetch(PDO::FETCH_ASSOC) ?: [];
 
-        // ===============================
+// ===============================
 // TAC - VALIDAR ONT DUPLICADA (OPTIMIZADO EN UNA SOLA QUERY)
 // ===============================
-
 $stmtOntTac = $conexion_analisis->prepare("
     SELECT 
         Num__Serie,
@@ -1651,15 +1650,20 @@ $telefonosTac = $dataOntTac['telefonos'] ?? '';
 $foliosTac = $dataOntTac['folios'] ?? '';
 
 // Limpieza (opcional)
+$telefonosArray = [];
 if ($telefonosTac !== '') {
-    $telefonosTac = implode(', ', array_unique(explode(',', $telefonosTac)));
+    $telefonosArray = array_unique(explode(',', $telefonosTac));
+    $telefonosTac = implode(', ', $telefonosArray);
 }
 
 if ($foliosTac !== '') {
     $foliosTac = implode(', ', array_unique(explode(',', $foliosTac)));
 }
 
-if ($nsTacValidar !== '' && $totalOntTac > 1) {
+// Validar duplicado solo si hay más de un teléfono distinto
+$totalTelefonosUnicos = count($telefonosArray);
+
+if ($nsTacValidar !== '' && $totalOntTac > 1 && $totalTelefonosUnicos > 1) {
 
     // SOLO ALERTA (SIN DETALLE EN VALOR_TAC)
     $alertas[] = "ONT duplicada en TAC";
@@ -1667,7 +1671,7 @@ if ($nsTacValidar !== '' && $totalOntTac > 1) {
     // DETALLE SOLO EN NUEVA COLUMNA
     $mensajeDetalle = "El Numero de serie en TAC: $nsTacValidar se uso $totalOntTac veces";
 
-    if ($telefonosTac !== '') {
+    if (!empty($telefonosArray)) {
         $mensajeDetalle .= ", fue usada en los telefonos $telefonosTac";
     }
 
@@ -1677,6 +1681,7 @@ if ($nsTacValidar !== '' && $totalOntTac > 1) {
 
     $detalleSerieDuplicadaTac[] = $mensajeDetalle;
 }
+
         
 // ===============================
         // LOCAL COORDIAPP
