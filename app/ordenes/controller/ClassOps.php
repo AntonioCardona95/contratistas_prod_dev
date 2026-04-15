@@ -1519,41 +1519,36 @@ $stmtEsci = $conexion_analisis->prepare("
 $stmtEsci->execute([$telefonoLimpio]);
 $dataEsci = $stmtEsci->fetch(PDO::FETCH_ASSOC) ?: [];
 
-$nsEsci = $this->limpiar($dataEsci['M_SERIE'] ?? '');
-$totalTelefonos = (int)($dataEsci['total'] ?? 0);
-$otrosTelefonos = (int)($dataEsci['otros_telefonos'] ?? 0);
-$estadoEsci = isset($dataEsci['estado']) ? (int)$dataEsci['estado'] : null;
+// 🔹 NORMALIZAR SERIE
+$nsEsci = strtoupper(trim($this->limpiar($dataEsci['M_SERIE'] ?? '')));
 
-// 🔹 NUEVO: teléfonos
+// 🔹 TELEFONOS
 $telefonosEsci = $dataEsci['telefonos'] ?? '';
+$telefonosArray = [];
 
 if ($telefonosEsci !== '') {
-    $telefonosEsci = implode(', ', array_unique(explode(',', $telefonosEsci)));
+
+    $telefonosArray = array_filter(
+        array_unique(array_map('trim', explode(',', $telefonosEsci))),
+        function($tel) {
+            return $tel !== '' && $tel !== '0'; // 🔥 elimina basura
+        }
+    );
+
+    $telefonosEsci = implode(', ', $telefonosArray);
 }
 
+$totalTelefonos = count($telefonosArray);
+$otrosTelefonos = $totalTelefonos > 0 ? $totalTelefonos - 1 : 0;
+
+$estadoEsci = isset($dataEsci['estado']) ? (int)$dataEsci['estado'] : null;
+
 // ===============================
-// ALERTA + DETALLE ESCI (NUEVO)
+// ALERTA + DETALLE ESCI (CORREGIDO)
 // ===============================
-/*if ($nsEsci !== '' && $totalTelefonos > 1) {
-
-    // SOLO ALERTA (NO usar agregarAlerta)
-    $alertas[] = "Serie ONT duplicada en ESCI";
-
-     $valorEsci[] = "Serie ESCI: $nsEsci";
-
-    // DETALLE (NUEVA COLUMNA)
-    $mensajeDetalleEsci = "El Numero de serie en ESCI: $nsEsci se uso $totalTelefonos veces";
-
-    if ($telefonosEsci !== '') {
-        $mensajeDetalleEsci .= ", fue usada en los telefonos $telefonosEsci";
-    }
-
-    $detalleSerieDuplicadaEsci[] = $mensajeDetalleEsci;
-} */
-
-    $esSerieDesconocida = (
+$esSerieDesconocida = (
     $nsEsci === '' || 
-    strtoupper($nsEsci) === 'DESCONOCIDO'
+    $nsEsci === 'DESCONOCIDO'
 );
 
 if ($esSerieDesconocida) {
@@ -1563,12 +1558,12 @@ if ($esSerieDesconocida) {
 
 } elseif ($totalTelefonos > 1) {
 
-    // ALERTA NORMAL SOLO SI NO ES DESCONOCIDO
+    // ALERTA SOLO SI HAY TELEFONOS DIFERENTES REALES
     $alertas[] = "Serie ONT duplicada en ESCI";
 
     $valorEsci[] = "Serie ESCI: $nsEsci";
 
-    $mensajeDetalleEsci = "El Numero de serie en ESCI: $nsEsci se uso $totalTelefonos veces";
+    $mensajeDetalleEsci = "El Numero de serie en ESCI: $nsEsci se uso en $totalTelefonos telefonos diferentes";
 
     if ($telefonosEsci !== '') {
         $mensajeDetalleEsci .= ", fue usada en los telefonos $telefonosEsci";
@@ -1580,7 +1575,7 @@ if ($esSerieDesconocida) {
 // ===============================
 // ALERTAS DE ESTADO (SE QUEDAN IGUAL)
 // ===============================
-if ($nsEsci !== '' && $estadoEsci !== null) {
+if ($nsEsci !== '' && !$esSerieDesconocida && $estadoEsci !== null) {
 
     if ($estadoEsci === 0) {
         $this->agregarAlerta($alertas, $valorEsci, "Servicio sin navegación en ESCI", "Serie ESCI: $nsEsci");
