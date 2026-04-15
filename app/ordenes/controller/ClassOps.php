@@ -1521,13 +1521,13 @@ $stmtEsci = $conexion_analisis->prepare("
 $stmtEsci->execute([$telefonoLimpio]);
 $dataEsci = $stmtEsci->fetch(PDO::FETCH_ASSOC) ?: [];
 
-// 🔹 NORMALIZAR SERIE
+//  NORMALIZAR SERIE
 $nsEsci = strtoupper(trim($this->limpiar($dataEsci['M_SERIE'] ?? '')));
 
-// 🔹 TELÉFONO ACTUAL NORMALIZADO
+//  TELÉFONO ACTUAL NORMALIZADO
 $telefonoActual = preg_replace('/\D/', '', $telefonoProduccion);
 
-// 🔹 PROCESAR TELÉFONOS
+//  PROCESAR TELÉFONOS
 $telefonosEsci = $dataEsci['telefonos'] ?? '';
 $telefonosArray = [];
 
@@ -1537,7 +1537,7 @@ if ($telefonosEsci !== '') {
     }, explode(',', $telefonosEsci)));
 }
 
-// 🔥 QUEDARSE SOLO CON TELEFONOS DIFERENTES AL ACTUAL
+//  QUEDARSE SOLO CON TELEFONOS DIFERENTES AL ACTUAL
 $telefonosDiferentes = array_filter($telefonosArray, function($tel) use ($telefonoActual) {
     return $tel !== '' && $tel !== '0' && $tel !== $telefonoActual;
 });
@@ -1555,7 +1555,7 @@ $esSerieDesconocida = (
     $nsEsci === 'DESCONOCIDO'
 );
 
-// 🔥 SOLO SI:
+//  SOLO SI:
 // - NO es desconocido
 // - Y hay teléfonos DIFERENTES
 if (!$esSerieDesconocida && $totalTelefonosDiferentes > 0) {
@@ -1649,7 +1649,7 @@ $telefonosTac = $dataOntTac['telefonos'] ?? '';
 $foliosTac    = $dataOntTac['folios'] ?? '';
 
 // ===============================
-// 🔥 PROCESAR TELÉFONOS (CORRECTO)
+//  PROCESAR TELÉFONOS (CORRECTO)
 // ===============================
 $telefonosArray = [];
 
@@ -1659,12 +1659,12 @@ if ($telefonosTac !== '') {
     }, explode(',', $telefonosTac));
 }
 
-// 🔥 QUITAR VACÍOS Y CEROS
+// QUITAR VACÍOS Y CEROS
 $telefonosLimpios = array_filter($telefonosArray, function($tel) {
     return $tel !== '' && $tel !== '0';
 });
 
-// 🔥 DEJAR SOLO TELÉFONOS ÚNICOS
+//  DEJAR SOLO TELÉFONOS ÚNICOS
 $telefonosUnicos = array_values(array_unique($telefonosLimpios));
 
 // ===============================
@@ -1674,7 +1674,7 @@ if ($nsTacValidar !== '' && count($telefonosUnicos) > 1) {
 
     $alertas[] = "ONT duplicada en TAC";
 
-    // 🔥 FORMATO BONITO (con "y" en el último)
+    //  FORMATO BONITO (con "y" en el último)
     if (count($telefonosUnicos) > 1) {
         $ultimo = array_pop($telefonosUnicos);
         $telefonosMostrar = implode(', ', $telefonosUnicos) . ' y ' . $ultimo;
