@@ -2750,7 +2750,7 @@ exit; */
             $row['Telefono'],
             $row['Metraje_Contratista'],
             $expedientes,
-            $idContratistas
+            $idContratista
         );
 
         //  DEBUG AQUÍ
