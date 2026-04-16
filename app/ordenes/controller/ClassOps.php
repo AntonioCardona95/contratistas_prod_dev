@@ -15,7 +15,7 @@ error_reporting(E_ALL);
     // CACHE (AQUI VA)
     // ===============================
 private $cacheEsci = [];
-
+private $cacheEsciTelefonos = [];
 private $cacheEsciSerie = [];
 private $cacheEsciData = [];
 
@@ -26,6 +26,7 @@ private $cacheTacOnt = [];
 private $cacheLocal = [];
 
 private $cacheCopes = [];
+
 
         public function CountOrdenesCoordiAppIncompletos($FK_Contratista_Tecnico,$Fecha1,$Fecha2)
         {
@@ -1513,75 +1514,99 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
         $metrajeDistancia = 0;
         $diferenciaMetrajeDistancia = 0;
 
-       // ===============================
-// ESCI OPTIMIZADO (1 SOLA QUERY)
+      // ===============================
+// ESCI CORREGIDO (LOGICA REAL)
 // ===============================
 $telefonoLimpio = $this->soloNumeros($telefonoProduccion);
 
-if (!isset($this->cacheEsci[$telefonoLimpio])) {
+// -------------------------------
+// 1. OBTENER SERIE DESDE TELEFONO
+// -------------------------------
+if (!isset($this->cacheEsciSerie[$telefonoLimpio])) {
 
-    $stmtEsci = $conexion_analisis->prepare("
-        SELECT 
-            M_SERIE,
-            GROUP_CONCAT(DISTINCT TELEFONO) AS telefonos,
-            MAX(DID_ACTIVO) AS estado
+    $stmt = $conexion_analisis->prepare("
+        SELECT M_SERIE, MAX(DID_ACTIVO) AS estado
         FROM seg_ns_eci
         WHERE TELEFONO = ?
         AND TELEFONO IS NOT NULL
         AND TELEFONO <> ''
         AND TELEFONO <> '0'
-        GROUP BY M_SERIE
         LIMIT 1
     ");
 
-    $stmtEsci->execute([$telefonoLimpio]);
-    $this->cacheEsci[$telefonoLimpio] = $stmtEsci->fetch(PDO::FETCH_ASSOC) ?: [];
+    $stmt->execute([$telefonoLimpio]);
+    $this->cacheEsciSerie[$telefonoLimpio] = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
 }
 
-$dataEsci = $this->cacheEsci[$telefonoLimpio];
+$dataSerie = $this->cacheEsciSerie[$telefonoLimpio];
 
-$nsEsci = strtoupper(trim($this->limpiar($dataEsci['M_SERIE'] ?? '')));
-$estadoEsci = isset($dataEsci['estado']) ? (int)$dataEsci['estado'] : null;
+$nsEsci = strtoupper(trim($this->limpiar($dataSerie['M_SERIE'] ?? '')));
+$estadoEsci = isset($dataSerie['estado']) ? (int)$dataSerie['estado'] : null;
 
-$telefonoActual = preg_replace('/\D/', '', $telefonoProduccion);
-
-$telefonosEsci = $dataEsci['telefonos'] ?? '';
-$telefonosArray = [];
-
-if ($telefonosEsci !== '') {
-    $telefonosArray = array_unique(array_map(function($tel) {
-        return preg_replace('/\D/', '', trim($tel));
-    }, explode(',', $telefonosEsci)));
-}
-
-$telefonosDiferentes = array_filter($telefonosArray, function($tel) use ($telefonoActual) {
-    return $tel !== '' && $tel !== '0' && $tel !== $telefonoActual;
-});
-
-$totalTelefonosDiferentes = count($telefonosDiferentes);
-
-$esSerieDesconocida = (
-    $nsEsci === '' || 
-    $nsEsci === 'DESCONOCIDO'
+// -------------------------------
+// VALIDAR SERIE VALIDA
+// -------------------------------
+$esSerieInvalida = (
+    $nsEsci === '' ||
+    strpos($nsEsci, 'DESCONOCIDO') !== false
 );
 
-if (!$esSerieDesconocida && $totalTelefonosDiferentes > 0) {
+// -------------------------------
+// 2. SI HAY SERIE → BUSCAR TODOS LOS TELEFONOS
+// -------------------------------
+$telefonosDiferentes = [];
+
+if (!$esSerieInvalida) {
+
+    if (!isset($this->cacheEsciTelefonos[$nsEsci])) {
+
+        $stmt = $conexion_analisis->prepare("
+            SELECT DISTINCT TELEFONO
+            FROM seg_ns_eci
+            WHERE M_SERIE = ?
+            AND TELEFONO IS NOT NULL
+            AND TELEFONO <> ''
+            AND TELEFONO <> '0'
+        ");
+
+        $stmt->execute([$nsEsci]);
+        $this->cacheEsciTelefonos[$nsEsci] = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    $telefonosSerie = $this->cacheEsciTelefonos[$nsEsci];
+
+    foreach ($telefonosSerie as $tel) {
+        $telLimpio = preg_replace('/\D/', '', $tel);
+
+        if ($telLimpio !== '' && $telLimpio !== '0' && $telLimpio !== $telefonoLimpio) {
+            $telefonosDiferentes[] = $telLimpio;
+        }
+    }
+
+    $telefonosDiferentes = array_unique($telefonosDiferentes);
+}
+
+// -------------------------------
+// 3. ALERTA DUPLICADOS
+// -------------------------------
+if (!$esSerieInvalida && count($telefonosDiferentes) > 0) {
 
     $alertas[] = "Serie ONT duplicada en ESCI";
     $valorEsci[] = "Serie ESCI: $nsEsci";
 
-    $telefonosMostrar = implode(', ', $telefonosDiferentes);
+    $mensaje = "El Numero de serie en ESCI: $nsEsci se uso en telefonos diferentes";
 
-    $mensajeDetalleEsci = "El Numero de serie en ESCI: $nsEsci se uso en telefonos diferentes";
-
-    if ($telefonosMostrar !== '') {
-        $mensajeDetalleEsci .= ": $telefonosMostrar";
+    if (!empty($telefonosDiferentes)) {
+        $mensaje .= ": " . implode(', ', $telefonosDiferentes);
     }
 
-    $detalleSerieDuplicadaEsci[] = $mensajeDetalleEsci;
+    $detalleSerieDuplicadaEsci[] = $mensaje;
 }
 
-if ($nsEsci !== '' && !$esSerieDesconocida && $estadoEsci !== null) {
+// -------------------------------
+// 4. ALERTAS DE ESTADO
+// -------------------------------
+if (!$esSerieInvalida && $estadoEsci !== null) {
 
     if ($estadoEsci === 0) {
         $this->agregarAlerta($alertas, $valorEsci, "Servicio sin navegación en ESCI", "Serie ESCI: $nsEsci");
@@ -1591,7 +1616,6 @@ if ($nsEsci !== '' && !$esSerieDesconocida && $estadoEsci !== null) {
         $this->agregarAlerta($alertas, $valorEsci, "Servicio inactivo en ESCI", "Serie ESCI: $nsEsci");
     }
 }
-
         // ===============================
         // TAC EXACTO (CACHE)
         // ===============================
