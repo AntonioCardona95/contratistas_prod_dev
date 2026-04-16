@@ -1499,8 +1499,7 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
   
 
     try {
-        echo "Valor recibido en telefonoProduccion: ";
-        var_dump($telefonoProduccion); // muestra tipo y contenido exacto
+        
 
         $alertas = [];
         $valorTac = [];
