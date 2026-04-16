@@ -11,6 +11,18 @@ error_reporting(E_ALL);
 
     class Ops extends Conexion
     {
+        // ===============================
+    // CACHE (AQUI VA)
+    // ===============================
+    private $cacheEsciSerie = [];
+    private $cacheEsciData = [];
+    private $cacheTacExact = [];
+    private $cacheTacGeneral = [];
+    private $cacheTacOnt = [];
+    private $cacheLocal = [];
+    private $cacheCopes = [];
+
+
         public function CountOrdenesCoordiAppIncompletos($FK_Contratista_Tecnico,$Fecha1,$Fecha2)
         {
             $rows = null;
