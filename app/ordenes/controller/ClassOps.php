@@ -1492,6 +1492,9 @@ private function agregarAlerta(&$alertas, &$origen, $mensaje, $valor) {
 
 private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa, $telefonoProduccion, $metrajeProduccion, $expedientes = [],$idContratistas)
 {
+    echo "Contenido de telefonoProduccion:\n";
+print_r($telefonoProduccion);
+
     try {
 
         $alertas = [];
