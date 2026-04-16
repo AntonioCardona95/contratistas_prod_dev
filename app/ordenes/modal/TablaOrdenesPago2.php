@@ -1,4 +1,7 @@
 <?php
+ob_start(); // 🔥 evita errores de headers
+session_start();
+
 // Mostrar errores en pantalla
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -10,8 +13,9 @@ error_reporting(E_ALL);
 require_once("../controller/ClassOps.php");
 require_once("../controller/ClassNomina.php");
 
-// INICIO DE SESIÓN
-session_start();
+// ===============================
+// SESIÓN
+// ===============================
 $Contratista    = $_SESSION['Contratista'] ?? null;
 $idContratistas = $_SESSION['idContratistas'] ?? null;
 
@@ -21,27 +25,12 @@ if (empty($Contratista) || empty($idContratistas)) {
     exit;
 }
 
-// VALORES RECIBIDOS POR POST
+// ===============================
+// POST
+// ===============================
 $emulador   = $_POST['emulador'] ?? null;
 $semana     = $_POST['semana'] ?? null;
 $tecnologia = $_POST['tecnologia'] ?? null;
-
-/*echo "<h3>Contenido de \$emulador:</h3>";
-echo "<pre>";
-print_r($emulador);
-echo "</pre>"; */
-
-/*echo "<h3>Contenido de \$semana:</h3>";
-echo "<pre>";
-print_r($semana);
-echo "</pre>"; */
-
-/* echo "<h3>Contenido de \$tecnologia:</h3>";
-echo "<pre>";
-print_r($tecnologia);
-echo "</pre>";  */
-
-
 
 // VALIDACIÓN DE FILTROS
 if (empty($emulador) || empty($semana) || empty($tecnologia)) {
@@ -49,10 +38,12 @@ if (empty($emulador) || empty($semana) || empty($tecnologia)) {
     exit;
 }
 
-// NORMALIZAMOS EMULADOR
+// NORMALIZAR
 $emulador = strtoupper(trim($emulador));
 
-// OBTENER ID DEL EMULADOR POR MEDIO DEL NOMBRE DEL EMULADOR
+// ===============================
+// EMULADOR
+// ===============================
 $nomina = new Nomina();
 $idEmulador = $nomina->obtenerIdEmuladorPorNombre($emulador);
 
@@ -61,33 +52,30 @@ if (!$idEmulador) {
     exit;
 }
 
-// CONSTRUCCIÓN DE FOLIO PACO
-$foliopaco = $emulador . "_" . $semana;
-
-// INSTANCIA DE OPS
+// ===============================
+// INSTANCIA
+// ===============================
 $modal = new Ops();
 
-// Obtener expedientes de técnicos del contratista
+// ===============================
+// EXPEDIENTES
+// ===============================
 $expedientesData = $modal->ObtenerExpedientesPorContratista($idContratistas);
 $expedientesData = is_array($expedientesData) ? $expedientesData : [];
 
-// Convertir los expedientes a un arreglo simple
 $expedientes = [];
 foreach ($expedientesData as $exp) {
     $expedientes[] = $exp['NExpediente'];
 }
 
-/* echo "<pre>";
-print_r($expedientes);
-echo "</pre>"; */
-
-// Si no hay expedientes, no continuar
 if (empty($expedientes)) {
     echo "<p>No se encontraron expedientes de técnicos para este contratista.</p>";
     exit;
 }
 
-// OBTENER PRODUCCIÓN SIN INCIDENCIAS
+// ===============================
+// CONSULTA
+// ===============================
 $filas = $modal->ObtenerProduccionContratistaSinIncidencias(
     $idContratistas,
     $emulador,
@@ -96,21 +84,16 @@ $filas = $modal->ObtenerProduccionContratistaSinIncidencias(
     $expedientes
 );
 
-// VALIDACIONES FINALES
 $filas = is_array($filas) ? $filas : [];
-
-// DEPURACIÓN: ver qué contiene $filas
-/* echo "<h3>Contenido de \$filas:</h3>";
-echo "<pre>";
-print_r($filas);
-echo "</pre>"; */
 
 if (empty($filas)) {
     echo "<p>No se encontraron registros sin incidencias para los filtros seleccionados.</p>";
     exit;
 }
 
-// VARIABLES AUXILIARES
+// ===============================
+// VARIABLES AUX
+// ===============================
 $Estatus = 'PENDIENTE';
 date_default_timezone_set("America/Mexico_City");
 $fecha = date("Y-m-d H:i:s");
