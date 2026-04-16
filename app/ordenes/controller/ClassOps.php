@@ -18,6 +18,7 @@ private $cacheEsci = [];
 private $cacheEsciTelefonos = [];
 private $cacheEsciSerie = [];
 private $cacheEsciData = [];
+private $cacheTacSerie = [];
 
 private $cacheTacExact = [];
 private $cacheTacGeneral = [];
