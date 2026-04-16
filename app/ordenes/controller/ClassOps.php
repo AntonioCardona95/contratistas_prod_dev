@@ -2611,50 +2611,24 @@ public function ConteoAlertas($idContratistas, $semana)
     return $rows;
 } */
 
-public function ObtenerProduccionContratistaSinIncidencias($idContratista, $emulador, $semana, $tecnologia,$expedientes = [],
-    $tolerancia = 5)
+public function ObtenerProduccionContratistaSinIncidencias(
+    $idContratista,
+    $emulador,
+    $semana,
+    $tecnologia,
+    $expedientes = [],
+    $tolerancia = 5
+)
 {
-   /* echo "<pre>";
-print_r($expedientes);
-echo "</pre>";
-exit; */
-
-
     $rows = [];
     $conexion_local    = $this->get_conexion();
     $conexion_analisis = $this->get_conexiondos();
+
     require_once __DIR__ . '/../funcionesemulador.php';
-
-
-    //var_dump(realpath('/opt/proyectos/contratistas/app/ordenes/funcionesemulador.php'));
-
-
-    //echo 'Intentando cargar: ' . realpath('/opt/proyectos/contratistas/app/ordenes/funcionesemulador.php');
-
-
-    //require_once("/var/www/vhosts/ed-intra.com/contratistas.ed-intra.com/ordenes/funcionesemulador.php");
-    //require_once("/opt/proyectos/contratistas/app/ordenes/funcionesemulador.php");
-
 
     $filtros          = obtenerFiltrosPorEmulador($emulador, $tecnologia);
     $prefijos         = $filtros['prefijos'];
     $excluir_prefijos = $filtros['excluir_prefijos'];
-
-   /* echo '<pre>';
-print_r($prefijos);
-print_r($excluir_prefijos);
-exit; */
-
-
-// Debug transparente
-/*echo '<h3>Contenido de $filtros</h3>';
-print_r($filtros);
-
-echo '<h3>Contenido de $prefijos</h3>';
-print_r($prefijos);
-
-echo '<h3>Contenido de $excluir_prefijos</h3>';
-print_r($excluir_prefijos); */
 
     $condicionesTarea = "";
 
@@ -2674,56 +2648,56 @@ print_r($excluir_prefijos); */
 
     $condicionExpedientes = "";
 
-if (!empty($expedientes)) {
-    $expedientes = array_map('intval', $expedientes); // seguridad
-    $listaExpedientes = implode(',', $expedientes);
-    $condicionExpedientes = " AND t.NExpediente IN ($listaExpedientes)";
-}
+    if (!empty($expedientes)) {
+        $expedientes = array_map('intval', $expedientes);
+        $listaExpedientes = implode(',', $expedientes);
+        $condicionExpedientes = " AND t.NExpediente IN ($listaExpedientes)";
+    }
 
     $sql = "SELECT 
-    pc.Folio_Pisa,
-    tic.Telefono,
-    tic.Tecnologia,
-    tic.Tipo_Tarea,
-    c.COPE,
-    t.Nombre_T,
-    t.Apellidos_T,
-    t.NExpediente,
-    tic.Distrito,
-    tic.Ont AS Numero_Serie,
-    tic.Fecha_Coordiapp AS Fecha_Liquidacion,
-    a.area,
-    d.Division,
-    tic.FK_Cope,
-    tic.FK_Tecnico_apps,
-    tic.Metraje AS Metraje_Coordiapp,
-    pc.metraje AS Metraje_Contratista,
-    tic.Tipo_Instalacion,
-    tic.Direccion_Cliente,
-    tic.Terminal,
-    tic.Puerto,
-    tic.Latitud,
-    tic.Longitud,
-    tic.Cliente_Titular
-FROM Produccion_contratista AS pc
-INNER JOIN tecnico_instalaciones_coordiapp AS tic
-    ON pc.Folio_Pisa = tic.Folio_Pisa
-LEFT JOIN tecnicos AS t
-    ON t.idTecnico = tic.FK_Tecnico_apps
-LEFT JOIN copes AS c
-    ON c.id = tic.FK_Cope
-LEFT JOIN areas AS a
-    ON a.idAreas = c.FK_Area
-LEFT JOIN divisiones AS d
-    ON d.idDivision = a.FK_Division
-WHERE pc.FK_Contratista = :idContratista
-  AND TRIM(pc.Semana) = :semana
-  AND (
-    UPPER(TRIM(tic.Tecnologia)) = :tecnologia
-    OR UPPER(TRIM(tic.Tecnologia)) LIKE CONCAT(:tecnologia, ' %')
-)
-  $condicionesTarea
-  $condicionExpedientes";
+        pc.Folio_Pisa,
+        tic.Telefono,
+        tic.Tecnologia,
+        tic.Tipo_Tarea,
+        c.COPE,
+        t.Nombre_T,
+        t.Apellidos_T,
+        t.NExpediente,
+        tic.Distrito,
+        tic.Ont AS Numero_Serie,
+        tic.Fecha_Coordiapp AS Fecha_Liquidacion,
+        a.area,
+        d.Division,
+        tic.FK_Cope,
+        tic.FK_Tecnico_apps,
+        tic.Metraje AS Metraje_Coordiapp,
+        pc.metraje AS Metraje_Contratista,
+        tic.Tipo_Instalacion,
+        tic.Direccion_Cliente,
+        tic.Terminal,
+        tic.Puerto,
+        tic.Latitud,
+        tic.Longitud,
+        tic.Cliente_Titular
+    FROM Produccion_contratista AS pc
+    INNER JOIN tecnico_instalaciones_coordiapp AS tic
+        ON pc.Folio_Pisa = tic.Folio_Pisa
+    LEFT JOIN tecnicos AS t
+        ON t.idTecnico = tic.FK_Tecnico_apps
+    LEFT JOIN copes AS c
+        ON c.id = tic.FK_Cope
+    LEFT JOIN areas AS a
+        ON a.idAreas = c.FK_Area
+    LEFT JOIN divisiones AS d
+        ON d.idDivision = a.FK_Division
+    WHERE pc.FK_Contratista = :idContratista
+      AND TRIM(pc.Semana) = :semana
+      AND (
+        UPPER(TRIM(tic.Tecnologia)) = :tecnologia
+        OR UPPER(TRIM(tic.Tecnologia)) LIKE CONCAT(:tecnologia, ' %')
+      )
+      $condicionesTarea
+      $condicionExpedientes";
 
     $stmt = $conexion_local->prepare($sql);
     $stmt->bindParam(':idContratista', $idContratista, PDO::PARAM_INT);
@@ -2733,44 +2707,22 @@ WHERE pc.FK_Contratista = :idContratista
 
     $filas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    if (!is_array($filas) || empty($filas)) {
+    if (empty($filas)) {
         return [];
     }
 
-   /* echo "<pre>";
-echo "RESULTADO DEL QUERY:\n";
-print_r($filas);
-exit; */
-
     foreach ($filas as $row) {
+
         $alerta = $this->verificarAlerta(
             $conexion_local,
             $conexion_analisis,
             $row['Folio_Pisa'],
             $row['Telefono'],
             $row['Metraje_Contratista'],
-            $expedientes,
-            $idContratista
+            $idContratista,   // ✅ ORDEN CORRECTO
+            $expedientes      // ✅ OPCIONAL AL FINAL
         );
 
-        //  DEBUG AQUÍ
-    /* echo "<pre>";
-    echo "Folio: " . $row['Folio_Pisa'] . "\n";
-    print_r($alerta);
-    echo "</pre>"; */
-
-   /* echo "<pre>";
-echo "Folio: " . $row['Folio_Pisa'] . "\n";
-echo "Alerta: " . $alerta['Alerta'] . "\n";
-echo "Dif Metraje: " . $alerta['Diferencia_Metraje'] . "\n";
-echo "Dif Distancia: " . $alerta['Diferencia_Metraje_Distancia'] . "\n";
-echo "---------------------------------\n";
-echo "</pre>"; */
-
-
-
-
-        // Se permite cierta tolerancia en diferencias
         if (
             empty($alerta['Alerta']) &&
             $alerta['Diferencia_Metraje'] <= $tolerancia &&
@@ -2782,7 +2734,6 @@ echo "</pre>"; */
 
     return $rows;
 }
-
 
 
 // posible insersion //
