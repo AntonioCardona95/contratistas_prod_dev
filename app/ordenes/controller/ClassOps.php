@@ -1494,13 +1494,10 @@ private function agregarAlerta(&$alertas, &$origen, $mensaje, $valor) {
     $origen[] = $valor;
 }
 
-private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa, $telefonoProduccion, $metrajeProduccion, $expedientes = [],$idContratistas)
+private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa, $telefonoProduccion, $metrajeProduccion, $expedientes = [], $idContratistas)
 {
-  
-
     try {
-        
-
+        // Inicialización de contenedores (Manteniendo todos tus campos originales)
         $alertas = [];
         $valorTac = [];
         $valorLocal = [];
@@ -1513,423 +1510,206 @@ private function verificarAlerta($conexion_local, $conexion_analisis, $folioPisa
         $metrajeDistancia = 0;
         $diferenciaMetrajeDistancia = 0;
 
-       // ===============================
-// ESCI OPTIMIZADO (1 SOLA QUERY)
-// ===============================
-$telefonoLimpio = $this->soloNumeros($telefonoProduccion);
+        $telefonoLimpio = $this->soloNumeros($telefonoProduccion);
 
-if (!isset($this->cacheEsci[$telefonoLimpio])) {
-
-    $stmtEsci = $conexion_analisis->prepare("
-        SELECT 
-            M_SERIE,
-            GROUP_CONCAT(DISTINCT TELEFONO) AS telefonos,
-            MAX(DID_ACTIVO) AS estado
-        FROM seg_ns_eci
-        WHERE TELEFONO = ?
-        AND TELEFONO IS NOT NULL
-        AND TELEFONO <> ''
-        AND TELEFONO <> '0'
-        GROUP BY M_SERIE
-        LIMIT 1
-    ");
-
-    $stmtEsci->execute([$telefonoLimpio]);
-    $this->cacheEsci[$telefonoLimpio] = $stmtEsci->fetch(PDO::FETCH_ASSOC) ?: [];
-}
-
-$dataEsci = $this->cacheEsci[$telefonoLimpio];
-
-$nsEsci = strtoupper(trim($this->limpiar($dataEsci['M_SERIE'] ?? '')));
-$estadoEsci = isset($dataEsci['estado']) ? (int)$dataEsci['estado'] : null;
-
-$telefonoActual = preg_replace('/\D/', '', $telefonoProduccion);
-
-$telefonosEsci = $dataEsci['telefonos'] ?? '';
-$telefonosArray = [];
-
-if ($telefonosEsci !== '') {
-    $telefonosArray = array_unique(array_map(function($tel) {
-        return preg_replace('/\D/', '', trim($tel));
-    }, explode(',', $telefonosEsci)));
-}
-
-$telefonosDiferentes = array_filter($telefonosArray, function($tel) use ($telefonoActual) {
-    return $tel !== '' && $tel !== '0' && $tel !== $telefonoActual;
-});
-
-$totalTelefonosDiferentes = count($telefonosDiferentes);
-
-$esSerieDesconocida = (
-    $nsEsci === '' || 
-    $nsEsci === 'DESCONOCIDO'
-);
-
-if (!$esSerieDesconocida && $totalTelefonosDiferentes > 0) {
-
-    $alertas[] = "Serie ONT duplicada en ESCI";
-    $valorEsci[] = "Serie ESCI: $nsEsci";
-
-    $telefonosMostrar = implode(', ', $telefonosDiferentes);
-
-    $mensajeDetalleEsci = "El Numero de serie en ESCI: $nsEsci se uso en telefonos diferentes";
-
-    if ($telefonosMostrar !== '') {
-        $mensajeDetalleEsci .= ": $telefonosMostrar";
-    }
-
-    $detalleSerieDuplicadaEsci[] = $mensajeDetalleEsci;
-}
-
-if ($nsEsci !== '' && !$esSerieDesconocida && $estadoEsci !== null) {
-
-    if ($estadoEsci === 0) {
-        $this->agregarAlerta($alertas, $valorEsci, "Servicio sin navegación en ESCI", "Serie ESCI: $nsEsci");
-    }
-
-    if ($estadoEsci === -1) {
-        $this->agregarAlerta($alertas, $valorEsci, "Servicio inactivo en ESCI", "Serie ESCI: $nsEsci");
-    }
-}
-
-        // ===============================
-        // TAC EXACTO (CACHE)
-        // ===============================
-        if (!isset($this->cacheTacExact[$folioPisa][$telefonoProduccion])) {
-            $stmtFolio = $conexion_analisis->prepare("
-                SELECT TELEFONO, Tipo_De_Tarea, NOM_CT, Tecnico, Num__Serie ,TECNOLOGIA,Expediente
-                FROM qm_tac 
-                WHERE Folio_Pisa = ? 
-                AND TELEFONO = ? 
-                AND Calificador_Edo = 'COMPLETADA'
-                LIMIT 1
+        // ==========================================================
+        // 1. ESCI: ESCENARIOS COMPLETOS
+        // ==========================================================
+        if (!isset($this->cacheEsci[$telefonoLimpio])) {
+            $stmtEsci = $conexion_analisis->prepare("
+                SELECT M_SERIE, GROUP_CONCAT(DISTINCT TELEFONO) AS telefonos, MAX(DID_ACTIVO) AS estado
+                FROM seg_ns_eci
+                WHERE TELEFONO = ? AND TELEFONO IS NOT NULL AND TELEFONO <> '' AND TELEFONO <> '0'
+                GROUP BY M_SERIE LIMIT 1
             ");
-            $stmtFolio->execute([$folioPisa, $telefonoProduccion]);
-            $this->cacheTacExact[$folioPisa][$telefonoProduccion] = $stmtFolio->fetch(PDO::FETCH_ASSOC) ?: [];
+            $stmtEsci->execute([$telefonoLimpio]);
+            $this->cacheEsci[$telefonoLimpio] = $stmtEsci->fetch(PDO::FETCH_ASSOC) ?: [];
         }
 
-        $tacDataExact = $this->cacheTacExact[$folioPisa][$telefonoProduccion];
+        $dataEsci = $this->cacheEsci[$telefonoLimpio];
+        $nsEsci = strtoupper(trim($this->limpiar($dataEsci['M_SERIE'] ?? '')));
+        $estadoEsci = isset($dataEsci['estado']) ? (int)$dataEsci['estado'] : null;
+        $esSerieDesconocida = ($nsEsci === '' || $nsEsci === 'DESCONOCIDO');
 
-        // ===============================
-        // TAC GENERAL (CACHE)
-        // ===============================
+        // Escenario: Duplicados en ESCI
+        $telefonosEsciStr = $dataEsci['telefonos'] ?? '';
+        if ($telefonosEsciStr !== '') {
+            $telefonosArray = array_unique(array_map(fn($t) => preg_replace('/\D/', '', trim($t)), explode(',', $telefonosEsciStr)));
+            $telefonosDiferentes = array_filter($telefonosArray, fn($t) => $t !== '' && $t !== '0' && $t !== $telefonoLimpio);
+
+            if (!$esSerieDesconocida && count($telefonosDiferentes) > 0) {
+                $alertas[] = "Serie ONT duplicada en ESCI";
+                $valorEsci[] = "Serie ESCI: $nsEsci";
+                $mensajeDetalleEsci = "El Numero de serie en ESCI: $nsEsci se uso en telefonos diferentes: " . implode(', ', $telefonosDiferentes);
+                $detalleSerieDuplicadaEsci[] = $mensajeDetalleEsci;
+            }
+        }
+
+        // Escenarios: Estado del servicio en ESCI
+        if (!$esSerieDesconocida && $nsEsci !== '' && $estadoEsci !== null) {
+            if ($estadoEsci === 0) $this->agregarAlerta($alertas, $valorEsci, "Servicio sin navegación en ESCI", "Serie ESCI: $nsEsci");
+            if ($estadoEsci === -1) $this->agregarAlerta($alertas, $valorEsci, "Servicio inactivo en ESCI", "Serie ESCI: $nsEsci");
+        }
+
+        // ==========================================================
+        // 2. TAC: UNIFICADO (Data exacta + General + Duplicados)
+        // ==========================================================
+        // Optimizamos haciendo un solo viaje a la DB para traer todo lo relacionado a este folio
         if (!isset($this->cacheTacGeneral[$folioPisa])) {
-            $stmtFolioData = $conexion_analisis->prepare("
-                SELECT TELEFONO, Tipo_De_Tarea, NOM_CT, Tecnico, Num__Serie ,TECNOLOGIA,Expediente
-                FROM qm_tac
-                WHERE Folio_Pisa = ? 
-                AND Calificador_Edo = 'COMPLETADA'
-                LIMIT 1
+            $stmtTac = $conexion_analisis->prepare("
+                SELECT *,
+                    (SELECT GROUP_CONCAT(DISTINCT TELEFONO) FROM qm_tac WHERE Num__Serie = t.Num__Serie AND Calificador_Edo = 'COMPLETADA' AND TELEFONO NOT IN ('', '0')) as tels_duplicados,
+                    (SELECT GROUP_CONCAT(DISTINCT Folio_Pisa) FROM qm_tac WHERE Num__Serie = t.Num__Serie AND Calificador_Edo = 'COMPLETADA') as folios_duplicados
+                FROM qm_tac t
+                WHERE Folio_Pisa = ? AND Calificador_Edo = 'COMPLETADA'
+                ORDER BY (TELEFONO = ?) DESC LIMIT 1
             ");
-            $stmtFolioData->execute([$folioPisa]);
-            $this->cacheTacGeneral[$folioPisa] = $stmtFolioData->fetch(PDO::FETCH_ASSOC) ?: [];
+            $stmtTac->execute([$folioPisa, $telefonoProduccion]);
+            $this->cacheTacGeneral[$folioPisa] = $stmtTac->fetch(PDO::FETCH_ASSOC) ?: [];
         }
 
         $tacData = $this->cacheTacGeneral[$folioPisa];
 
-        // ===============================
-        // TAC ONT DUPLICADA (CACHE)
-        // ===============================
-        if (!isset($this->cacheTacOnt[$folioPisa][$telefonoProduccion])) {
+        // Escenario: Duplicados en TAC
+        if (!empty($tacData['Num__Serie'])) {
+            $nsTacValidar = $this->limpiar($tacData['Num__Serie']);
+            $nsTacUpper = strtoupper(trim($nsTacValidar));
+            $esSerieInvalidaTac = ($nsTacUpper === '' || str_contains($nsTacUpper, 'NO OBTENIDO') || str_contains($nsTacUpper, 'DESCONOCIDO'));
 
-            $stmtOntTac = $conexion_analisis->prepare("
-                SELECT 
-                    Num__Serie,
-                    GROUP_CONCAT(DISTINCT TELEFONO) AS telefonos,
-                    GROUP_CONCAT(DISTINCT Folio_Pisa) AS folios
-                FROM qm_tac
-                WHERE Num__Serie = (
-                    SELECT Num__Serie
-                    FROM qm_tac
-                    WHERE Folio_Pisa = ?
-                    AND TELEFONO = ?
-                    AND Calificador_Edo = 'COMPLETADA'
-                    LIMIT 1
-                )
-                AND Calificador_Edo = 'COMPLETADA'
-                AND TELEFONO IS NOT NULL
-                AND TELEFONO <> ''
-                AND TELEFONO <> '0'
-                GROUP BY Num__Serie
-                LIMIT 1
-            ");
-
-            $stmtOntTac->execute([$folioPisa, $telefonoProduccion]);
-            $this->cacheTacOnt[$folioPisa][$telefonoProduccion] = $stmtOntTac->fetch(PDO::FETCH_ASSOC) ?: [];
+            $telsTacArray = array_unique(array_filter(explode(',', $tacData['tels_duplicados'] ?? ''), fn($t) => $this->soloNumeros($t) !== ''));
+            
+            if (!$esSerieInvalidaTac && count($telsTacArray) > 1) {
+                $alertas[] = "ONT duplicada en TAC";
+                $ultimo = array_pop($telsTacArray);
+                $telefonosMostrar = count($telsTacArray) > 0 ? implode(', ', $telsTacArray) . ' y ' . $ultimo : $ultimo;
+                
+                $msgDetalleTac = "El Numero de serie en TAC: $nsTacValidar se uso en telefonos diferentes: $telefonosMostrar";
+                if (!empty($tacData['folios_duplicados'])) $msgDetalleTac .= ", y en los folios " . $tacData['folios_duplicados'];
+                $detalleSerieDuplicadaTac[] = $msgDetalleTac;
+            }
         }
 
-        $dataOntTac = $this->cacheTacOnt[$folioPisa][$telefonoProduccion];
-
-        $nsTacValidar = $this->limpiar($dataOntTac['Num__Serie'] ?? '');
-        $telefonosTac = $dataOntTac['telefonos'] ?? '';
-        $foliosTac    = $dataOntTac['folios'] ?? '';
-
-        $telefonosArray = [];
-
-        if ($telefonosTac !== '') {
-            $telefonosArray = array_map(function($tel) {
-                return preg_replace('/\D/', '', trim($tel));
-            }, explode(',', $telefonosTac));
-        }
-
-        $telefonosLimpios = array_filter($telefonosArray, function($tel) {
-            return $tel !== '' && $tel !== '0';
-        });
-
-        $telefonosUnicos = array_values(array_unique($telefonosLimpios));
-
-        $nsTacUpper = strtoupper(trim($nsTacValidar));
-
-        $esSerieInvalida = (
-            $nsTacUpper === '' ||
-            strpos($nsTacUpper, 'NO OBTENIDO') !== false ||
-            strpos($nsTacUpper, 'DESCONOCIDO') !== false
-        );
-
-        if (!$esSerieInvalida && count($telefonosUnicos) > 1) {
-
-            $alertas[] = "ONT duplicada en TAC";
-
-            if (count($telefonosUnicos) > 1) {
-                $ultimo = array_pop($telefonosUnicos);
-                $telefonosMostrar = implode(', ', $telefonosUnicos) . ' y ' . $ultimo;
-            } else {
-                $telefonosMostrar = $telefonosUnicos[0] ?? '';
-            }
-
-            $mensajeDetalle = "El Numero de serie en TAC: $nsTacValidar se uso en telefonos diferentes";
-
-            if ($telefonosMostrar !== '') {
-                $mensajeDetalle .= ": $telefonosMostrar";
-            }
-
-            if ($foliosTac !== '') {
-                $mensajeDetalle .= ", y en los folios $foliosTac";
-            }
-
-            $detalleSerieDuplicadaTac[] = $mensajeDetalle;
-        }
-
-        // ===============================
-        // LOCAL (CACHE)
-        // ===============================
+        // ==========================================================
+        // 3. LOCAL DATA & COPES
+        // ==========================================================
         if (!isset($this->cacheLocal[$folioPisa][$telefonoProduccion])) {
-
             $stmtLocal = $conexion_local->prepare("
-                SELECT Telefono, Tipo_Tarea, FK_Cope, FK_Tecnico_apps, Ont, 
-                       Foto_Puerto, Foto_Casa_Cliente, Foto_Ont, 
-                       No_Serie_ONT, Foto_INE, Metraje,
-                       Latitud_Terminal, Longitud_Terminal,
-                       Latitud, Longitud, Tecnologia,
-                       Tipo_Instalacion, validacion_tipo_instalacion,
-                       validacion_foto_fallida,
-                       validacion_LEDS_ONT_fallida,
-                       orden_cambaceo,
-                       Codigo_Liquidacion
-                FROM tecnico_instalaciones_coordiapp
-                WHERE Folio_Pisa = :folio
-                  AND Telefono = :telefono
-                  AND Estatus_Orden = 'COMPLETADA'
-                LIMIT 1
+                SELECT * FROM tecnico_instalaciones_coordiapp 
+                WHERE Folio_Pisa = ? AND Telefono = ? AND Estatus_Orden = 'COMPLETADA' LIMIT 1
             ");
-
-            $stmtLocal->execute([':folio' => $folioPisa, ':telefono' => $telefonoProduccion]);
+            $stmtLocal->execute([$folioPisa, $telefonoProduccion]);
             $this->cacheLocal[$folioPisa][$telefonoProduccion] = $stmtLocal->fetch(PDO::FETCH_ASSOC) ?: [];
         }
-
         $localData = $this->cacheLocal[$folioPisa][$telefonoProduccion];
 
-        // ===============================
-        // CACHE COPES
-        // ===============================
         if (empty($this->cacheCopes)) {
             $this->cacheCopes = $conexion_local->query("SELECT id, COPE FROM copes")->fetchAll(PDO::FETCH_KEY_PAIR);
         }
 
-        // ===============================
-        // VALIDAR ONT EN ALMACEN
-        // ===============================
-        if ($res = $this->validarOntAlmacen(
-            $conexion_local,
-            $localData['Ont'] ?? '',
-            $idContratistas
-        )) {
+        // Escenario: Almacén y Cambaceo
+        if ($res = $this->validarOntAlmacen($conexion_local, $localData['Ont'] ?? '', $idContratistas)) {
             $this->agregarAlerta($alertas, $valorLocal, $res[0], $res[1]);
         }
-
-        $esCambaceo = intval($localData['orden_cambaceo'] ?? 0);
-
-        if (empty($tacData) && $esCambaceo !== 1) {
+        if (empty($tacData) && intval($localData['orden_cambaceo'] ?? 0) !== 1) {
             $this->agregarAlerta($alertas, $valorTac, "No se encuentra en TAC", "Folio Pisa: $folioPisa");
         }
 
-        // ===============================
-        // DISTANCIA
-        // ===============================
-        $lat1 = floatval($localData['Latitud_Terminal'] ?? 0);
-        $lon1 = floatval($localData['Longitud_Terminal'] ?? 0);
-        $lat2 = floatval($localData['Latitud'] ?? 0);
-        $lon2 = floatval($localData['Longitud'] ?? 0);
-
-        if ($lat1 != 0 && $lon1 != 0 && $lat2 != 0 && $lon2 != 0) {
-            $earthRadius = 6371000;
-            $dLat = deg2rad($lat2 - $lat1);
-            $dLon = deg2rad($lon2 - $lon1);
-            $a = sin($dLat / 2) * sin($dLat / 2) +
-                 cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
-                 sin($dLon / 2) * sin($dLon / 2);
-            $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-            $metrajeDistancia = round($earthRadius * $c, 2);
-        }
-
-        // ===============================
-        // VALIDACIONES TAC vs LOCAL
-        // ===============================
+        // ==========================================================
+        // 4. COMPARACIONES TAC VS LOCAL (TODOS LOS ESCENARIOS)
+        // ==========================================================
         if (!empty($tacData)) {
-
             $nsTAC = $this->limpiar($tacData['Num__Serie'] ?? '');
             $nsLocal = $this->limpiar($localData['Ont'] ?? '');
             $nsEsci_cmp = $this->normalizarSerie($nsEsci);
-
             $nsTAC_cmp = $this->normalizarSerie($nsTAC);
             $nsLocal_cmp = $this->normalizarSerie($nsLocal);
 
-            $alertaNS = (
-                $nsTAC_cmp !== $nsLocal_cmp &&
-                !($nsTAC_cmp === '' && $nsLocal_cmp === $nsEsci_cmp)
-            );
+            // Escenario: Serie Diferente (Considerando ESCI)
+            $alertaNS = ($nsTAC_cmp !== $nsLocal_cmp && !($nsTAC_cmp === '' && $nsLocal_cmp === $nsEsci_cmp));
 
-            $comparaciones = [
-                [
-                    'tac' => $this->soloNumeros($tacData['TELEFONO'] ?? ''),
-                    'local' => $this->soloNumeros($localData['Telefono'] ?? ''),
-                    'mensaje' => 'Teléfonos diferentes',
-                    'formato' => 'Teléfono %s: %s'
-                ],
-                [
-                    'tac' => $this->limpiar($tacData['NOM_CT'] ?? ''),
-                    'local' => $localData['FK_Cope'] ? $this->limpiar($this->cacheCopes[$localData['FK_Cope']] ?? '') : '',
-                    'mensaje' => 'COPE diferentes',
-                    'formato' => 'COPE %s: %s'
-                ],
-                [
-                    'tac' => $this->normalizarTecnologia($this->limpiar($tacData['TECNOLOGIA'] ?? '')),
-                    'local' => $this->normalizarTecnologia($this->limpiar($localData['Tecnologia'] ?? '')),
-                    'mensaje' => 'Tecnología diferente',
-                    'formato' => 'Tecnología %s: %s'
-                ],
-                [
-                    'tac' => $nsTAC,
-                    'local' => $nsLocal,
-                    'mensaje' => 'Números de serie diferentes',
-                    'formato' => 'Serie %s: %s',
-                    'alerta' => $alertaNS
-                ],
+            $comps = [
+                ['t' => $this->soloNumeros($tacData['TELEFONO'] ?? ''), 'l' => $this->soloNumeros($localData['Telefono'] ?? ''), 'msg' => 'Teléfonos diferentes', 'fmt' => 'Teléfono %s: %s'],
+                ['t' => $this->limpiar($tacData['NOM_CT'] ?? ''), 'l' => $this->limpiar($this->cacheCopes[$localData['FK_Cope'] ?? ''] ?? ''), 'msg' => 'COPE diferentes', 'fmt' => 'COPE %s: %s'],
+                ['t' => $this->normalizarTecnologia($this->limpiar($tacData['TECNOLOGIA'] ?? '')), 'l' => $this->normalizarTecnologia($this->limpiar($localData['Tecnologia'] ?? '')), 'msg' => 'Tecnología diferente', 'fmt' => 'Tecnología %s: %s'],
+                ['t' => $nsTAC, 'l' => $nsLocal, 'msg' => 'Números de serie diferentes', 'fmt' => 'Serie %s: %s', 'force' => $alertaNS]
             ];
 
-            foreach ($comparaciones as $cmp) {
-
-                $tac = $this->limpiar($cmp['tac']);
-                $local = $this->limpiar($cmp['local']);
-
-                $disparar = $cmp['alerta'] ?? ($tac !== $local || ($tac === '' && $local === ''));
-
-                if ($disparar) {
-
-                    $this->agregarAlerta($alertas, $valorTac, $cmp['mensaje'], sprintf($cmp['formato'], 'TAC', $tac ?: 'Vacío'));
-                    $valorLocal[] = sprintf($cmp['formato'], 'Coordiapp', $local ?: 'Vacío');
-
-                    if ($cmp['mensaje'] === 'Números de serie diferentes') {
-                        $valorEsci[] = "Serie ESCI: " . ($nsEsci ?: 'Sin dato');
-                    }
+            foreach ($comps as $c) {
+                if (($c['force'] ?? false) || ($c['t'] !== $c['l'] || ($c['t'] === '' && $c['l'] === ''))) {
+                    $this->agregarAlerta($alertas, $valorTac, $c['msg'], sprintf($c['fmt'], 'TAC', $c['t'] ?: 'Vacío'));
+                    $valorLocal[] = sprintf($c['fmt'], 'Coordiapp', $c['l'] ?: 'Vacío');
+                    if ($c['msg'] === 'Números de serie diferentes') $valorEsci[] = "Serie ESCI: " . ($nsEsci ?: 'Sin dato');
                 }
             }
 
-            $tipoTacBase   = substr(strtoupper($this->limpiar($tacData['Tipo_De_Tarea'] ?? '')), 0, 7);
+            // Escenario: Tipo de Tarea
+            $tipoTacBase = substr(strtoupper($this->limpiar($tacData['Tipo_De_Tarea'] ?? '')), 0, 7);
             $tipoLocalBase = substr(strtoupper($this->limpiar($localData['Tipo_Tarea'] ?? '')), 0, 7);
-
             if ($tipoTacBase !== $tipoLocalBase || ($tipoTacBase === '' && $tipoLocalBase === '')) {
                 $alertas[] = "Tipo de tarea diferente";
-                $valorTac[] = "Tipo TAC: " . ($tacData['Tipo_De_Tarea'] ?? 'Vacío');
-                $valorLocal[] = "Tipo Coordiapp: " . ($localData['Tipo_Tarea'] ?? 'Vacío');
+                $valorTac[] = "Tipo TAC: " . ($tacData['Tipo_De_Tarea'] ?: 'Vacío');
+                $valorLocal[] = "Tipo Coordiapp: " . ($localData['Tipo_Tarea'] ?: 'Vacío');
             }
         }
 
-        // ===============================
-        // EXPEDIENTE
-        // ===============================
-        $expedienteTac = $this->limpiar($tacDataExact['Expediente'] ?? $tacData['Expediente'] ?? '');
-        $expedientesNormalizados = array_filter(array_map([$this, 'limpiar'], $expedientes));
-
-        if ($expedienteTac === '' || !in_array($expedienteTac, $expedientesNormalizados, true)) {
-
-            $this->agregarAlerta($alertas, $valorTac, "Expediente diferente", "Expediente TAC: " . ($expedienteTac ?: 'Vacío'));
-
-            $expedienteMostrar = !empty($expedientesNormalizados) ? reset($expedientesNormalizados) : 'Sin expedientes';
-
-            $valorLocal[] = "Expediente Coordiapp: " . $expedienteMostrar;
+        // Escenario: Expediente
+        $expTac = $this->limpiar($tacData['Expediente'] ?? '');
+        $expsNorm = array_filter(array_map([$this, 'limpiar'], $expedientes));
+        if ($expTac === '' || !in_array($expTac, $expsNorm, true)) {
+            $this->agregarAlerta($alertas, $valorTac, "Expediente diferente", "Expediente TAC: " . ($expTac ?: 'Vacío'));
+            $valorLocal[] = "Expediente Coordiapp: " . (!empty($expsNorm) ? reset($expsNorm) : 'Sin expedientes');
         }
 
-        // ===============================
-        // FOTOS (NO SE TOCÓ)
-        // ===============================
+        // ==========================================================
+        // 5. EVIDENCIAS FOTOGRÁFICAS (ESCENARIOS COMPLETOS)
+        // ==========================================================
         $tipoTarea = strtoupper($this->limpiar($localData['Tipo_Tarea'] ?? ''));
-        $codigoLiquidacion = strtoupper($this->limpiar($localData['Codigo_Liquidacion'] ?? ''));
-
+        $codLiq = strtoupper($this->limpiar($localData['Codigo_Liquidacion'] ?? ''));
         $camposFotos = [];
-        $usaPuertoCasa = false;
-        $usaOnt = false;
+        $usaPuertoCasa = $usaOnt = false;
 
-        if (strpos($tipoTarea, 'Q') === 0) {
-             if (in_array($codigoLiquidacion, ['JUMPER/PARALELO EXTERIOR','CONECTOR MECANICO DAÑADO','CAMBIO DE PUERTO','CAMBIO DE TERMINAL'])) {
-                $camposFotos = ['Foto_Casa_Cliente','Foto_Puerto'];
-                $usaPuertoCasa = true;
-            } elseif ($codigoLiquidacion === 'MODEM DAÑADO') {
-                $camposFotos = ['Foto_Casa_Cliente','Foto_Ont'];
-                $usaOnt = true;
-            } elseif (in_array($codigoLiquidacion, ['CAMBIO PAR PRINCIPAL','CAMBIO PAR SECUNDARIO','ROSETA OPTICA','CAMBIO DE INTERIOR'])) {
+        if (str_starts_with($tipoTarea, 'Q')) {
+            if (in_array($codLiq, ['JUMPER/PARALELO EXTERIOR','CONECTOR MECANICO DAÑADO','CAMBIO DE PUERTO','CAMBIO DE TERMINAL'])) {
+                $camposFotos = ['Foto_Casa_Cliente','Foto_Puerto']; $usaPuertoCasa = true;
+            } elseif ($codLiq === 'MODEM DAÑADO') {
+                $camposFotos = ['Foto_Casa_Cliente','Foto_Ont']; $usaOnt = true;
+            } elseif (in_array($codLiq, ['CAMBIO PAR PRINCIPAL','CAMBIO PAR SECUNDARIO','ROSETA OPTICA','CAMBIO DE INTERIOR'])) {
                 $camposFotos = ['Foto_Casa_Cliente'];
-            } elseif (in_array($codigoLiquidacion, ['CAMBIO PARALELO Y MODEM','OTRO'])) {
-                $camposFotos = ['Foto_Casa_Cliente','Foto_Puerto','Foto_Ont'];
-                $usaPuertoCasa = true;
-                $usaOnt = true;
+            } elseif (in_array($codLiq, ['CAMBIO PARALELO Y MODEM','OTRO'])) {
+                $camposFotos = ['Foto_Casa_Cliente','Foto_Puerto','Foto_Ont']; $usaPuertoCasa = $usaOnt = true;
             }
-
         } else {
-            $camposFotos = [
-                'Foto_Puerto' => "Falta Evidencia Fotografica del Puerto",
-                'Foto_Casa_Cliente' => "Falta evidencia de la casa",
-                'Foto_Ont' => "Falta Evidencia Fotografica ONT frontal",
-                'No_Serie_ONT' => "Falta Evidencia ONT trasera",
-                'Foto_INE' => "Falta Evidencia orden de servicio"
-            ];
-
-            $usaPuertoCasa = true;
-            $usaOnt = true;
+            $camposFotos = ['Foto_Puerto' => "Falta Evidencia Fotografica del Puerto", 'Foto_Casa_Cliente' => "Falta evidencia de la casa", 'Foto_Ont' => "Falta Evidencia Fotografica ONT frontal", 'No_Serie_ONT' => "Falta Evidencia ONT trasera", 'Foto_INE' => "Falta Evidencia orden de servicio"];
+            $usaPuertoCasa = $usaOnt = true;
         }
 
         foreach ($camposFotos as $campo => $mensaje) {
-
-            if (is_int($campo)) {
-                $campo = $mensaje;
-                $mensaje = "Falta evidencia en $campo";
-            }
-
-            $valor = $this->limpiar($localData[$campo] ?? '');
-
-            if ($valor === '' || !preg_match('/\.(jpg|jpeg|png)$/i', $valor)) {
-                $this->agregarAlerta($alertas, $valorLocal, $mensaje, "$campo inválido");
+            $nombreCampo = is_int($campo) ? $mensaje : $campo;
+            $msgFinal = is_int($campo) ? "Falta evidencia en $mensaje" : $mensaje;
+            $valFoto = $this->limpiar($localData[$nombreCampo] ?? '');
+            if ($valFoto === '' || !preg_match('/\.(jpg|jpeg|png)$/i', $valFoto)) {
+                $this->agregarAlerta($alertas, $valorLocal, $msgFinal, "$nombreCampo inválido");
             }
         }
 
         if (!empty($localData['validacion_foto_fallida']) && $usaPuertoCasa) {
-            $alertas[] = "Fallo En la Evidencia Fotografica";
-            $valorLocal[] = "Error en Foto Terminal o Domicilio";
+            $alertas[] = "Fallo En la Evidencia Fotografica"; $valorLocal[] = "Error en Foto Terminal o Domicilio";
+        }
+        if (!empty($localData['validacion_LEDS_ONT_fallida']) && $usaOnt) {
+            $alertas[] = "Fallo En la Evidencia Fotografica De Ont"; $valorLocal[] = "Error en Foto_Ont";
         }
 
-        if (!empty($localData['validacion_LEDS_ONT_fallida']) && $usaOnt) {
-            $alertas[] = "Fallo En la Evidencia Fotografica De Ont";
-            $valorLocal[] = "Error en Foto_Ont";
+        // ==========================================================
+        // 6. DISTANCIA
+        // ==========================================================
+        $lat1 = floatval($localData['Latitud_Terminal'] ?? 0);
+        $lon1 = floatval($localData['Longitud_Terminal'] ?? 0);
+        $lat2 = floatval($localData['Latitud'] ?? 0);
+        $lon2 = floatval($localData['Longitud'] ?? 0);
+        if ($lat1 != 0 && $lat2 != 0) {
+            $theta = $lon1 - $lon2;
+            $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) + cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+            $metrajeDistancia = round(rad2deg(acos(min(max($dist, -1.0), 1.0))) * 60 * 1.1515 * 1609.344, 2);
         }
 
         return [
@@ -1946,18 +1726,7 @@ if ($nsEsci !== '' && !$esSerieDesconocida && $estadoEsci !== null) {
         ];
 
     } catch (Exception $e) {
-        return [
-            'Alerta' => "Error: " . $e->getMessage(),
-            'Valor_TAC' => '',
-            'Valor_Coordiapp' => '',
-            'Valor_Contratista' => '',
-            'Valor_ESCI' => '',
-            'Detalle_Serie_Duplicada_TAC' => '',
-            'Detalle_Serie_Duplicada_ESCI' => '',
-            'Diferencia_Metraje' => 0,
-            'Metraje_Distancia' => 0,
-            'Diferencia_Metraje_Distancia' => 0
-        ];
+        return ['Alerta' => "Error: " . $e->getMessage(), 'Valor_TAC' => '', 'Valor_Coordiapp' => '', 'Valor_Contratista' => '', 'Valor_ESCI' => '', 'Detalle_Serie_Duplicada_TAC' => '', 'Detalle_Serie_Duplicada_ESCI' => '', 'Diferencia_Metraje' => 0, 'Metraje_Distancia' => 0, 'Diferencia_Metraje_Distancia' => 0];
     }
 }
 
