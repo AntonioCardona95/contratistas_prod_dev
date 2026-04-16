@@ -1375,8 +1375,8 @@ public function OrdenesConIncidencias($idContratistas, $expedientes = [], $seman
             $result['Folio_Pisa'],
             $result['Telefono'],
             $result['metraje'],
+            $idContratistas,
             $expedientes,
-            $idContratistas
         );
 
         if (!empty($alertaData['Alerta'])) {
