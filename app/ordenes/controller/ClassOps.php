@@ -2749,7 +2749,8 @@ exit; */
             $row['Folio_Pisa'],
             $row['Telefono'],
             $row['Metraje_Contratista'],
-            $expedientes
+            $expedientes,
+            $idContratistas
         );
 
         //  DEBUG AQUÍ
