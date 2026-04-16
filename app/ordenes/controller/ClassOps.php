@@ -2714,14 +2714,14 @@ public function ObtenerProduccionContratistaSinIncidencias(
     foreach ($filas as $row) {
 
         $alerta = $this->verificarAlerta(
-            $conexion_local,
-            $conexion_analisis,
-            $row['Folio_Pisa'],
-            $row['Telefono'],
-            $row['Metraje_Contratista'],
-            $idContratista,   // ✅ ORDEN CORRECTO
-            $expedientes      // ✅ OPCIONAL AL FINAL
-        );
+    $conexion_local,
+    $conexion_analisis,
+    $row['Folio_Pisa'],
+    $row['Telefono'],
+    $row['Metraje_Contratista'],
+    $idContratista,   // ✅ 6to
+    $expedientes      // ✅ 7mo
+);
 
         if (
             empty($alerta['Alerta']) &&
