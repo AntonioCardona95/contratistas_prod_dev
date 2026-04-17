@@ -1192,9 +1192,9 @@ public function OrdenesNoProcesadasPagoHoy($idContratistas)
     }
 
      // Debug: ver resultados en pantalla
-    echo "<pre>";
+    /*echo "<pre>";
     print_r($rows);
-    echo "</pre>";
+    echo "</pre>"; */
 
     return $rows;
 }
