@@ -71,7 +71,7 @@ $filas = is_array($filas) ? $filas : [];
             <th>Detalle Serie Duplicada ESCI</th>
             <th>Valor TAC</th>
             <th>Valor Coordiapp</th>
-             <th>Valor ESCI</th>
+             <th>Valor Navegacion</th>
             <th>Metraje Contratista</th>
             <th>Diferencia</th>
             <th>Metraje Distancia</th>
