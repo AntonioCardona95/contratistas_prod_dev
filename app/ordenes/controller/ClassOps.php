@@ -655,6 +655,8 @@ public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaL
     ];
 }
 
+
+
  
 
 /*public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaLiquidacion, $idContratistas, $semana, $anio, $metraje)
@@ -1596,10 +1598,10 @@ if (!$esSerieInvalida) {
 // -------------------------------
 if (!$esSerieInvalida && count($telefonosDiferentes) > 0) {
 
-    $alertas[] = "Serie ONT duplicada en ESCI";
-    $valorEsci[] = "Serie ESCI: $nsEsci";
+    $alertas[] = "Serie ONT duplicada en Nav";
+    $valorEsci[] = "Serie Nav: $nsEsci";
 
-    $mensaje = "El Numero de serie en ESCI: $nsEsci se uso en telefonos diferentes";
+    $mensaje = "El Numero de serie en Nav: $nsEsci se uso en telefonos diferentes";
 
     if (!empty($telefonosDiferentes)) {
         $mensaje .= ": " . implode(', ', $telefonosDiferentes);
@@ -1614,11 +1616,11 @@ if (!$esSerieInvalida && count($telefonosDiferentes) > 0) {
 if (!$esSerieInvalida && $estadoEsci !== null) {
 
     if ($estadoEsci === 0) {
-        $this->agregarAlerta($alertas, $valorEsci, "Servicio sin navegación en ESCI", "Serie ESCI: $nsEsci");
+        $this->agregarAlerta($alertas, $valorEsci, "Servicio sin navegación", "Serie ESCI: $nsEsci");
     }
 
     if ($estadoEsci === -1) {
-        $this->agregarAlerta($alertas, $valorEsci, "Servicio inactivo en ESCI", "Serie ESCI: $nsEsci");
+        $this->agregarAlerta($alertas, $valorEsci, "Servicio inactivo", "Serie ESCI: $nsEsci");
     }
 }
         // ===============================
