@@ -68,7 +68,7 @@ $filas = is_array($filas) ? $filas : [];
             <th>Calificador</th>
             <th>Alerta</th>
             <th>Detalle Serie Duplicada TAC</th>
-            <th>Detalle Serie Duplicada ESCI</th>
+            <th>Detalle Serie Duplicada NAV</th>
             <th>Valor TAC</th>
             <th>Valor Coordiapp</th>
              <th>Valor Navegacion</th>
