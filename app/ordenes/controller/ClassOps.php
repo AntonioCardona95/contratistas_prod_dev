@@ -608,6 +608,12 @@ public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiqui
     $conexion = $this->get_conexion();
     $conexion_analisis = $this->get_conexiondos();
 
+    // Forzar UTF-8 en ambas conexiones
+    $conexion->exec("SET NAMES 'utf8mb4'");
+    $conexion->exec("SET CHARACTER SET utf8mb4");
+    $conexion_analisis->exec("SET NAMES 'utf8mb4'");
+    $conexion_analisis->exec("SET CHARACTER SET utf8mb4");
+
     $alerta = null;
     $detalleEsci = null;
 
