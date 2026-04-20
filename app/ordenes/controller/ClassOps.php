@@ -599,7 +599,8 @@ public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaL
     }
 
     return [
-        'insertado' => $ejecutado
+        'insertado' => $ejecutado,
+        'revision'  => 0
     ];
 }
 
