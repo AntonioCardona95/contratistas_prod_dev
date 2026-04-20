@@ -690,7 +690,7 @@ public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiqui
 
         $stmtAlert->execute();
     }
-}
+} 
 
 
 
