@@ -568,6 +568,78 @@ public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaL
     $conexion_analisis = $this->get_conexiondos();
 
     $conexion->exec("SET NAMES 'utf8mb4'");
+    $fechaCarga = date("Y-m-d H:i:s");
+
+    // 🔥 UNA SOLA CONSULTA (TODO EL CÁLCULO AQUÍ)
+    $sql = "
+    SELECT 
+        t.FECHA_LIQ,
+        CASE 
+            WHEN TIMESTAMPDIFF(DAY, t.FECHA_LIQ, NOW()) > 30 THEN 1
+            WHEN (
+                SELECT COUNT(*)
+                FROM qm_tac t2
+                WHERE t2.Telefono = :telefono
+                AND t2.TIPO = 'ORDEN'
+                AND t2.Calificador_Edo = 'COMPLETADA'
+                AND t2.FECHA_LIQ BETWEEN DATE_SUB(t.FECHA_LIQ, INTERVAL 30 DAY) AND t.FECHA_LIQ
+            ) >= 2 THEN 1
+            ELSE 0
+        END AS banderaRevision
+    FROM qm_tac t
+    WHERE t.Folio_Pisa = :folio
+    AND t.Calificador_Edo = 'COMPLETADA'
+    LIMIT 1
+    ";
+
+    $stmt = $conexion_analisis->prepare($sql);
+    $stmt->bindParam(':folio', $folio);
+    $stmt->bindParam(':telefono', $telefono);
+    $stmt->execute();
+
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $banderaRevision = 0;
+
+    if ($row) {
+        $banderaRevision = (int)$row['banderaRevision'];
+    }
+
+    // ===============================
+    // INSERT
+    // ===============================
+    $sqlInsert = "INSERT INTO Produccion_contratista 
+        (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Bandera_Revision) 
+        VALUES (:folio, :telefono, :tipoTarea, :cope, :fechaLiquidacion, :fechaCarga, :idContratistas, :semana, :anio, :metraje, :banderaRevision)";
+    
+    $statement = $conexion->prepare($sqlInsert);
+
+    $statement->bindParam(':folio', $folio);
+    $statement->bindParam(':telefono', $telefono);
+    $statement->bindParam(':tipoTarea', $tipoTarea);
+    $statement->bindParam(':cope', $cope);
+    $statement->bindParam(':fechaLiquidacion', $fechaLiquidacion);
+    $statement->bindParam(':fechaCarga', $fechaCarga);
+    $statement->bindParam(':idContratistas', $idContratistas);
+    $statement->bindParam(':semana', $semana);
+    $statement->bindParam(':anio', $anio);
+    $statement->bindParam(':metraje', $metraje);
+    $statement->bindParam(':banderaRevision', $banderaRevision);
+
+    $ejecutado = $statement->execute();
+
+    return [
+        'insertado' => $ejecutado,
+        'revision' => $banderaRevision
+    ];
+}
+
+/*public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaLiquidacion, $idContratistas, $semana, $anio, $metraje)
+{
+    $conexion = $this->get_conexion();
+    $conexion_analisis = $this->get_conexiondos();
+
+    $conexion->exec("SET NAMES 'utf8mb4'");
     $conexion->exec("SET CHARACTER SET utf8mb4");
 
     $fechaCarga = date("Y-m-d H:i:s");
@@ -652,7 +724,7 @@ public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaL
         'insertado' => $ejecutado,
         'revision' => $banderaRevision
     ];
-} 
+} */
 
 
 
