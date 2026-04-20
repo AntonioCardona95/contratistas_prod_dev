@@ -1569,11 +1569,10 @@ if (!$esSerieInvalida) {
 
         $stmt = $conexion_analisis->prepare("
             SELECT DISTINCT TELEFONO
-            FROM seg_ns_eci
-            WHERE M_SERIE = ?
-            AND TELEFONO IS NOT NULL
-            AND TELEFONO <> ''
-            AND TELEFONO <> '0'
+FROM seg_ns_eci
+WHERE M_SERIE = ?
+  AND TELEFONO IS NOT NULL
+  AND TELEFONO > 0;
         ");
 
         $stmt->execute([$nsEsci]);
