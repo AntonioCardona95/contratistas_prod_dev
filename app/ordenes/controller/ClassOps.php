@@ -618,10 +618,11 @@ public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiqui
     $alerta = null;
     $detalleEsci = null;
 
-    // Buscar datos en seg_ns_eci
-    $sqlEsci = "SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO 
+    // Buscar datos en seg_ns_eci tomando la fecha más reciente
+    $sqlEsci = "SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, FECHA_ULTIMO_EVENTO
                 FROM seg_ns_eci 
                 WHERE TELEFONO = :telefono 
+                ORDER BY FECHA_ULTIMO_EVENTO DESC 
                 LIMIT 1";
     $stmtEsci = $conexion_analisis->prepare($sqlEsci);
     $stmtEsci->bindParam(':telefono', $telefono, PDO::PARAM_STR);
@@ -631,6 +632,7 @@ public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiqui
     if ($rowEsci) {
         $mSerie = trim($rowEsci['M_SERIE']);
         $ultimoEvento = intval($rowEsci['ULTIMO_EVENTO']);
+        $fechaUltimoEvento = $rowEsci['FECHA_ULTIMO_EVENTO'];
 
         // Caso: número de serie desconocido
         if (strtoupper($mSerie) === 'DESCONOCIDO') {
@@ -640,25 +642,24 @@ public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiqui
         // Caso: sin navegación
         if ($ultimoEvento === 0) {
             $alerta = 'SIN NAVEGACION';
+            $detalleEsci = "Última vez que navegó: $fechaUltimoEvento";
         }
 
         // Caso: servicio inactivo
         if ($ultimoEvento === -1) {
             $alerta = 'SERVICIO INACTIVO';
+            $detalleEsci = "Última vez que navegó: $fechaUltimoEvento";
         }
 
         // Caso: duplicados, pero solo si el número de serie NO es DESCONOCIDO
         if (strtoupper($mSerie) !== 'DESCONOCIDO') {
-            $sqlDup = "SELECT TELEFONO 
+            $sqlDup = "SELECT DISTINCT TELEFONO 
                        FROM seg_ns_eci
                        WHERE M_SERIE = :mSerie";
             $stmtDup = $conexion_analisis->prepare($sqlDup);
             $stmtDup->bindParam(':mSerie', $mSerie, PDO::PARAM_STR);
             $stmtDup->execute();
-            $telefonosDup = $stmtDup->fetchAll(PDO::FETCH_COLUMN);
-
-            // Filtrar teléfonos únicos
-            $telefonosUnicos = array_unique($telefonosDup);
+            $telefonosUnicos = $stmtDup->fetchAll(PDO::FETCH_COLUMN);
 
             if (count($telefonosUnicos) > 1) {
                 $alerta = 'ONT DUPLICADA EN ESCI';
@@ -690,6 +691,7 @@ public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiqui
         $stmtAlert->execute();
     }
 }
+
 
 
 /*public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiquidacion, $idContratistas, $semana, $anio, $metraje, $fechaCarga)
