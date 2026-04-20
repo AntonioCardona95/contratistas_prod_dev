@@ -562,7 +562,118 @@ public function ExisteFolioProduccion($folio, $telefono, $idContratistas)
 
 // PRUEBA DON ORDEN TIPO //
 
+// NUEVAS FUNCIONES PARA INSERSION //
+
 public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaLiquidacion, $idContratistas, $semana, $anio, $metraje)
+{
+    $conexion = $this->get_conexion();
+
+    $conexion->exec("SET NAMES 'utf8mb4'");
+    $conexion->exec("SET CHARACTER SET utf8mb4");
+
+    $fechaCarga = date("Y-m-d H:i:s");
+
+    // ===============================
+    // INSERT EN BD LOCAL (Produccion_contratista)
+    // ===============================
+    $sql = "INSERT INTO Produccion_contratista 
+            (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje) 
+            VALUES (:folio, :telefono, :tipoTarea, :cope, :fechaLiquidacion, :fechaCarga, :idContratistas, :semana, :anio, :metraje)";
+    
+    $statement = $conexion->prepare($sql);
+
+    $statement->bindParam(':folio', $folio, PDO::PARAM_STR);
+    $statement->bindParam(':telefono', $telefono, PDO::PARAM_STR);
+    $statement->bindParam(':tipoTarea', $tipoTarea, PDO::PARAM_STR);
+    $statement->bindParam(':cope', $cope, PDO::PARAM_STR);
+    $statement->bindParam(':fechaLiquidacion', $fechaLiquidacion, PDO::PARAM_STR);
+    $statement->bindParam(':fechaCarga', $fechaCarga, PDO::PARAM_STR);
+    $statement->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
+    $statement->bindParam(':semana', $semana, PDO::PARAM_STR);
+    $statement->bindParam(':anio', $anio, PDO::PARAM_INT);
+    $statement->bindParam(':metraje', $metraje, PDO::PARAM_INT);
+
+    $ejecutado = $statement->execute();
+
+    // Si se insertó correctamente, llamamos a la función de alertas
+    if ($ejecutado) {
+        $this->InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiquidacion, $idContratistas, $semana, $anio, $metraje, $fechaCarga);
+    }
+
+    return [
+        'insertado' => $ejecutado
+    ];
+}
+
+public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiquidacion, $idContratistas, $semana, $anio, $metraje, $fechaCarga)
+{
+    $conexion = $this->get_conexion();
+    $conexion_analisis = $this->get_conexiondos();
+
+    $alerta = null;
+    $detalleEsci = null;
+
+    // Buscar datos en seg_ns_eci
+    $sqlEsci = "SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO 
+                FROM seg_ns_eci 
+                WHERE TELEFONO = :telefono 
+                LIMIT 1";
+    $stmtEsci = $conexion_analisis->prepare($sqlEsci);
+    $stmtEsci->bindParam(':telefono', $telefono, PDO::PARAM_STR);
+    $stmtEsci->execute();
+    $rowEsci = $stmtEsci->fetch(PDO::FETCH_ASSOC);
+
+    if ($rowEsci) {
+        $mSerie = $rowEsci['M_SERIE'];
+        $ultimoEvento = $rowEsci['ULTIMO_EVENTO'];
+
+        if ($mSerie === 'DESCONOCIDO' || $ultimoEvento == 0) {
+            $alerta = 'SIN NAVEGACION';
+        }
+
+        if ($ultimoEvento == -1) {
+            $alerta = 'SERVICIO INACTIVO';
+        }
+
+        $sqlDup = "SELECT GROUP_CONCAT(TELEFONO) AS telefonos, COUNT(DISTINCT TELEFONO) AS total
+                   FROM seg_ns_eci
+                   WHERE M_SERIE = :mSerie";
+        $stmtDup = $conexion_analisis->prepare($sqlDup);
+        $stmtDup->bindParam(':mSerie', $mSerie, PDO::PARAM_STR);
+        $stmtDup->execute();
+        $rowDup = $stmtDup->fetch(PDO::FETCH_ASSOC);
+
+        if ($rowDup && $rowDup['total'] > 1) {
+            $alerta = 'SERIE DUPLICADA';
+            $detalleEsci = "El número de serie $mSerie se utilizó en los teléfonos: " . $rowDup['telefonos'];
+        }
+    }
+
+    if ($alerta !== null) {
+        $sqlAlert = "INSERT INTO Produccion_alertas 
+                     (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci) 
+                     VALUES (:folio, :telefono, :tipoTarea, :cope, :fechaLiquidacion, :fechaCarga, :idContratistas, :semana, :anio, :metraje, :alerta, :detalleEsci)";
+        
+        $stmtAlert = $conexion->prepare($sqlAlert);
+        $stmtAlert->bindParam(':folio', $folio, PDO::PARAM_STR);
+        $stmtAlert->bindParam(':telefono', $telefono, PDO::PARAM_STR);
+        $stmtAlert->bindParam(':tipoTarea', $tipoTarea, PDO::PARAM_STR);
+        $stmtAlert->bindParam(':cope', $cope, PDO::PARAM_STR);
+        $stmtAlert->bindParam(':fechaLiquidacion', $fechaLiquidacion, PDO::PARAM_STR);
+        $stmtAlert->bindParam(':fechaCarga', $fechaCarga, PDO::PARAM_STR);
+        $stmtAlert->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
+        $stmtAlert->bindParam(':semana', $semana, PDO::PARAM_STR);
+        $stmtAlert->bindParam(':anio', $anio, PDO::PARAM_INT);
+        $stmtAlert->bindParam(':metraje', $metraje, PDO::PARAM_INT);
+        $stmtAlert->bindParam(':alerta', $alerta, PDO::PARAM_STR);
+        $stmtAlert->bindParam(':detalleEsci', $detalleEsci, PDO::PARAM_STR);
+
+        $stmtAlert->execute();
+    }
+}
+
+
+/*public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaLiquidacion, $idContratistas, $semana, $anio, $metraje)
 {
     $conexion = $this->get_conexion();
     $conexion_analisis = $this->get_conexiondos();
@@ -652,7 +763,7 @@ public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaL
         'insertado' => $ejecutado,
         'revision' => $banderaRevision
     ];
-}
+} */
 
 
 
