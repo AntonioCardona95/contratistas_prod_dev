@@ -604,145 +604,7 @@ public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaL
     ];
 }
 
-public function InsertarAlerta(
-    $folio,
-    $telefonoTac,
-    $tipoTareaTac,
-    $cope,
-    $fechaLiquidacion,
-    $idContratistas,
-    $semana,
-    $anio,
-    $metraje,
-    $fechaCarga
-) {
-    $conexion = $this->get_conexion();
-    $conexion_analisis = $this->get_conexiondos();
-
-    $conexion->exec("SET NAMES 'utf8mb4'");
-    $conexion_analisis->exec("SET NAMES 'utf8mb4'");
-
-    $alertas = [];
-
-    // =========================
-    // 🔹 COORDIAPP
-    // =========================
-    $stmt = $conexion->prepare("
-        SELECT Telefono, Tipo_Tarea, Serie
-        FROM tecnico_instalaciones_coordiapp
-        WHERE Folio_Pisa = :folio
-        LIMIT 1
-    ");
-    $stmt->execute([':folio' => $folio]);
-    $coord = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // =========================
-    // 🔹 ESCI
-    // =========================
-    $stmt = $conexion_analisis->prepare("
-        SELECT M_SERIE
-        FROM seg_ns_eci
-        WHERE TELEFONO = :telefono
-        ORDER BY FECHA_ULTIMO_EVENTO DESC
-        LIMIT 1
-    ");
-    $stmt->execute([':telefono' => $telefonoTac]);
-    $esci = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // =========================
-    // 🔹 TAC
-    // =========================
-    $stmt = $conexion_analisis->prepare("
-        SELECT Telefono, Tipo_Tarea, Serie
-        FROM qm_tac
-        WHERE Folio_Pisa = :folio
-        LIMIT 1
-    ");
-    $stmt->execute([':folio' => $folio]);
-    $tac = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // Valores
-    $telefonoTacDB = $tac['Telefono'] ?? $telefonoTac;
-    $tipoTacDB = $tac['Tipo_Tarea'] ?? $tipoTareaTac;
-    $serieTac = $tac['Serie'] ?? null;
-
-    $telefonoCoord = $coord['Telefono'] ?? null;
-    $tipoCoord = $coord['Tipo_Tarea'] ?? null;
-    $serieCoord = $coord['Serie'] ?? null;
-
-    $serieEsci = $esci['M_SERIE'] ?? null;
-
-    // =========================
-    // 🔥 COMPARACIONES
-    // =========================
-
-    if ($telefonoCoord && $telefonoTacDB != $telefonoCoord) {
-        $alertas[] = ['tipo'=>'TELEFONO_DIFERENTE','tac'=>$telefonoTacDB,'coord'=>$telefonoCoord,'esci'=>null,'desc'=>'Teléfono diferente'];
-    }
-
-    $serieBase = !empty($serieTac) ? $serieTac : $serieEsci;
-    if ($serieCoord && $serieBase != $serieCoord) {
-        $alertas[] = ['tipo'=>'SERIE_DIFERENTE','tac'=>$serieTac,'coord'=>$serieCoord,'esci'=>$serieEsci,'desc'=>'Serie diferente'];
-    }
-
-    if ($tipoCoord && $tipoTacDB != $tipoCoord) {
-        $alertas[] = ['tipo'=>'TIPO_TAREA_DIFERENTE','tac'=>$tipoTacDB,'coord'=>$tipoCoord,'esci'=>null,'desc'=>'Tipo tarea diferente'];
-    }
-
-    if (!$coord) {
-        $alertas[] = ['tipo'=>'NO_EXISTE_COORDIAPP','tac'=>$folio,'coord'=>null,'esci'=>null,'desc'=>'No existe en Coordiapp'];
-    }
-
-    // =========================
-    // 💾 INSERT
-    // =========================
-    if (!empty($alertas)) {
-
-        // Texto resumido (para tu campo actual)
-        $alertaTexto = implode(' | ', array_column($alertas, 'tipo'));
-
-        $stmt = $conexion->prepare("
-            INSERT INTO Produccion_alertas
-            (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Alerta)
-            VALUES (:folio,:tel,:tipo,:cope,:fliq,:fcarga,:fk,:sem,:anio,:met,:alerta)
-        ");
-
-        $stmt->execute([
-            ':folio'=>$folio,
-            ':tel'=>$telefonoTacDB,
-            ':tipo'=>$tipoTacDB,
-            ':cope'=>$cope,
-            ':fliq'=>$fechaLiquidacion,
-            ':fcarga'=>$fechaCarga,
-            ':fk'=>$idContratistas,
-            ':sem'=>$semana,
-            ':anio'=>$anio,
-            ':met'=>$metraje,
-            ':alerta'=>$alertaTexto
-        ]);
-
-        $idAlerta = $conexion->lastInsertId();
-
-        $stmtDetalle = $conexion->prepare("
-            INSERT INTO Produccion_alertas_detalle
-            (fk_alerta, tipo_alerta, valor_tac, valor_coordiapp, valor_esci, descripcion)
-            VALUES (:fk,:tipo,:tac,:coord,:esci,:desc)
-        ");
-
-        foreach ($alertas as $a) {
-            $stmtDetalle->execute([
-                ':fk'=>$idAlerta,
-                ':tipo'=>$a['tipo'],
-                ':tac'=>$a['tac'],
-                ':coord'=>$a['coord'],
-                ':esci'=>$a['esci'],
-                ':desc'=>$a['desc']
-            ]);
-        }
-    }
-}
-
-/*public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiquidacion, $idContratistas, $semana, $anio, $metraje, $fechaCarga)
+public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiquidacion, $idContratistas, $semana, $anio, $metraje, $fechaCarga)
 {
     $conexion = $this->get_conexion();
     $conexion_analisis = $this->get_conexiondos();
@@ -828,7 +690,7 @@ public function InsertarAlerta(
 
         $stmtAlert->execute();
     }
-} */
+}
 
 
 
