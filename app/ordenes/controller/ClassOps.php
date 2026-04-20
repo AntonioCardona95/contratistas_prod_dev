@@ -610,10 +610,19 @@ public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiqui
     $conexion = $this->get_conexion();
     $conexion_analisis = $this->get_conexiondos();
 
-    // Mostrar en pantalla lo que llega en $telefono
-  echo "<pre>Teléfono recibido: ";
-var_dump($telefono);
-echo "</pre>";
+    echo "<hr><pre>";
+    echo "=== DEBUG InsertarAlerta ===\n";
+    echo "Folio: $folio\n";
+    echo "Telefono recibido: ";
+    var_dump($telefono);
+    echo "TipoTarea: $tipoTarea\n";
+    echo "Cope: $cope\n";
+    echo "FechaLiquidacion: $fechaLiquidacion\n";
+    echo "Contratista: $idContratistas\n";
+    echo "Semana: $semana\n";
+    echo "Anio: $anio\n";
+    echo "Metraje: $metraje\n";
+    echo "FechaCarga: $fechaCarga\n";
 
     $alerta = null;
     $detalleEsci = null;
@@ -628,18 +637,24 @@ echo "</pre>";
     $stmtEsci->execute();
     $rowEsci = $stmtEsci->fetch(PDO::FETCH_ASSOC);
 
+    echo "Resultado consulta seg_ns_eci:\n";
+    print_r($rowEsci);
+
     if ($rowEsci) {
-        echo "entro aqui";
+        echo "entro aqui\n";
         $mSerie = $rowEsci['M_SERIE'];
         $ultimoEvento = $rowEsci['ULTIMO_EVENTO'];
 
-        if ($mSerie === 'DESCONOCIDO' || $ultimoEvento == 0) {
-            echo "entro en sin navegacion";
+        echo "M_SERIE: $mSerie\n";
+        echo "ULTIMO_EVENTO: $ultimoEvento\n";
+
+        if (strtoupper(trim($mSerie)) === 'DESCONOCIDO' || intval($ultimoEvento) === 0) {
+            echo "entro en sin navegacion\n";
             $alerta = 'SIN NAVEGACION';
         }
 
-        if ($ultimoEvento == -1) {
-            echo "entro en inactivo";
+        if (intval($ultimoEvento) === -1) {
+            echo "entro en inactivo\n";
             $alerta = 'SERVICIO INACTIVO';
         }
 
@@ -651,13 +666,18 @@ echo "</pre>";
         $stmtDup->execute();
         $rowDup = $stmtDup->fetch(PDO::FETCH_ASSOC);
 
+        echo "Resultado consulta duplicados:\n";
+        print_r($rowDup);
+
         if ($rowDup && $rowDup['total'] > 1) {
+            echo "entro en duplicados\n";
             $alerta = 'SERIE DUPLICADA';
             $detalleEsci = "El número de serie $mSerie se utilizó en los teléfonos: " . $rowDup['telefonos'];
         }
     }
 
     if ($alerta !== null) {
+        echo "Se va a insertar alerta: $alerta\n";
         $sqlAlert = "INSERT INTO Produccion_alertas 
                      (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci) 
                      VALUES (:folio, :telefono, :tipoTarea, :cope, :fechaLiquidacion, :fechaCarga, :idContratistas, :semana, :anio, :metraje, :alerta, :detalleEsci)";
@@ -676,9 +696,21 @@ echo "</pre>";
         $stmtAlert->bindParam(':alerta', $alerta, PDO::PARAM_STR);
         $stmtAlert->bindParam(':detalleEsci', $detalleEsci, PDO::PARAM_STR);
 
-        $stmtAlert->execute();
+        $ok = $stmtAlert->execute();
+        echo "Resultado execute: ";
+        var_dump($ok);
+
+        if ($stmtAlert->errorCode() != '00000') {
+            echo "Error en INSERT:\n";
+            print_r($stmtAlert->errorInfo());
+        }
+    } else {
+        echo "No se insertó alerta porque \$alerta es NULL\n";
     }
+
+    echo "=== FIN DEBUG InsertarAlerta ===\n</pre><hr>";
 }
+
 
 
 /*public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaLiquidacion, $idContratistas, $semana, $anio, $metraje)
