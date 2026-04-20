@@ -1529,21 +1529,21 @@ $telefonoLimpio = $this->soloNumeros($telefonoProduccion);
 // -------------------------------
 // 1. OBTENER SERIE DESDE TELEFONO
 // -------------------------------
-if (!isset($this->cacheEsciSerie[$telefonoLimpio])) {
+ if (!isset($this->cacheEsciSerie[$telefonoLimpio])) {
 
-    $stmt = $conexion_analisis->prepare("
-        SELECT M_SERIE, MAX(DID_ACTIVO) AS estado
-        FROM seg_ns_eci
-        WHERE TELEFONO = ?
-        AND TELEFONO IS NOT NULL
-        AND TELEFONO <> ''
-        AND TELEFONO <> '0'
-        LIMIT 1
-    ");
+            $stmt = $conexion_analisis->prepare("
+                SELECT M_SERIE, MAX(DID_ACTIVO) AS estado
+                FROM seg_ns_eci
+                WHERE TELEFONO = ?
+                AND TELEFONO IS NOT NULL
+                AND TELEFONO <> ''
+                AND TELEFONO <> '0'
+                LIMIT 1
+            ");
 
-    $stmt->execute([$telefonoLimpio]);
-    $this->cacheEsciSerie[$telefonoLimpio] = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
-}
+            $stmt->execute([$telefonoLimpio]);
+            $this->cacheEsciSerie[$telefonoLimpio] = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+        }
 
 $dataSerie = $this->cacheEsciSerie[$telefonoLimpio];
 
