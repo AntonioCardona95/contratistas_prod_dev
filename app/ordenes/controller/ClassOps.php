@@ -629,14 +629,17 @@ echo "</pre>";
     $rowEsci = $stmtEsci->fetch(PDO::FETCH_ASSOC);
 
     if ($rowEsci) {
+        echo "entro aqui";
         $mSerie = $rowEsci['M_SERIE'];
         $ultimoEvento = $rowEsci['ULTIMO_EVENTO'];
 
         if ($mSerie === 'DESCONOCIDO' || $ultimoEvento == 0) {
+            echo "entro en sin navegacion";
             $alerta = 'SIN NAVEGACION';
         }
 
         if ($ultimoEvento == -1) {
+            echo "entro en inactivo";
             $alerta = 'SERVICIO INACTIVO';
         }
 
