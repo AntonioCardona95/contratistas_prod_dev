@@ -694,6 +694,7 @@ public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiqui
 
 
 
+
 /*public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiquidacion, $idContratistas, $semana, $anio, $metraje, $fechaCarga)
 {
     $conexion = $this->get_conexion();
