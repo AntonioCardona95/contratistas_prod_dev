@@ -596,7 +596,6 @@ public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaL
     $ejecutado = $statement->execute();
 
     // Aquí ya insertaste rápido
-    // Ahora llamas a la función que genera alertas
     if ($ejecutado) {
         $this->InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiquidacion, $idContratistas, $semana, $anio, $metraje, $fechaCarga);
     }
