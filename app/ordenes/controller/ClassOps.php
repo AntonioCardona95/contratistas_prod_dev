@@ -595,7 +595,6 @@ public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaL
 
     $ejecutado = $statement->execute();
 
-    // Aquí ya insertaste rápido
     if ($ejecutado) {
         $this->InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiquidacion, $idContratistas, $semana, $anio, $metraje, $fechaCarga);
     }
@@ -627,17 +626,14 @@ public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiqui
         $mSerie = $rowEsci['M_SERIE'];
         $ultimoEvento = $rowEsci['ULTIMO_EVENTO'];
 
-        // 1.- SIN NAVEGACION
         if ($mSerie === 'DESCONOCIDO' || $ultimoEvento == 0) {
             $alerta = 'SIN NAVEGACION';
         }
 
-        // 2.- SERVICIO INACTIVO
         if ($ultimoEvento == -1) {
             $alerta = 'SERVICIO INACTIVO';
         }
 
-        // 3.- SERIE DUPLICADA
         $sqlDup = "SELECT GROUP_CONCAT(TELEFONO) AS telefonos, COUNT(DISTINCT TELEFONO) AS total
                    FROM seg_ns_eci
                    WHERE M_SERIE = :mSerie";
@@ -652,7 +648,6 @@ public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiqui
         }
     }
 
-    // Insertar en nueva tabla si hay alerta
     if ($alerta !== null) {
         $sqlAlert = "INSERT INTO Produccion_alertas 
                      (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, `Año`, metraje, Alerta, Detalle_Esci) 
