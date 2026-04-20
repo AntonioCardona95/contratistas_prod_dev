@@ -601,10 +601,10 @@ public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaL
         }
 
         // ===============================
-        // NUEVA VALIDACIÓN: TELÉFONO REPETIDO + ORDEN
+        // VALIDACIÓN: TELÉFONO REPETIDO + ORDEN
         // ===============================
         $fechaInicio = date("Y-m-d H:i:s", strtotime("$fechaTac -30 days"));
-        $fechaFin    = $fechaTac; // hasta la fecha de liquidación TAC
+        $fechaFin    = $fechaTac;
 
         $sqlOrden = "SELECT COUNT(*) AS total
                      FROM qm_tac
@@ -620,7 +620,6 @@ public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaL
         $stmtOrden->execute();
         $rowOrden = $stmtOrden->fetch(PDO::FETCH_ASSOC);
 
-        // Solo marcar revisión si el mismo teléfono aparece al menos 2 veces
         if ($rowOrden && $rowOrden['total'] >= 2) {
             $banderaRevision = 1;
         }
@@ -630,7 +629,7 @@ public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaL
     // INSERT EN BD LOCAL
     // ===============================
     $sql = "INSERT INTO Produccion_contratista 
-            (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, `Año`, metraje, Bandera_Revision) 
+            (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Bandera_Revision) 
             VALUES (:folio, :telefono, :tipoTarea, :cope, :fechaLiquidacion, :fechaCarga, :idContratistas, :semana, :anio, :metraje, :banderaRevision)";
     
     $statement = $conexion->prepare($sql);
@@ -653,7 +652,7 @@ public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaL
         'insertado' => $ejecutado,
         'revision' => $banderaRevision
     ];
-} 
+}
 
 
 
