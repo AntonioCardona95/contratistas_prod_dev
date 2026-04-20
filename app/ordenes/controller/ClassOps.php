@@ -611,9 +611,9 @@ public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiqui
     $conexion_analisis = $this->get_conexiondos();
 
     // Mostrar en pantalla lo que llega en $telefono
-    echo "<pre>Valor recibido en TELEFONO: ";
-    var_dump($telefono);
-    echo "</pre>";
+  echo "<pre>Teléfono recibido: ";
+var_dump($telefono);
+echo "</pre>";
 
     $alerta = null;
     $detalleEsci = null;
