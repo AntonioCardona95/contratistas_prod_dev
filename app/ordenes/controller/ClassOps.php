@@ -608,20 +608,6 @@ public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiqui
     $conexion = $this->get_conexion();
     $conexion_analisis = $this->get_conexiondos();
 
-    echo "<hr><pre>";
-    echo "=== DEBUG InsertarAlerta ===\n";
-    echo "Folio: $folio\n";
-    echo "Telefono recibido: ";
-    var_dump($telefono);
-    echo "TipoTarea: $tipoTarea\n";
-    echo "Cope: $cope\n";
-    echo "FechaLiquidacion: $fechaLiquidacion\n";
-    echo "Contratista: $idContratistas\n";
-    echo "Semana: $semana\n";
-    echo "Anio: $anio\n";
-    echo "Metraje: $metraje\n";
-    echo "FechaCarga: $fechaCarga\n";
-
     $alerta = null;
     $detalleEsci = null;
 
@@ -635,47 +621,47 @@ public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiqui
     $stmtEsci->execute();
     $rowEsci = $stmtEsci->fetch(PDO::FETCH_ASSOC);
 
-    echo "Resultado consulta seg_ns_eci:\n";
-    print_r($rowEsci);
-
     if ($rowEsci) {
-        echo "entro aqui\n";
-        $mSerie = $rowEsci['M_SERIE'];
-        $ultimoEvento = $rowEsci['ULTIMO_EVENTO'];
+        $mSerie = trim($rowEsci['M_SERIE']);
+        $ultimoEvento = intval($rowEsci['ULTIMO_EVENTO']);
 
-        echo "M_SERIE: $mSerie\n";
-        echo "ULTIMO_EVENTO: $ultimoEvento\n";
+        // Caso: número de serie desconocido
+        if (strtoupper($mSerie) === 'DESCONOCIDO') {
+            $alerta = 'NUMERO DE SERIE DESCONOCIDO';
+        }
 
-        if (strtoupper(trim($mSerie)) === 'DESCONOCIDO' || intval($ultimoEvento) === 0) {
-            echo "entro en sin navegacion\n";
+        // Caso: sin navegación
+        if ($ultimoEvento === 0) {
             $alerta = 'SIN NAVEGACION';
         }
 
-        if (intval($ultimoEvento) === -1) {
-            echo "entro en inactivo\n";
+        // Caso: servicio inactivo
+        if ($ultimoEvento === -1) {
             $alerta = 'SERVICIO INACTIVO';
         }
 
-        $sqlDup = "SELECT GROUP_CONCAT(TELEFONO) AS telefonos, COUNT(DISTINCT TELEFONO) AS total
-                   FROM seg_ns_eci
-                   WHERE M_SERIE = :mSerie";
-        $stmtDup = $conexion_analisis->prepare($sqlDup);
-        $stmtDup->bindParam(':mSerie', $mSerie, PDO::PARAM_STR);
-        $stmtDup->execute();
-        $rowDup = $stmtDup->fetch(PDO::FETCH_ASSOC);
+        // Caso: duplicados, pero solo si el número de serie NO es DESCONOCIDO
+        if (strtoupper($mSerie) !== 'DESCONOCIDO') {
+            $sqlDup = "SELECT TELEFONO 
+                       FROM seg_ns_eci
+                       WHERE M_SERIE = :mSerie";
+            $stmtDup = $conexion_analisis->prepare($sqlDup);
+            $stmtDup->bindParam(':mSerie', $mSerie, PDO::PARAM_STR);
+            $stmtDup->execute();
+            $telefonosDup = $stmtDup->fetchAll(PDO::FETCH_COLUMN);
 
-        echo "Resultado consulta duplicados:\n";
-        print_r($rowDup);
+            // Filtrar teléfonos únicos
+            $telefonosUnicos = array_unique($telefonosDup);
 
-        if ($rowDup && $rowDup['total'] > 1) {
-            echo "entro en duplicados\n";
-            $alerta = 'SERIE DUPLICADA';
-            $detalleEsci = "El número de serie $mSerie se utilizó en los teléfonos: " . $rowDup['telefonos'];
+            if (count($telefonosUnicos) > 1) {
+                $alerta = 'ONT DUPLICADA EN ESCI';
+                $detalleEsci = "El número de serie $mSerie se utilizó en los teléfonos: " . implode(", ", $telefonosUnicos);
+            }
         }
     }
 
+    // Insertar alerta si aplica
     if ($alerta !== null) {
-        echo "Se va a insertar alerta: $alerta\n";
         $sqlAlert = "INSERT INTO Produccion_alertas 
                      (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci) 
                      VALUES (:folio, :telefono, :tipoTarea, :cope, :fechaLiquidacion, :fechaCarga, :idContratistas, :semana, :anio, :metraje, :alerta, :detalleEsci)";
@@ -694,20 +680,10 @@ public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiqui
         $stmtAlert->bindParam(':alerta', $alerta, PDO::PARAM_STR);
         $stmtAlert->bindParam(':detalleEsci', $detalleEsci, PDO::PARAM_STR);
 
-        $ok = $stmtAlert->execute();
-        echo "Resultado execute: ";
-        var_dump($ok);
-
-        if ($stmtAlert->errorCode() != '00000') {
-            echo "Error en INSERT:\n";
-            print_r($stmtAlert->errorInfo());
-        }
-    } else {
-        echo "No se insertó alerta porque \$alerta es NULL\n";
+        $stmtAlert->execute();
     }
-
-    echo "=== FIN DEBUG InsertarAlerta ===\n</pre><hr>";
 }
+
 
 /*public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaLiquidacion, $idContratistas, $semana, $anio, $metraje)
 {
