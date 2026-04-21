@@ -636,15 +636,16 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-    // 🔹 TAC
-    // =========================
-    $tacData = [];
-    $sql = "SELECT Folio_Pisa, TELEFONO, Tipo_de_Tarea, Num__Serie 
-            FROM qm_tac
-            WHERE Folio_Pisa IN ($inFolios)";
-    foreach ($conexion_analisis->query($sql) as $row) {
-        $tacData[$row['Folio_Pisa']] = $row;
-    }
+// 🔹 TAC
+// =========================
+$tacData = [];
+$sql = "SELECT Folio_Pisa, TELEFONO, Tipo_de_Tarea, Num__Serie 
+        FROM qm_tac
+        WHERE Folio_Pisa IN ($inFolios)
+          AND Calificador_Edo = 'COMPLETADA'";
+foreach ($conexion_analisis->query($sql) as $row) {
+    $tacData[$row['Folio_Pisa']] = $row;
+}
 
     // =========================
     // 🔹 ESCI (GLOBAL)
