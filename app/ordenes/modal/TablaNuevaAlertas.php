@@ -37,39 +37,11 @@ if (empty($expedientes)) {
     exit;
 }
 
-/* ============================
-   🔥 ALERTAS
-============================ */
-$alertas = $modal->ObtenerProduccionAlertas($idContratistas, $semana);
-$alertas = is_array($alertas) ? $alertas : [];
-
-
-
-$totalOrdenes = $modal->ContarOrdenesProduccion($idContratistas, $semana);
-$totalAlertas = $modal->ContarAlertasProduccion($idContratistas, $semana);
-
-// Como tus funciones devuelven un arreglo, tomamos el primer valor:
-$totalOrdenes = $totalOrdenes[0]['TOTAL'] ?? 0;
-$totalAlertas = $totalAlertas[0]['TOTAL'] ?? 0;
 
 
 
 ?>
 
-<div class="row mb-3">
-  <div class="col-md-6">
-    <div class="alert alert-primary text-center">
-      <h5>Órdenes en Producción</h5>
-      <span><?= $totalOrdenes ?></span>
-    </div>
-  </div>
-  <div class="col-md-6">
-    <div class="alert alert-danger text-center">
-      <h5>Alertas en Producción</h5>
-      <span><?= $totalAlertas ?></span>
-    </div>
-  </div>
-</div>
 
 
 <!-- Bootstrap CSS--> 
