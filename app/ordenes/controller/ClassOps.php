@@ -711,7 +711,6 @@ public function InsertarAlertasMasivo($registros)
         // NORMALIZACIÓN
         // =========================
         $telefonoTac = $tac['TELEFONO'] ?? $telefono;
-        $telefonoCoord = $coord['Telefono'] ?? null;
 
         $tipoTac = $tac['Tipo_de_Tarea'] ?? $r['tipoTarea'];
         $tipoCoord = $coord['Tipo_Tarea'] ?? null;
@@ -793,18 +792,6 @@ public function InsertarAlertasMasivo($registros)
         // =========================
         // 🔥 COMPARACIONES
         // =========================
-
-        // TELEFONO (incluye NULL)
-        if ($telefonoTac !== $telefonoCoord) {
-            $alertasResumen[] = 'TELEFONO_DIFERENTE';
-            $detalles[] = [
-                'tipo'=>'TELEFONO_DIFERENTE',
-                'tac'=>$telefonoTac,
-                'coord'=>$telefonoCoord,
-                'esci'=>null,
-                'desc'=>'Teléfono distinto o faltante entre TAC y Coordiapp'
-            ];
-        }
 
         // SERIE
         if ($serieCoord && $serieTac && $serieTac != $serieCoord) {
