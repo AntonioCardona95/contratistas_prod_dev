@@ -651,7 +651,7 @@ public function InsertarAlertasMasivo($registros)
     // =========================
     // 🔥 ONT DUPLICADA TAC
     // =========================
-    $sqlOntDuplicada = "
+    /*$sqlOntDuplicada = "
         SELECT Num__Serie
         FROM qm_tac
         WHERE Calificador_Edo = 'COMPLETADA'
@@ -665,7 +665,30 @@ public function InsertarAlertasMasivo($registros)
     foreach ($conexion_analisis->query($sqlOntDuplicada) as $row) {
         $serie = strtoupper(trim($row['Num__Serie']));
         $ontDuplicadasTac[$serie] = true;
-    }
+    } */
+
+        // =========================
+// 🔥 ONT DUPLICADA TAC
+// =========================
+$sqlOntDuplicada = "
+    SELECT 
+        Num__Serie,
+        GROUP_CONCAT(DISTINCT TELEFONO ORDER BY TELEFONO SEPARATOR ',') AS Telefonos
+    FROM qm_tac
+    WHERE Calificador_Edo = 'COMPLETADA'
+      AND Num__Serie IS NOT NULL
+      AND Num__Serie != ''
+    GROUP BY Num__Serie
+    HAVING COUNT(DISTINCT TELEFONO) > 1
+";
+
+$ontDuplicadasTac = [];
+foreach ($conexion_analisis->query($sqlOntDuplicada) as $row) {
+    $serie = strtoupper(trim($row['Num__Serie']));
+    $telefonos = explode(',', $row['Telefonos']); // array con los teléfonos distintos
+    $ontDuplicadasTac[$serie] = $telefonos;
+}
+
 
     // =========================
     // 🔹 ESCI
