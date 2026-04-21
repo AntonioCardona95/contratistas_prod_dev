@@ -707,10 +707,10 @@ public function InsertarAlertasMasivo($registros)
     ");
 
     $stmtDetalle = $conexion->prepare("
-        INSERT INTO Produccion_alertas_detalle
-        (fk_alerta, tipo_alerta, valor_tac, valor_coordiapp, valor_esci, descripcion)
-        VALUES (?,?,?,?,?,?)
-    ");
+    INSERT INTO Produccion_alertas_detalle
+    (Folio_Pisa, Tipo_Alerta, Activa, Fecha_Creacion, Fecha_Resolucion)
+    VALUES (?,?,?,?,?)
+");
 
     // =========================
     // 🔥 LOOP PRINCIPAL
@@ -966,13 +966,12 @@ if ($serieCoord) {
 
             foreach ($detalles as $d) {
                 $stmtDetalle->execute([
-                    $idAlerta,
-                    $d['tipo'],
-                    $d['tac'],
-                    $d['coord'],
-                    $d['esci'],
-                    $d['desc']
-                ]);
+    $folio,
+    $d['tipo'],
+    1,
+    date('Y-m-d H:i:s'),
+    null
+]);
             }
         }
     }
