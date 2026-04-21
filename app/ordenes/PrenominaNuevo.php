@@ -232,48 +232,7 @@ require_once($_SERVER['DOCUMENT_ROOT']."/ordenes/controller/ClassOps.php");
     <!-- Cards de resumen -->
     <div class="row" style="margin-top: 20px;">
 
-    <!-- Ordenes Con Registro En Coordiapp -->
-<!-- Órdenes Procesadas a Prenómina -->
-    <div class="col-xl-4 col-md-6 mb-4">
-        <div class="card border-left-success shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                            ÓRDENES PROCESADAS A PRENOMINA
-                        </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="prenomina-count">
-                             0
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Órdenes con Alertas -->
-    <div class="col-xl-4 col-md-6 mb-4">
-        <div class="card border-left-danger shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                            ÓRDENES CON ALERTAS
-                        </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="alertas-count">
-                            0
-                        </div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
 </div>
 
@@ -353,7 +312,7 @@ require_once($_SERVER['DOCUMENT_ROOT']."/ordenes/controller/ClassOps.php");
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
 <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.html5.min.js"></script>
 <!-- Script para actualizar contadores -->
-<script>
+<!-- <script>
 $(document).ready(function() {
 
     $('#semana').on('change', function() {
@@ -398,7 +357,7 @@ $(document).ready(function() {
     });
 
 });
-</script>
+</script> -->
 <!-- <script src="js/appsinprocesoapago.js"></script> -->
 <script src="js/AppPrenomina.js"></script>
 
