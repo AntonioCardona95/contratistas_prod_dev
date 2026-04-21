@@ -561,6 +561,49 @@ public function ExisteFolioProduccion($folio, $telefono, $idContratistas)
 
 // PRUEBA DON ORDEN TIPO //
 
+public function InsertarProduccion(
+    $folio,
+    $telefono,
+    $tipoTarea,
+    $cope,
+    $fechaLiquidacion,
+    $idContratistas,
+    $semana,
+    $anio,
+    $metraje
+) {
+    $conexion = $this->get_conexion();
+
+    $conexion->exec("SET NAMES 'utf8mb4'");
+    $conexion->exec("SET CHARACTER SET utf8mb4");
+
+    $fechaCarga = date("Y-m-d H:i:s");
+
+    $sql = "INSERT INTO Produccion_contratista 
+            (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje) 
+            VALUES (:folio, :telefono, :tipoTarea, :cope, :fechaLiquidacion, :fechaCarga, :idContratistas, :semana, :anio, :metraje)";
+    
+    $stmt = $conexion->prepare($sql);
+
+    $ejecutado = $stmt->execute([
+        ':folio' => $folio,
+        ':telefono' => $telefono,
+        ':tipoTarea' => $tipoTarea,
+        ':cope' => $cope,
+        ':fechaLiquidacion' => $fechaLiquidacion,
+        ':fechaCarga' => $fechaCarga,
+        ':idContratistas' => $idContratistas,
+        ':semana' => $semana,
+        ':anio' => $anio,
+        ':metraje' => $metraje
+    ]);
+
+    return [
+        'insertado' => $ejecutado,
+        'fechaCarga' => $fechaCarga
+    ];
+}
+
 public function InsertarAlertasMasivo($registros)
 {
     if (empty($registros)) return;
