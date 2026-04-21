@@ -711,11 +711,12 @@ public function InsertarAlertasMasivo($registros)
         // NORMALIZACIÓN
         // =========================
         $telefonoTac = $tac['TELEFONO'] ?? $telefono;
-        $tipoTac = $tac['Tipo_de_Tarea'] ?? $r['tipoTarea'];
-        $serieTac = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
-
         $telefonoCoord = $coord['Telefono'] ?? null;
+
+        $tipoTac = $tac['Tipo_de_Tarea'] ?? $r['tipoTarea'];
         $tipoCoord = $coord['Tipo_Tarea'] ?? null;
+
+        $serieTac = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
 
         // =========================
@@ -724,16 +725,13 @@ public function InsertarAlertasMasivo($registros)
         $tecTac = isset($tac['TECNOLOGIA']) ? strtoupper(trim($tac['TECNOLOGIA'])) : null;
         $tecCoord = isset($coord['Tecnologia']) ? strtoupper(trim($coord['Tecnologia'])) : null;
 
-        // quitar espacios
         if ($tecTac) $tecTac = str_replace(' ', '', $tecTac);
         if ($tecCoord) $tecCoord = str_replace(' ', '', $tecCoord);
 
-        // equivalencias TAC
         if ($tecTac === 'CAMBACEO' || $tecTac === 'CAMBIOFIBRA') {
             $tecTac = 'FIBRA';
         }
 
-        // convertir vacíos a null real
         if ($tecTac === '') $tecTac = null;
         if ($tecCoord === '') $tecCoord = null;
 
@@ -796,17 +794,19 @@ public function InsertarAlertasMasivo($registros)
         // 🔥 COMPARACIONES
         // =========================
 
-        if ($telefonoCoord && $telefonoTac != $telefonoCoord) {
+        // TELEFONO (incluye NULL)
+        if ($telefonoTac !== $telefonoCoord) {
             $alertasResumen[] = 'TELEFONO_DIFERENTE';
             $detalles[] = [
                 'tipo'=>'TELEFONO_DIFERENTE',
                 'tac'=>$telefonoTac,
                 'coord'=>$telefonoCoord,
                 'esci'=>null,
-                'desc'=>'Teléfono distinto entre TAC y Coordiapp'
+                'desc'=>'Teléfono distinto o faltante entre TAC y Coordiapp'
             ];
         }
 
+        // SERIE
         if ($serieCoord && $serieTac && $serieTac != $serieCoord) {
             $alertasResumen[] = 'SERIE_DIFERENTE';
             $detalles[] = [
@@ -818,18 +818,19 @@ public function InsertarAlertasMasivo($registros)
             ];
         }
 
-        if ($tipoCoord && $tipoTac != $tipoCoord) {
+        // TIPO TAREA (incluye NULL)
+        if ($tipoTac !== $tipoCoord) {
             $alertasResumen[] = 'TIPO_TAREA_DIFERENTE';
             $detalles[] = [
                 'tipo'=>'TIPO_TAREA_DIFERENTE',
                 'tac'=>$tipoTac,
                 'coord'=>$tipoCoord,
                 'esci'=>null,
-                'desc'=>'Tipo de tarea no coincide'
+                'desc'=>'Tipo de tarea distinto o faltante'
             ];
         }
 
-        // 🔥 TECNOLOGIA (con NULL incluido)
+        // TECNOLOGIA (incluye NULL)
         if ($tecTac !== $tecCoord) {
             $alertasResumen[] = 'TECNOLOGIA_DIFERENTE';
             $detalles[] = [
