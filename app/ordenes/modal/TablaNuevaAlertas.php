@@ -1,10 +1,5 @@
 <?php
-//ini_set('display_errors', 1);
-//ini_set('display_startup_errors', 1);
-//error_reporting(E_ALL);
-
 require_once("../controller/ClassOps.php");
-
 
 session_start();
 
@@ -43,17 +38,10 @@ if (empty($expedientes)) {
 }
 
 /* ============================
-   🔥 NUEVA FUENTE DE DATOS
-   Produccion_alertas
+   🔥 ALERTAS
 ============================ */
-
-// 🔴 AQUÍ ES DONDE CAMBIA TODO
-// Debes tener este método en tu clase Ops:
-// ObtenerProduccionAlertas($idContratistas, $semana)
-
 $alertas = $modal->ObtenerProduccionAlertas($idContratistas, $semana);
 $alertas = is_array($alertas) ? $alertas : [];
-
 ?>
 
 <!-- Bootstrap CSS -->
@@ -61,7 +49,7 @@ $alertas = is_array($alertas) ? $alertas : [];
 <link rel="stylesheet" type="text/css" href="css/modalprenomina.css">
 
 <!-- ============================
-     TABLA NUEVA (ALERTAS)
+     TABLA ALERTAS
 ============================ -->
 <table id="ventas" class="table table-bordered table-striped" style="width:100%">
 
@@ -110,9 +98,6 @@ $alertas = is_array($alertas) ? $alertas : [];
                 <?= !empty($row['Bandera_Revision']) ? '✔' : '✖' ?>
             </td>
 
-            <!-- ============================
-                 BOTÓN GALERÍA (SE CONSERVA)
-            ============================ -->
             <td>
                 <button 
                     type="button"
@@ -132,14 +117,12 @@ $alertas = is_array($alertas) ? $alertas : [];
 </table>
 
 <!-- ============================
-     MODAL GALERÍA (SE CONSERVA TAL CUAL)
+     MODAL GALERÍA
 ============================ -->
 <div class="modal fade" 
      id="modalGaleria" 
      tabindex="-1" 
-     aria-hidden="true"
-     data-bs-backdrop="true"
-     data-bs-keyboard="true">
+     aria-hidden="true">
 
   <div class="modal-dialog modal-dialog-centered modal-lg modal-galeria-custom">
     <div class="modal-content">
@@ -159,7 +142,6 @@ $alertas = is_array($alertas) ? $alertas : [];
           <p><strong>Folio:</strong> <span id="modalFolio"></span></p>
         </div>
 
-        <!-- FOTOS -->
         <div class="fila-superior">
 
           <div class="foto-item">
@@ -207,33 +189,7 @@ $alertas = is_array($alertas) ? $alertas : [];
   </div>
 </div>
 
-<!-- Bootstrap JS  cierre del modal) -->
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 <script src="js/galeria_fotos.js"></script>
-<!-- Script para inicializar DataTable con estilos y botones -->
-<script>
-$(document).ready(function () {
-    new DataTable('#ventas', {
-        fixedColumns: { start: 1, end: 1 },
-        responsive:true,
-        language: { URL:'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
-        ordering: false,
-        searching: true,
-        scrollY: true,
-        scrollX: true,
-        dom: 'Bfrtip',
-        buttons: [
-            {
-                extend: 'excelHtml5',
-                text: '<i class="fas fa-file-excel"></i> Excel',
-                className: 'btn btn-success'
-            },
-            {
-                extend: 'pdfHtml5',
-                text: '<i class="fas fa-file-pdf"></i> PDF',
-                className: 'btn btn-danger'
-            }
-        ]
-    });
-});
-</script>
