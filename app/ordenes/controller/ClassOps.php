@@ -881,16 +881,24 @@ foreach ($conexion_analisis->query($sql) as $row) {
                          . implode(', ', $telefonosUsados);
         }
 
+        // =========================
+        // 🔥 DETALLES TAC DUPLICADO
+        // =========================
         if ($serieTac && isset($ontDuplicadas[$serieTac])) {
 
-    // usar mapa global correcto
-    $telefonosTac = $tacSeriesMap[$serieTac] ?? [];
+            $telefonosTac = [];
 
-    $telefonosTac = array_unique($telefonosTac);
+            foreach ($tacData as $t) {
+                if (isset($t['Num__Serie']) && strtoupper(trim($t['Num__Serie'])) === $serieTac) {
+                    $telefonosTac[] = $t['TELEFONO'];
+                }
+            }
 
-    $detalleTac = "El número de serie $serieTac en TAC se usa en los teléfonos: "
-                . implode(' y ', $telefonosTac);
-}
+            $telefonosTac = array_unique($telefonosTac);
+
+            $detalleTac = "El número de serie $serieTac está duplicado en TAC en los teléfonos: "
+                        . implode(', ', $telefonosTac);
+        }
 
         // =========================
         // ALMACÉN (INTOCADO)
