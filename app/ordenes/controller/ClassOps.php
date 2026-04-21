@@ -916,8 +916,6 @@ if (count($seriesValidas) > 1) {
 
 $serieOnt = $serieTac ?: $serieCoord ?: $serieEsci;
 
-$ontAlmacen = null;
-
 if ($serieOnt) {
 
     $ontAlmacen = $this->validarOntAlmacenNueva(
@@ -925,21 +923,19 @@ if ($serieOnt) {
         $serieOnt,
         $r['idContratista']
     );
+
+    if ($ontAlmacen) {
+        $alertasResumen[] = $ontAlmacen[0];
+
+        $detalles[] = [
+            'tipo'  => 'ONT_ALMACEN',
+            'tac'   => $serieTac,
+            'coord' => $serieCoord,
+            'esci'  => $serieEsci,
+            'desc'  => $ontAlmacen[1]
+        ];
+    }
 }
-
-if ($ontAlmacen) {
-
-    $alertasResumen[] = $ontAlmacen[0];
-
-    $detalles[] = [
-        'tipo'  => 'ONT_ALMACEN',
-        'tac'   => $serieTac,
-        'coord' => $serieCoord,
-        'esci'  => $serieEsci,
-        'desc'  => $ontAlmacen[1]
-    ];
-}
-
 
         
 
@@ -982,13 +978,7 @@ if ($ontAlmacen) {
 
 private function validarOntAlmacenNueva($conexion_local, $ont, $idContratista)
 {
-    if (!$ont) {
-        return null;
-    }
-
-    // Normalizar serie
-    $ont = strtoupper(trim($ont));
-    $ont = str_replace(' ', '', $ont);
+    $ont = $this->normalizarSerie($ont);
 
     if ($ont === '') {
         return null;
@@ -1004,17 +994,14 @@ private function validarOntAlmacenNueva($conexion_local, $ont, $idContratista)
     $stmt->execute([$ont]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // No existe en almacén
     if (!$row) {
         return ["ONT no se encuentra en almacén", "Serie: $ont"];
     }
 
-    // No asignada a nadie
     if (empty($row['FK_Contratista_Salida'])) {
         return ["ONT no asignada al contratista", "Serie: $ont"];
     }
 
-    // Asignada a otro contratista
     if ((int)$row['FK_Contratista_Salida'] !== (int)$idContratista) {
         return [
             "ONT asignada a otro contratista",
