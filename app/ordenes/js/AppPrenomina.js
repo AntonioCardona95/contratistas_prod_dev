@@ -44,54 +44,6 @@ function LoadAlertas(semana){
 }
 
 
-// ================================
-// DATA TABLE INIT
-// ================================
-function initDataTable(){
-
-    console.log("Inicializando DataTable...");
-
-    // evitar duplicados si se vuelve a cargar
-    if ($.fn.DataTable.isDataTable('#ventas')) {
-        $('#ventas').DataTable().destroy();
-    }
-
-    $('#ventas').DataTable({
-        responsive: true,
-        ordering: false,
-        searching: true,
-        paging: true,
-        pageLength: 10,       // igual que PrenominaNuevo.php
-        lengthChange: false,  // oculta selector de cantidad
-        dom: 'Bfrtip',
-
-        language: {
-            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
-        },
-
-        buttons: [
-            {
-                extend: 'excelHtml5',
-                text: '<i class="fas fa-file-excel"></i> Excel',
-                className: 'btn btn-success'
-            },
-            {
-                extend: 'pdfHtml5',
-                text: '<i class="fas fa-file-pdf"></i> PDF',
-                className: 'btn btn-danger'
-            }
-        ],
-
-        columnDefs: [
-            { responsivePriority: 1, targets: 0 }, // Folio Pisa visible
-            { responsivePriority: 2, targets: 1 }, // Teléfono visible
-            { responsivePriority: 3, targets: -1 } // Galería visible
-        ]
-    });
-
-    console.log("DataTable cargado correctamente");
-}
-
 
 /*$(document).ready(function(){
 
