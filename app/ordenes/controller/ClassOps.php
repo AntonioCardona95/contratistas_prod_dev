@@ -628,7 +628,9 @@ public function InsertarAlertasMasivo($registros)
     // 🔹 COORDIAPP
     // =========================
     $coordData = [];
-    $sql = "SELECT Folio_Pisa, Telefono, Tipo_Tarea, Ont, Tecnologia
+    $sql = "SELECT Folio_Pisa, Telefono, Tipo_Tarea, Ont, Tecnologia,
+                   Foto_Casa_Cliente, Foto_Puerto, Foto_Ont, No_Serie_ONT, Foto_INE,
+                   validacion_foto_fallida, validacion_LEDS_ONT_fallida
             FROM tecnico_instalaciones_coordiapp
             WHERE Folio_Pisa IN ($inFolios)";
     foreach ($conexion->query($sql) as $row) {
@@ -715,7 +717,6 @@ public function InsertarAlertasMasivo($registros)
         $tipoTac = $tac['Tipo_de_Tarea'] ?? $r['tipoTarea'];
         $tipoCoord = $coord['Tipo_Tarea'] ?? null;
 
-        // 🔥 NORMALIZACIÓN REAL TIPO TAREA
         $tipoTacNorm = $tipoTac ? strtoupper(trim($tipoTac)) : null;
         $tipoCoordNorm = $tipoCoord ? strtoupper(trim($tipoCoord)) : null;
 
@@ -726,7 +727,7 @@ public function InsertarAlertasMasivo($registros)
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
 
         // =========================
-        // 🔥 TECNOLOGIA NORMALIZADA
+        // TECNOLOGIA
         // =========================
         $tecTac = isset($tac['TECNOLOGIA']) ? strtoupper(trim($tac['TECNOLOGIA'])) : null;
         $tecCoord = isset($coord['Tecnologia']) ? strtoupper(trim($coord['Tecnologia'])) : null;
@@ -749,106 +750,149 @@ public function InsertarAlertasMasivo($registros)
         $fechaUltimoEvento = $esci['FECHA_ULTIMO_EVENTO'] ?? null;
 
         // =========================
-        // 🔥 ALERTAS ESCI
+        // 🔥 VALIDACIÓN DE FOTOS
         // =========================
+        $camposFotos = [];
+        $usaPuertoCasa = false;
+        $usaOntFoto = false;
 
+        $tipoTareaFoto = strtoupper(trim($coord['Tipo_Tarea'] ?? $tipoTac ?? ''));
+        $codigoLiquidacion = strtoupper(trim($r['codigoLiquidacion'] ?? ''));
+
+        if (strpos($tipoTareaFoto, 'Q') === 0) {
+
+            if (in_array($codigoLiquidacion, [
+                'JUMPER/PARALELO EXTERIOR',
+                'CONECTOR MECANICO DAÑADO',
+                'CAMBIO DE PUERTO',
+                'CAMBIO DE TERMINAL'
+            ])) {
+                $camposFotos = [
+                    'Foto_Casa_Cliente' => 'Falta evidencia de la casa',
+                    'Foto_Puerto' => 'Falta evidencia del puerto'
+                ];
+                $usaPuertoCasa = true;
+
+            } elseif ($codigoLiquidacion === 'MODEM DAÑADO') {
+                $camposFotos = [
+                    'Foto_Casa_Cliente' => 'Falta evidencia de la casa',
+                    'Foto_Ont' => 'Falta evidencia ONT'
+                ];
+                $usaOntFoto = true;
+
+            } elseif (in_array($codigoLiquidacion, [
+                'CAMBIO PAR PRINCIPAL',
+                'CAMBIO PAR SECUNDARIO',
+                'ROSETA OPTICA',
+                'CAMBIO DE INTERIOR'
+            ])) {
+                $camposFotos = [
+                    'Foto_Casa_Cliente' => 'Falta evidencia de la casa'
+                ];
+
+            } elseif (in_array($codigoLiquidacion, [
+                'CAMBIO PARALELO Y MODEM',
+                'OTRO'
+            ])) {
+                $camposFotos = [
+                    'Foto_Casa_Cliente' => 'Falta evidencia de la casa',
+                    'Foto_Puerto' => 'Falta evidencia del puerto',
+                    'Foto_Ont' => 'Falta evidencia ONT'
+                ];
+                $usaPuertoCasa = true;
+                $usaOntFoto = true;
+            }
+
+        } else {
+
+            $camposFotos = [
+                'Foto_Puerto' => 'Falta evidencia del puerto',
+                'Foto_Casa_Cliente' => 'Falta evidencia de la casa',
+                'Foto_Ont' => 'Falta evidencia ONT frontal',
+                'No_Serie_ONT' => 'Falta evidencia ONT trasera',
+                'Foto_INE' => 'Falta evidencia INE'
+            ];
+
+            $usaPuertoCasa = true;
+            $usaOntFoto = true;
+        }
+
+        foreach ($camposFotos as $campo => $mensaje) {
+
+            $valor = trim($coord[$campo] ?? '');
+
+            if ($valor === '' || !preg_match('/\.(jpg|jpeg|png)$/i', $valor)) {
+
+                $alertasResumen[] = 'FOTO_FALTANTE';
+
+                $detalles[] = [
+                    'tipo'  => 'FOTO_FALTANTE',
+                    'tac'   => $campo,
+                    'coord' => $valor,
+                    'esci'  => null,
+                    'desc'  => $mensaje
+                ];
+            }
+        }
+
+        if (!empty($coord['validacion_foto_fallida']) && $usaPuertoCasa) {
+            $alertasResumen[] = 'FALLA_FOTO_GENERAL';
+            $detalles[] = [
+                'tipo'  => 'FALLA_FOTO_GENERAL',
+                'tac'   => null,
+                'coord' => null,
+                'esci'  => null,
+                'desc'  => 'Error en foto terminal o domicilio'
+            ];
+        }
+
+        if (!empty($coord['validacion_LEDS_ONT_fallida']) && $usaOntFoto) {
+            $alertasResumen[] = 'FALLA_FOTO_ONT';
+            $detalles[] = [
+                'tipo'  => 'FALLA_FOTO_ONT',
+                'tac'   => null,
+                'coord' => null,
+                'esci'  => null,
+                'desc'  => 'Error en foto ONT'
+            ];
+        }
+
+        // =========================
+        // ALERTAS ESCI
+        // =========================
         if ($serieEsci === 'DESCONOCIDO') {
             $alertasResumen[] = 'NUMERO DE SERIE DESCONOCIDO';
-            $detalles[] = [
-                'tipo'=>'NUMERO DE SERIE DESCONOCIDO',
-                'tac'=>$serieTac,
-                'coord'=>$serieCoord,
-                'esci'=>$serieEsci,
-                'desc'=>'Serie reportada como desconocida en ESCI'
-            ];
         }
 
         if ($ultimoEvento === 0) {
             $alertasResumen[] = 'SIN NAVEGACION';
-            $detalles[] = [
-                'tipo'=>'SIN NAVEGACION',
-                'tac'=>null,
-                'coord'=>null,
-                'esci'=>$serieEsci,
-                'desc'=>"Última vez: $fechaUltimoEvento"
-            ];
         }
 
         if ($ultimoEvento === -1) {
             $alertasResumen[] = 'SERVICIO INACTIVO';
-            $detalles[] = [
-                'tipo'=>'SERVICIO INACTIVO',
-                'tac'=>null,
-                'coord'=>null,
-                'esci'=>$serieEsci,
-                'desc'=>"Última vez: $fechaUltimoEvento"
-            ];
         }
 
         if ($serieEsci && isset($seriesMap[$serieEsci]) && count(array_unique($seriesMap[$serieEsci])) > 1) {
             $alertasResumen[] = 'ONT DUPLICADA EN ESCI';
-            $detalles[] = [
-                'tipo'=>'ONT DUPLICADA EN ESCI',
-                'tac'=>$serieTac,
-                'coord'=>$serieCoord,
-                'esci'=>$serieEsci,
-                'desc'=>"Serie en teléfonos: " . implode(", ", array_unique($seriesMap[$serieEsci]))
-            ];
         }
 
         // =========================
-        // 🔥 COMPARACIONES
+        // COMPARACIONES
         // =========================
-
-        // SERIE
         if ($serieCoord && $serieTac && $serieTac != $serieCoord) {
             $alertasResumen[] = 'SERIE_DIFERENTE';
-            $detalles[] = [
-                'tipo'=>'SERIE_DIFERENTE',
-                'tac'=>$serieTac,
-                'coord'=>$serieCoord,
-                'esci'=>$serieEsci,
-                'desc'=>'Serie distinta entre sistemas'
-            ];
         }
 
-        // 🔥 TIPO TAREA CORREGIDO
-        if (
-            ($tipoTacNorm === null && $tipoCoordNorm !== null) ||
-            ($tipoTacNorm !== null && $tipoCoordNorm === null) ||
-            ($tipoTacNorm !== null && $tipoCoordNorm !== null && $tipoTacNorm !== $tipoCoordNorm)
-        ) {
+        if ($tipoTacNorm !== $tipoCoordNorm) {
             $alertasResumen[] = 'TIPO_TAREA_DIFERENTE';
-            $detalles[] = [
-                'tipo'=>'TIPO_TAREA_DIFERENTE',
-                'tac'=>$tipoTacNorm,
-                'coord'=>$tipoCoordNorm,
-                'esci'=>null,
-                'desc'=>'Tipo de tarea distinto o faltante'
-            ];
         }
 
-        // TECNOLOGIA
         if ($tecTac !== $tecCoord) {
             $alertasResumen[] = 'TECNOLOGIA_DIFERENTE';
-            $detalles[] = [
-                'tipo'=>'TECNOLOGIA_DIFERENTE',
-                'tac'=>$tecTac,
-                'coord'=>$tecCoord,
-                'esci'=>null,
-                'desc'=>'Tecnología distinta o faltante entre sistemas'
-            ];
         }
 
         if (!$coord) {
             $alertasResumen[] = 'NO_EXISTE_COORDIAPP';
-            $detalles[] = [
-                'tipo'=>'NO_EXISTE_COORDIAPP',
-                'tac'=>$folio,
-                'coord'=>null,
-                'esci'=>null,
-                'desc'=>'No existe en Coordiapp'
-            ];
         }
 
         // =========================
