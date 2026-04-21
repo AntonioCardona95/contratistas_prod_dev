@@ -616,13 +616,10 @@ public function InsertarAlertasMasivo($registros)
     $conexion_analisis->exec("SET NAMES 'utf8mb4'");
 
     // =========================
-    // 🔥 SACAR TODOS LOS FOLIOS Y TELÉFONOS
+    // 🔹 PREPARAR IDS
     // =========================
-    $folios = array_column($registros, 'folio');
-    $telefonos = array_column($registros, 'telefono');
-
-    $folios = array_unique($folios);
-    $telefonos = array_unique($telefonos);
+    $folios = array_unique(array_column($registros, 'folio'));
+    $telefonos = array_unique(array_column($registros, 'telefono'));
 
     $inFolios = "'" . implode("','", $folios) . "'";
     $inTelefonos = "'" . implode("','", $telefonos) . "'";
@@ -634,7 +631,6 @@ public function InsertarAlertasMasivo($registros)
     $sql = "SELECT Folio_Pisa, Telefono, Tipo_Tarea, Ont 
             FROM tecnico_instalaciones_coordiapp
             WHERE Folio_Pisa IN ($inFolios)";
-
     foreach ($conexion->query($sql) as $row) {
         $coordData[$row['Folio_Pisa']] = $row;
     }
@@ -646,21 +642,35 @@ public function InsertarAlertasMasivo($registros)
     $sql = "SELECT Folio_Pisa, TELEFONO, Tipo_de_Tarea, Num__Serie 
             FROM qm_tac
             WHERE Folio_Pisa IN ($inFolios)";
-
     foreach ($conexion_analisis->query($sql) as $row) {
         $tacData[$row['Folio_Pisa']] = $row;
     }
 
     // =========================
-    // 🔹 ESCI
+    // 🔹 ESCI (COMPLETO)
     // =========================
     $esciData = [];
-    $sql = "SELECT TELEFONO, M_SERIE 
+    $seriesMap = [];
+
+    $sql = "SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, FECHA_ULTIMO_EVENTO
             FROM seg_ns_eci
-            WHERE TELEFONO IN ($inTelefonos)";
+            WHERE TELEFONO IN ($inTelefonos)
+            ORDER BY FECHA_ULTIMO_EVENTO DESC";
 
     foreach ($conexion_analisis->query($sql) as $row) {
-        $esciData[$row['TELEFONO']] = $row;
+
+        $tel = $row['TELEFONO'];
+
+        // solo guardar el más reciente por teléfono
+        if (!isset($esciData[$tel])) {
+            $esciData[$tel] = $row;
+        }
+
+        // mapa para detectar duplicados
+        $serie = trim($row['M_SERIE']);
+        if (!empty($serie) && strtoupper($serie) !== 'DESCONOCIDO') {
+            $seriesMap[$serie][] = $tel;
+        }
     }
 
     // =========================
@@ -668,8 +678,8 @@ public function InsertarAlertasMasivo($registros)
     // =========================
     $stmt = $conexion->prepare("
         INSERT INTO Produccion_alertas
-        (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Alerta)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?)
+        (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
     ");
 
     // =========================
@@ -685,8 +695,11 @@ public function InsertarAlertasMasivo($registros)
         $esci  = $esciData[$telefono] ?? null;
 
         $alertas = [];
+        $detalleEsci = null;
 
+        // =========================
         // NORMALIZACIÓN
+        // =========================
         $telefonoTac = $tac['TELEFONO'] ?? $telefono;
         $tipoTac = $tac['Tipo_de_Tarea'] ?? $r['tipoTarea'];
         $serieTac = $tac['Num__Serie'] ?? null;
@@ -696,6 +709,32 @@ public function InsertarAlertasMasivo($registros)
         $serieCoord = $coord['Ont'] ?? null;
 
         $serieEsci = $esci['M_SERIE'] ?? null;
+        $ultimoEvento = $esci['ULTIMO_EVENTO'] ?? null;
+        $fechaUltimoEvento = $esci['FECHA_ULTIMO_EVENTO'] ?? null;
+
+        // =========================
+        // 🔥 ALERTAS ESCI (RECUPERADAS)
+        // =========================
+
+        if ($serieEsci && strtoupper($serieEsci) === 'DESCONOCIDO') {
+            $alertas[] = 'NUMERO DE SERIE DESCONOCIDO';
+        }
+
+        if ($ultimoEvento === 0) {
+            $alertas[] = 'SIN NAVEGACION';
+            $detalleEsci = "Última vez: $fechaUltimoEvento";
+        }
+
+        if ($ultimoEvento === -1) {
+            $alertas[] = 'SERVICIO INACTIVO';
+            $detalleEsci = "Última vez: $fechaUltimoEvento";
+        }
+
+        // DUPLICADOS
+        if ($serieEsci && isset($seriesMap[$serieEsci]) && count(array_unique($seriesMap[$serieEsci])) > 1) {
+            $alertas[] = 'ONT DUPLICADA EN ESCI';
+            $detalleEsci = "Serie $serieEsci en teléfonos: " . implode(", ", array_unique($seriesMap[$serieEsci]));
+        }
 
         // =========================
         // 🔥 COMPARACIONES
@@ -720,7 +759,7 @@ public function InsertarAlertasMasivo($registros)
         }
 
         // =========================
-        // INSERT SI HAY ALERTAS
+        // INSERT
         // =========================
         if (!empty($alertas)) {
 
@@ -735,7 +774,8 @@ public function InsertarAlertasMasivo($registros)
                 $r['semana'],
                 $r['anio'],
                 $r['metraje'],
-                implode(' | ', $alertas)
+                implode(' | ', $alertas),
+                $detalleEsci
             ]);
         }
     }
