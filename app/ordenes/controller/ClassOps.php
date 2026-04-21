@@ -650,18 +650,31 @@ public function InsertarAlertasMasivo($registros)
     // 🔥 ONT DUPLICADA TAC
     // =========================
     $sqlOntDuplicada = "
-        SELECT Num__Serie
-        FROM qm_tac
-        WHERE Calificador_Edo = 'COMPLETADA'
-          AND Num__Serie IS NOT NULL
-          AND Num__Serie != ''
-        GROUP BY Num__Serie
-        HAVING COUNT(DISTINCT TELEFONO) > 1
+    SELECT Num__Serie, TELEFONO
+    FROM qm_tac
+    WHERE Calificador_Edo = 'COMPLETADA'
+      AND Num__Serie IS NOT NULL
+      AND Num__Serie != ''
+    GROUP BY Num__Serie, TELEFONO
+    HAVING COUNT(DISTINCT TELEFONO) > 1
     ";
+
     $ontDuplicadasTac = [];
+
     foreach ($conexion_analisis->query($sqlOntDuplicada) as $row) {
         $serie = strtoupper(trim($row['Num__Serie']));
-        $ontDuplicadasTac[$serie] = true;
+        $telefono = trim($row['TELEFONO']);
+
+        // Si no existe la serie en el array, la inicializamos como un array vacío
+        if (!isset($ontDuplicadasTac[$serie])) {
+            $ontDuplicadasTac[$serie] = [];
+        }
+
+        // Añadimos el teléfono a la lista, usando array_unique() para evitar duplicados
+        $ontDuplicadasTac[$serie][] = $telefono;
+
+        // Eliminar duplicados de los teléfonos asociados a cada serie
+        $ontDuplicadasTac[$serie] = array_unique($ontDuplicadasTac[$serie]);
     }
 
     // =========================
@@ -799,7 +812,12 @@ private function alertaOntDuplicadaTac($data, &$alertas, &$detalleTac)
 {
     if ($data['serieTac'] && isset($data['ontDuplicadasTac'][$data['serieTac']])) {
         $alertas[] = 'ONT_DUPLICADA_EN_TAC';
-        $detalleTac = "Serie {$data['serieTac']} duplicada en TAC";
+        
+        // Recuperamos los teléfonos asociados a la serie duplicada
+        $telefonos = implode(', ', $data['ontDuplicadasTac'][$data['serieTac']]);
+        
+        // Modificamos el detalle para incluir los teléfonos
+        $detalleTac = "Serie {$data['serieTac']} duplicada en TAC en los teléfonos: {$telefonos}";
     }
 }
 
