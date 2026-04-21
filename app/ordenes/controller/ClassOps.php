@@ -639,7 +639,7 @@ public function InsertarAlertasMasivo($registros)
     // 🔹 TAC
     // =========================
     $tacData = [];
-    $sql = "SELECT Folio_Pisa, TELEFONO, Num__Serie, Tecnologia
+    $sql = "SELECT Folio_Pisa, TELEFONO, Num__Serie, TECNOLOGIA
             FROM qm_tac
             WHERE Folio_Pisa IN ($inFolios)
               AND Calificador_Edo = 'COMPLETADA'";
