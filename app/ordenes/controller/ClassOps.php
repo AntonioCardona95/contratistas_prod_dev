@@ -561,49 +561,6 @@ public function ExisteFolioProduccion($folio, $telefono, $idContratistas)
 
 // PRUEBA DON ORDEN TIPO //
 
-public function InsertarProduccion(
-    $folio,
-    $telefono,
-    $tipoTarea,
-    $cope,
-    $fechaLiquidacion,
-    $idContratistas,
-    $semana,
-    $anio,
-    $metraje
-) {
-    $conexion = $this->get_conexion();
-
-    $conexion->exec("SET NAMES 'utf8mb4'");
-    $conexion->exec("SET CHARACTER SET utf8mb4");
-
-    $fechaCarga = date("Y-m-d H:i:s");
-
-    $sql = "INSERT INTO Produccion_contratista 
-            (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje) 
-            VALUES (:folio, :telefono, :tipoTarea, :cope, :fechaLiquidacion, :fechaCarga, :idContratistas, :semana, :anio, :metraje)";
-    
-    $stmt = $conexion->prepare($sql);
-
-    $ejecutado = $stmt->execute([
-        ':folio' => $folio,
-        ':telefono' => $telefono,
-        ':tipoTarea' => $tipoTarea,
-        ':cope' => $cope,
-        ':fechaLiquidacion' => $fechaLiquidacion,
-        ':fechaCarga' => $fechaCarga,
-        ':idContratistas' => $idContratistas,
-        ':semana' => $semana,
-        ':anio' => $anio,
-        ':metraje' => $metraje
-    ]);
-
-    return [
-        'insertado' => $ejecutado,
-        'fechaCarga' => $fechaCarga
-    ];
-}
-
 public function InsertarAlertasMasivo($registros)
 {
     if (empty($registros)) return;
@@ -627,7 +584,7 @@ public function InsertarAlertasMasivo($registros)
     // 🔹 COORDIAPP
     // =========================
     $coordData = [];
-    $sql = "SELECT Folio_Pisa, Ont
+    $sql = "SELECT Folio_Pisa, Ont, Tecnologia
             FROM tecnico_instalaciones_coordiapp
             WHERE Folio_Pisa IN ($inFolios)";
 
@@ -639,7 +596,7 @@ public function InsertarAlertasMasivo($registros)
     // 🔹 TAC
     // =========================
     $tacData = [];
-    $sql = "SELECT Folio_Pisa, TELEFONO, Num__Serie
+    $sql = "SELECT Folio_Pisa, TELEFONO, Num__Serie, Tecnologia
             FROM qm_tac
             WHERE Folio_Pisa IN ($inFolios)
               AND Calificador_Edo = 'COMPLETADA'";
@@ -710,7 +667,7 @@ public function InsertarAlertasMasivo($registros)
     ");
 
     // =========================
-    // 🔥 LOOP
+    // 🔥 LOOP PRINCIPAL
     // =========================
     foreach ($registros as $r) {
 
@@ -721,75 +678,30 @@ public function InsertarAlertasMasivo($registros)
         $tac   = $tacData[$folio] ?? null;
         $esci  = $esciData[$telefono] ?? null;
 
-        $alertas = [];
-        $detalleEsci = null;
-        $detalleTac = null;
-
         // =========================
-        // SERIES
+        // 🔹 SERIES
         // =========================
         $serieTac = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
         $serieEsci = $esci['M_SERIE'] ?? null;
 
         // =========================
-        // 🔥 TAC DUPLICADA
+        // 🔥 MOTOR DE ALERTAS
         // =========================
-        if ($serieTac && isset($ontDuplicadasTac[$serieTac])) {
-            $alertas[] = 'ONT_DUPLICADA_EN_TAC';
-            $detalleTac = "Serie $serieTac duplicada en TAC";
-        }
+        $resultadoAlertas = $this->evaluarAlertas([
+            'folio' => $folio,
+            'telefono' => $telefono,
+            'coord' => $coord,
+            'tac' => $tac,
+            'esci' => $esci,
+            'serieTac' => $serieTac,
+            'serieCoord' => $serieCoord,
+            'serieEsci' => $serieEsci,
+            'ontDuplicadasTac' => $ontDuplicadasTac,
+            'esciSeriesMap' => $esciSeriesMap
+        ]);
 
-        // =========================
-        // 🔥 ESCI DUPLICADA
-        // =========================
-        if ($serieEsci && isset($esciSeriesMap[$serieEsci])) {
-            if (count($esciSeriesMap[$serieEsci]) > 1) {
-                $alertas[] = 'ONT_DUPLICADA_EN_ESCI';
-                $detalleEsci = "Serie $serieEsci duplicada en ESCI";
-            }
-        }
-
-        // =========================
-        // 🔥 SERIE DESCONOCIDA
-        // =========================
-        if ($serieEsci === 'DESCONOCIDO') {
-            $alertas[] = 'SERIE_DESCONOCIDA';
-        }
-
-        // =========================
-        // 🔥 NUEVO: EVENTO ESCI
-        // =========================
-        $ultimoEvento = $esci['ULTIMO_EVENTO'] ?? null;
-
-        if ($ultimoEvento !== null) {
-
-            if ($ultimoEvento === 0) {
-                $alertas[] = 'SIN_NAVEGACION';
-                $detalleEsci = "Serie $serieEsci sin navegación";
-            }
-
-            if ($ultimoEvento === -1) {
-                $alertas[] = 'SERVICIO_INACTIVO';
-                $detalleEsci = "Serie $serieEsci con servicio inactivo";
-            }
-        }
-
-        // =========================
-        // 🔥 DIFERENCIA SERIES
-        // =========================
-        $series = array_filter([$serieTac, $serieCoord, $serieEsci]);
-
-        if (count($series) > 1) {
-            if (!(($serieTac === $serieCoord) && ($serieTac === $serieEsci))) {
-                $alertas[] = 'NUMERO_SERIE_DIFERENTE';
-            }
-        }
-
-        // =========================
-        // INSERT
-        // =========================
-        if (!empty($alertas)) {
+        if (!empty($resultadoAlertas['alertas'])) {
 
             $stmtAlerta->execute([
                 $folio,
@@ -802,7 +714,7 @@ public function InsertarAlertasMasivo($registros)
                 $r['semana'] ?? null,
                 $r['anio'] ?? null,
                 $r['metraje'] ?? null,
-                implode(' | ', array_unique($alertas))
+                implode(' | ', array_unique($resultadoAlertas['alertas']))
             ]);
 
             $stmtDetalle->execute([
@@ -810,10 +722,105 @@ public function InsertarAlertasMasivo($registros)
                 'SERIES',
                 1,
                 date('Y-m-d H:i:s'),
-                $detalleEsci,
-                $detalleTac
+                $resultadoAlertas['detalleEsci'],
+                $resultadoAlertas['detalleTac']
             ]);
         }
+    }
+}
+
+private function evaluarAlertas($data)
+{
+    $alertas = [];
+    $detalleEsci = null;
+    $detalleTac = null;
+
+    $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
+    $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
+    $this->alertaSerieDesconocida($data, $alertas);
+    $this->alertaEventoEsci($data, $alertas, $detalleEsci);
+    $this->alertaSeriesDiferentes($data, $alertas);
+    $this->alertaTecnologiaDiferente($data, $alertas);
+
+    return [
+        'alertas' => $alertas,
+        'detalleEsci' => $detalleEsci,
+        'detalleTac' => $detalleTac
+    ];
+}
+
+// =========================
+// 🔥 ALERTAS
+// =========================
+
+private function alertaOntDuplicadaTac($data, &$alertas, &$detalleTac)
+{
+    if ($data['serieTac'] && isset($data['ontDuplicadasTac'][$data['serieTac']])) {
+        $alertas[] = 'ONT_DUPLICADA_EN_TAC';
+        $detalleTac = "Serie {$data['serieTac']} duplicada en TAC";
+    }
+}
+
+private function alertaOntDuplicadaEsci($data, &$alertas, &$detalleEsci)
+{
+    $serie = $data['serieEsci'];
+
+    if ($serie && isset($data['esciSeriesMap'][$serie])) {
+        if (count($data['esciSeriesMap'][$serie]) > 1) {
+            $alertas[] = 'ONT_DUPLICADA_EN_ESCI';
+            $detalleEsci = "Serie $serie duplicada en ESCI";
+        }
+    }
+}
+
+private function alertaSerieDesconocida($data, &$alertas)
+{
+    if ($data['serieEsci'] === 'DESCONOCIDO') {
+        $alertas[] = 'SERIE_DESCONOCIDA';
+    }
+}
+
+private function alertaEventoEsci($data, &$alertas, &$detalleEsci)
+{
+    $evento = $data['esci']['ULTIMO_EVENTO'] ?? null;
+    $serie = $data['serieEsci'];
+
+    if ($evento !== null) {
+
+        if ($evento === 0) {
+            $alertas[] = 'SIN_NAVEGACION';
+            $detalleEsci = "Serie $serie sin navegación";
+        }
+
+        if ($evento === -1) {
+            $alertas[] = 'SERVICIO_INACTIVO';
+            $detalleEsci = "Serie $serie con servicio inactivo";
+        }
+    }
+}
+
+private function alertaSeriesDiferentes($data, &$alertas)
+{
+    $series = array_filter([
+        $data['serieTac'],
+        $data['serieCoord'],
+        $data['serieEsci']
+    ]);
+
+    if (count($series) > 1) {
+        if (!(count(array_unique($series)) === 1)) {
+            $alertas[] = 'NUMERO_SERIE_DIFERENTE';
+        }
+    }
+}
+
+private function alertaTecnologiaDiferente($data, &$alertas)
+{
+    $tecTac = $data['tac']['Tecnologia'] ?? null;
+    $tecCoord = $data['coord']['Tecnologia'] ?? null;
+
+    if ($tecTac && $tecCoord && $tecTac !== $tecCoord) {
+        $alertas[] = 'TECNOLOGIA_DIFERENTE';
     }
 }
 
