@@ -648,7 +648,7 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-    // 🔹 ESCI (GLOBAL)
+    // 🔹 ESCI
     // =========================
     $esciData = [];
     $seriesMap = [];
@@ -657,9 +657,7 @@ public function InsertarAlertasMasivo($registros)
         SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, FECHA_ULTIMO_EVENTO
         FROM seg_ns_eci
         WHERE M_SERIE IN (
-            SELECT M_SERIE
-            FROM seg_ns_eci
-            WHERE TELEFONO IN ($inTelefonos)
+            SELECT M_SERIE FROM seg_ns_eci WHERE TELEFONO IN ($inTelefonos)
         )
         ORDER BY FECHA_ULTIMO_EVENTO DESC
     ";
@@ -682,7 +680,6 @@ public function InsertarAlertasMasivo($registros)
     // =========================
     // 🔥 PREPARES
     // =========================
-
     $stmtAlerta = $conexion->prepare("
         INSERT INTO Produccion_alertas
         (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Alerta)
@@ -731,10 +728,14 @@ public function InsertarAlertasMasivo($registros)
         if ($tecTac) $tecTac = str_replace(' ', '', $tecTac);
         if ($tecCoord) $tecCoord = str_replace(' ', '', $tecCoord);
 
-        // 🔥 equivalencias TAC
+        // equivalencias TAC
         if ($tecTac === 'CAMBACEO' || $tecTac === 'CAMBIOFIBRA') {
             $tecTac = 'FIBRA';
         }
+
+        // convertir vacíos a null real
+        if ($tecTac === '') $tecTac = null;
+        if ($tecCoord === '') $tecCoord = null;
 
         // =========================
         // ESCI
@@ -749,7 +750,6 @@ public function InsertarAlertasMasivo($registros)
 
         if ($serieEsci === 'DESCONOCIDO') {
             $alertasResumen[] = 'NUMERO DE SERIE DESCONOCIDO';
-
             $detalles[] = [
                 'tipo'=>'NUMERO DE SERIE DESCONOCIDO',
                 'tac'=>$serieTac,
@@ -761,7 +761,6 @@ public function InsertarAlertasMasivo($registros)
 
         if ($ultimoEvento === 0) {
             $alertasResumen[] = 'SIN NAVEGACION';
-
             $detalles[] = [
                 'tipo'=>'SIN NAVEGACION',
                 'tac'=>null,
@@ -773,7 +772,6 @@ public function InsertarAlertasMasivo($registros)
 
         if ($ultimoEvento === -1) {
             $alertasResumen[] = 'SERVICIO INACTIVO';
-
             $detalles[] = [
                 'tipo'=>'SERVICIO INACTIVO',
                 'tac'=>null,
@@ -784,9 +782,7 @@ public function InsertarAlertasMasivo($registros)
         }
 
         if ($serieEsci && isset($seriesMap[$serieEsci]) && count(array_unique($seriesMap[$serieEsci])) > 1) {
-
             $alertasResumen[] = 'ONT DUPLICADA EN ESCI';
-
             $detalles[] = [
                 'tipo'=>'ONT DUPLICADA EN ESCI',
                 'tac'=>$serieTac,
@@ -802,7 +798,6 @@ public function InsertarAlertasMasivo($registros)
 
         if ($telefonoCoord && $telefonoTac != $telefonoCoord) {
             $alertasResumen[] = 'TELEFONO_DIFERENTE';
-
             $detalles[] = [
                 'tipo'=>'TELEFONO_DIFERENTE',
                 'tac'=>$telefonoTac,
@@ -814,7 +809,6 @@ public function InsertarAlertasMasivo($registros)
 
         if ($serieCoord && $serieTac && $serieTac != $serieCoord) {
             $alertasResumen[] = 'SERIE_DIFERENTE';
-
             $detalles[] = [
                 'tipo'=>'SERIE_DIFERENTE',
                 'tac'=>$serieTac,
@@ -826,7 +820,6 @@ public function InsertarAlertasMasivo($registros)
 
         if ($tipoCoord && $tipoTac != $tipoCoord) {
             $alertasResumen[] = 'TIPO_TAREA_DIFERENTE';
-
             $detalles[] = [
                 'tipo'=>'TIPO_TAREA_DIFERENTE',
                 'tac'=>$tipoTac,
@@ -836,22 +829,20 @@ public function InsertarAlertasMasivo($registros)
             ];
         }
 
-        // 🔥 TECNOLOGIA (YA NORMALIZADA)
-        if ($tecCoord && $tecTac && $tecTac != $tecCoord) {
+        // 🔥 TECNOLOGIA (con NULL incluido)
+        if ($tecTac !== $tecCoord) {
             $alertasResumen[] = 'TECNOLOGIA_DIFERENTE';
-
             $detalles[] = [
                 'tipo'=>'TECNOLOGIA_DIFERENTE',
                 'tac'=>$tecTac,
                 'coord'=>$tecCoord,
                 'esci'=>null,
-                'desc'=>'Tecnología distinta entre TAC y Coordiapp'
+                'desc'=>'Tecnología distinta o faltante entre sistemas'
             ];
         }
 
         if (!$coord) {
             $alertasResumen[] = 'NO_EXISTE_COORDIAPP';
-
             $detalles[] = [
                 'tipo'=>'NO_EXISTE_COORDIAPP',
                 'tac'=>$folio,
