@@ -634,17 +634,38 @@ public function InsertarAlertasMasivo($registros)
         $coordData[$row['Folio_Pisa']] = $row;
     }
 
+    $tacData = [];
+$tacSeriesMap = [];
+
+$sql = "SELECT Folio_Pisa, TELEFONO, Num__Serie, TECNOLOGIA
+        FROM qm_tac
+        WHERE Folio_Pisa IN ($inFolios)
+          AND Calificador_Edo = 'COMPLETADA'";
+
+foreach ($conexion_analisis->query($sql) as $row) {
+
+    $folio = $row['Folio_Pisa'];
+    $serie = strtoupper(trim($row['Num__Serie']));
+    $tel   = trim($row['TELEFONO']);
+
+    $tacData[$folio] = $row;
+
+    if (!empty($serie)) {
+        $tacSeriesMap[$serie][$tel] = true;
+    }
+}
+
     // =========================
     // 🔹 TAC
     // =========================
-    $tacData = [];
+    /*$tacData = [];
     $sql = "SELECT Folio_Pisa, TELEFONO, Num__Serie, TECNOLOGIA
             FROM qm_tac
             WHERE Folio_Pisa IN ($inFolios)
               AND Calificador_Edo = 'COMPLETADA'";
     foreach ($conexion_analisis->query($sql) as $row) {
         $tacData[$row['Folio_Pisa']] = $row;
-    }
+    } */
 
     // =========================
     // 🔥 ONT DUPLICADA TAC
@@ -730,7 +751,8 @@ public function InsertarAlertasMasivo($registros)
             'serieEsci' => $serieEsci,
             'ontDuplicadasTac' => $ontDuplicadasTac,
             'esciSeriesMap' => $esciSeriesMap,
-            'idContratista' => $r['idContratista']
+            'idContratista' => $r['idContratista'],
+            'tacSeriesMap' => $tacSeriesMap
         ]);
 
         if (!empty($resultadoAlertas['alertas'])) {
@@ -797,11 +819,37 @@ private function evaluarAlertas($data)
 
 private function alertaOntDuplicadaTac($data, &$alertas, &$detalleTac)
 {
+    $serie = $data['serieTac'];
+
+    if ($serie && isset($data['ontDuplicadasTac'][$serie])) {
+
+        $alertas[] = 'ONT_DUPLICADA_EN_TAC';
+
+        // 🔥 Obtener teléfonos
+        $telefonos = isset($data['tacSeriesMap'][$serie])
+            ? array_keys($data['tacSeriesMap'][$serie])
+            : [];
+
+        // 🔥 quitar el actual (opcional pero recomendado)
+        $telefonos = array_diff($telefonos, [$data['telefono']]);
+
+        // 🔥 evitar vacío
+        if (!empty($telefonos)) {
+            $lista = implode(', ', $telefonos);
+            $detalleTac = "Serie $serie duplicada en TAC en los teléfonos: $lista";
+        } else {
+            $detalleTac = "Serie $serie duplicada en TAC";
+        }
+    }
+}
+
+/*private function alertaOntDuplicadaTac($data, &$alertas, &$detalleTac)
+{
     if ($data['serieTac'] && isset($data['ontDuplicadasTac'][$data['serieTac']])) {
         $alertas[] = 'ONT_DUPLICADA_EN_TAC';
         $detalleTac = "Serie {$data['serieTac']} duplicada en TAC";
     }
-}
+} */
 
 private function alertaOntDuplicadaEsci($data, &$alertas, &$detalleEsci)
 {
