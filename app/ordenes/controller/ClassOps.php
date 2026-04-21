@@ -630,6 +630,7 @@ public function InsertarAlertasMasivo($registros)
     $sql = "SELECT Folio_Pisa, Ont, Tecnologia
             FROM tecnico_instalaciones_coordiapp
             WHERE Folio_Pisa IN ($inFolios)";
+
     foreach ($conexion->query($sql) as $row) {
         $coordData[$row['Folio_Pisa']] = $row;
     }
@@ -642,6 +643,7 @@ public function InsertarAlertasMasivo($registros)
             FROM qm_tac
             WHERE Folio_Pisa IN ($inFolios)
               AND Calificador_Edo = 'COMPLETADA'";
+
     foreach ($conexion_analisis->query($sql) as $row) {
         $tacData[$row['Folio_Pisa']] = $row;
     }
@@ -658,6 +660,7 @@ public function InsertarAlertasMasivo($registros)
         GROUP BY Num__Serie
         HAVING COUNT(DISTINCT TELEFONO) > 1
     ";
+
     $ontDuplicadasTac = [];
     foreach ($conexion_analisis->query($sqlOntDuplicada) as $row) {
         $serie = strtoupper(trim($row['Num__Serie']));
@@ -669,18 +672,23 @@ public function InsertarAlertasMasivo($registros)
     // =========================
     $esciData = [];
     $esciSeriesMap = [];
+
     $sql = "
         SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO
         FROM seg_ns_eci
         WHERE TELEFONO IN ($inTelefonos)
     ";
+
     foreach ($conexion_analisis->query($sql) as $row) {
+
         $tel = trim($row['TELEFONO']);
         $serie = strtoupper(trim($row['M_SERIE']));
+
         if (!isset($esciData[$tel])) {
             $esciData[$tel] = $row;
             $esciData[$tel]['M_SERIE'] = $serie;
         }
+
         if (!empty($serie) && $serie !== 'DESCONOCIDO') {
             $esciSeriesMap[$serie][$tel] = true;
         }
@@ -691,8 +699,8 @@ public function InsertarAlertasMasivo($registros)
     // =========================
     $stmtAlerta = $conexion->prepare("
         INSERT INTO Produccion_alertas
-        (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci, Bandera_Revision)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?, ?, ?)
+        (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Alerta)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)
     ");
 
     $stmtDetalle = $conexion->prepare("
@@ -713,12 +721,16 @@ public function InsertarAlertasMasivo($registros)
         $tac   = $tacData[$folio] ?? null;
         $esci  = $esciData[$telefono] ?? null;
 
-        // SERIES
-        $serieTac   = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
+        // =========================
+        // 🔹 SERIES
+        // =========================
+        $serieTac = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
-        $serieEsci  = $esci['M_SERIE'] ?? null;
+        $serieEsci = $esci['M_SERIE'] ?? null;
 
-        // MOTOR DE ALERTAS
+        // =========================
+        // 🔥 MOTOR DE ALERTAS
+        // =========================
         $resultadoAlertas = $this->evaluarAlertas([
             'folio' => $folio,
             'telefono' => $telefono,
@@ -735,7 +747,6 @@ public function InsertarAlertasMasivo($registros)
 
         if (!empty($resultadoAlertas['alertas'])) {
 
-            // INSERT en Produccion_alertas (concatenado)
             $stmtAlerta->execute([
                 $folio,
                 $telefono,
@@ -747,26 +758,20 @@ public function InsertarAlertasMasivo($registros)
                 $r['semana'] ?? null,
                 $r['anio'] ?? null,
                 $r['metraje'] ?? null,
-                implode(' | ', array_unique($resultadoAlertas['alertas'])),
-                $resultadoAlertas['detalleEsci'] ?? null,
-                0
+                implode(' | ', array_unique($resultadoAlertas['alertas']))
             ]);
 
-            // INSERT en Produccion_alertas_detalle (una fila por cada alerta)
-            foreach ($resultadoAlertas['alertas'] as $tipoAlerta) {
-                $stmtDetalle->execute([
-                    $folio,
-                    $tipoAlerta,
-                    1,
-                    date('Y-m-d H:i:s'),
-                    $resultadoAlertas['detalleEsci'] ?? null,
-                    $resultadoAlertas['detalleTac'] ?? null
-                ]);
-            }
+            $stmtDetalle->execute([
+                $folio,
+                'SERIES',
+                1,
+                date('Y-m-d H:i:s'),
+                $resultadoAlertas['detalleEsci'],
+                $resultadoAlertas['detalleTac']
+            ]);
         }
     }
 }
-
 
 private function evaluarAlertas($data)
 {
