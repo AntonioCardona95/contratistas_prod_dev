@@ -628,7 +628,7 @@ public function InsertarAlertasMasivo($registros)
     // 🔹 COORDIAPP
     // =========================
     $coordData = [];
-    $sql = "SELECT Folio_Pisa, Telefono, Tipo_Tarea, Ont 
+    $sql = "SELECT Folio_Pisa, Telefono, Tipo_Tarea, Ont, Tecnologia
             FROM tecnico_instalaciones_coordiapp
             WHERE Folio_Pisa IN ($inFolios)";
     foreach ($conexion->query($sql) as $row) {
@@ -636,16 +636,16 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-// 🔹 TAC
-// =========================
-$tacData = [];
-$sql = "SELECT Folio_Pisa, TELEFONO, Tipo_de_Tarea, Num__Serie 
-        FROM qm_tac
-        WHERE Folio_Pisa IN ($inFolios)
-          AND Calificador_Edo = 'COMPLETADA'";
-foreach ($conexion_analisis->query($sql) as $row) {
-    $tacData[$row['Folio_Pisa']] = $row;
-}
+    // 🔹 TAC
+    // =========================
+    $tacData = [];
+    $sql = "SELECT Folio_Pisa, TELEFONO, Tipo_de_Tarea, Num__Serie, TECNOLOGIA
+            FROM qm_tac
+            WHERE Folio_Pisa IN ($inFolios)
+              AND Calificador_Edo = 'COMPLETADA'";
+    foreach ($conexion_analisis->query($sql) as $row) {
+        $tacData[$row['Folio_Pisa']] = $row;
+    }
 
     // =========================
     // 🔹 ESCI (GLOBAL)
@@ -683,14 +683,12 @@ foreach ($conexion_analisis->query($sql) as $row) {
     // 🔥 PREPARES
     // =========================
 
-    // CABECERA
     $stmtAlerta = $conexion->prepare("
         INSERT INTO Produccion_alertas
         (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Alerta)
         VALUES (?,?,?,?,?,?,?,?,?,?,?)
     ");
 
-    // DETALLE
     $stmtDetalle = $conexion->prepare("
         INSERT INTO Produccion_alertas_detalle
         (fk_alerta, tipo_alerta, valor_tac, valor_coordiapp, valor_esci, descripcion)
@@ -723,6 +721,24 @@ foreach ($conexion_analisis->query($sql) as $row) {
         $tipoCoord = $coord['Tipo_Tarea'] ?? null;
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
 
+        // =========================
+        // 🔥 TECNOLOGIA NORMALIZADA
+        // =========================
+        $tecTac = isset($tac['TECNOLOGIA']) ? strtoupper(trim($tac['TECNOLOGIA'])) : null;
+        $tecCoord = isset($coord['Tecnologia']) ? strtoupper(trim($coord['Tecnologia'])) : null;
+
+        // quitar espacios
+        if ($tecTac) $tecTac = str_replace(' ', '', $tecTac);
+        if ($tecCoord) $tecCoord = str_replace(' ', '', $tecCoord);
+
+        // 🔥 equivalencias TAC
+        if ($tecTac === 'CAMBACEO' || $tecTac === 'CAMBIOFIBRA') {
+            $tecTac = 'FIBRA';
+        }
+
+        // =========================
+        // ESCI
+        // =========================
         $serieEsci = $esci['M_SERIE'] ?? null;
         $ultimoEvento = $esci['ULTIMO_EVENTO'] ?? null;
         $fechaUltimoEvento = $esci['FECHA_ULTIMO_EVENTO'] ?? null;
@@ -767,7 +783,6 @@ foreach ($conexion_analisis->query($sql) as $row) {
             ];
         }
 
-        // DUPLICADA
         if ($serieEsci && isset($seriesMap[$serieEsci]) && count(array_unique($seriesMap[$serieEsci])) > 1) {
 
             $alertasResumen[] = 'ONT DUPLICADA EN ESCI';
@@ -821,6 +836,19 @@ foreach ($conexion_analisis->query($sql) as $row) {
             ];
         }
 
+        // 🔥 TECNOLOGIA (YA NORMALIZADA)
+        if ($tecCoord && $tecTac && $tecTac != $tecCoord) {
+            $alertasResumen[] = 'TECNOLOGIA_DIFERENTE';
+
+            $detalles[] = [
+                'tipo'=>'TECNOLOGIA_DIFERENTE',
+                'tac'=>$tecTac,
+                'coord'=>$tecCoord,
+                'esci'=>null,
+                'desc'=>'Tecnología distinta entre TAC y Coordiapp'
+            ];
+        }
+
         if (!$coord) {
             $alertasResumen[] = 'NO_EXISTE_COORDIAPP';
 
@@ -834,7 +862,7 @@ foreach ($conexion_analisis->query($sql) as $row) {
         }
 
         // =========================
-        // INSERT CABECERA + DETALLE
+        // INSERT
         // =========================
         if (!empty($alertasResumen)) {
 
@@ -854,7 +882,6 @@ foreach ($conexion_analisis->query($sql) as $row) {
 
             $idAlerta = $conexion->lastInsertId();
 
-            // INSERT DETALLES
             foreach ($detalles as $d) {
                 $stmtDetalle->execute([
                     $idAlerta,
