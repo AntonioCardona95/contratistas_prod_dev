@@ -775,10 +775,18 @@ public function InsertarAlertasMasivo($registros)
         if (!empty($alertas)) {
 
             $stmtAlerta->execute([
-                $folio,
-                $telefono,
-                implode(' | ', array_unique($alertas))
-            ]);
+    $folio,
+    $telefono,
+    $r['tipoTarea'] ?? null,
+    $r['cope'] ?? null,
+    $r['fechaLiquidacion'] ?? null,
+    $r['fechaCarga'] ?? date('Y-m-d H:i:s'),
+    $r['idContratista'] ?? null,
+    $r['semana'] ?? null,
+    $r['anio'] ?? null,
+    $r['metraje'] ?? null,
+    implode(' | ', array_unique($alertas))
+]);
 
             $stmtDetalle->execute([
                 $folio,
