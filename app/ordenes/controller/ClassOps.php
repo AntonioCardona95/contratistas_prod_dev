@@ -647,28 +647,35 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-    // 🔹 ESCI (COMPLETO)
+    // 🔹 ESCI (CORREGIDO PRO)
     // =========================
     $esciData = [];
     $seriesMap = [];
 
-    $sql = "SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, FECHA_ULTIMO_EVENTO
+    $sql = "
+        SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, FECHA_ULTIMO_EVENTO
+        FROM seg_ns_eci
+        WHERE M_SERIE IN (
+            SELECT M_SERIE
             FROM seg_ns_eci
             WHERE TELEFONO IN ($inTelefonos)
-            ORDER BY FECHA_ULTIMO_EVENTO DESC";
+        )
+        ORDER BY FECHA_ULTIMO_EVENTO DESC
+    ";
 
     foreach ($conexion_analisis->query($sql) as $row) {
 
-        $tel = $row['TELEFONO'];
+        $tel = trim($row['TELEFONO']);
+        $serie = strtoupper(trim($row['M_SERIE']));
 
-        // solo guardar el más reciente por teléfono
+        // Guardar solo el más reciente por teléfono
         if (!isset($esciData[$tel])) {
+            $row['M_SERIE'] = $serie; // normalizado
             $esciData[$tel] = $row;
         }
 
-        // mapa para detectar duplicados
-        $serie = trim($row['M_SERIE']);
-        if (!empty($serie) && strtoupper($serie) !== 'DESCONOCIDO') {
+        // Mapa global de series
+        if (!empty($serie) && $serie !== 'DESCONOCIDO') {
             $seriesMap[$serie][] = $tel;
         }
     }
@@ -688,7 +695,7 @@ public function InsertarAlertasMasivo($registros)
     foreach ($registros as $r) {
 
         $folio = $r['folio'];
-        $telefono = $r['telefono'];
+        $telefono = trim($r['telefono']);
 
         $coord = $coordData[$folio] ?? null;
         $tac   = $tacData[$folio] ?? null;
@@ -700,23 +707,23 @@ public function InsertarAlertasMasivo($registros)
         // =========================
         // NORMALIZACIÓN
         // =========================
-        $telefonoTac = $tac['TELEFONO'] ?? $telefono;
-        $tipoTac = $tac['Tipo_de_Tarea'] ?? $r['tipoTarea'];
-        $serieTac = $tac['Num__Serie'] ?? null;
+        $telefonoTac = isset($tac['TELEFONO']) ? trim($tac['TELEFONO']) : $telefono;
+        $tipoTac = isset($tac['Tipo_de_Tarea']) ? trim($tac['Tipo_de_Tarea']) : $r['tipoTarea'];
+        $serieTac = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
 
-        $telefonoCoord = $coord['Telefono'] ?? null;
-        $tipoCoord = $coord['Tipo_Tarea'] ?? null;
-        $serieCoord = $coord['Ont'] ?? null;
+        $telefonoCoord = isset($coord['Telefono']) ? trim($coord['Telefono']) : null;
+        $tipoCoord = isset($coord['Tipo_Tarea']) ? trim($coord['Tipo_Tarea']) : null;
+        $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
 
-        $serieEsci = $esci['M_SERIE'] ?? null;
+        $serieEsci = isset($esci['M_SERIE']) ? strtoupper(trim($esci['M_SERIE'])) : null;
         $ultimoEvento = $esci['ULTIMO_EVENTO'] ?? null;
         $fechaUltimoEvento = $esci['FECHA_ULTIMO_EVENTO'] ?? null;
 
         // =========================
-        // 🔥 ALERTAS ESCI (RECUPERADAS)
+        // 🔥 ALERTAS ESCI
         // =========================
 
-        if ($serieEsci && strtoupper($serieEsci) === 'DESCONOCIDO') {
+        if ($serieEsci && $serieEsci === 'DESCONOCIDO') {
             $alertas[] = 'NUMERO DE SERIE DESCONOCIDO';
         }
 
@@ -730,8 +737,13 @@ public function InsertarAlertasMasivo($registros)
             $detalleEsci = "Última vez: $fechaUltimoEvento";
         }
 
-        // DUPLICADOS
-        if ($serieEsci && isset($seriesMap[$serieEsci]) && count(array_unique($seriesMap[$serieEsci])) > 1) {
+        // 🔥 DUPLICADOS REAL (CORREGIDO)
+        if (
+            $serieEsci &&
+            $serieEsci !== 'DESCONOCIDO' &&
+            isset($seriesMap[$serieEsci]) &&
+            count(array_unique($seriesMap[$serieEsci])) > 1
+        ) {
             $alertas[] = 'ONT DUPLICADA EN ESCI';
             $detalleEsci = "Serie $serieEsci en teléfonos: " . implode(", ", array_unique($seriesMap[$serieEsci]));
         }
