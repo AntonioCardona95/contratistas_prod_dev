@@ -58,11 +58,15 @@ function initDataTable(){
     }
 
     $('#ventas').DataTable({
-        responsive: true,
+        responsive: {
+            details: {
+                type: 'column',   // muestra detalles en columna
+                target: 'tr'      // despliega debajo de la fila
+            }
+        },
         ordering: false,
         searching: true,
-        scrollY: true,
-        scrollX: true,
+        paging: true,
         dom: 'Bfrtip',
 
         language: {
@@ -80,6 +84,12 @@ function initDataTable(){
                 text: '<i class="fas fa-file-pdf"></i> PDF',
                 className: 'btn btn-danger'
             }
+        ],
+
+        columnDefs: [
+            { responsivePriority: 1, targets: 0 }, // Folio Pisa siempre visible
+            { responsivePriority: 2, targets: 1 }, // Teléfono siempre visible
+            { responsivePriority: 3, targets: -1 } // Botón Galería siempre visible
         ]
     });
 
