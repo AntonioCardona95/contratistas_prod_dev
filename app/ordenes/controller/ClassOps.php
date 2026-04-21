@@ -650,6 +650,25 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
+    // 🔥 NUEVO: ONT DUPLICADA EN TAC (SERIE + TELÉFONOS DIFERENTES)
+    // =========================
+    $sqlOntDuplicada = "
+        SELECT Num__Serie
+        FROM qm_tac
+        WHERE Calificador_Edo = 'COMPLETADA'
+          AND Num__Serie IS NOT NULL
+          AND Num__Serie != ''
+        GROUP BY Num__Serie
+        HAVING COUNT(DISTINCT TELEFONO) > 1
+    ";
+
+    $ontDuplicadas = [];
+    foreach ($conexion_analisis->query($sqlOntDuplicada) as $row) {
+        $serie = strtoupper(trim($row['Num__Serie']));
+        $ontDuplicadas[$serie] = true;
+    }
+
+    // =========================
     // 🔹 ESCI
     // =========================
     $esciData = [];
@@ -695,7 +714,7 @@ public function InsertarAlertasMasivo($registros)
     ");
 
     // =========================
-    // 🔥 LOOP
+    // 🔥 LOOP PRINCIPAL
     // =========================
     foreach ($registros as $r) {
 
@@ -743,123 +762,18 @@ public function InsertarAlertasMasivo($registros)
         if ($tecCoord === '') $tecCoord = null;
 
         // =========================
+        // 🔥 NUEVA ALERTA: ONT DUPLICADA EN TAC
+        // =========================
+        if ($serieTac && isset($ontDuplicadas[$serieTac])) {
+            $alertasResumen[] = 'ONT DUPLICADA EN TAC';
+        }
+
+        // =========================
         // ESCI
         // =========================
         $serieEsci = $esci['M_SERIE'] ?? null;
         $ultimoEvento = $esci['ULTIMO_EVENTO'] ?? null;
-        $fechaUltimoEvento = $esci['FECHA_ULTIMO_EVENTO'] ?? null;
 
-        // =========================
-        // 🔥 VALIDACIÓN DE FOTOS
-        // =========================
-        $camposFotos = [];
-        $usaPuertoCasa = false;
-        $usaOntFoto = false;
-
-        $tipoTareaFoto = strtoupper(trim($coord['Tipo_Tarea'] ?? $tipoTac ?? ''));
-        $codigoLiquidacion = strtoupper(trim($r['codigoLiquidacion'] ?? ''));
-
-        if (strpos($tipoTareaFoto, 'Q') === 0) {
-
-            if (in_array($codigoLiquidacion, [
-                'JUMPER/PARALELO EXTERIOR',
-                'CONECTOR MECANICO DAÑADO',
-                'CAMBIO DE PUERTO',
-                'CAMBIO DE TERMINAL'
-            ])) {
-                $camposFotos = [
-                    'Foto_Casa_Cliente' => 'Falta evidencia de la casa',
-                    'Foto_Puerto' => 'Falta evidencia del puerto'
-                ];
-                $usaPuertoCasa = true;
-
-            } elseif ($codigoLiquidacion === 'MODEM DAÑADO') {
-                $camposFotos = [
-                    'Foto_Casa_Cliente' => 'Falta evidencia de la casa',
-                    'Foto_Ont' => 'Falta evidencia ONT'
-                ];
-                $usaOntFoto = true;
-
-            } elseif (in_array($codigoLiquidacion, [
-                'CAMBIO PAR PRINCIPAL',
-                'CAMBIO PAR SECUNDARIO',
-                'ROSETA OPTICA',
-                'CAMBIO DE INTERIOR'
-            ])) {
-                $camposFotos = [
-                    'Foto_Casa_Cliente' => 'Falta evidencia de la casa'
-                ];
-
-            } elseif (in_array($codigoLiquidacion, [
-                'CAMBIO PARALELO Y MODEM',
-                'OTRO'
-            ])) {
-                $camposFotos = [
-                    'Foto_Casa_Cliente' => 'Falta evidencia de la casa',
-                    'Foto_Puerto' => 'Falta evidencia del puerto',
-                    'Foto_Ont' => 'Falta evidencia ONT'
-                ];
-                $usaPuertoCasa = true;
-                $usaOntFoto = true;
-            }
-
-        } else {
-
-            $camposFotos = [
-                'Foto_Puerto' => 'Falta evidencia del puerto',
-                'Foto_Casa_Cliente' => 'Falta evidencia de la casa',
-                'Foto_Ont' => 'Falta evidencia ONT frontal',
-                'No_Serie_ONT' => 'Falta evidencia ONT trasera',
-                'Foto_INE' => 'Falta evidencia INE'
-            ];
-
-            $usaPuertoCasa = true;
-            $usaOntFoto = true;
-        }
-
-        foreach ($camposFotos as $campo => $mensaje) {
-
-            $valor = trim($coord[$campo] ?? '');
-
-            if ($valor === '' || !preg_match('/\.(jpg|jpeg|png)$/i', $valor)) {
-
-                $alertasResumen[] = 'FOTO_FALTANTE';
-
-                $detalles[] = [
-                    'tipo'  => 'FOTO_FALTANTE',
-                    'tac'   => $campo,
-                    'coord' => $valor,
-                    'esci'  => null,
-                    'desc'  => $mensaje
-                ];
-            }
-        }
-
-        if (!empty($coord['validacion_foto_fallida']) && $usaPuertoCasa) {
-            $alertasResumen[] = 'FALLA_FOTO_GENERAL';
-            $detalles[] = [
-                'tipo'  => 'FALLA_FOTO_GENERAL',
-                'tac'   => null,
-                'coord' => null,
-                'esci'  => null,
-                'desc'  => 'Error en foto terminal o domicilio'
-            ];
-        }
-
-        if (!empty($coord['validacion_LEDS_ONT_fallida']) && $usaOntFoto) {
-            $alertasResumen[] = 'FALLA_FOTO_ONT';
-            $detalles[] = [
-                'tipo'  => 'FALLA_FOTO_ONT',
-                'tac'   => null,
-                'coord' => null,
-                'esci'  => null,
-                'desc'  => 'Error en foto ONT'
-            ];
-        }
-
-        // =========================
-        // ALERTAS ESCI
-        // =========================
         if ($serieEsci === 'DESCONOCIDO') {
             $alertasResumen[] = 'NUMERO DE SERIE DESCONOCIDO';
         }
@@ -929,7 +843,6 @@ public function InsertarAlertasMasivo($registros)
         }
     }
 }
-
 ///////////////////////////// PUEDE USARSE /////////////
 
 /*public function InsertarAlerta(
