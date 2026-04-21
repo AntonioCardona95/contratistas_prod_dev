@@ -562,49 +562,6 @@ public function ExisteFolioProduccion($folio, $telefono, $idContratistas)
 
 // PRUEBA DON ORDEN TIPO //
 
-public function InsertarProduccion(
-    $folio,
-    $telefono,
-    $tipoTarea,
-    $cope,
-    $fechaLiquidacion,
-    $idContratistas,
-    $semana,
-    $anio,
-    $metraje
-) {
-    $conexion = $this->get_conexion();
-
-    $conexion->exec("SET NAMES 'utf8mb4'");
-    $conexion->exec("SET CHARACTER SET utf8mb4");
-
-    $fechaCarga = date("Y-m-d H:i:s");
-
-    $sql = "INSERT INTO Produccion_contratista 
-            (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje) 
-            VALUES (:folio, :telefono, :tipoTarea, :cope, :fechaLiquidacion, :fechaCarga, :idContratistas, :semana, :anio, :metraje)";
-    
-    $stmt = $conexion->prepare($sql);
-
-    $ejecutado = $stmt->execute([
-        ':folio' => $folio,
-        ':telefono' => $telefono,
-        ':tipoTarea' => $tipoTarea,
-        ':cope' => $cope,
-        ':fechaLiquidacion' => $fechaLiquidacion,
-        ':fechaCarga' => $fechaCarga,
-        ':idContratistas' => $idContratistas,
-        ':semana' => $semana,
-        ':anio' => $anio,
-        ':metraje' => $metraje
-    ]);
-
-    return [
-        'insertado' => $ejecutado,
-        'fechaCarga' => $fechaCarga
-    ];
-}
-
 public function InsertarAlertasMasivo($registros)
 {
     if (empty($registros)) return;
@@ -650,7 +607,7 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-    // 🔥 NUEVO: ONT DUPLICADA EN TAC (SERIE + TELÉFONOS DIFERENTES)
+    // 🔥 NUEVO: ONT DUPLICADA EN TAC
     // =========================
     $sqlOntDuplicada = "
         SELECT Num__Serie
@@ -713,6 +670,8 @@ public function InsertarAlertasMasivo($registros)
         VALUES (?,?,?,?,?,?)
     ");
 
+    $fechaCarga = date("Y-m-d H:i:s");
+
     // =========================
     // 🔥 LOOP PRINCIPAL
     // =========================
@@ -739,9 +698,6 @@ public function InsertarAlertasMasivo($registros)
         $tipoTacNorm = $tipoTac ? strtoupper(trim($tipoTac)) : null;
         $tipoCoordNorm = $tipoCoord ? strtoupper(trim($tipoCoord)) : null;
 
-        if ($tipoTacNorm === '') $tipoTacNorm = null;
-        if ($tipoCoordNorm === '') $tipoCoordNorm = null;
-
         $serieTac = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
 
@@ -758,11 +714,84 @@ public function InsertarAlertasMasivo($registros)
             $tecTac = 'FIBRA';
         }
 
-        if ($tecTac === '') $tecTac = null;
-        if ($tecCoord === '') $tecCoord = null;
+        // =========================
+        // 🔥 VALIDACIÓN DE FOTOS (AGREGADA SIN ROMPER NADA)
+        // =========================
+        if ($coord) {
+
+            $tipoTareaFoto = strtoupper(trim($coord['Tipo_Tarea'] ?? $tipoTac));
+            $codigoLiquidacion = strtoupper(trim($r['codigoLiquidacion'] ?? ''));
+
+            $camposFotos = [];
+            $usaPuertoCasa = false;
+            $usaOntFoto = false;
+
+            if (strpos($tipoTareaFoto, 'Q') === 0) {
+
+                if (in_array($codigoLiquidacion, [
+                    'JUMPER/PARALELO EXTERIOR',
+                    'CONECTOR MECANICO DAÑADO',
+                    'CAMBIO DE PUERTO',
+                    'CAMBIO DE TERMINAL'
+                ])) {
+                    $camposFotos = ['Foto_Casa_Cliente','Foto_Puerto'];
+                    $usaPuertoCasa = true;
+
+                } elseif ($codigoLiquidacion === 'MODEM DAÑADO') {
+                    $camposFotos = ['Foto_Casa_Cliente','Foto_Ont'];
+                    $usaOntFoto = true;
+
+                } elseif (in_array($codigoLiquidacion, [
+                    'CAMBIO PAR PRINCIPAL',
+                    'CAMBIO PAR SECUNDARIO',
+                    'ROSETA OPTICA',
+                    'CAMBIO DE INTERIOR'
+                ])) {
+                    $camposFotos = ['Foto_Casa_Cliente'];
+
+                } elseif (in_array($codigoLiquidacion, [
+                    'CAMBIO PARALELO Y MODEM',
+                    'OTRO'
+                ])) {
+                    $camposFotos = ['Foto_Casa_Cliente','Foto_Puerto','Foto_Ont'];
+                    $usaPuertoCasa = true;
+                    $usaOntFoto = true;
+                }
+
+            } else {
+
+                $camposFotos = [
+                    'Foto_Puerto',
+                    'Foto_Casa_Cliente',
+                    'Foto_Ont',
+                    'No_Serie_ONT',
+                    'Foto_INE'
+                ];
+
+                $usaPuertoCasa = true;
+                $usaOntFoto = true;
+            }
+
+            foreach ($camposFotos as $campo) {
+
+                $valor = trim($coord[$campo] ?? '');
+
+                if ($valor === '' || !preg_match('/\.(jpg|jpeg|png)$/i', $valor)) {
+                    $alertasResumen[] = "FOTO_FALTANTE: $campo";
+                }
+            }
+
+            if (!empty($coord['validacion_foto_fallida']) && $usaPuertoCasa) {
+                $alertasResumen[] = "FALLA_FOTO_GENERAL";
+            }
+
+            if (!empty($coord['validacion_LEDS_ONT_fallida']) && $usaOntFoto) {
+                $alertasResumen[] = "FALLA_FOTO_ONT";
+            }
+        }
 
         // =========================
-        // 🔥 NUEVA ALERTA: ONT DUPLICADA EN TAC
+        // 🔥 ONT DUPLICADA EN TAC
         // =========================
         if ($serieTac && isset($ontDuplicadas[$serieTac])) {
             $alertasResumen[] = 'ONT DUPLICADA EN TAC';
@@ -793,10 +822,6 @@ public function InsertarAlertasMasivo($registros)
         // =========================
         // COMPARACIONES
         // =========================
-        if ($serieCoord && $serieTac && $serieTac != $serieCoord) {
-            $alertasResumen[] = 'SERIE_DIFERENTE';
-        }
-
         if ($tipoTacNorm !== $tipoCoordNorm) {
             $alertasResumen[] = 'TIPO_TAREA_DIFERENTE';
         }
@@ -820,7 +845,7 @@ public function InsertarAlertasMasivo($registros)
                 $tipoTacNorm,
                 $r['cope'],
                 $r['fechaLiquidacion'],
-                $r['fechaCarga'],
+                $fechaCarga,
                 $r['idContratista'],
                 $r['semana'],
                 $r['anio'],
