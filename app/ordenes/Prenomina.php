@@ -353,7 +353,8 @@ require_once($_SERVER['DOCUMENT_ROOT']."/ordenes/controller/ClassOps.php");
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
 <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.html5.min.js"></script>
 <!-- Script para actualizar contadores -->
-<script>
+ 
+ <!-- <script>
 $(document).ready(function() {
 
     $('#semana').on('change', function() {
@@ -398,7 +399,7 @@ $(document).ready(function() {
     });
 
 });
-</script>
+</script> -->
 <script src="js/appsinprocesoapago.js"></script>
 
 <!--<script>
