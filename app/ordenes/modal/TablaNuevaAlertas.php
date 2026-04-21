@@ -207,8 +207,33 @@ $alertas = is_array($alertas) ? $alertas : [];
   </div>
 </div>
 
-<!-- Bootstrap JS -->
+<!-- Bootstrap JS  cierre del modal) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- JS galería (SE CONSERVA) -->
 <script src="js/galeria_fotos.js"></script>
+<!-- Script para inicializar DataTable con estilos y botones -->
+<script>
+$(document).ready(function () {
+    new DataTable('#ventas', {
+        fixedColumns: { start: 1, end: 1 },
+        responsive:true,
+        language: { URL:'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
+        ordering: false,
+        searching: true,
+        scrollY: true,
+        scrollX: true,
+        dom: 'Bfrtip',
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                text: '<i class="fas fa-file-excel"></i> Excel',
+                className: 'btn btn-success'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: '<i class="fas fa-file-pdf"></i> PDF',
+                className: 'btn btn-danger'
+            }
+        ]
+    });
+});
+</script>
