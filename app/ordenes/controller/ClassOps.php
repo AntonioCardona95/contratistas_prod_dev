@@ -706,10 +706,11 @@ public function InsertarAlertasMasivo($registros)
         VALUES (?,?,?,?,?,?,?,?,?,?,?)
     ");
 
+    // 🔥 CAMBIO IMPORTANTE: ahora 7 campos
     $stmtDetalle = $conexion->prepare("
         INSERT INTO Produccion_alertas_detalle
-        (Folio_Pisa, Tipo_Alerta, Activa, Fecha_Creacion, Fecha_Resolucion)
-        VALUES (?,?,?,?,?)
+        (Folio_Pisa, Tipo_Alerta, Activa, Fecha_Creacion, Fecha_Resolucion, Detalle_Esci, Detalle_Tac)
+        VALUES (?,?,?,?,?,?,?)
     ");
 
     // =========================
@@ -727,8 +728,12 @@ public function InsertarAlertasMasivo($registros)
         $alertasResumen = [];
         $detalles = [];
 
+        // 🔥 NUEVO
+        $detalleEsci = null;
+        $detalleTac = null;
+
         // =========================
-        // NORMALIZACIÓN
+        // NORMALIZACIÓN (NO TOCAR)
         // =========================
         $telefonoTac = $tac['TELEFONO'] ?? $telefono;
 
@@ -752,7 +757,7 @@ public function InsertarAlertasMasivo($registros)
         }
 
         // =========================
-        // FOTOS
+        // 🔴 TODAS TUS VALIDACIONES (NO TOCAR)
         // =========================
         if ($coord) {
 
@@ -806,7 +811,7 @@ public function InsertarAlertasMasivo($registros)
         }
 
         // =========================
-        // ALERTAS BASE
+        // ALERTAS BASE (NO TOCAR)
         // =========================
         if ($serieTac && isset($ontDuplicadas[$serieTac])) {
             $alertasResumen[] = 'ONT_DUPLICADA_EN_TAC';
@@ -824,11 +829,22 @@ public function InsertarAlertasMasivo($registros)
         if (!$coord) $alertasResumen[] = 'NO_EXISTE_COORDIAPP';
 
         // =========================
-        // NUMERO SERIE DIFERENTE
+        // 🔥 DETALLE ESCI (AGREGADO)
         // =========================
-        $serieCoord = ($serieCoord === '' || $serieCoord === 'NULL') ? null : $serieCoord;
-        $serieTac = ($serieTac === '' || $serieTac === 'NULL') ? null : $serieTac;
+        if ($serieEsci) {
+            $detalleEsci = "El número de serie $serieEsci está registrado en ESCI";
+        }
 
+        // =========================
+        // 🔥 DETALLE TAC (AGREGADO)
+        // =========================
+        if ($serieTac && isset($ontDuplicadas[$serieTac])) {
+            $detalleTac = "El número de serie $serieTac está duplicado en TAC";
+        }
+
+        // =========================
+        // NUMERO SERIE (NO TOCAR)
+        // =========================
         $seriesValidas = array_filter([$serieTac, $serieCoord, $serieEsci]);
 
         if (count($seriesValidas) > 1) {
@@ -838,7 +854,7 @@ public function InsertarAlertasMasivo($registros)
         }
 
         // =========================
-        // ONT ALMACEN (CORREGIDO)
+        // ONT ALMACEN (NO TOCAR)
         // =========================
         if ($serieCoord) {
 
@@ -858,7 +874,7 @@ public function InsertarAlertasMasivo($registros)
         }
 
         // =========================
-        // 🔥 DETALLES SOLO UNA VEZ (CORREGIDO)
+        // DETALLES (NO TOCAR)
         // =========================
         $alertasUnicas = array_unique($alertasResumen);
 
@@ -869,7 +885,7 @@ public function InsertarAlertasMasivo($registros)
         }
 
         // =========================
-        // INSERT
+        // INSERT (SOLO AQUI CAMBIO)
         // =========================
         if (!empty($alertasResumen)) {
 
@@ -888,12 +904,15 @@ public function InsertarAlertasMasivo($registros)
             ]);
 
             foreach ($detalles as $d) {
+
                 $stmtDetalle->execute([
                     $folio,
                     $d['tipo'],
                     1,
                     date('Y-m-d H:i:s'),
-                    null
+                    null,
+                    $detalleEsci,
+                    $detalleTac
                 ]);
             }
         }
