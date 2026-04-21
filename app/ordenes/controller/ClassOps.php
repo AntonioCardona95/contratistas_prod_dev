@@ -624,6 +624,194 @@ public function InsertarAlertasMasivo($registros)
     $inTelefonos = "'" . implode("','", $telefonos) . "'";
 
     // =========================
+    // 🔹 COORDIAPP (SOLO ONT)
+    // =========================
+    $coordData = [];
+    $sql = "SELECT Folio_Pisa, Ont
+            FROM tecnico_instalaciones_coordiapp
+            WHERE Folio_Pisa IN ($inFolios)";
+
+    foreach ($conexion->query($sql) as $row) {
+        $coordData[$row['Folio_Pisa']] = $row;
+    }
+
+    // =========================
+    // 🔹 TAC
+    // =========================
+    $tacData = [];
+    $sql = "SELECT Folio_Pisa, TELEFONO, Num__Serie
+            FROM qm_tac
+            WHERE Folio_Pisa IN ($inFolios)
+              AND Calificador_Edo = 'COMPLETADA'";
+
+    foreach ($conexion_analisis->query($sql) as $row) {
+        $tacData[$row['Folio_Pisa']] = $row;
+    }
+
+    // =========================
+    // 🔥 ONT DUPLICADA EN TAC
+    // =========================
+    $sqlOntDuplicada = "
+        SELECT Num__Serie
+        FROM qm_tac
+        WHERE Calificador_Edo = 'COMPLETADA'
+          AND Num__Serie IS NOT NULL
+          AND Num__Serie != ''
+        GROUP BY Num__Serie
+        HAVING COUNT(DISTINCT TELEFONO) > 1
+    ";
+
+    $ontDuplicadasTac = [];
+    foreach ($conexion_analisis->query($sqlOntDuplicada) as $row) {
+        $serie = strtoupper(trim($row['Num__Serie']));
+        $ontDuplicadasTac[$serie] = true;
+    }
+
+    // =========================
+    // 🔹 ESCI (MAPEO + DUPLICADOS)
+    // =========================
+    $esciData = [];
+    $esciSeriesMap = [];
+
+    $sql = "
+        SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO
+        FROM seg_ns_eci
+        WHERE TELEFONO IN ($inTelefonos)
+    ";
+
+    foreach ($conexion_analisis->query($sql) as $row) {
+
+        $tel = trim($row['TELEFONO']);
+        $serie = strtoupper(trim($row['M_SERIE']));
+
+        if (!isset($esciData[$tel])) {
+            $esciData[$tel] = $row;
+            $esciData[$tel]['M_SERIE'] = $serie;
+        }
+
+        if (!empty($serie) && $serie !== 'DESCONOCIDO') {
+            $esciSeriesMap[$serie][$tel] = true;
+        }
+    }
+
+    // =========================
+    // 🔥 INSERTS
+    // =========================
+    $stmtAlerta = $conexion->prepare("
+        INSERT INTO Produccion_alertas
+        (Folio_Pisa, Telefono, Alerta)
+        VALUES (?,?,?)
+    ");
+
+    $stmtDetalle = $conexion->prepare("
+        INSERT INTO Produccion_alertas_detalle
+        (Folio_Pisa, Tipo_Alerta, Activa, Fecha_Creacion, Detalle_Esci, Detalle_Tac)
+        VALUES (?,?,?,?,?,?)
+    ");
+
+    // =========================
+    // 🔥 LOOP PRINCIPAL
+    // =========================
+    foreach ($registros as $r) {
+
+        $folio = $r['folio'];
+        $telefono = trim($r['telefono']);
+
+        $coord = $coordData[$folio] ?? null;
+        $tac   = $tacData[$folio] ?? null;
+        $esci  = $esciData[$telefono] ?? null;
+
+        $alertas = [];
+        $detalleEsci = null;
+        $detalleTac = null;
+
+        // =========================
+        // SERIES NORMALIZADAS
+        // =========================
+        $serieTac = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
+        $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
+        $serieEsci = $esci['M_SERIE'] ?? null;
+
+        // =========================
+        // 🔥 TAC DUPLICADA
+        // =========================
+        if ($serieTac && isset($ontDuplicadasTac[$serieTac])) {
+            $alertas[] = 'ONT_DUPLICADA_EN_TAC';
+            $detalleTac = "Serie $serieTac duplicada en TAC (diferentes teléfonos)";
+        }
+
+        // =========================
+        // 🔥 ESCI DUPLICADA (REGISTRO MULTITELÉFONO)
+        // =========================
+        if ($serieEsci && isset($esciSeriesMap[$serieEsci])) {
+
+            if (count($esciSeriesMap[$serieEsci]) > 1) {
+                $alertas[] = 'ONT_DUPLICADA_EN_ESCI';
+                $detalleEsci = "Serie $serieEsci duplicada en ESCI (diferentes teléfonos)";
+            }
+        }
+
+        // =========================
+        // 🔥 SERIE DESCONOCIDA
+        // =========================
+        if ($serieEsci === 'DESCONOCIDO') {
+            $alertas[] = 'SERIE_DESCONOCIDA';
+        }
+
+        // =========================
+        // 🔥 DIFERENCIA DE SERIES
+        // =========================
+        $series = array_filter([$serieTac, $serieCoord, $serieEsci]);
+
+        if (count($series) > 1) {
+            if (!(($serieTac === $serieCoord) && ($serieTac === $serieEsci))) {
+                $alertas[] = 'NUMERO_SERIE_DIFERENTE';
+            }
+        }
+
+        // =========================
+        // INSERT
+        // =========================
+        if (!empty($alertas)) {
+
+            $stmtAlerta->execute([
+                $folio,
+                $telefono,
+                implode(' | ', array_unique($alertas))
+            ]);
+
+            $stmtDetalle->execute([
+                $folio,
+                'SERIES',
+                1,
+                date('Y-m-d H:i:s'),
+                $detalleEsci,
+                $detalleTac
+            ]);
+        }
+    }
+}
+
+/*public function InsertarAlertasMasivo($registros)
+{
+    if (empty($registros)) return;
+
+    $conexion = $this->get_conexion();
+    $conexion_analisis = $this->get_conexiondos();
+
+    $conexion->exec("SET NAMES 'utf8mb4'");
+    $conexion_analisis->exec("SET NAMES 'utf8mb4'");
+
+    // =========================
+    // 🔹 PREPARAR IDS
+    // =========================
+    $folios = array_unique(array_column($registros, 'folio'));
+    $telefonos = array_unique(array_column($registros, 'telefono'));
+
+    $inFolios = "'" . implode("','", $folios) . "'";
+    $inTelefonos = "'" . implode("','", $telefonos) . "'";
+
+    // =========================
     // 🔹 COORDIAPP
     // =========================
     $coordData = [];
@@ -917,7 +1105,7 @@ public function InsertarAlertasMasivo($registros)
             }
         }
     }
-}
+}  */
 private function validarOntAlmacenNueva($conexion_local, $ont, $idContratista)
 {
     $ont = $this->normalizarSerie($ont);
