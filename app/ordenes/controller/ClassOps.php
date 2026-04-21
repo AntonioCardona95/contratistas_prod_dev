@@ -648,6 +648,26 @@ public function InsertarAlertasMasivo($registros)
         $tacData[$row['Folio_Pisa']] = $row;
     }
 
+    $tacSeriesMap = [];
+
+$sql = "
+    SELECT Num__Serie, TELEFONO
+    FROM qm_tac
+    WHERE Calificador_Edo = 'COMPLETADA'
+      AND Num__Serie IS NOT NULL
+      AND Num__Serie != ''
+";
+
+foreach ($conexion_analisis->query($sql) as $row) {
+
+    $serie = strtoupper(trim($row['Num__Serie']));
+    $tel = trim($row['TELEFONO']);
+
+    $tacSeriesMap[$serie][] = $tel;
+}
+
+
+
     // =========================
     // TAC duplicadas
     // =========================
@@ -861,24 +881,16 @@ public function InsertarAlertasMasivo($registros)
                          . implode(', ', $telefonosUsados);
         }
 
-        // =========================
-        // 🔥 DETALLES TAC DUPLICADO
-        // =========================
         if ($serieTac && isset($ontDuplicadas[$serieTac])) {
 
-            $telefonosTac = [];
+    // usar mapa global correcto
+    $telefonosTac = $tacSeriesMap[$serieTac] ?? [];
 
-            foreach ($tacData as $t) {
-                if (isset($t['Num__Serie']) && strtoupper(trim($t['Num__Serie'])) === $serieTac) {
-                    $telefonosTac[] = $t['TELEFONO'];
-                }
-            }
+    $telefonosTac = array_unique($telefonosTac);
 
-            $telefonosTac = array_unique($telefonosTac);
-
-            $detalleTac = "El número de serie $serieTac está duplicado en TAC en los teléfonos: "
-                        . implode(', ', $telefonosTac);
-        }
+    $detalleTac = "El número de serie $serieTac en TAC se usa en los teléfonos: "
+                . implode(' y ', $telefonosTac);
+}
 
         // =========================
         // ALMACÉN (INTOCADO)
