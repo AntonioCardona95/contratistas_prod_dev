@@ -715,6 +715,13 @@ public function InsertarAlertasMasivo($registros)
         $tipoTac = $tac['Tipo_de_Tarea'] ?? $r['tipoTarea'];
         $tipoCoord = $coord['Tipo_Tarea'] ?? null;
 
+        // 🔥 NORMALIZACIÓN REAL TIPO TAREA
+        $tipoTacNorm = $tipoTac ? strtoupper(trim($tipoTac)) : null;
+        $tipoCoordNorm = $tipoCoord ? strtoupper(trim($tipoCoord)) : null;
+
+        if ($tipoTacNorm === '') $tipoTacNorm = null;
+        if ($tipoCoordNorm === '') $tipoCoordNorm = null;
+
         $serieTac = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
 
@@ -805,19 +812,23 @@ public function InsertarAlertasMasivo($registros)
             ];
         }
 
-        // TIPO TAREA (incluye NULL)
-        if ($tipoTac !== $tipoCoord) {
+        // 🔥 TIPO TAREA CORREGIDO
+        if (
+            ($tipoTacNorm === null && $tipoCoordNorm !== null) ||
+            ($tipoTacNorm !== null && $tipoCoordNorm === null) ||
+            ($tipoTacNorm !== null && $tipoCoordNorm !== null && $tipoTacNorm !== $tipoCoordNorm)
+        ) {
             $alertasResumen[] = 'TIPO_TAREA_DIFERENTE';
             $detalles[] = [
                 'tipo'=>'TIPO_TAREA_DIFERENTE',
-                'tac'=>$tipoTac,
-                'coord'=>$tipoCoord,
+                'tac'=>$tipoTacNorm,
+                'coord'=>$tipoCoordNorm,
                 'esci'=>null,
                 'desc'=>'Tipo de tarea distinto o faltante'
             ];
         }
 
-        // TECNOLOGIA (incluye NULL)
+        // TECNOLOGIA
         if ($tecTac !== $tecCoord) {
             $alertasResumen[] = 'TECNOLOGIA_DIFERENTE';
             $detalles[] = [
@@ -848,7 +859,7 @@ public function InsertarAlertasMasivo($registros)
             $stmtAlerta->execute([
                 $folio,
                 $telefonoTac,
-                $tipoTac,
+                $tipoTacNorm,
                 $r['cope'],
                 $r['fechaLiquidacion'],
                 $r['fechaCarga'],
