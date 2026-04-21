@@ -45,23 +45,6 @@ private $cacheCopes = [];
 
             return $rows;        
         }
-        
-        public function ObtenerProduccionAlertas($idContratistas, $semana)
-{
-    $conexion = $this->get_conexion();
-
-    $sql = "SELECT * 
-            FROM Produccion_alertas 
-            WHERE FK_Contratista = :idContratistas
-            AND Semana = :semana";
-
-    $stmt = $conexion->prepare($sql);
-    $stmt->bindParam(':idContratistas', $idContratistas);
-    $stmt->bindParam(':semana', $semana);
-    $stmt->execute();
-
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
 
 // NUEVA FUNCION CONSULTA EMULADORES //
 
@@ -2049,6 +2032,25 @@ public function ObtenerExpedientesPorContratista($idContratistas)
 
     return $rows;
 }
+
+        
+        public function ObtenerProduccionAlertas($idContratistas, $semana)
+{
+    $conexion = $this->get_conexion();
+
+    $sql = "SELECT * 
+            FROM Produccion_alertas 
+            WHERE FK_Contratista = :idContratistas
+            AND Semana = :semana";
+
+    $stmt = $conexion->prepare($sql);
+    $stmt->bindParam(':idContratistas', $idContratistas);
+    $stmt->bindParam(':semana', $semana);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
 /*public function OrdenesConIncidencias($idContratistas, $expedientes = [], $semana = null)
 {
