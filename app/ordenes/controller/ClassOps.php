@@ -800,7 +800,91 @@ public function InsertarAlertasMasivo($registros)
         // 🔥 COMPARACIONES
         // =========================
 
-        // SERIE
+        // =========================
+// 🔥 VALIDACIÓN NUMERO DE SERIE (NUEVA LÓGICA)
+// =========================
+
+$serieTacNorm   = $serieTac ? strtoupper(trim($serieTac)) : null;
+$serieCoordNorm = $serieCoord ? strtoupper(trim($serieCoord)) : null;
+$serieEsciNorm  = $serieEsci ? strtoupper(trim($serieEsci)) : null;
+
+// Caso 1: Coordiapp vacío -> comparar TAC vs ESCI
+if (empty($serieCoordNorm)) {
+
+    if (!empty($serieTacNorm) && !empty($serieEsciNorm)) {
+
+        if ($serieTacNorm !== $serieEsciNorm) {
+            $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
+            $detalles[] = [
+                'tipo' => 'NUMERO_SERIE_DIFERENTE',
+                'tac' => $serieTacNorm,
+                'coord' => $serieCoordNorm,
+                'esci' => $serieEsciNorm,
+                'desc' => 'Coordinapp vacío: TAC y ESCI no coinciden'
+            ];
+        }
+
+    } elseif (!empty($serieTacNorm) && empty($serieEsciNorm)) {
+        // solo TAC existe, no hay con qué validar -> alerta
+        $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
+        $detalles[] = [
+            'tipo' => 'NUMERO_SERIE_DIFERENTE',
+            'tac' => $serieTacNorm,
+            'coord' => $serieCoordNorm,
+            'esci' => $serieEsciNorm,
+            'desc' => 'Coordinapp vacío y ESCI vacío, solo TAC presente'
+        ];
+    }
+
+// Caso 2: TAC vacío -> comparar Coordiapp vs ESCI
+} elseif (empty($serieTacNorm)) {
+
+    if (!empty($serieCoordNorm) && !empty($serieEsciNorm)) {
+
+        if ($serieCoordNorm !== $serieEsciNorm) {
+            $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
+            $detalles[] = [
+                'tipo' => 'NUMERO_SERIE_DIFERENTE',
+                'tac' => $serieTacNorm,
+                'coord' => $serieCoordNorm,
+                'esci' => $serieEsciNorm,
+                'desc' => 'TAC vacío: Coordiapp y ESCI no coinciden'
+            ];
+        }
+
+    } elseif (!empty($serieCoordNorm) && empty($serieEsciNorm)) {
+        $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
+        $detalles[] = [
+            'tipo' => 'NUMERO_SERIE_DIFERENTE',
+            'tac' => $serieTacNorm,
+            'coord' => $serieCoordNorm,
+            'esci' => $serieEsciNorm,
+            'desc' => 'TAC vacío y ESCI vacío, solo Coordiapp presente'
+        ];
+    }
+
+// Caso 3: todos tienen valor -> deben ser iguales los 3
+} else {
+
+    if (
+        !empty($serieTacNorm) &&
+        !empty($serieCoordNorm) &&
+        !empty($serieEsciNorm)
+    ) {
+        if (!($serieTacNorm === $serieCoordNorm && $serieTacNorm === $serieEsciNorm)) {
+            $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
+            $detalles[] = [
+                'tipo' => 'NUMERO_SERIE_DIFERENTE',
+                'tac' => $serieTacNorm,
+                'coord' => $serieCoordNorm,
+                'esci' => $serieEsciNorm,
+                'desc' => 'Las 3 series son diferentes o no coinciden'
+            ];
+        }
+    }
+}
+
+       /* // SERIE
         if ($serieCoord && $serieTac && $serieTac != $serieCoord) {
             $alertasResumen[] = 'SERIE_DIFERENTE';
             $detalles[] = [
@@ -810,7 +894,7 @@ public function InsertarAlertasMasivo($registros)
                 'esci'=>$serieEsci,
                 'desc'=>'Serie distinta entre sistemas'
             ];
-        }
+        } */
 
         // 🔥 TIPO TAREA CORREGIDO
         if (
