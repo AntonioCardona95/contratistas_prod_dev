@@ -883,7 +883,7 @@ private function normalizarTecnologiaAlertas($valor)
     // 🔥 Mapeo de equivalencias
     $map = [
         'CAMBACEO' => 'FIBRA',         // CAMBACEO lo tratamos como FIBRA
-        'CAMBIO FIBRA' => 'FIBRA',    // CAMBIO FIBRA lo tratamos como FIBRA
+        'CAMBIOFIBRA' => 'FIBRA',    // CAMBIO FIBRA lo tratamos como FIBRA
         'FIBRA' => 'FIBRA',           // FIBRA se mantiene como FIBRA
         'COBRE' => 'COBRE'            // COBRE se mantiene como COBRE
         // Puedes agregar más equivalencias si es necesario
