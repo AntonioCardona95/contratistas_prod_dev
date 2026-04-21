@@ -873,6 +873,32 @@ public function InsertarAlertasMasivo($registros)
         }
 
         // =========================
+// 🔥 COMPARACIÓN DE SERIES
+// =========================
+
+// Normalizamos valores (ya lo haces arriba con strtoupper/trim)
+$serieTac   = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
+$serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
+$serieEsci  = isset($esci['M_SERIE']) ? strtoupper(trim($esci['M_SERIE'])) : null;
+
+// Caso 1: TAC vacío -> comparar solo Coord vs Esci
+if (empty($serieTac) && $serieCoord && $serieEsci) {
+    if ($serieCoord !== $serieEsci) {
+        $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
+    }
+}
+
+// Caso 2: TAC con valor -> comparar los tres
+if (!empty($serieTac)) {
+    // Si alguno difiere de los demás
+    $series = array_filter([$serieTac, $serieCoord, $serieEsci]); // quitamos null/vacíos
+    if (count(array_unique($series)) > 1) {
+        $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
+    }
+}
+
+
+        // =========================
         // INSERT
         // =========================
         if (!empty($alertasResumen)) {
