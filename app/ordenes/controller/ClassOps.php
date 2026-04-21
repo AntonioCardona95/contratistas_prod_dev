@@ -624,7 +624,7 @@ public function InsertarAlertasMasivo($registros)
     $inTelefonos = "'" . implode("','", $telefonos) . "'";
 
     // =========================
-    // 🔹 COORDIAPP (SOLO ONT)
+    // 🔹 COORDIAPP
     // =========================
     $coordData = [];
     $sql = "SELECT Folio_Pisa, Ont
@@ -649,7 +649,7 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-    // 🔥 ONT DUPLICADA EN TAC
+    // 🔥 ONT DUPLICADA TAC
     // =========================
     $sqlOntDuplicada = "
         SELECT Num__Serie
@@ -668,7 +668,7 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-    // 🔹 ESCI (MAPEO + DUPLICADOS)
+    // 🔹 ESCI
     // =========================
     $esciData = [];
     $esciSeriesMap = [];
@@ -710,7 +710,7 @@ public function InsertarAlertasMasivo($registros)
     ");
 
     // =========================
-    // 🔥 LOOP PRINCIPAL
+    // 🔥 LOOP
     // =========================
     foreach ($registros as $r) {
 
@@ -726,7 +726,7 @@ public function InsertarAlertasMasivo($registros)
         $detalleTac = null;
 
         // =========================
-        // SERIES NORMALIZADAS
+        // SERIES
         // =========================
         $serieTac = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
@@ -737,17 +737,16 @@ public function InsertarAlertasMasivo($registros)
         // =========================
         if ($serieTac && isset($ontDuplicadasTac[$serieTac])) {
             $alertas[] = 'ONT_DUPLICADA_EN_TAC';
-            $detalleTac = "Serie $serieTac duplicada en TAC (diferentes teléfonos)";
+            $detalleTac = "Serie $serieTac duplicada en TAC";
         }
 
         // =========================
-        // 🔥 ESCI DUPLICADA (REGISTRO MULTITELÉFONO)
+        // 🔥 ESCI DUPLICADA
         // =========================
         if ($serieEsci && isset($esciSeriesMap[$serieEsci])) {
-
             if (count($esciSeriesMap[$serieEsci]) > 1) {
                 $alertas[] = 'ONT_DUPLICADA_EN_ESCI';
-                $detalleEsci = "Serie $serieEsci duplicada en ESCI (diferentes teléfonos)";
+                $detalleEsci = "Serie $serieEsci duplicada en ESCI";
             }
         }
 
@@ -759,7 +758,25 @@ public function InsertarAlertasMasivo($registros)
         }
 
         // =========================
-        // 🔥 DIFERENCIA DE SERIES
+        // 🔥 NUEVO: EVENTO ESCI
+        // =========================
+        $ultimoEvento = $esci['ULTIMO_EVENTO'] ?? null;
+
+        if ($ultimoEvento !== null) {
+
+            if ($ultimoEvento === 0) {
+                $alertas[] = 'SIN_NAVEGACION';
+                $detalleEsci = "Serie $serieEsci sin navegación";
+            }
+
+            if ($ultimoEvento === -1) {
+                $alertas[] = 'SERVICIO_INACTIVO';
+                $detalleEsci = "Serie $serieEsci con servicio inactivo";
+            }
+        }
+
+        // =========================
+        // 🔥 DIFERENCIA SERIES
         // =========================
         $series = array_filter([$serieTac, $serieCoord, $serieEsci]);
 
@@ -775,18 +792,18 @@ public function InsertarAlertasMasivo($registros)
         if (!empty($alertas)) {
 
             $stmtAlerta->execute([
-    $folio,
-    $telefono,
-    $r['tipoTarea'] ?? null,
-    $r['cope'] ?? null,
-    $r['fechaLiquidacion'] ?? null,
-    $r['fechaCarga'] ?? date('Y-m-d H:i:s'),
-    $r['idContratista'] ?? null,
-    $r['semana'] ?? null,
-    $r['anio'] ?? null,
-    $r['metraje'] ?? null,
-    implode(' | ', array_unique($alertas))
-]);
+                $folio,
+                $telefono,
+                $r['tipoTarea'] ?? null,
+                $r['cope'] ?? null,
+                $r['fechaLiquidacion'] ?? null,
+                $r['fechaCarga'] ?? date('Y-m-d H:i:s'),
+                $r['idContratista'] ?? null,
+                $r['semana'] ?? null,
+                $r['anio'] ?? null,
+                $r['metraje'] ?? null,
+                implode(' | ', array_unique($alertas))
+            ]);
 
             $stmtDetalle->execute([
                 $folio,
