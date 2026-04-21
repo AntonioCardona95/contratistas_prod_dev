@@ -28,7 +28,6 @@ function LoadAlertas(semana){
         },
 
         success: function(data){
-
             // Insertar tabla
             $("#LoadAlertas").html(data);
 
@@ -58,15 +57,12 @@ function initDataTable(){
     }
 
     $('#ventas').DataTable({
-        responsive: {
-            details: {
-                type: 'column',   // muestra detalles en columna
-                target: 'tr'      // despliega debajo de la fila
-            }
-        },
+        responsive: true,
         ordering: false,
         searching: true,
         paging: true,
+        pageLength: 10,       // igual que PrenominaNuevo.php
+        lengthChange: false,  // oculta selector de cantidad
         dom: 'Bfrtip',
 
         language: {
@@ -87,14 +83,15 @@ function initDataTable(){
         ],
 
         columnDefs: [
-            { responsivePriority: 1, targets: 0 }, // Folio Pisa siempre visible
-            { responsivePriority: 2, targets: 1 }, // Teléfono siempre visible
-            { responsivePriority: 3, targets: -1 } // Botón Galería siempre visible
+            { responsivePriority: 1, targets: 0 }, // Folio Pisa visible
+            { responsivePriority: 2, targets: 1 }, // Teléfono visible
+            { responsivePriority: 3, targets: -1 } // Galería visible
         ]
     });
 
     console.log("DataTable cargado correctamente");
 }
+
 
 /*$(document).ready(function(){
 
