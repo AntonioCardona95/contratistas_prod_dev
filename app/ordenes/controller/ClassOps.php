@@ -877,10 +877,45 @@ private function normalizarTecnologiaAlertas($valor)
 {
     if (!$valor) return null;
 
+    $valor = strtoupper(trim($valor));
+    $valor = preg_replace('/\s+/', ' ', $valor);
+
+    $valorSinEspacios = str_replace(' ', '', $valor);
+
+    // =========================
+    //  REGLAS INTELIGENTES
+    // =========================
+
+    //  CUALQUIER COSA QUE CONTENGA "FIBRA"
+    if (strpos($valor, 'FIBRA') !== false) {
+        return 'FIBRA';
+    }
+
+    //  COBRE
+    if (strpos($valor, 'COBRE') !== false) {
+        return 'COBRE';
+    }
+
+    // =========================
+    //  MAPEO ESPECÍFICO
+    // =========================
+    $map = [
+        'CAMBACEO' => 'FIBRA',
+        'CAMBIOFIBRA' => 'FIBRA',
+        'CAMBIO FIBRA' => 'FIBRA'
+    ];
+
+    return $map[$valor] ?? $map[$valorSinEspacios] ?? $valor;
+}
+
+/*private function normalizarTecnologiaAlertas($valor)
+{
+    if (!$valor) return null;
+
     // Convertir todo a mayúsculas y quitar espacios en blanco al principio y al final
     $valor = strtoupper(trim($valor));
 
-    // 🔥 Mapeo de equivalencias
+    //  Mapeo de equivalencias
     $map = [
         'CAMBACEO' => 'FIBRA',         // CAMBACEO lo tratamos como FIBRA
         'CAMBIOFIBRA' => 'FIBRA',    // CAMBIO FIBRA lo tratamos como FIBRA
@@ -890,7 +925,7 @@ private function normalizarTecnologiaAlertas($valor)
     ];
 
     return $map[$valor] ?? $valor;  // Devuelve el valor mapeado o el valor original
-}
+} */
 
 
 /*public function InsertarAlertasMasivo($registros)
