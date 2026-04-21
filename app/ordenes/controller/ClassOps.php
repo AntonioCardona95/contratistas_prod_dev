@@ -859,13 +859,37 @@ private function alertaSeriesDiferentes($data, &$alertas)
 
 private function alertaTecnologiaDiferente($data, &$alertas)
 {
-    $tecTac = $data['tac']['TECNOLOGIA'] ?? null;
-    $tecCoord = $data['coord']['Tecnologia'] ?? null;
+    $tecTacRaw   = $data['tac']['TECNOLOGIA'] ?? null;
+    $tecCoordRaw = $data['coord']['Tecnologia'] ?? null;
+
+    // 🔥 NORMALIZAR
+    $tecTac   = $this->normalizarTecnologiaAlertas($tecTacRaw);
+    $tecCoord = $this->normalizarTecnologiaAlertas($tecCoordRaw);
 
     if ($tecTac && $tecCoord && $tecTac !== $tecCoord) {
         $alertas[] = 'TECNOLOGIA_DIFERENTE';
     }
 }
+
+private function normalizarTecnologiaAlertas($valor)
+{
+    if (!$valor) return null;
+
+    $valor = strtoupper(trim($valor));
+
+    // 🔥 MAPEO DE EQUIVALENCIAS
+    $map = [
+        'CAMBACEO' => 'FIBRA',
+        'CAMBIO FIBRA' => 'FIBRA',
+        'FIBRA' => 'FIBRA',
+        'COBRE' => 'COBRE'
+        // puedes agregar más aquí
+    ];
+
+    return $map[$valor] ?? $valor;
+}
+
+
 
 /*public function InsertarAlertasMasivo($registros)
 {
