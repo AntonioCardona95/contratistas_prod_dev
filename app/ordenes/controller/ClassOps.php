@@ -800,76 +800,7 @@ public function InsertarAlertasMasivo($registros)
         // 🔥 COMPARACIONES
         // =========================
 
-        // =========================
-// 🔥 VALIDACIÓN NUMERO DE SERIE (CORREGIDA Y ROBUSTA)
-// =========================
-
-// CASO TODOS VACÍOS
-if (!$serieTacNorm && !$serieCoordNorm && !$serieEsciNorm) {
-    // nada que comparar
-}
-
-// CASO COORDIAPP VACÍO → TAC vs ESCI
-elseif (!$serieCoordNorm) {
-
-    if ($serieTacNorm !== $serieEsciNorm) {
-        $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
-        $detalles[] = [
-            'tipo' => 'NUMERO_SERIE_DIFERENTE',
-            'tac' => $serieTacNorm,
-            'coord' => $serieCoordNorm,
-            'esci' => $serieEsciNorm,
-            'desc' => 'Coordinapp vacío: TAC vs ESCI no coinciden o faltan datos'
-        ];
-    }
-}
-
-// CASO TAC VACÍO → COORDIAPP vs ESCI
-elseif (!$serieTacNorm) {
-
-    if ($serieCoordNorm !== $serieEsciNorm) {
-        $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
-        $detalles[] = [
-            'tipo' => 'NUMERO_SERIE_DIFERENTE',
-            'tac' => $serieTacNorm,
-            'coord' => $serieCoordNorm,
-            'esci' => $serieEsciNorm,
-            'desc' => 'TAC vacío: Coordiapp vs ESCI no coinciden o faltan datos'
-        ];
-    }
-}
-
-// CASO ESCI VACÍO → TAC vs COORDIAPP
-elseif (!$serieEsciNorm) {
-
-    if ($serieTacNorm !== $serieCoordNorm) {
-        $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
-        $detalles[] = [
-            'tipo' => 'NUMERO_SERIE_DIFERENTE',
-            'tac' => $serieTacNorm,
-            'coord' => $serieCoordNorm,
-            'esci' => $serieEsciNorm,
-            'desc' => 'ESCI vacío: TAC vs COORDIAPP no coinciden o faltan datos'
-        ];
-    }
-}
-
-// CASO COMPLETO → TODOS EXISTEN
-else {
-
-    if (!($serieTacNorm === $serieCoordNorm && $serieTacNorm === $serieEsciNorm)) {
-        $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
-        $detalles[] = [
-            'tipo' => 'NUMERO_SERIE_DIFERENTE',
-            'tac' => $serieTacNorm,
-            'coord' => $serieCoordNorm,
-            'esci' => $serieEsciNorm,
-            'desc' => 'Las 3 series no coinciden'
-        ];
-    }
-}
-
-       /* // SERIE
+        // SERIE
         if ($serieCoord && $serieTac && $serieTac != $serieCoord) {
             $alertasResumen[] = 'SERIE_DIFERENTE';
             $detalles[] = [
@@ -879,7 +810,7 @@ else {
                 'esci'=>$serieEsci,
                 'desc'=>'Serie distinta entre sistemas'
             ];
-        } */
+        }
 
         // 🔥 TIPO TAREA CORREGIDO
         if (
