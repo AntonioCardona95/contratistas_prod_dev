@@ -3,6 +3,94 @@ $(document).ready(function(){
     // Detecta cambio de semana
     $("#semana").change(function(){
         var semana = $(this).val();
+
+        if(semana){ 
+            LoadAlertas(semana);
+        } else {
+            $("#LoadAlertas").html('');
+        }
+    });
+
+});
+
+
+// ================================
+// AJAX
+// ================================
+function LoadAlertas(semana){
+    $.ajax({
+        type: 'POST',
+        url: 'modal/TablaNuevaAlertas.php',
+        data: { semana: semana },
+
+        beforeSend: function(){
+            $("#LoadAlertas").html("<center><img src='../image/loading-46.gif'></center>");
+        },
+
+        success: function(data){
+
+            // Insertar tabla
+            $("#LoadAlertas").html(data);
+
+            // 🔥 IMPORTANTE: esperar a que el DOM pinte la tabla
+            setTimeout(function(){
+                initDataTable();
+            }, 50);
+        },
+
+        error: function(err){
+            console.log("Error AJAX:", err);
+        }
+    });
+}
+
+
+// ================================
+// DATA TABLE INIT
+// ================================
+function initDataTable(){
+
+    console.log("Inicializando DataTable...");
+
+    // evitar duplicados si se vuelve a cargar
+    if ($.fn.DataTable.isDataTable('#ventas')) {
+        $('#ventas').DataTable().destroy();
+    }
+
+    $('#ventas').DataTable({
+        responsive: true,
+        ordering: false,
+        searching: true,
+        scrollY: true,
+        scrollX: true,
+        dom: 'Bfrtip',
+
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+        },
+
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                text: '<i class="fas fa-file-excel"></i> Excel',
+                className: 'btn btn-success'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: '<i class="fas fa-file-pdf"></i> PDF',
+                className: 'btn btn-danger'
+            }
+        ]
+    });
+
+    console.log("DataTable cargado correctamente");
+}
+
+/*$(document).ready(function(){
+
+    // Detecta cambio de semana
+    $("#semana").change(function(){
+        var semana = $(this).val();
         if(semana){ 
             LoadAlertas(semana);
         } else {
@@ -28,7 +116,7 @@ function LoadAlertas(semana){
             console.log(err);
         }
     });
-}
+} */
 
 /*$(document).ready(function(){
 
