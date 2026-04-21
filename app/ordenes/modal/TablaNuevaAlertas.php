@@ -42,7 +42,36 @@ if (empty($expedientes)) {
 ============================ */
 $alertas = $modal->ObtenerProduccionAlertas($idContratistas, $semana);
 $alertas = is_array($alertas) ? $alertas : [];
+
+
+
+/* ============================
+    CONTEOS
+============================ */
+$totalOrdenes = $modal->ContarOrdenesProduccion($idContratistas, $semana);
+$totalAlertas = $modal->ContarAlertasProduccion($idContratistas, $semana);
+
+
+
 ?>
+
+<!-- ============================
+     RESUMEN CONTEOS
+============================ -->
+<div class="row mb-3">
+  <div class="col-md-6">
+    <div class="alert alert-primary text-center">
+      <h5>Órdenes en Producción</h5>
+      <span><?= $totalOrdenes ?></span>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="alert alert-danger text-center">
+      <h5>Alertas en Producción</h5>
+      <span><?= $totalAlertas ?></span>
+    </div>
+  </div>
+</div>
 
 <!-- Bootstrap CSS--> 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">

@@ -936,6 +936,28 @@ private function validarOntAlmacenNueva($conexion_local, $ont, $idContratista)
 }
 
 
+// contros nuevos alertas //
+
+public function ContarOrdenesProduccion($idContratista, $semana) {
+    $sql = "SELECT COUNT(*) AS total 
+            FROM Produccion_contratistas 
+            WHERE FK_Contratista = ? AND Semana = ?";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([$idContratista, $semana]);
+    return $stmt->fetchColumn();
+}
+
+public function ContarAlertasProduccion($idContratista, $semana) {
+    $sql = "SELECT COUNT(*) AS total 
+            FROM Produccion_alertas 
+            WHERE FK_Contratista = ? AND Semana = ?";
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute([$idContratista, $semana]);
+    return $stmt->fetchColumn();
+}
+
+
+
 ///////////////////////////// PUEDE USARSE /////////////
 
 /*public function InsertarAlerta(
