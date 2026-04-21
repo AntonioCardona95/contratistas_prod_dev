@@ -741,7 +741,8 @@ public function InsertarAlertasMasivo($registros)
             'serieCoord' => $serieCoord,
             'serieEsci' => $serieEsci,
             'ontDuplicadasTac' => $ontDuplicadasTac,
-            'esciSeriesMap' => $esciSeriesMap
+            'esciSeriesMap' => $esciSeriesMap,
+            'idContratista' => $r['idContratista']
         ]);
 
         if (!empty($resultadoAlertas['alertas'])) {
@@ -784,6 +785,9 @@ private function evaluarAlertas($data)
     $this->alertaEventoEsci($data, $alertas, $detalleEsci);
     $this->alertaSeriesDiferentes($data, $alertas);
     $this->alertaTecnologiaDiferente($data, $alertas);
+
+    // 🔥 NUEVA
+    $this->alertaOntAlmacen($data, $alertas);
 
     return [
         'alertas' => $alertas,
@@ -907,6 +911,52 @@ private function normalizarTecnologiaAlertas($valor)
 
     return $map[$valor] ?? $map[$valorSinEspacios] ?? $valor;
 }
+
+private function alertaOntAlmacen($data, &$alertas)
+{
+    // 🔥 VIENE DE COORDIAPP
+    $ont = isset($data['coord']['Ont']) 
+        ? strtoupper(trim($data['coord']['Ont'])) 
+        : '';
+
+    if ($ont === '') return;
+
+    // 🔥 NORMALIZAR
+    $ont = $this->normalizarSerie($ont);
+
+    $conexion = $this->get_conexion();
+
+    $stmt = $conexion->prepare("
+        SELECT FK_Contratista_Salida
+        FROM material_det_salida
+        WHERE REPLACE(UPPER(Num_Serie_S), ' ', '') = ?
+        LIMIT 1
+    ");
+
+    $stmt->execute([$ont]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // =========================
+    // 🔥 ALERTAS
+    // =========================
+
+    if (!$row) {
+        $alertas[] = 'ONT_NO_ENCONTRADA_EN_ALMACEN';
+        return;
+    }
+
+    if (empty($row['FK_Contratista_Salida'])) {
+        $alertas[] = 'ONT_NO_ASIGNADA_AL_CONTRATISTA';
+        return;
+    }
+
+    if ((int)$row['FK_Contratista_Salida'] !== (int)$data['idContratista']) {
+        $alertas[] = 'ONT_ASIGNADA_A_OTRO_CONTRATISTA';
+        return;
+    }
+}
+
+
 
 /*private function normalizarTecnologiaAlertas($valor)
 {
