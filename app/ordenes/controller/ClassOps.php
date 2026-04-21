@@ -936,24 +936,43 @@ private function validarOntAlmacenNueva($conexion_local, $ont, $idContratista)
 }
 
 
+
 // contros nuevos alertas //
 
-public function ContarOrdenesProduccion($idContratista, $semana) {
-    $sql = "SELECT COUNT(*) AS total 
+public function ContarOrdenesProduccion($FK_Contratista, $Semana)
+{
+    $rows = null;
+    $conexion = $this->get_conexion();  
+    $sql = "SELECT COUNT(*) AS TOTAL 
             FROM Produccion_contratistas 
-            WHERE FK_Contratista = ? AND Semana = ?";
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute([$idContratista, $semana]);
-    return $stmt->fetchColumn();
+            WHERE FK_Contratista = :FK_Contratista 
+              AND Semana = :Semana";
+    $statement = $conexion->prepare($sql);
+    $statement->bindParam(':FK_Contratista', $FK_Contratista, PDO::PARAM_STR);
+    $statement->bindParam(':Semana', $Semana, PDO::PARAM_STR);
+    $statement->execute();
+    while ($result = $statement->fetch()) {
+        $rows[] = $result;
+    }
+    return $rows;        
 }
 
-public function ContarAlertasProduccion($idContratista, $semana) {
-    $sql = "SELECT COUNT(*) AS total 
+public function ContarAlertasProduccion($FK_Contratista, $Semana)
+{
+    $rows = null;
+    $conexion = $this->get_conexion();  
+    $sql = "SELECT COUNT(*) AS TOTAL 
             FROM Produccion_alertas 
-            WHERE FK_Contratista = ? AND Semana = ?";
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute([$idContratista, $semana]);
-    return $stmt->fetchColumn();
+            WHERE FK_Contratista = :FK_Contratista 
+              AND Semana = :Semana";
+    $statement = $conexion->prepare($sql);
+    $statement->bindParam(':FK_Contratista', $FK_Contratista, PDO::PARAM_STR);
+    $statement->bindParam(':Semana', $Semana, PDO::PARAM_STR);
+    $statement->execute();
+    while ($result = $statement->fetch()) {
+        $rows[] = $result;
+    }
+    return $rows;        
 }
 
 

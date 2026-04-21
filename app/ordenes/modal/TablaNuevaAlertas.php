@@ -45,19 +45,17 @@ $alertas = is_array($alertas) ? $alertas : [];
 
 
 
-/* ============================
-    CONTEOS
-============================ */
 $totalOrdenes = $modal->ContarOrdenesProduccion($idContratistas, $semana);
 $totalAlertas = $modal->ContarAlertasProduccion($idContratistas, $semana);
+
+// Como tus funciones devuelven un arreglo, tomamos el primer valor:
+$totalOrdenes = $totalOrdenes[0]['TOTAL'] ?? 0;
+$totalAlertas = $totalAlertas[0]['TOTAL'] ?? 0;
 
 
 
 ?>
 
-<!-- ============================
-     RESUMEN CONTEOS
-============================ -->
 <div class="row mb-3">
   <div class="col-md-6">
     <div class="alert alert-primary text-center">
@@ -72,6 +70,7 @@ $totalAlertas = $modal->ContarAlertasProduccion($idContratistas, $semana);
     </div>
   </div>
 </div>
+
 
 <!-- Bootstrap CSS--> 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
