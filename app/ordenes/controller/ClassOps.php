@@ -914,13 +914,17 @@ if (count($seriesValidas) > 1) {
     }
 }
 
-$serieOnt = $serieTac ?: $serieCoord ?: $serieEsci;
+$serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
+$serieCoord = ($serieCoord === '' || $serieCoord === 'NULL') ? null : $serieCoord;
 
-if ($serieOnt) {
+// =========================
+// 🔥 VALIDACIÓN SOLO COORDIAPP
+// =========================
+if ($serieCoord) {
 
     $ontAlmacen = $this->validarOntAlmacenNueva(
         $conexion,
-        $serieOnt,
+        $serieCoord,
         $r['idContratista']
     );
 
@@ -936,7 +940,6 @@ if ($serieOnt) {
         ];
     }
 }
-
         
 
         
