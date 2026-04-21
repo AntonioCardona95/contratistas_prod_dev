@@ -699,8 +699,8 @@ public function InsertarAlertasMasivo($registros)
     // =========================
     $stmtAlerta = $conexion->prepare("
         INSERT INTO Produccion_alertas
-        (Folio_Pisa, Telefono, Alerta)
-        VALUES (?,?,?)
+        (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Alerta)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)
     ");
 
     $stmtDetalle = $conexion->prepare("
