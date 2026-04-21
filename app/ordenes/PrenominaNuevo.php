@@ -399,7 +399,8 @@ $(document).ready(function() {
 
 });
 </script>
-<script src="js/appsinprocesoapago.js"></script>
+<!-- <script src="js/appsinprocesoapago.js"></script> -->
+<script src="js/AppPrenomina.js"></script>
 
 <!--<script>
     $(document).ready(function(){
