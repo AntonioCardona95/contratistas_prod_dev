@@ -44,14 +44,11 @@ $alertas = $modal->ObtenerProduccionAlertas($idContratistas, $semana);
 $alertas = is_array($alertas) ? $alertas : [];
 ?>
 
-<!-- Bootstrap CSS -->
+<!-- Bootstrap CSS--> 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="css/EstilosTablaSinProcesoPago.css">
 <link rel="stylesheet" type="text/css" href="css/modalprenomina.css">
-
-<!-- ============================
-     TABLA ALERTAS
-============================ -->
-<table id="ventas" class="table table-bordered table-striped" style="width:100%">
+<table class="table table-bordered display nowrap" style="width:100%" id="ventas">
 
     <thead>
         <tr>
@@ -188,8 +185,33 @@ $alertas = is_array($alertas) ? $alertas : [];
     </div>
   </div>
 </div>
-
-<!-- Bootstrap JS -->
+<!-- Bootstrap JS  cierre del modal) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 <script src="js/galeria_fotos.js"></script>
+<!-- Script para inicializar DataTable con estilos y botones -->
+<script>
+$(document).ready(function () {
+    new DataTable('#ventas', {
+        fixedColumns: { start: 1, end: 1 },
+        responsive:true,
+        language: { URL:'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
+        ordering: false,
+        searching: true,
+        scrollY: true,
+        scrollX: true,
+        dom: 'Bfrtip',
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                text: '<i class="fas fa-file-excel"></i> Excel',
+                className: 'btn btn-success'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: '<i class="fas fa-file-pdf"></i> PDF',
+                className: 'btn btn-danger'
+            }
+        ]
+    });
+});
+</script>
