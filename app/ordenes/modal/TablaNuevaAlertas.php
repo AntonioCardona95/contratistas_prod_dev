@@ -63,7 +63,7 @@ $alertas = is_array($alertas) ? $alertas : [];
 <!-- ============================
      TABLA NUEVA (ALERTAS)
 ============================ -->
-<table class="table table-bordered table-striped" style="width:100%">
+<table id="ventas" class="table table-bordered table-striped" style="width:100%">
 
     <thead>
         <tr>
