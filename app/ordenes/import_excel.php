@@ -23,9 +23,7 @@ if (empty($Contratista) || empty($idContratistas)) {
 ========================= */
 function normalizarFechaExcel($valorFecha)
 {
-    if ($valorFecha === null || $valorFecha === '') {
-        return null;
-    }
+    if ($valorFecha === null || $valorFecha === '') return null;
 
     if (is_numeric($valorFecha)) {
         try {
@@ -44,33 +42,19 @@ function normalizarFechaExcel($valorFecha)
     );
 
     $formatos = [
-        'Y-m-d H:i:s',
-        'Y-m-d H:i',
-        'Y-m-d',
-        'd/m/Y H:i:s A',
-        'd/m/Y H:i A',
-        'd/m/Y H:i:s',
-        'd/m/Y H:i',
-        'd/m/Y',
-        'd-m-Y H:i:s',
-        'd-m-Y H:i',
-        'd-m-Y'
+        'Y-m-d H:i:s','Y-m-d H:i','Y-m-d',
+        'd/m/Y H:i:s A','d/m/Y H:i A',
+        'd/m/Y H:i:s','d/m/Y H:i','d/m/Y',
+        'd-m-Y H:i:s','d-m-Y H:i','d-m-Y'
     ];
 
     foreach ($formatos as $formato) {
         $dt = DateTime::createFromFormat($formato, $fecha);
-        if ($dt !== false) {
-            return $dt->format('Y-m-d H:i:s');
-        }
+        if ($dt !== false) return $dt->format('Y-m-d H:i:s');
     }
 
     $timestamp = strtotime($fecha);
-
-    if ($timestamp !== false) {
-        return date('Y-m-d H:i:s', $timestamp);
-    }
-
-    return null;
+    return $timestamp ? date('Y-m-d H:i:s', $timestamp) : null;
 }
 
 if (isset($_POST['submit'])) {
@@ -79,10 +63,7 @@ if (isset($_POST['submit'])) {
     $anio   = $_POST['anio'] ?? date('Y');
 
     $file = $_FILES['excelFile']['tmp_name'] ?? '';
-
-    if ($file === '') {
-        die("No se seleccionó archivo.");
-    }
+    if ($file === '') die("No se seleccionó archivo.");
 
     $spreadsheet = IOFactory::load($file);
     $worksheet   = $spreadsheet->getActiveSheet();
@@ -97,7 +78,10 @@ if (isset($_POST['submit'])) {
 
     $foliosDuplicados = [];
     $telefonosDuplicados = [];
-    $foliosRevision = []; 
+    $foliosRevision = [];
+
+    // 🔥 NUEVO: ARRAY PARA ALERTAS MASIVAS
+    $registrosParaAlertas = [];
 
     for ($i = 2; $i <= $highestRow; $i++) {
 
@@ -129,13 +113,10 @@ if (isset($_POST['submit'])) {
         $telefonosExcel[$telefono] = true;
 
         $fechaLiquidacion = normalizarFechaExcel($fechaExcel);
-
-        if ($fechaLiquidacion === null) {
-            continue;
-        }
+        if ($fechaLiquidacion === null) continue;
 
         // =========================
-        // CALCULAR SEMANA ISO
+        // CALCULAR SEMANA
         // =========================
         $dt = new DateTime($fechaLiquidacion);
 
@@ -157,7 +138,7 @@ if (isset($_POST['submit'])) {
         }
 
         // =========================
-        // INSERTAR
+        // INSERTAR PRODUCCION
         // =========================
         $resultado = $modal->InsertarProduccion(
             $folio,
@@ -172,12 +153,28 @@ if (isset($_POST['submit'])) {
         );
 
         if ($resultado['insertado']) {
+
             $insertados++;
 
-            if ($resultado['revision'] == 1) {
-                $foliosRevision[] = $folio;
-            }
+            // 🔥 GUARDAMOS PARA ALERTAS MASIVAS
+            $registrosParaAlertas[] = [
+                'folio' => $folio,
+                'telefono' => $telefono,
+                'tipoTarea' => $tipoTarea,
+                'cope' => $cope,
+                'fechaLiquidacion' => $fechaLiquidacion,
+                'idContratista' => $idContratistas,
+                'semana' => $semanaCalculada,
+                'anio' => $anioCalculado,
+                'metraje' => $metraje,
+                'fechaCarga' => $resultado['fechaCarga']
+            ];
         }
+    }
+
+    // 🔥 AQUÍ OCURRE LA MAGIA (UNA SOLA VEZ)
+    if (!empty($registrosParaAlertas)) {
+        $modal->InsertarAlertasMasivo($registrosParaAlertas);
     }
 
     $foliosDuplicados   = array_unique($foliosDuplicados);
