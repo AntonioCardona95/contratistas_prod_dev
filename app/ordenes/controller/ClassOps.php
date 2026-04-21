@@ -801,86 +801,71 @@ public function InsertarAlertasMasivo($registros)
         // =========================
 
         // =========================
-// 🔥 VALIDACIÓN NUMERO DE SERIE (NUEVA LÓGICA)
+// 🔥 VALIDACIÓN NUMERO DE SERIE (CORREGIDA Y ROBUSTA)
 // =========================
 
-$serieTacNorm   = $serieTac ? strtoupper(trim($serieTac)) : null;
-$serieCoordNorm = $serieCoord ? strtoupper(trim($serieCoord)) : null;
-$serieEsciNorm  = $serieEsci ? strtoupper(trim($serieEsci)) : null;
+// CASO TODOS VACÍOS
+if (!$serieTacNorm && !$serieCoordNorm && !$serieEsciNorm) {
+    // nada que comparar
+}
 
-// Caso 1: Coordiapp vacío -> comparar TAC vs ESCI
-if (empty($serieCoordNorm)) {
+// CASO COORDIAPP VACÍO → TAC vs ESCI
+elseif (!$serieCoordNorm) {
 
-    if (!empty($serieTacNorm) && !empty($serieEsciNorm)) {
-
-        if ($serieTacNorm !== $serieEsciNorm) {
-            $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
-            $detalles[] = [
-                'tipo' => 'NUMERO_SERIE_DIFERENTE',
-                'tac' => $serieTacNorm,
-                'coord' => $serieCoordNorm,
-                'esci' => $serieEsciNorm,
-                'desc' => 'Coordinapp vacío: TAC y ESCI no coinciden'
-            ];
-        }
-
-    } elseif (!empty($serieTacNorm) && empty($serieEsciNorm)) {
-        // solo TAC existe, no hay con qué validar -> alerta
+    if ($serieTacNorm !== $serieEsciNorm) {
         $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
         $detalles[] = [
             'tipo' => 'NUMERO_SERIE_DIFERENTE',
             'tac' => $serieTacNorm,
             'coord' => $serieCoordNorm,
             'esci' => $serieEsciNorm,
-            'desc' => 'Coordinapp vacío y ESCI vacío, solo TAC presente'
+            'desc' => 'Coordinapp vacío: TAC vs ESCI no coinciden o faltan datos'
         ];
     }
+}
 
-// Caso 2: TAC vacío -> comparar Coordiapp vs ESCI
-} elseif (empty($serieTacNorm)) {
+// CASO TAC VACÍO → COORDIAPP vs ESCI
+elseif (!$serieTacNorm) {
 
-    if (!empty($serieCoordNorm) && !empty($serieEsciNorm)) {
-
-        if ($serieCoordNorm !== $serieEsciNorm) {
-            $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
-            $detalles[] = [
-                'tipo' => 'NUMERO_SERIE_DIFERENTE',
-                'tac' => $serieTacNorm,
-                'coord' => $serieCoordNorm,
-                'esci' => $serieEsciNorm,
-                'desc' => 'TAC vacío: Coordiapp y ESCI no coinciden'
-            ];
-        }
-
-    } elseif (!empty($serieCoordNorm) && empty($serieEsciNorm)) {
+    if ($serieCoordNorm !== $serieEsciNorm) {
         $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
         $detalles[] = [
             'tipo' => 'NUMERO_SERIE_DIFERENTE',
             'tac' => $serieTacNorm,
             'coord' => $serieCoordNorm,
             'esci' => $serieEsciNorm,
-            'desc' => 'TAC vacío y ESCI vacío, solo Coordiapp presente'
+            'desc' => 'TAC vacío: Coordiapp vs ESCI no coinciden o faltan datos'
         ];
     }
+}
 
-// Caso 3: todos tienen valor -> deben ser iguales los 3
-} else {
+// CASO ESCI VACÍO → TAC vs COORDIAPP
+elseif (!$serieEsciNorm) {
 
-    if (
-        !empty($serieTacNorm) &&
-        !empty($serieCoordNorm) &&
-        !empty($serieEsciNorm)
-    ) {
-        if (!($serieTacNorm === $serieCoordNorm && $serieTacNorm === $serieEsciNorm)) {
-            $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
-            $detalles[] = [
-                'tipo' => 'NUMERO_SERIE_DIFERENTE',
-                'tac' => $serieTacNorm,
-                'coord' => $serieCoordNorm,
-                'esci' => $serieEsciNorm,
-                'desc' => 'Las 3 series son diferentes o no coinciden'
-            ];
-        }
+    if ($serieTacNorm !== $serieCoordNorm) {
+        $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
+        $detalles[] = [
+            'tipo' => 'NUMERO_SERIE_DIFERENTE',
+            'tac' => $serieTacNorm,
+            'coord' => $serieCoordNorm,
+            'esci' => $serieEsciNorm,
+            'desc' => 'ESCI vacío: TAC vs COORDIAPP no coinciden o faltan datos'
+        ];
+    }
+}
+
+// CASO COMPLETO → TODOS EXISTEN
+else {
+
+    if (!($serieTacNorm === $serieCoordNorm && $serieTacNorm === $serieEsciNorm)) {
+        $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
+        $detalles[] = [
+            'tipo' => 'NUMERO_SERIE_DIFERENTE',
+            'tac' => $serieTacNorm,
+            'coord' => $serieCoordNorm,
+            'esci' => $serieEsciNorm,
+            'desc' => 'Las 3 series no coinciden'
+        ];
     }
 }
 
