@@ -3,19 +3,18 @@
 //ini_set('display_startup_errors', 1);
 //error_reporting(E_ALL);
 
-// Inclusión de clases necesarias
 require_once("../controller/ClassOps.php");
 
-// Inicio de sesión y obtención de variables de sesión
 session_start();
+
 $Contratista = $_SESSION['Contratista'] ?? null;
 $idContratistas = $_SESSION['idContratistas'] ?? null;
 
 $semana = $_POST['semana'] ?? null;
 
-// Si no hay semana seleccionada, no mostrar tabla
+// Si no hay semana seleccionada
 if (empty($semana)) {
-    echo ""; // No mostrar nada
+    echo "";
     exit;
 }
 
@@ -24,131 +23,116 @@ if (empty($Contratista) || empty($idContratistas)) {
     exit;
 }
 
-// Instancia de la clase Ops
 $modal = new Ops();
 
-// Obtener expedientes de técnicos del contratista
+/* ============================
+   🔹 EXPEDIENTES (SE CONSERVA)
+============================ */
 $expedientesData = $modal->ObtenerExpedientesPorContratista($idContratistas);
 $expedientesData = is_array($expedientesData) ? $expedientesData : [];
 
-// Convertir los expedientes a un arreglo simple
 $expedientes = [];
 foreach ($expedientesData as $exp) {
     $expedientes[] = $exp['NExpediente'];
 }
 
-/*echo "<pre>";
-print_r($expedientes);
-echo "</pre>"; */
-// Si no hay expedientes, no continuar
 if (empty($expedientes)) {
     echo "<p>No se encontraron expedientes de técnicos para este contratista.</p>";
     exit;
 }
 
-// Ahora pasamos los expedientes a la función de Producción
-$filas = $modal->OrdenesConIncidencias($idContratistas,$expedientes,$semana);
-$filas = is_array($filas) ? $filas : [];
+/* ============================
+   🔥 NUEVA FUENTE DE DATOS
+   Produccion_alertas
+============================ */
+
+// 🔴 AQUÍ ES DONDE CAMBIA TODO
+// Debes tener este método en tu clase Ops:
+// ObtenerProduccionAlertas($idContratistas, $semana)
+
+$alertas = $modal->ObtenerProduccionAlertas($idContratistas, $semana);
+$alertas = is_array($alertas) ? $alertas : [];
+
 ?>
-<!-- Bootstrap CSS--> 
+
+<!-- Bootstrap CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="css/EstilosTablaSinProcesoPago.css">
 <link rel="stylesheet" type="text/css" href="css/modalprenomina.css">
-<table class="table table-bordered display nowrap" style="width:100%" id="ventas">
+
+<!-- ============================
+     TABLA NUEVA (ALERTAS)
+============================ -->
+<table class="table table-bordered table-striped" style="width:100%">
+
     <thead>
         <tr>
-            <th>Galería</th>
             <th>Folio Pisa</th>
             <th>Telefono</th>
-            <th>Tipo de tarea</th>
+            <th>Tipo Tarea</th>
             <th>Cope</th>
-            <th>Fecha de liquidacion</th>
+            <th>Fecha Liquidación</th>
+            <th>Fecha Carga</th>
             <th>Semana</th>
+            <th>Año</th>
             <th>Metraje</th>
-            <th>Calificador</th>
             <th>Alerta</th>
-            <th>Detalle Serie Duplicada TAC</th>
-            <th>Detalle Serie Duplicada NAV</th>
-            <th>Valor TAC</th>
-            <th>Valor Coordiapp</th>
-             <th>Valor Navegacion</th>
-            <th>Metraje Contratista</th>
-            <th>Diferencia</th>
-            <th>Metraje Distancia</th>
-            <th>Diferencia Distancia</th>
-            
+            <th>Detalle Esci</th>
+            <th>Revisión</th>
+            <th>Galería</th>
         </tr>
     </thead>
+
     <tbody>
-    <?php foreach ($filas as $row): ?>
+
+    <?php foreach ($alertas as $row): ?>
         <tr>
-           <td>
-    <button 
-        type="button"
-        class="btn btn-primary btn-sm btn-galeria"
-        data-folio="<?= htmlspecialchars($row['Folio_Pisa'] ?? '') ?>"
-        data-idcontratista="<?= htmlspecialchars($idContratistas ?? '') ?>"
-        data-nombrecontratista="<?= htmlspecialchars($Contratista ?? '') ?>"
-    >
-        <i class="fas fa-images"></i>
-    </button>
-</td>
+
             <td><?= htmlspecialchars($row['Folio_Pisa'] ?? '') ?></td>
             <td><?= htmlspecialchars($row['Telefono'] ?? '') ?></td>
             <td><?= htmlspecialchars($row['Tipo_Tarea'] ?? '') ?></td>
             <td><?= htmlspecialchars($row['Cope'] ?? '') ?></td>
             <td><?= htmlspecialchars($row['Fecha_Liquidacion'] ?? '') ?></td>
+            <td><?= htmlspecialchars($row['Fecha_Carga'] ?? '') ?></td>
             <td><?= htmlspecialchars($row['Semana'] ?? '') ?></td>
+            <td><?= htmlspecialchars($row['anio'] ?? '') ?></td>
             <td><?= htmlspecialchars($row['metraje'] ?? '') ?></td>
-              <td style="text-align: center; font-weight: bold;">
-                <?= !empty($row['Alerta']) ? 'X' : '✓' ?>
-            </td>
 
-            <td style="color: red; font-weight: bold;">
+            <td style="color:red; font-weight:bold;">
                 <?= htmlspecialchars($row['Alerta'] ?? '') ?>
             </td>
 
-            <td style="color: #b30000; font-weight: bold;">
-    <?= htmlspecialchars($row['Detalle_Serie_Duplicada_TAC'] ?? '') ?>
-</td>
-
-<td style="color: #b30000; font-weight: bold;">
-    <?= htmlspecialchars($row['Detalle_Serie_Duplicada_ESCI'] ?? '') ?>
-</td>
-
             <td>
-                <?= htmlspecialchars($row['Valor_TAC'] ?? '') ?>
+                <?= htmlspecialchars($row['Detalle_Esci'] ?? '') ?>
             </td>
 
-            
+            <td style="text-align:center;">
+                <?= !empty($row['Bandera_Revision']) ? '✔' : '✖' ?>
+            </td>
 
+            <!-- ============================
+                 BOTÓN GALERÍA (SE CONSERVA)
+            ============================ -->
             <td>
-                <?= htmlspecialchars($row['Valor_Coordiapp'] ?? '') ?>
+                <button 
+                    type="button"
+                    class="btn btn-primary btn-sm btn-galeria"
+                    data-folio="<?= htmlspecialchars($row['Folio_Pisa'] ?? '') ?>"
+                    data-idcontratista="<?= htmlspecialchars($idContratistas ?? '') ?>"
+                    data-nombrecontratista="<?= htmlspecialchars($Contratista ?? '') ?>"
+                >
+                    <i class="fas fa-images"></i>
+                </button>
             </td>
-            <td>
-    <?= htmlspecialchars($row['Valor_ESCI'] ?? '') ?>
-</td>
 
-             <td>
-                <?= htmlspecialchars($row['Valor_Contratista'] ?? '') ?>
-            </td>
-            <td style="<?= ($row['Diferencia_Metraje'] ?? 0) > 0 ? 'background-color: yellow; font-weight:bold;' : '' ?>">
-    <?= $row['Diferencia_Metraje'] ?? 0 ?>
-</td>
-  <td style="<?= ($row['Metraje_Distancia'] ?? 0) > 0 ? 'background-color: #e6f3ff; font-weight:bold;' : '' ?>">
-                <?= number_format($row['Metraje_Distancia'] ?? 0, 2) ?>
-            </td>
-<td style="<?= ($row['Diferencia_Metraje_Distancia'] ?? 0) > 0 ? 'background-color: yellow; font-weight:bold;' : '' ?>">
-    <?= $row['Diferencia_Metraje_Distancia'] ?? 0 ?>
-</td>
-
-          
         </tr>
     <?php endforeach; ?>
+
     </tbody>
 </table>
 
-<!--  MODAL GALERÍA -->
+<!-- ============================
+     MODAL GALERÍA (SE CONSERVA TAL CUAL)
+============================ -->
 <div class="modal fade" 
      id="modalGaleria" 
      tabindex="-1" 
@@ -159,16 +143,13 @@ $filas = is_array($filas) ? $filas : [];
   <div class="modal-dialog modal-dialog-centered modal-lg modal-galeria-custom">
     <div class="modal-content">
 
-      <!-- HEADER -->
       <div class="modal-header header-galeria">
         <h5 class="modal-title fw-bold">Galería</h5>
         <button type="button"
                 class="btn-close btn-close-white"
-                data-bs-dismiss="modal"
-                aria-label="Cerrar"></button>
+                data-bs-dismiss="modal"></button>
       </div>
 
-      <!-- BODY -->
       <div class="modal-body">
 
         <div class="info-galeria">
@@ -177,80 +158,56 @@ $filas = is_array($filas) ? $filas : [];
           <p><strong>Folio:</strong> <span id="modalFolio"></span></p>
         </div>
 
-        <!-- 4 FOTOS SUPERIORES -->
+        <!-- FOTOS -->
         <div class="fila-superior">
 
           <div class="foto-item">
             <p>Foto Casa Cliente</p>
             <a href="#" id="fotoGrande" target="_blank">
-              <img id="miniaturaFoto" src="" alt="">
+              <img id="miniaturaFoto" src="">
             </a>
           </div>
 
           <div class="foto-item">
             <p>Foto Modem</p>
             <a href="#" id="fotoGrandemodem" target="_blank">
-              <img id="miniaturaFotomodem" src="" alt="">
+              <img id="miniaturaFotomodem" src="">
             </a>
           </div>
 
           <div class="foto-item">
             <p>Foto Trasera ONT</p>
             <a href="#" id="fotoGrandemodemtrasera" target="_blank">
-              <img id="miniaturaFotomodemtrasera" src="" alt="">
+              <img id="miniaturaFotomodemtrasera" src="">
             </a>
           </div>
 
           <div class="foto-item">
             <p>Foto OS</p>
             <a href="#" id="fotoGrandeos" target="_blank">
-              <img id="miniaturaFotoos" src="" alt="">
+              <img id="miniaturaFotoos" src="">
             </a>
           </div>
 
         </div>
 
-        <!-- FOTO INFERIOR CENTRADA -->
         <div class="fila-inferior">
           <div class="foto-item">
             <p>Foto Terminal</p>
             <a href="#" id="fotopuerto" target="_blank">
-              <img id="miniaturafotopuerto" src="" alt="">
+              <img id="miniaturafotopuerto" src="">
             </a>
           </div>
         </div>
 
       </div>
+
     </div>
   </div>
 </div>
-<!-- Bootstrap JS  cierre del modal) -->
+
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JS galería (SE CONSERVA) -->
 <script src="js/galeria_fotos.js"></script>
-<!-- Script para inicializar DataTable con estilos y botones -->
-<script>
-$(document).ready(function () {
-    new DataTable('#ventas', {
-        fixedColumns: { start: 1, end: 1 },
-        responsive:true,
-        language: { URL:'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
-        ordering: false,
-        searching: true,
-        scrollY: true,
-        scrollX: true,
-        dom: 'Bfrtip',
-        buttons: [
-            {
-                extend: 'excelHtml5',
-                text: '<i class="fas fa-file-excel"></i> Excel',
-                className: 'btn btn-success'
-            },
-            {
-                extend: 'pdfHtml5',
-                text: '<i class="fas fa-file-pdf"></i> PDF',
-                className: 'btn btn-danger'
-            }
-        ]
-    });
-});
-</script>
