@@ -63,7 +63,9 @@ function initDataTable(){
         paging: true,
         pageLength: 10,       // igual que PrenominaNuevo.php
         lengthChange: false,  // oculta selector de cantidad
-        dom: 'Bfrtip',
+
+        // 🔹 Distribución de elementos: arriba botones+buscador, abajo info+paginas
+        dom: '<"top"Bf>rt<"bottom"ip><"clear">',
 
         language: {
             url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
@@ -91,6 +93,7 @@ function initDataTable(){
 
     console.log("DataTable cargado correctamente");
 }
+
 
 
 /*$(document).ready(function(){
