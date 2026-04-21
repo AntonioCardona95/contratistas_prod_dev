@@ -859,7 +859,7 @@ private function alertaSeriesDiferentes($data, &$alertas)
 
 private function alertaTecnologiaDiferente($data, &$alertas)
 {
-    $tecTac = $data['tac']['Tecnologia'] ?? null;
+    $tecTac = $data['tac']['TECNOLOGIA'] ?? null;
     $tecCoord = $data['coord']['Tecnologia'] ?? null;
 
     if ($tecTac && $tecCoord && $tecTac !== $tecCoord) {
