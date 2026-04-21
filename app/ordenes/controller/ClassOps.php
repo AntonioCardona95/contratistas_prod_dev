@@ -859,13 +859,15 @@ private function alertaSeriesDiferentes($data, &$alertas)
 
 private function alertaTecnologiaDiferente($data, &$alertas)
 {
+    // Normalizar los valores de TAC y CoordIAPP
     $tecTacRaw   = $data['tac']['TECNOLOGIA'] ?? null;
     $tecCoordRaw = $data['coord']['Tecnologia'] ?? null;
 
-    // 🔥 NORMALIZAR
+    // 🔥 Normalizamos los valores
     $tecTac   = $this->normalizarTecnologiaAlertas($tecTacRaw);
     $tecCoord = $this->normalizarTecnologiaAlertas($tecCoordRaw);
 
+    // Comparamos las tecnologías normalizadas
     if ($tecTac && $tecCoord && $tecTac !== $tecCoord) {
         $alertas[] = 'TECNOLOGIA_DIFERENTE';
     }
@@ -875,20 +877,20 @@ private function normalizarTecnologiaAlertas($valor)
 {
     if (!$valor) return null;
 
+    // Convertir todo a mayúsculas y quitar espacios en blanco al principio y al final
     $valor = strtoupper(trim($valor));
 
-    // 🔥 MAPEO DE EQUIVALENCIAS
+    // 🔥 Mapeo de equivalencias
     $map = [
-        'CAMBACEO' => 'FIBRA',
-        'CAMBIO FIBRA' => 'FIBRA',
-        'FIBRA' => 'FIBRA',
-        'COBRE' => 'COBRE'
-        // puedes agregar más aquí
+        'CAMBACEO' => 'FIBRA',         // CAMBACEO lo tratamos como FIBRA
+        'CAMBIO FIBRA' => 'FIBRA',    // CAMBIO FIBRA lo tratamos como FIBRA
+        'FIBRA' => 'FIBRA',           // FIBRA se mantiene como FIBRA
+        'COBRE' => 'COBRE'            // COBRE se mantiene como COBRE
+        // Puedes agregar más equivalencias si es necesario
     ];
 
-    return $map[$valor] ?? $valor;
+    return $map[$valor] ?? $valor;  // Devuelve el valor mapeado o el valor original
 }
-
 
 
 /*public function InsertarAlertasMasivo($registros)
