@@ -604,7 +604,98 @@ public function InsertarProduccion($folio, $telefono, $tipoTarea, $cope, $fechaL
     ];
 }
 
-public function InsertarAlerta(
+public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiquidacion, $idContratistas, $semana, $anio, $metraje, $fechaCarga)
+{
+    $conexion = $this->get_conexion();
+    $conexion_analisis = $this->get_conexiondos();
+
+    // Forzar UTF-8 en ambas conexiones
+    $conexion->exec("SET NAMES 'utf8mb4'");
+    $conexion->exec("SET CHARACTER SET utf8mb4");
+    $conexion_analisis->exec("SET NAMES 'utf8mb4'");
+    $conexion_analisis->exec("SET CHARACTER SET utf8mb4");
+
+    $alerta = null;
+    $detalleEsci = null;
+
+    // Buscar datos en seg_ns_eci tomando la fecha más reciente
+    $sqlEsci = "SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, FECHA_ULTIMO_EVENTO
+                FROM seg_ns_eci 
+                WHERE TELEFONO = :telefono 
+                ORDER BY FECHA_ULTIMO_EVENTO DESC 
+                LIMIT 1";
+    $stmtEsci = $conexion_analisis->prepare($sqlEsci);
+    $stmtEsci->bindParam(':telefono', $telefono, PDO::PARAM_STR);
+    $stmtEsci->execute();
+    $rowEsci = $stmtEsci->fetch(PDO::FETCH_ASSOC);
+
+    if ($rowEsci) {
+        $mSerie = trim($rowEsci['M_SERIE']);
+        $ultimoEvento = intval($rowEsci['ULTIMO_EVENTO']);
+        $fechaUltimoEvento = $rowEsci['FECHA_ULTIMO_EVENTO'];
+
+        // Caso: número de serie desconocido
+        if (strtoupper($mSerie) === 'DESCONOCIDO') {
+            $alerta = 'NUMERO DE SERIE DESCONOCIDO';
+        }
+
+        // Caso: sin navegación
+        if ($ultimoEvento === 0) {
+            $alerta = 'SIN NAVEGACION';
+            $detalleEsci = "Última vez que navegó: $fechaUltimoEvento";
+        }
+
+        // Caso: servicio inactivo
+        if ($ultimoEvento === -1) {
+            $alerta = 'SERVICIO INACTIVO';
+            $detalleEsci = "Última vez que navegó: $fechaUltimoEvento";
+        }
+
+        // Caso: duplicados, pero solo si el número de serie NO es DESCONOCIDO
+        if (strtoupper($mSerie) !== 'DESCONOCIDO') {
+            $sqlDup = "SELECT DISTINCT TELEFONO 
+                       FROM seg_ns_eci
+                       WHERE M_SERIE = :mSerie";
+            $stmtDup = $conexion_analisis->prepare($sqlDup);
+            $stmtDup->bindParam(':mSerie', $mSerie, PDO::PARAM_STR);
+            $stmtDup->execute();
+            $telefonosUnicos = $stmtDup->fetchAll(PDO::FETCH_COLUMN);
+
+            if (count($telefonosUnicos) > 1) {
+                $alerta = 'ONT DUPLICADA EN ESCI';
+                $detalleEsci = "El número de serie $mSerie se utilizó en los teléfonos: " . implode(", ", $telefonosUnicos);
+            }
+        }
+    }
+
+    // Insertar alerta si aplica
+    if ($alerta !== null) {
+        $sqlAlert = "INSERT INTO Produccion_alertas 
+                     (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci) 
+                     VALUES (:folio, :telefono, :tipoTarea, :cope, :fechaLiquidacion, :fechaCarga, :idContratistas, :semana, :anio, :metraje, :alerta, :detalleEsci)";
+        
+        $stmtAlert = $conexion->prepare($sqlAlert);
+        $stmtAlert->bindParam(':folio', $folio, PDO::PARAM_STR);
+        $stmtAlert->bindParam(':telefono', $telefono, PDO::PARAM_STR);
+        $stmtAlert->bindParam(':tipoTarea', $tipoTarea, PDO::PARAM_STR);
+        $stmtAlert->bindParam(':cope', $cope, PDO::PARAM_STR);
+        $stmtAlert->bindParam(':fechaLiquidacion', $fechaLiquidacion, PDO::PARAM_STR);
+        $stmtAlert->bindParam(':fechaCarga', $fechaCarga, PDO::PARAM_STR);
+        $stmtAlert->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
+        $stmtAlert->bindParam(':semana', $semana, PDO::PARAM_STR);
+        $stmtAlert->bindParam(':anio', $anio, PDO::PARAM_INT);
+        $stmtAlert->bindParam(':metraje', $metraje, PDO::PARAM_INT);
+        $stmtAlert->bindParam(':alerta', $alerta, PDO::PARAM_STR);
+        $stmtAlert->bindParam(':detalleEsci', $detalleEsci, PDO::PARAM_STR);
+
+        $stmtAlert->execute();
+    }
+} 
+
+
+///////////////////////////// PUEDE USARSE /////////////
+
+/*public function InsertarAlerta(
     $folio,
     $telefonoTac,
     $tipoTareaTac,
@@ -773,94 +864,6 @@ public function InsertarAlerta(
                 ':desc' => $a['desc']
             ]);
         }
-    }
-}
-
-/*public function InsertarAlerta($folio, $telefono, $tipoTarea, $cope, $fechaLiquidacion, $idContratistas, $semana, $anio, $metraje, $fechaCarga)
-{
-    $conexion = $this->get_conexion();
-    $conexion_analisis = $this->get_conexiondos();
-
-    // Forzar UTF-8 en ambas conexiones
-    $conexion->exec("SET NAMES 'utf8mb4'");
-    $conexion->exec("SET CHARACTER SET utf8mb4");
-    $conexion_analisis->exec("SET NAMES 'utf8mb4'");
-    $conexion_analisis->exec("SET CHARACTER SET utf8mb4");
-
-    $alerta = null;
-    $detalleEsci = null;
-
-    // Buscar datos en seg_ns_eci tomando la fecha más reciente
-    $sqlEsci = "SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, FECHA_ULTIMO_EVENTO
-                FROM seg_ns_eci 
-                WHERE TELEFONO = :telefono 
-                ORDER BY FECHA_ULTIMO_EVENTO DESC 
-                LIMIT 1";
-    $stmtEsci = $conexion_analisis->prepare($sqlEsci);
-    $stmtEsci->bindParam(':telefono', $telefono, PDO::PARAM_STR);
-    $stmtEsci->execute();
-    $rowEsci = $stmtEsci->fetch(PDO::FETCH_ASSOC);
-
-    if ($rowEsci) {
-        $mSerie = trim($rowEsci['M_SERIE']);
-        $ultimoEvento = intval($rowEsci['ULTIMO_EVENTO']);
-        $fechaUltimoEvento = $rowEsci['FECHA_ULTIMO_EVENTO'];
-
-        // Caso: número de serie desconocido
-        if (strtoupper($mSerie) === 'DESCONOCIDO') {
-            $alerta = 'NUMERO DE SERIE DESCONOCIDO';
-        }
-
-        // Caso: sin navegación
-        if ($ultimoEvento === 0) {
-            $alerta = 'SIN NAVEGACION';
-            $detalleEsci = "Última vez que navegó: $fechaUltimoEvento";
-        }
-
-        // Caso: servicio inactivo
-        if ($ultimoEvento === -1) {
-            $alerta = 'SERVICIO INACTIVO';
-            $detalleEsci = "Última vez que navegó: $fechaUltimoEvento";
-        }
-
-        // Caso: duplicados, pero solo si el número de serie NO es DESCONOCIDO
-        if (strtoupper($mSerie) !== 'DESCONOCIDO') {
-            $sqlDup = "SELECT DISTINCT TELEFONO 
-                       FROM seg_ns_eci
-                       WHERE M_SERIE = :mSerie";
-            $stmtDup = $conexion_analisis->prepare($sqlDup);
-            $stmtDup->bindParam(':mSerie', $mSerie, PDO::PARAM_STR);
-            $stmtDup->execute();
-            $telefonosUnicos = $stmtDup->fetchAll(PDO::FETCH_COLUMN);
-
-            if (count($telefonosUnicos) > 1) {
-                $alerta = 'ONT DUPLICADA EN ESCI';
-                $detalleEsci = "El número de serie $mSerie se utilizó en los teléfonos: " . implode(", ", $telefonosUnicos);
-            }
-        }
-    }
-
-    // Insertar alerta si aplica
-    if ($alerta !== null) {
-        $sqlAlert = "INSERT INTO Produccion_alertas 
-                     (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci) 
-                     VALUES (:folio, :telefono, :tipoTarea, :cope, :fechaLiquidacion, :fechaCarga, :idContratistas, :semana, :anio, :metraje, :alerta, :detalleEsci)";
-        
-        $stmtAlert = $conexion->prepare($sqlAlert);
-        $stmtAlert->bindParam(':folio', $folio, PDO::PARAM_STR);
-        $stmtAlert->bindParam(':telefono', $telefono, PDO::PARAM_STR);
-        $stmtAlert->bindParam(':tipoTarea', $tipoTarea, PDO::PARAM_STR);
-        $stmtAlert->bindParam(':cope', $cope, PDO::PARAM_STR);
-        $stmtAlert->bindParam(':fechaLiquidacion', $fechaLiquidacion, PDO::PARAM_STR);
-        $stmtAlert->bindParam(':fechaCarga', $fechaCarga, PDO::PARAM_STR);
-        $stmtAlert->bindParam(':idContratistas', $idContratistas, PDO::PARAM_INT);
-        $stmtAlert->bindParam(':semana', $semana, PDO::PARAM_STR);
-        $stmtAlert->bindParam(':anio', $anio, PDO::PARAM_INT);
-        $stmtAlert->bindParam(':metraje', $metraje, PDO::PARAM_INT);
-        $stmtAlert->bindParam(':alerta', $alerta, PDO::PARAM_STR);
-        $stmtAlert->bindParam(':detalleEsci', $detalleEsci, PDO::PARAM_STR);
-
-        $stmtAlert->execute();
     }
 } */
 
