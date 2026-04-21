@@ -42,10 +42,7 @@ $alertas = is_array($alertas) ? $alertas : [];
 <!-- ============================
      TABLA ALERTAS
 ============================ -->
-<!-- Bootstrap CSS--> 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="css/EstilosTablaSinProcesoPago.css">
-<link rel="stylesheet" type="text/css" href="css/modalprenomina.css">
+
 <table id="ventas" class="table table-bordered table-striped" style="width:100%">
     <thead>
         <tr>
