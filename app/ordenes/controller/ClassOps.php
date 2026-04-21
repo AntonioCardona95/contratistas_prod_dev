@@ -625,7 +625,7 @@ public function InsertarAlerta(
     $alertas = [];
 
     // =========================
-    // 🔹 COORDIAPP (CORREGIDO: Ont)
+    //  COORDIAPP (CORREGIDO: Ont)
     // =========================
     $stmt = $conexion->prepare("
         SELECT Telefono, Tipo_Tarea, Ont
@@ -637,7 +637,7 @@ public function InsertarAlerta(
     $coord = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // =========================
-    // 🔹 ESCI
+    //  ESCI
     // =========================
     $stmt = $conexion_analisis->prepare("
         SELECT M_SERIE
@@ -650,7 +650,7 @@ public function InsertarAlerta(
     $esci = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // =========================
-    // 🔹 TAC (CORRECTO)
+    //  TAC (CORRECTO)
     // =========================
     $stmt = $conexion_analisis->prepare("
         SELECT TELEFONO, Tipo_de_Tarea, Num__Serie
@@ -662,7 +662,7 @@ public function InsertarAlerta(
     $tac = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // =========================
-    // 🔹 NORMALIZACIÓN
+    //  NORMALIZACIÓN
     // =========================
 
     // TAC
@@ -679,10 +679,10 @@ public function InsertarAlerta(
     $serieEsci = isset($esci['M_SERIE']) ? trim($esci['M_SERIE']) : null;
 
     // =========================
-    // 🔥 COMPARACIONES
+    //  COMPARACIONES
     // =========================
 
-    // 📱 TELÉFONO
+    //  TELÉFONO
     if ($telefonoCoord && $telefonoTacDB !== $telefonoCoord) {
         $alertas[] = [
             'tipo'=>'TELEFONO_DIFERENTE',
@@ -693,7 +693,7 @@ public function InsertarAlerta(
         ];
     }
 
-    // 🔢 SERIE (usa ESCI si TAC viene vacío)
+    //  SERIE (usa ESCI si TAC viene vacío)
     $serieBase = !empty($serieTac) ? $serieTac : $serieEsci;
 
     if ($serieCoord && $serieBase && $serieBase !== $serieCoord) {
@@ -706,7 +706,7 @@ public function InsertarAlerta(
         ];
     }
 
-    // 🛠 TIPO TAREA
+    //  TIPO TAREA
     if ($tipoCoord && $tipoTacDB !== $tipoCoord) {
         $alertas[] = [
             'tipo'=>'TIPO_TAREA_DIFERENTE',
@@ -717,7 +717,7 @@ public function InsertarAlerta(
         ];
     }
 
-    // ❌ NO EXISTE EN COORDIAPP
+    //  NO EXISTE EN COORDIAPP
     if (!$coord) {
         $alertas[] = [
             'tipo'=>'NO_EXISTE_COORDIAPP',
@@ -729,7 +729,7 @@ public function InsertarAlerta(
     }
 
     // =========================
-    // 💾 INSERT
+    //  INSERT
     // =========================
     if (!empty($alertas)) {
 
