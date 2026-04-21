@@ -914,6 +914,33 @@ if (count($seriesValidas) > 1) {
     }
 }
 
+$serieOnt = $serieTac ?: $serieCoord ?: $serieEsci;
+
+$ontAlmacen = null;
+
+if ($serieOnt) {
+
+    $ontAlmacen = $this->validarOntAlmacenNueva(
+        $conexion,
+        $serieOnt,
+        $r['idContratista']
+    );
+}
+
+if ($ontAlmacen) {
+
+    $alertasResumen[] = $ontAlmacen[0];
+
+    $detalles[] = [
+        'tipo'  => 'ONT_ALMACEN',
+        'tac'   => $serieTac,
+        'coord' => $serieCoord,
+        'esci'  => $serieEsci,
+        'desc'  => $ontAlmacen[1]
+    ];
+}
+
+
         
 
         
@@ -952,6 +979,53 @@ if (count($seriesValidas) > 1) {
         }
     }
 }
+
+private function validarOntAlmacenNueva($conexion_local, $ont, $idContratista)
+{
+    if (!$ont) {
+        return null;
+    }
+
+    // Normalizar serie
+    $ont = strtoupper(trim($ont));
+    $ont = str_replace(' ', '', $ont);
+
+    if ($ont === '') {
+        return null;
+    }
+
+    $stmt = $conexion_local->prepare("
+        SELECT FK_Contratista_Salida
+        FROM material_det_salida
+        WHERE REPLACE(UPPER(Num_Serie_S), ' ', '') = ?
+        LIMIT 1
+    ");
+
+    $stmt->execute([$ont]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // No existe en almacén
+    if (!$row) {
+        return ["ONT no se encuentra en almacén", "Serie: $ont"];
+    }
+
+    // No asignada a nadie
+    if (empty($row['FK_Contratista_Salida'])) {
+        return ["ONT no asignada al contratista", "Serie: $ont"];
+    }
+
+    // Asignada a otro contratista
+    if ((int)$row['FK_Contratista_Salida'] !== (int)$idContratista) {
+        return [
+            "ONT asignada a otro contratista",
+            "Serie: $ont (Asignado a: " . $row['FK_Contratista_Salida'] . ")"
+        ];
+    }
+
+    return null;
+}
+
+
 ///////////////////////////// PUEDE USARSE /////////////
 
 /*public function InsertarAlerta(
