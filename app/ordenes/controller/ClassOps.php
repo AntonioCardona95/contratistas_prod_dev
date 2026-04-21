@@ -668,7 +668,7 @@ public function InsertarAlertasMasivo($registros)
     } */
 
         // =========================
-// 🔥 ONT DUPLICADA TAC
+//  ONT DUPLICADA TAC
 // =========================
 $sqlOntDuplicada = "
     SELECT 
