@@ -872,6 +872,50 @@ public function InsertarAlertasMasivo($registros)
             $alertasResumen[] = 'NO_EXISTE_COORDIAPP';
         }
 
+        // =========================
+// 🔥 VALIDACIÓN NUMERO DE SERIE DIFERENTE
+// =========================
+$serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
+$serieTac   = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
+$serieEsci  = isset($esci['M_SERIE']) ? strtoupper(trim($esci['M_SERIE'])) : null;
+
+// normalización de vacíos
+$serieCoord = ($serieCoord === '' || $serieCoord === 'NULL') ? null : $serieCoord;
+$serieTac   = ($serieTac === '' || $serieTac === 'NULL') ? null : $serieTac;
+$serieEsci  = ($serieEsci === '' || $serieEsci === 'NULL' || $serieEsci === 'DESCONOCIDO') ? null : $serieEsci;
+
+$seriesValidas = array_filter([$serieTac, $serieCoord, $serieEsci]);
+
+if (count($seriesValidas) > 1) {
+
+    if ($serieTac && $serieCoord && $serieEsci) {
+
+        if (!($serieTac === $serieCoord && $serieTac === $serieEsci)) {
+            $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
+        }
+
+    } else {
+
+        if ($serieTac && $serieCoord && $serieTac !== $serieCoord) {
+            $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
+        }
+
+        if ($serieTac && $serieEsci && $serieTac !== $serieEsci) {
+            $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
+        }
+
+        if ($serieCoord && $serieEsci && $serieCoord !== $serieEsci) {
+            $alertasResumen[] = 'NUMERO_SERIE_DIFERENTE';
+        }
+
+        if ($serieTac && !$serieCoord && $serieEsci && $serieTac === $serieEsci) {
+            $alertasResumen[] = 'COORDIAPP_SIN_SERIE';
+        }
+    }
+}
+
+        
+
         
 
         // =========================
