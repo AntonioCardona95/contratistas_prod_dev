@@ -172,7 +172,7 @@ if (isset($_POST['submit'])) {
         }
     }
 
-    // 🔥 AQUÍ OCURRE LA MAGIA (UNA SOLA VEZ)
+    // AQUÍ OCURRE LA MAGIA (UNA SOLA VEZ)
     if (!empty($registrosParaAlertas)) {
         $modal->InsertarAlertasMasivo($registrosParaAlertas);
     }
