@@ -562,6 +562,49 @@ public function ExisteFolioProduccion($folio, $telefono, $idContratistas)
 
 // PRUEBA DON ORDEN TIPO //
 
+public function InsertarProduccion(
+    $folio,
+    $telefono,
+    $tipoTarea,
+    $cope,
+    $fechaLiquidacion,
+    $idContratistas,
+    $semana,
+    $anio,
+    $metraje
+) {
+    $conexion = $this->get_conexion();
+
+    $conexion->exec("SET NAMES 'utf8mb4'");
+    $conexion->exec("SET CHARACTER SET utf8mb4");
+
+    $fechaCarga = date("Y-m-d H:i:s");
+
+    $sql = "INSERT INTO Produccion_contratista 
+            (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje) 
+            VALUES (:folio, :telefono, :tipoTarea, :cope, :fechaLiquidacion, :fechaCarga, :idContratistas, :semana, :anio, :metraje)";
+    
+    $stmt = $conexion->prepare($sql);
+
+    $ejecutado = $stmt->execute([
+        ':folio' => $folio,
+        ':telefono' => $telefono,
+        ':tipoTarea' => $tipoTarea,
+        ':cope' => $cope,
+        ':fechaLiquidacion' => $fechaLiquidacion,
+        ':fechaCarga' => $fechaCarga,
+        ':idContratistas' => $idContratistas,
+        ':semana' => $semana,
+        ':anio' => $anio,
+        ':metraje' => $metraje
+    ]);
+
+    return [
+        'insertado' => $ejecutado,
+        'fechaCarga' => $fechaCarga
+    ];
+}
+
 public function InsertarAlertasMasivo($registros)
 {
     if (empty($registros)) return;
@@ -670,8 +713,6 @@ public function InsertarAlertasMasivo($registros)
         VALUES (?,?,?,?,?,?)
     ");
 
-    $fechaCarga = date("Y-m-d H:i:s");
-
     // =========================
     // 🔥 LOOP PRINCIPAL
     // =========================
@@ -701,9 +742,6 @@ public function InsertarAlertasMasivo($registros)
         $serieTac = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
 
-        // =========================
-        // TECNOLOGIA
-        // =========================
         $tecTac = isset($tac['TECNOLOGIA']) ? strtoupper(trim($tac['TECNOLOGIA'])) : null;
         $tecCoord = isset($coord['Tecnologia']) ? strtoupper(trim($coord['Tecnologia'])) : null;
 
@@ -715,11 +753,11 @@ public function InsertarAlertasMasivo($registros)
         }
 
         // =========================
-        // 🔥 VALIDACIÓN DE FOTOS (AGREGADA SIN ROMPER NADA)
+        // 🔥 VALIDACIÓN DE FOTOS (AGREGADA SIN TOCAR NADA MÁS)
         // =========================
         if ($coord) {
 
-            $tipoTareaFoto = strtoupper(trim($coord['Tipo_Tarea'] ?? $tipoTac));
+            $tipoTareaFoto = strtoupper(trim($coord['Tipo_Tarea'] ?? $tipoTac ?? ''));
             $codigoLiquidacion = strtoupper(trim($r['codigoLiquidacion'] ?? ''));
 
             $camposFotos = [];
@@ -777,16 +815,16 @@ public function InsertarAlertasMasivo($registros)
                 $valor = trim($coord[$campo] ?? '');
 
                 if ($valor === '' || !preg_match('/\.(jpg|jpeg|png)$/i', $valor)) {
-                    $alertasResumen[] = "FOTO_FALTANTE: $campo";
+                    $alertasResumen[] = 'FOTO_FALTANTE';
                 }
             }
 
             if (!empty($coord['validacion_foto_fallida']) && $usaPuertoCasa) {
-                $alertasResumen[] = "FALLA_FOTO_GENERAL";
+                $alertasResumen[] = 'FALLA_FOTO_GENERAL';
             }
 
             if (!empty($coord['validacion_LEDS_ONT_fallida']) && $usaOntFoto) {
-                $alertasResumen[] = "FALLA_FOTO_ONT";
+                $alertasResumen[] = 'FALLA_FOTO_ONT';
             }
         }
 
@@ -845,7 +883,7 @@ public function InsertarAlertasMasivo($registros)
                 $tipoTacNorm,
                 $r['cope'],
                 $r['fechaLiquidacion'],
-                $fechaCarga,
+                $r['fechaCarga'],
                 $r['idContratista'],
                 $r['semana'],
                 $r['anio'],
