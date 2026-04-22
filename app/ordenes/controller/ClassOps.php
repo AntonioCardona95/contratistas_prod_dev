@@ -806,11 +806,27 @@ private function alertaFolioCapturadoCoordiapp($data, &$alertas)
 {
     $folio = $data['folio'] ?? null;
 
+    //  SI NO EXISTE EN COORDIAPP → ALERTA
+    if (empty($data['coord'])) {
+        $alertas[] = 'FOLIO_NO_CARGADO_EN_COORDIAPP';
+        return;
+    }
+
+    //  validación extra de seguridad (opcional pero recomendable)
+    if (isset($data['coord']['Folio_Pisa']) && $data['coord']['Folio_Pisa'] !== $folio) {
+        $alertas[] = 'FOLIO_NO_CARGADO_EN_COORDIAPP';
+    }
+}
+
+/*private function alertaFolioCapturadoCoordiapp($data, &$alertas)
+{
+    $folio = $data['folio'] ?? null;
+
     // Verificar si el folio está presente en los datos de CoordIAPP
     if ($folio && isset($data['coord'][$folio])) {
         $alertas[] = 'FOLIO_CAPTURADO_EN_COORDIAPP';
     }
-}
+} */
 
 private function alertaTipoTareaDiferente($data, &$alertas)
 {
