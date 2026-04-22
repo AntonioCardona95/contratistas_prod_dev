@@ -845,18 +845,13 @@ private function alertaLedsOntFallida($data, &$alertas)
 // 🔥 FOTO DOMICILIO
 private function alertaFotoDomicilioFallida($data, &$alertas)
 {
-    $foto = $data['coord']['validacion_foto_fallida'] ?? '';
+    $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
 
-    if (empty($foto) || !preg_match('/\.(jpg|jpeg|png)$/i', $foto)) {
+    if ((int)$valor === 1) {
         $alertas[] = 'FOTO_DOMICILIO_FALLIDA';
-        return;
-    }
-
-    if (strpos($foto, '../') === false) {
-        $alertas[] = 'FOTO_DOMICILIO_FALLIDA';
-        return;
     }
 }
+
 
 
 // =========================
