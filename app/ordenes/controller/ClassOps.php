@@ -627,7 +627,7 @@ public function InsertarAlertasMasivo($registros)
     // 🔹 COORDIAPP
     // =========================
     $coordData = [];
-    $sql = "SELECT Folio_Pisa, Ont, Tecnologia , Foto_Ont , validacion_LEDS_ONT_fallida
+    $sql = "SELECT Folio_Pisa, Ont, Tecnologia , Foto_Ont , validacion_LEDS_ONT_fallida, Foto_Casa_Cliente, validacion_foto_fallida
             FROM tecnico_instalaciones_coordiapp
             WHERE Folio_Pisa IN ($inFolios)";
     foreach ($conexion->query($sql) as $row) {
@@ -784,7 +784,9 @@ private function evaluarAlertas($data)
     // 🔥 CORREGIDAS
     $this->alertaFotoOntFallida($data, $alertas); // ✅ SIN detalleTac
     $this->alertaLedsOntFallida($data, $alertas);
+    $this->alertaFotoDomicilioFallida($data, $alertas);
     $this->alertaOntAlmacen($data, $alertas);
+    $this->alertaFotoCasaCliente($data, $alertas);
 
     return [
         'alertas' => $alertas,
@@ -811,6 +813,22 @@ private function alertaFotoOntFallida($data, &$alertas)
     }
 }
 
+// 🔥 FOTO CASA CLIENTE
+private function alertaFotoCasaCliente($data, &$alertas)
+{
+    $foto = $data['coord']['Foto_Casa_Cliente'] ?? '';
+
+    if (empty($foto) || !preg_match('/\.(jpg|jpeg|png)$/i', $foto)) {
+        $alertas[] = 'FOTO_CASA_CLIENTE_FALLIDA';
+        return;
+    }
+
+    if (strpos($foto, '../') === false) {
+        $alertas[] = 'FOTO_CASA_CLIENTE_FALLIDA';
+        return;
+    }
+}
+
 // 🔥 LEDS
 private function alertaLedsOntFallida($data, &$alertas)
 {
@@ -820,6 +838,23 @@ private function alertaLedsOntFallida($data, &$alertas)
         $alertas[] = 'EVIDENCIA_LEDS_ONT_FALLIDA';
     }
 }
+
+// 🔥 FOTO DOMICILIO
+private function alertaFotoDomicilioFallida($data, &$alertas)
+{
+    $foto = $data['coord']['validacion_foto_fallida'] ?? '';
+
+    if (empty($foto) || !preg_match('/\.(jpg|jpeg|png)$/i', $foto)) {
+        $alertas[] = 'FOTO_DOMICILIO_FALLIDA';
+        return;
+    }
+
+    if (strpos($foto, '../') === false) {
+        $alertas[] = 'FOTO_DOMICILIO_FALLIDA';
+        return;
+    }
+}
+
 
 // =========================
 // 🔥 ALERTAS
