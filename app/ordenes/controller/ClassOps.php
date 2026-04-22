@@ -635,7 +635,7 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-    // 🔹 TAC
+    //  TAC
     // =========================
     $tacData = [];
     $sql = "SELECT Folio_Pisa, TELEFONO, Num__Serie, TECNOLOGIA
@@ -665,7 +665,7 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-    // 🔹 ESCI
+    //  ESCI
     // =========================
     $esciData = [];
     $esciSeriesMap = [];
@@ -784,7 +784,7 @@ private function evaluarAlertas($data)
     $this->alertaTecnologiaDiferente($data, $alertas);
 
     //  CORREGIDAS
-    $this->alertaFotoOntFallida($data, $alertas); // ✅ SIN detalleTac
+    $this->alertaFotoOntFallida($data, $alertas); //  SIN detalleTac
     $this->alertaLedsOntFallida($data, $alertas);
     $this->alertaTerminalFallida($data, $alertas);
     $this->alertaTerminalFallidaIA($data, $alertas);
