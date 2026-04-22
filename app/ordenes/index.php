@@ -1,18 +1,19 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
+session_start();
 
-    session_start();
-    $Contratista = $_SESSION['Contratista'];
-    $idContratistas = $_SESSION['idContratistas'];
+$Contratista = $_SESSION['Contratista'] ?? null;
+$idContratistas = $_SESSION['idContratistas'] ?? null;
 
-    if (empty($Contratista)) {
-        header("location: ../Login/modal/poweroff.php");
-    }
-    
+if (empty($Contratista)) {
+    header("Location: ../index.html");
+    exit;
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
