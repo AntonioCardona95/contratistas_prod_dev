@@ -4,5 +4,5 @@
 	$_SESSION = array();
 	session_destroy();
     unset($_SESSION);
-    header("location: ../../index.html"); *
+    header("location: ../../index.html");
 ?> 
