@@ -781,9 +781,9 @@ private function evaluarAlertas($data)
     $this->alertaSeriesDiferentes($data, $alertas);
     $this->alertaTecnologiaDiferente($data, $alertas);
 
-    // 🔥 NUEVAS
-    $this->alertaFotoOntFallida($data, $alertas, $detalleTac);
-    $this->alertaLedsOntFallida($data, $alertas); // 👈 NUEVA
+    // 🔥 CORREGIDAS
+    $this->alertaFotoOntFallida($data, $alertas); // ✅ SIN detalleTac
+    $this->alertaLedsOntFallida($data, $alertas);
     $this->alertaOntAlmacen($data, $alertas);
 
     return [
@@ -795,17 +795,23 @@ private function evaluarAlertas($data)
 
 
 
-private function alertaFotoOntFallida($data, &$alertas, &$detalleTac)
+// 🔥 FOTO GENERAL (NO TAC)
+private function alertaFotoOntFallida($data, &$alertas)
 {
     $foto = $data['coord']['Foto_Ont'] ?? '';
 
     if (empty($foto) || !preg_match('/\.(jpg|jpeg|png)$/i', $foto)) {
-        $alertas[] = 'FOTO_ONT_FALLIDA';
-        $detalleTac = "Foto Ont Frontal Fallida";
+        $alertas[] = 'FOTO_ONT_FRONTAL_FALLIDA';
+        return;
+    }
+
+    if (strpos($foto, '../') === false) {
+        $alertas[] = 'FOTO_ONT_FRONTAL_FALLIDA';
+        return;
     }
 }
 
-// 🔥 NUEVA ALERTA LEDS
+// 🔥 LEDS
 private function alertaLedsOntFallida($data, &$alertas)
 {
     $valor = $data['coord']['validacion_LEDS_ONT_fallida'] ?? 0;
