@@ -689,11 +689,17 @@ public function InsertarAlertasMasivo($registros)
     // =========================
     // 🔥 INSERTS
     // =========================
-    $stmtAlerta = $conexion->prepare("
+    /*$stmtAlerta = $conexion->prepare("
         INSERT INTO Produccion_alertas
         (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci, Bandera_Revision)
         VALUES (?,?,?,?,?,?,?,?,?,?,?, ?, ?)
-    ");
+    "); */
+
+    $stmtAlerta = $conexion->prepare("
+    INSERT INTO Produccion_alertas
+    (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Alerta, Valor_Tac, Valor_Coordiapp, Detalle_Esci, Bandera_Revision)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?, ?, ?)
+");
 
     $stmtDetalle = $conexion->prepare("
         INSERT INTO Produccion_alertas_detalle
@@ -737,20 +743,25 @@ public function InsertarAlertasMasivo($registros)
 
             // INSERT en Produccion_alertas (concatenado)
             $stmtAlerta->execute([
-                $folio,
-                $telefono,
-                $r['tipoTarea'] ?? null,
-                $r['cope'] ?? null,
-                $r['fechaLiquidacion'] ?? null,
-                $r['fechaCarga'] ?? date('Y-m-d H:i:s'),
-                $r['idContratista'] ?? null,
-                $r['semana'] ?? null,
-                $r['anio'] ?? null,
-                $r['metraje'] ?? null,
-                implode(' | ', array_unique($resultadoAlertas['alertas'])),
-                $resultadoAlertas['detalleEsci'] ?? null,
-                0
-            ]);
+    $folio,
+    $telefono,
+    $r['tipoTarea'] ?? null,
+    $r['cope'] ?? null,
+    $r['fechaLiquidacion'] ?? null,
+    $r['fechaCarga'] ?? date('Y-m-d H:i:s'),
+    $r['idContratista'] ?? null,
+    $r['semana'] ?? null,
+    $r['anio'] ?? null,
+    $r['metraje'] ?? null,
+    implode(' | ', array_unique($resultadoAlertas['alertas'])),
+
+    // 🔥 NUEVOS CAMPOS
+    $resultadoAlertas['valorTac'] ?? null,
+    $resultadoAlertas['valorCoordiapp'] ?? null,
+
+    $resultadoAlertas['detalleEsci'] ?? null,
+    0
+]);
 
             // INSERT en Produccion_alertas_detalle (una fila por cada alerta)
             foreach ($resultadoAlertas['alertas'] as $tipoAlerta) {
@@ -989,9 +1000,9 @@ private function alertaEventoEsci($data, &$alertas, &$detalleEsci)
 private function alertaSeriesDiferentes($data, &$alertas)
 {
     // Imprimir los valores de los números de serie para depuración
-    echo 'Serie TAC: ' . $data['serieTac'] . '<br>';
-    echo 'Serie COORDIAPP: ' . $data['serieCoord'] . '<br>';
-    echo 'Serie ESCI: ' . $data['serieEsci'] . '<br>';
+    //echo 'Serie TAC: ' . $data['serieTac'] . '<br>';
+    //echo 'Serie COORDIAPP: ' . $data['serieCoord'] . '<br>';
+    //echo 'Serie ESCI: ' . $data['serieEsci'] . '<br>';
     
     // Obtener los números de serie
     $serieTac = $data['serieTac'];
