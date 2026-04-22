@@ -932,6 +932,36 @@ private function alertaEventoEsci($data, &$alertas, &$detalleEsci)
 
 private function alertaSeriesDiferentes($data, &$alertas)
 {
+    // Verificar que todos los campos de número de serie existan
+    $serieTac = $data['serieTac'];
+    $serieCoord = $data['serieCoord'];
+    $serieEsci = $data['serieEsci'];
+    
+    // Si alguna de las series es 'DESCONOCIDO' se puede omitir en la comparación
+    if ($serieTac && $serieCoord && $serieEsci !== 'DESCONOCIDO') {
+        // Compara los números de serie si no son "desconocidos"
+        $series = array_filter([$serieTac, $serieCoord, $serieEsci]);
+
+        // Si hay al menos dos valores diferentes en las series
+        if (count($series) > 1 && count(array_unique($series)) !== 1) {
+            $alertas[] = 'NUMERO_SERIE_DIFERENTE';
+        }
+    }
+
+    // Comparar los teléfonos entre coordiap, tac y esci
+    $telefonoCoord = $data['coord']['Telefono'] ?? null;
+    $telefonoTac = $data['tac']['TELEFONO'] ?? null;
+    $telefonoEsci = $data['esci']['TELEFONO'] ?? null;
+
+    if ($telefonoCoord && $telefonoTac && $telefonoEsci) {
+        if ($telefonoCoord !== $telefonoTac || $telefonoCoord !== $telefonoEsci || $telefonoTac !== $telefonoEsci) {
+            $alertas[] = 'TELEFONOS_DIFERENTES';
+        }
+    }
+}
+
+/*private function alertaSeriesDiferentes($data, &$alertas)
+{
     $series = array_filter([
         $data['serieTac'],
         $data['serieCoord'],
@@ -943,7 +973,7 @@ private function alertaSeriesDiferentes($data, &$alertas)
             $alertas[] = 'NUMERO_SERIE_DIFERENTE';
         }
     }
-}
+} */
 
 private function alertaTecnologiaDiferente($data, &$alertas)
 {
