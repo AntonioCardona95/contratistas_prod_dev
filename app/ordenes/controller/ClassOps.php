@@ -773,7 +773,8 @@ private function evaluarAlertas($data)
     $alertas = [];
     $detalleEsci = null;
     $detalleTac = null;
-    
+        $this->alertaFolioCapturadoCoordiapp($data, $alertas);
+
     $this->alertaTipoTareaDiferente($data, $alertas);
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
     $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
@@ -797,6 +798,16 @@ private function evaluarAlertas($data)
         'detalleEsci' => $detalleEsci,
         'detalleTac' => $detalleTac
     ];
+}
+
+private function alertaFolioCapturadoCoordiapp($data, &$alertas)
+{
+    $folio = $data['folio'] ?? null;
+
+    // Verificar si el folio está presente en los datos de CoordIAPP
+    if ($folio && isset($data['coord'][$folio])) {
+        $alertas[] = 'FOLIO_CAPTURADO_EN_COORDIAPP';
+    }
 }
 
 private function alertaTipoTareaDiferente($data, &$alertas)
