@@ -26,9 +26,13 @@ function normalizarFechaExcel($valorFecha)
 {
     if ($valorFecha === null || $valorFecha === '') return null;
 
+    $tz = new DateTimeZone('America/Mexico_City');
+
     if (is_numeric($valorFecha)) {
         try {
-            return Date::excelToDateTimeObject($valorFecha)->format('Y-m-d H:i:s');
+            return Date::excelToDateTimeObject($valorFecha)
+                ->setTimezone($tz)
+                ->format('Y-m-d H:i:s');
         } catch (Exception $e) {
             return null;
         }
