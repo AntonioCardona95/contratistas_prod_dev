@@ -802,6 +802,55 @@ private function evaluarAlertas($data)
     ];
 }
 
+
+/*private function evaluarAlertas($data)
+{
+    $alertas = [];
+    $detalleEsci = null;
+    $detalleTac = null;
+
+    // =========================
+    //  BLOQUEO PRINCIPAL
+    // =========================
+    if (empty($data['coord'])) {
+        $alertas[] = 'NO_CARGADA_EN_COORDIAPP';
+
+        return [
+            'alertas' => $alertas,
+            'detalleEsci' => null,
+            'detalleTac' => null
+        ];
+    }
+
+    // =========================
+    //  SOLO SI EXISTE COORDIAPP
+    // =========================
+    $this->alertaFolioCapturadoCoordiapp($data, $alertas);
+    $this->alertaTipoTareaDiferente($data, $alertas);
+    $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
+    $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
+    $this->alertaSerieDesconocida($data, $alertas);
+    $this->alertaEventoEsci($data, $alertas, $detalleEsci);
+    $this->alertaSeriesDiferentes($data, $alertas);
+    $this->alertaTecnologiaDiferente($data, $alertas);
+
+    $this->alertaFotoOntFallida($data, $alertas);
+    $this->alertaLedsOntFallida($data, $alertas);
+    $this->alertaTerminalFallida($data, $alertas);
+    $this->alertaTerminalFallidaIA($data, $alertas);
+    $this->alertaFotoDomicilioFallida($data, $alertas);
+    $this->alertaFotoR20($data, $alertas);
+    $this->alertaOntTrasera($data, $alertas);
+    $this->alertaOntAlmacen($data, $alertas);
+    $this->alertaFotoCasaCliente($data, $alertas);
+
+    return [
+        'alertas' => $alertas,
+        'detalleEsci' => $detalleEsci,
+        'detalleTac' => $detalleTac
+    ];
+} */
+
 private function alertaFolioCapturadoCoordiapp($data, &$alertas)
 {
     $folio = $data['folio'] ?? null;
