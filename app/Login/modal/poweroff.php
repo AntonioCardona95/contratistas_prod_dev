@@ -1,8 +1,13 @@
- <?php
- 	ini_set('date.timezone','America/Monterrey'); 
-	session_start();
-	$_SESSION = array();
-	session_destroy();
-    unset($_SESSION);
-    header("location: ../../index.html");
-?> 
+<?php
+date_default_timezone_set('America/Monterrey');
+
+// Si la sesión ya está activa, destrúyela
+if (session_status() === PHP_SESSION_ACTIVE) {
+    $_SESSION = [];
+    session_destroy();
+}
+
+// Redirige al login
+header("Location: ../../index.html");
+exit;
+?>
