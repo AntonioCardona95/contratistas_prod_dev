@@ -743,20 +743,25 @@ public function InsertarAlertasMasivo($registros)
 
             // INSERT en Produccion_alertas (concatenado)
             $stmtAlerta->execute([
-                $folio,
-                $telefono,
-                $r['tipoTarea'] ?? null,
-                $r['cope'] ?? null,
-                $r['fechaLiquidacion'] ?? null,
-                $r['fechaCarga'] ?? date('Y-m-d H:i:s'),
-                $r['idContratista'] ?? null,
-                $r['semana'] ?? null,
-                $r['anio'] ?? null,
-                $r['metraje'] ?? null,
-                implode(' | ', array_unique($resultadoAlertas['alertas'])),
-                $resultadoAlertas['detalleEsci'] ?? null,
-                0
-            ]);
+    $folio,
+    $telefono,
+    $r['tipoTarea'] ?? null,
+    $r['cope'] ?? null,
+    $r['fechaLiquidacion'] ?? null,
+    $r['fechaCarga'] ?? date('Y-m-d H:i:s'),
+    $r['idContratista'] ?? null,
+    $r['semana'] ?? null,
+    $r['anio'] ?? null,
+    $r['metraje'] ?? null,
+    implode(' | ', array_unique($resultadoAlertas['alertas'])),
+
+    // 🔥 NUEVOS CAMPOS
+    $resultadoAlertas['valorTac'] ?? null,
+    $resultadoAlertas['valorCoordiapp'] ?? null,
+
+    $resultadoAlertas['detalleEsci'] ?? null,
+    0
+]);
 
             // INSERT en Produccion_alertas_detalle (una fila por cada alerta)
             foreach ($resultadoAlertas['alertas'] as $tipoAlerta) {
