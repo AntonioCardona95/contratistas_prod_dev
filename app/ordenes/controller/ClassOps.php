@@ -896,8 +896,13 @@ private function alertaTecnologiaDiferente($data, &$alertas)
     $tecTac   = $this->normalizarTecnologiaAlertas($tecTacRaw);
     $tecCoord = $this->normalizarTecnologiaAlertas($tecCoordRaw);
 
+    // Si la tecnología de TAC está definida y la de CoordIAPP está vacía
+    if ($tecTac && !$tecCoord) {
+        $alertas[] = 'TECNOLOGIA_DIFERENTE';
+    }
+
     // Comparamos las tecnologías normalizadas
-    if ($tecTac && $tecCoord && $tecTac !== $tecCoord) {
+    elseif ($tecTac && $tecCoord && $tecTac !== $tecCoord) {
         $alertas[] = 'TECNOLOGIA_DIFERENTE';
     }
 }
