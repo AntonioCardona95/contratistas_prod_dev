@@ -3,6 +3,7 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 error_reporting(E_ALL);
 
+date_default_timezone_set('America/Mexico_City');
 session_start();
 require __DIR__ . '/../vendor/autoload.php';
 
