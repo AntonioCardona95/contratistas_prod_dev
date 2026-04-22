@@ -932,39 +932,35 @@ private function alertaEventoEsci($data, &$alertas, &$detalleEsci)
 
 private function alertaSeriesDiferentes($data, &$alertas)
 {
-    // Depuración: Imprimir los valores que estamos recibiendo
-    echo 'Serie TAC: ' . $data['serieTac'] . '<br>';
-    echo 'Serie COORDIAPP: ' . $data['serieCoord'] . '<br>';
-    echo 'Serie ESCI: ' . $data['serieEsci'] . '<br>';
-    
-    // Verificar que todos los campos de número de serie existan
-    $serieTac = $data['serieTac'];
-    $serieCoord = $data['serieCoord'];
-    $serieEsci = $data['serieEsci'];
-    
-    // Si alguna de las series es 'DESCONOCIDO' se puede omitir en la comparación
-    if ($serieTac && $serieCoord && $serieEsci !== 'DESCONOCIDO') {
-        // Compara los números de serie si no son "desconocidos"
-        $series = array_filter([$serieTac, $serieCoord, $serieEsci]);
+    // Obtener los números de serie de TAC, COORDIAPP y ESCI
+    $serieTac = trim($data['serieTac']);
+    $serieCoord = trim($data['serieCoord']);
+    $serieEsci = trim($data['serieEsci']);
 
-        // Si hay al menos dos valores diferentes en las series
-        if (count($series) > 1 && count(array_unique($series)) !== 1) {
+    // Depuración: Imprimir los valores que estamos recibiendo
+    echo 'Serie TAC: ' . $serieTac . ' (' . implode(' ', str_split($serieTac)) . ')<br>';
+    echo 'Serie COORDIAPP: ' . $serieCoord . ' (' . implode(' ', str_split($serieCoord)) . ')<br>';
+    echo 'Serie ESCI: ' . $serieEsci . ' (' . implode(' ', str_split($serieEsci)) . ')<br>';
+
+    // Si TAC está vacío, comparar solo COORDIAPP y ESCI
+    if (empty($serieTac)) {
+        // Si COORDIAPP y ESCI son iguales, no hay alerta
+        if ($serieCoord === $serieEsci) {
+            return;
+        } else {
+            // Si son diferentes, generar alerta
             $alertas[] = 'NUMERO_SERIE_DIFERENTE';
         }
-    }
+    } else {
+        // Si TAC tiene valor, comparar los tres números de serie
+        if ($serieCoord !== $serieTac || $serieCoord !== $serieEsci || $serieTac !== $serieEsci) {
+            // Si alguno es diferente, generar alerta
+            $alertas[] = 'NUMERO_SERIE_DIFERENTE';
+        }
 
-    // Comparar los teléfonos entre coordiap, tac y esci
-    $telefonoCoord = $data['coord']['Telefono'] ?? null;
-    $telefonoTac = $data['tac']['TELEFONO'] ?? null;
-    $telefonoEsci = $data['esci']['TELEFONO'] ?? null;
-
-    echo 'Telefono COORDIAPP: ' . $telefonoCoord . '<br>';
-    echo 'Telefono TAC: ' . $telefonoTac . '<br>';
-    echo 'Telefono ESCI: ' . $telefonoEsci . '<br>';
-    
-    if ($telefonoCoord && $telefonoTac && $telefonoEsci) {
-        if ($telefonoCoord !== $telefonoTac || $telefonoCoord !== $telefonoEsci || $telefonoTac !== $telefonoEsci) {
-            $alertas[] = 'TELEFONOS_DIFERENTES';
+        // Si TAC tiene número de serie, pero COORDIAPP está vacío y ESCI tiene número de serie
+        if (empty($serieCoord) && !empty($serieEsci)) {
+            $alertas[] = 'NUMERO_SERIE_DIFERENTE'; // COORDIAPP está vacío, generar alerta
         }
     }
 }
