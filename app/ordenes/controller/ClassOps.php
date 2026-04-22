@@ -773,7 +773,8 @@ private function evaluarAlertas($data)
     $alertas = [];
     $detalleEsci = null;
     $detalleTac = null;
-
+    
+    $this->alertaTipoTareaDiferente($data, $alertas);
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
     $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
     $this->alertaSerieDesconocida($data, $alertas);
@@ -796,6 +797,18 @@ private function evaluarAlertas($data)
         'detalleEsci' => $detalleEsci,
         'detalleTac' => $detalleTac
     ];
+}
+
+private function alertaTipoTareaDiferente($data, &$alertas)
+{
+    // Obtener los tipos de tarea de TAC y CoordIAPP
+    $tipoTareaTac = $data['tac']['Tipo_De_Tarea'] ?? null;
+    $tipoTareaCoord = $data['coord']['Tipo_Tarea'] ?? null;
+
+    // Comparar los valores de Tipo_De_Tarea y Tipo_Tarea
+    if ($tipoTareaTac && $tipoTareaCoord && $tipoTareaTac !== $tipoTareaCoord) {
+        $alertas[] = 'TIPO_TAREA_DIFERENTE';
+    }
 }
 
 private function alertaTerminalFallida($data, &$alertas)
