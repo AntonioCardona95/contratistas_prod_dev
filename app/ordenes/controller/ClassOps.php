@@ -932,6 +932,11 @@ private function alertaEventoEsci($data, &$alertas, &$detalleEsci)
 
 private function alertaSeriesDiferentes($data, &$alertas)
 {
+    // Depuración: Imprimir los valores que estamos recibiendo
+    echo 'Serie TAC: ' . $data['serieTac'] . '<br>';
+    echo 'Serie COORDIAPP: ' . $data['serieCoord'] . '<br>';
+    echo 'Serie ESCI: ' . $data['serieEsci'] . '<br>';
+    
     // Verificar que todos los campos de número de serie existan
     $serieTac = $data['serieTac'];
     $serieCoord = $data['serieCoord'];
@@ -953,6 +958,10 @@ private function alertaSeriesDiferentes($data, &$alertas)
     $telefonoTac = $data['tac']['TELEFONO'] ?? null;
     $telefonoEsci = $data['esci']['TELEFONO'] ?? null;
 
+    echo 'Telefono COORDIAPP: ' . $telefonoCoord . '<br>';
+    echo 'Telefono TAC: ' . $telefonoTac . '<br>';
+    echo 'Telefono ESCI: ' . $telefonoEsci . '<br>';
+    
     if ($telefonoCoord && $telefonoTac && $telefonoEsci) {
         if ($telefonoCoord !== $telefonoTac || $telefonoCoord !== $telefonoEsci || $telefonoTac !== $telefonoEsci) {
             $alertas[] = 'TELEFONOS_DIFERENTES';
