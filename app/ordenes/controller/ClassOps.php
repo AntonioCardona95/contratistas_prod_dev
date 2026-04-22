@@ -627,7 +627,7 @@ public function InsertarAlertasMasivo($registros)
     // 🔹 COORDIAPP
     // =========================
     $coordData = [];
-    $sql = "SELECT Folio_Pisa, Ont, Tecnologia
+    $sql = "SELECT Folio_Pisa, Ont, Tecnologia , Foto_Ont
             FROM tecnico_instalaciones_coordiapp
             WHERE Folio_Pisa IN ($inFolios)";
     foreach ($conexion->query($sql) as $row) {
