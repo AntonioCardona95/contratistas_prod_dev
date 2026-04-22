@@ -627,7 +627,7 @@ public function InsertarAlertasMasivo($registros)
     // 🔹 COORDIAPP
     // =========================
     $coordData = [];
-    $sql = "SELECT Folio_Pisa, Ont, Tecnologia , Foto_Ont
+    $sql = "SELECT Folio_Pisa, Ont, Tecnologia , Foto_Ont , validacion_LEDS_ONT_fallida
             FROM tecnico_instalaciones_coordiapp
             WHERE Folio_Pisa IN ($inFolios)";
     foreach ($conexion->query($sql) as $row) {
@@ -783,6 +783,7 @@ private function evaluarAlertas($data)
 
     // 🔥 NUEVAS
     $this->alertaFotoOntFallida($data, $alertas, $detalleTac);
+    $this->alertaLedsOntFallida($data, $alertas); // 👈 NUEVA
     $this->alertaOntAlmacen($data, $alertas);
 
     return [
@@ -792,29 +793,25 @@ private function evaluarAlertas($data)
     ];
 }
 
+
+
 private function alertaFotoOntFallida($data, &$alertas, &$detalleTac)
 {
     $foto = $data['coord']['Foto_Ont'] ?? '';
 
-    // 🔥 Validar vacío
-    if (empty($foto)) {
+    if (empty($foto) || !preg_match('/\.(jpg|jpeg|png)$/i', $foto)) {
         $alertas[] = 'FOTO_ONT_FALLIDA';
-        $detalleTac = "Foto Ont Frontal Fallida (vacía)";
-        return;
+        $detalleTac = "Foto Ont Frontal Fallida";
     }
+}
 
-    // 🔥 Validar extensión correcta
-    if (!preg_match('/\.(jpg|jpeg|png)$/i', $foto)) {
-        $alertas[] = 'FOTO_ONT_FALLIDA';
-        $detalleTac = "Foto Ont Frontal Fallida: $foto";
-        return;
-    }
+// 🔥 NUEVA ALERTA LEDS
+private function alertaLedsOntFallida($data, &$alertas)
+{
+    $valor = $data['coord']['validacion_LEDS_ONT_fallida'] ?? 0;
 
-    // 🔥 Validar estructura mínima de ruta (opcional pero recomendado)
-    if (strpos($foto, '../') === false) {
-        $alertas[] = 'FOTO_ONT_FALLIDA';
-        $detalleTac = "Ruta de Foto Ont inválida: $foto";
-        return;
+    if ((int)$valor === 1) {
+        $alertas[] = 'EVIDENCIA_LEDS_ONT_FALLIDA';
     }
 }
 
