@@ -781,7 +781,8 @@ private function evaluarAlertas($data)
     $this->alertaSeriesDiferentes($data, $alertas);
     $this->alertaTecnologiaDiferente($data, $alertas);
 
-    // 🔥 NUEVA
+    // 🔥 NUEVAS
+    $this->alertaFotoOntFallida($data, $alertas, $detalleTac);
     $this->alertaOntAlmacen($data, $alertas);
 
     return [
@@ -789,6 +790,32 @@ private function evaluarAlertas($data)
         'detalleEsci' => $detalleEsci,
         'detalleTac' => $detalleTac
     ];
+}
+
+private function alertaFotoOntFallida($data, &$alertas, &$detalleTac)
+{
+    $foto = $data['coord']['Foto_Ont'] ?? '';
+
+    // 🔥 Validar vacío
+    if (empty($foto)) {
+        $alertas[] = 'FOTO_ONT_FALLIDA';
+        $detalleTac = "Foto Ont Frontal Fallida (vacía)";
+        return;
+    }
+
+    // 🔥 Validar extensión correcta
+    if (!preg_match('/\.(jpg|jpeg|png)$/i', $foto)) {
+        $alertas[] = 'FOTO_ONT_FALLIDA';
+        $detalleTac = "Foto Ont Frontal Fallida: $foto";
+        return;
+    }
+
+    // 🔥 Validar estructura mínima de ruta (opcional pero recomendado)
+    if (strpos($foto, '../') === false) {
+        $alertas[] = 'FOTO_ONT_FALLIDA';
+        $detalleTac = "Ruta de Foto Ont inválida: $foto";
+        return;
+    }
 }
 
 // =========================
