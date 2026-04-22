@@ -932,37 +932,29 @@ private function alertaEventoEsci($data, &$alertas, &$detalleEsci)
 
 private function alertaSeriesDiferentes($data, &$alertas)
 {
-    // Obtener los números de serie de TAC, COORDIAPP y ESCI
-    $serieTac = trim($data['serieTac']);
-    $serieCoord = trim($data['serieCoord']);
-    $serieEsci = trim($data['serieEsci']);
+    // Imprimir los valores de los números de serie para depuración
+    echo 'Serie TAC: ' . $data['serieTac'] . '<br>';
+    echo 'Serie COORDIAPP: ' . $data['serieCoord'] . '<br>';
+    echo 'Serie ESCI: ' . $data['serieEsci'] . '<br>';
+    
+    // Obtener los números de serie
+    $serieTac = $data['serieTac'];
+    $serieCoord = $data['serieCoord'];
+    $serieEsci = $data['serieEsci'];
 
-    // Depuración: Imprimir los valores que estamos recibiendo
-    echo 'Serie TAC: ' . $serieTac . ' (' . implode(' ', str_split($serieTac)) . ')<br>';
-    echo 'Serie COORDIAPP: ' . $serieCoord . ' (' . implode(' ', str_split($serieCoord)) . ')<br>';
-    echo 'Serie ESCI: ' . $serieEsci . ' (' . implode(' ', str_split($serieEsci)) . ')<br>';
+    // Verificar que ninguno de los números de serie sea "DESCONOCIDO"
+    if ($serieTac !== 'DESCONOCIDO' && $serieCoord !== 'DESCONOCIDO' && $serieEsci !== 'DESCONOCIDO') {
+        // Comparar los números de serie si no son "DESCONOCIDO"
+        $series = array_filter([$serieTac, $serieCoord, $serieEsci]);
 
-    // Si TAC está vacío, comparar solo COORDIAPP y ESCI
-    if (empty($serieTac)) {
-        // Si COORDIAPP y ESCI son iguales, no hay alerta
-        if ($serieCoord === $serieEsci) {
-            return;
-        } else {
-            // Si son diferentes, generar alerta
+        // Si hay al menos dos valores diferentes en los números de serie
+        if (count($series) > 1 && count(array_unique($series)) !== 1) {
             $alertas[] = 'NUMERO_SERIE_DIFERENTE';
-        }
-    } else {
-        // Si TAC tiene valor, comparar los tres números de serie
-        if ($serieCoord !== $serieTac || $serieCoord !== $serieEsci || $serieTac !== $serieEsci) {
-            // Si alguno es diferente, generar alerta
-            $alertas[] = 'NUMERO_SERIE_DIFERENTE';
-        }
-
-        // Si TAC tiene número de serie, pero COORDIAPP está vacío y ESCI tiene número de serie
-        if (empty($serieCoord) && !empty($serieEsci)) {
-            $alertas[] = 'NUMERO_SERIE_DIFERENTE'; // COORDIAPP está vacío, generar alerta
         }
     }
+
+    // **No compararemos los teléfonos** aquí, ya que no quieres alertas sobre teléfonos diferentes.
+    // Solo estamos buscando alertas sobre los números de serie.
 }
 
 /*private function alertaSeriesDiferentes($data, &$alertas)
