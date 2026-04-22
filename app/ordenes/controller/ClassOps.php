@@ -615,7 +615,7 @@ public function InsertarAlertasMasivo($registros)
     $conexion_analisis->exec("SET NAMES 'utf8mb4'");
 
     // =========================
-    // 🔹 PREPARAR IDS
+    //  PREPARAR IDS
     // =========================
     $folios = array_unique(array_column($registros, 'folio'));
     $telefonos = array_unique(array_column($registros, 'telefono'));
@@ -624,7 +624,7 @@ public function InsertarAlertasMasivo($registros)
     $inTelefonos = "'" . implode("','", $telefonos) . "'";
 
     // =========================
-    // 🔹 COORDIAPP
+    //  COORDIAPP
     // =========================
     $coordData = [];
     $sql = "SELECT Folio_Pisa,Telefono, Ont, Tecnologia , Foto_Ont ,No_Serie_ONT,Foto_INE, validacion_LEDS_ONT_fallida, Foto_Casa_Cliente, validacion_foto_fallida,Foto_Puerto
@@ -647,7 +647,7 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-    // 🔥 ONT DUPLICADA TAC
+    //  ONT DUPLICADA TAC
     // =========================
     $sqlOntDuplicada = "
         SELECT Num__Serie
@@ -687,7 +687,7 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-    // 🔥 INSERTS
+    //  INSERTS
     // =========================
     $stmtAlerta = $conexion->prepare("
         INSERT INTO Produccion_alertas
@@ -702,7 +702,7 @@ public function InsertarAlertasMasivo($registros)
     ");
 
     // =========================
-    // 🔥 LOOP PRINCIPAL
+    //  LOOP PRINCIPAL
     // =========================
     foreach ($registros as $r) {
 
@@ -783,7 +783,7 @@ private function evaluarAlertas($data)
     $this->alertaSeriesDiferentes($data, $alertas);
     $this->alertaTecnologiaDiferente($data, $alertas);
 
-    // 🔥 CORREGIDAS
+    //  CORREGIDAS
     $this->alertaFotoOntFallida($data, $alertas); // ✅ SIN detalleTac
     $this->alertaLedsOntFallida($data, $alertas);
     $this->alertaTerminalFallida($data, $alertas);
@@ -871,7 +871,7 @@ private function alertaFotoR20($data, &$alertas)
 
 
 
-// 🔥 FOTO GENERAL (NO TAC)
+//  FOTO GENERAL (NO TAC)
 private function alertaFotoOntFallida($data, &$alertas)
 {
     $foto = $data['coord']['Foto_Ont'] ?? '';
@@ -887,7 +887,7 @@ private function alertaFotoOntFallida($data, &$alertas)
     }
 }
 
-// 🔥 FOTO CASA CLIENTE
+//  FOTO CASA CLIENTE
 private function alertaFotoCasaCliente($data, &$alertas)
 {
     $foto = $data['coord']['Foto_Casa_Cliente'] ?? '';
@@ -905,7 +905,7 @@ private function alertaFotoCasaCliente($data, &$alertas)
 
 
 
-// 🔥 LEDS
+//  LEDS
 private function alertaLedsOntFallida($data, &$alertas)
 {
     $valor = $data['coord']['validacion_LEDS_ONT_fallida'] ?? 0;
@@ -915,7 +915,7 @@ private function alertaLedsOntFallida($data, &$alertas)
     }
 }
 
-// 🔥 FOTO DOMICILIO
+//  FOTO DOMICILIO
 private function alertaFotoDomicilioFallida($data, &$alertas)
 {
     $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
@@ -937,7 +937,7 @@ private function alertaTerminalFallidaIA($data, &$alertas)
 
 
 // =========================
-// 🔥 ALERTAS
+//  ALERTAS
 // =========================
 
 private function alertaOntDuplicadaTac($data, &$alertas, &$detalleTac)
@@ -1034,7 +1034,7 @@ private function alertaTecnologiaDiferente($data, &$alertas)
     $tecTacRaw   = $data['tac']['TECNOLOGIA'] ?? null;
     $tecCoordRaw = $data['coord']['Tecnologia'] ?? null;
 
-    // 🔥 Normalizamos los valores
+    //  Normalizamos los valores
     $tecTac   = $this->normalizarTecnologiaAlertas($tecTacRaw);
     $tecCoord = $this->normalizarTecnologiaAlertas($tecCoordRaw);
 
@@ -1086,14 +1086,14 @@ private function normalizarTecnologiaAlertas($valor)
 
 private function alertaOntAlmacen($data, &$alertas)
 {
-    // 🔥 VIENE DE COORDIAPP
+    //  VIENE DE COORDIAPP
     $ont = isset($data['coord']['Ont']) 
         ? strtoupper(trim($data['coord']['Ont'])) 
         : '';
 
     if ($ont === '') return;
 
-    // 🔥 NORMALIZAR
+    //  NORMALIZAR
     $ont = $this->normalizarSerie($ont);
 
     $conexion = $this->get_conexion();
@@ -1109,7 +1109,7 @@ private function alertaOntAlmacen($data, &$alertas)
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // =========================
-    // 🔥 ALERTAS
+    //  ALERTAS
     // =========================
 
     if (!$row) {
