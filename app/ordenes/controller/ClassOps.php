@@ -790,6 +790,7 @@ private function evaluarAlertas($data)
     $this->alertaTerminalFallidaIA($data, $alertas);
     $this->alertaFotoDomicilioFallida($data, $alertas);
     $this->alertaFotoR20($data, $alertas);
+    $this->alertaOntTrasera($data, $alertas);
     $this->alertaOntAlmacen($data, $alertas);
     $this->alertaFotoCasaCliente($data, $alertas);
     
@@ -834,6 +835,21 @@ private function alertaTerminalFallida($data, &$alertas)
 
     if (strpos($foto, '../') === false) {
         $alertas[] = 'FOTO TERMINAL FALLIDA';
+        return;
+    }
+}
+
+private function alertaOntTrasera($data, &$alertas)
+{
+    $foto = $data['coord']['No_Serie_ONT'] ?? '';
+
+    if (empty($foto) || !preg_match('/\.(jpg|jpeg|png)$/i', $foto)) {
+        $alertas[] = 'FOTO ONT TRASERA FALLIDA';
+        return;
+    }
+
+    if (strpos($foto, '../') === false) {
+        $alertas[] = 'FOTO ONT TRASERA FALLIDA';
         return;
     }
 }
