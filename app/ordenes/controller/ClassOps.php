@@ -787,9 +787,7 @@ private function evaluarAlertas($data)
     $this->alertaFotoDomicilioFallida($data, $alertas);
     $this->alertaOntAlmacen($data, $alertas);
     $this->alertaFotoCasaCliente($data, $alertas);
-    $this->alertaFotoTerminal($data, $alertas);
-    $this->alertaFotoPuertoTerminal($data, $alertas);
-
+    
 
     return [
         'alertas' => $alertas,
@@ -832,21 +830,7 @@ private function alertaFotoCasaCliente($data, &$alertas)
     }
 }
 
-// 🔥 FOTO TERMINAL
-private function alertaFotoTerminal($data, &$alertas)
-{
-    $foto = $data['coord']['Foto_Terminal'] ?? '';
 
-    if (empty($foto) || !preg_match('/\.(jpg|jpeg|png)$/i', $foto)) {
-        $alertas[] = 'FOTO_TERMINAL_FALLIDA';
-        return;
-    }
-
-    if (strpos($foto, '../') === false) {
-        $alertas[] = 'FOTO_TERMINAL_FALLIDA';
-        return;
-    }
-}
 
 // 🔥 LEDS
 private function alertaLedsOntFallida($data, &$alertas)
@@ -871,15 +855,6 @@ private function alertaFotoDomicilioFallida($data, &$alertas)
     if (strpos($foto, '../') === false) {
         $alertas[] = 'FOTO_DOMICILIO_FALLIDA';
         return;
-    }
-}
-
-private function alertaFotoPuertoTerminal($data, &$alertas)
-{
-    $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
-
-    if ((int)$valor === 1) {
-        $alertas[] = 'EVINDECIA TERMINAL FALLIDA';
     }
 }
 
