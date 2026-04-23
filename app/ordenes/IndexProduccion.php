@@ -1,39 +1,17 @@
 <?php
-error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-
-date_default_timezone_set('America/Monterrey');
-
-require_once("../Login/controller/Class_Login.php");
-require_once("controller/ClassOps.php");
+error_reporting(E_ALL);
 
 session_start();
 
-// 👇 Evita errores de índices no definidos
-$Usuario   = $_SESSION['Usuario']   ?? 'INVITADO';
-$Nombres   = $_SESSION['Nombres']   ?? 'Usuario';
-$idUsuario = $_SESSION['idUsuarios'] ?? 0;
+$Contratista = $_SESSION['Contratista'] ?? null;
+$idContratistas = $_SESSION['idContratistas'] ?? null;
 
-$idModulo = 4; // ID del módulo
-
-// ❌ QUITAMOS VALIDACIÓN DE SESIÓN PARA PRUEBAS
-// if (empty($Usuario)) {
-//     header("location: ../Login/modal/poweroff.php");
-//     exit();
-// }
-
-// 👇 Solo cargar módulos si hay usuario válido
-$login = new Login();
-
-$modulos = ($idUsuario > 0) ? $login->cargar_modulos($idUsuario) : [];
-$submodulos = ($idUsuario > 0) ? $login->cargar_submodulos($idModulo) : [];
-
-// --- PERMISOS ---
-$usuariosPrivilegiados = ['RYMVIEW', 'JMWU', 'RCM', 'JULIO', 'FIGR', 'SERRATOSADMIN', 'GFMT', 'JCO'];
-$esAdmin = $_SESSION['esAdmin'] ?? false;
-
-$tienePermisoEdicion = (in_array($Usuario, $usuariosPrivilegiados) || $esAdmin) ? 1 : 0;
+if (empty($Contratista)) {
+    header("Location: ../index.html");
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="es">
