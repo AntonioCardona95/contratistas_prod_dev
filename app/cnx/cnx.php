@@ -40,7 +40,8 @@ class Conexion
     {
         $user = "Analytics_ED";
         $pass = "Enlace053715/";
-        $host = "192.168.1.11";
+        //$host = "192.168.1.11";
+        $host = "192.168.1.198";
         $db   = "analisis";
         $dsn  = "mysql:host=$host;dbname=$db;charset=utf8";
 
