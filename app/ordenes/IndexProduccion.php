@@ -1,35 +1,39 @@
 <?php
-    error_reporting(E_ALL);      // Reporta todos los errores
-    ini_set('display_errors', 1); // Muestra los errores en pantalla
-    ini_set('display_startup_errors', 1); // Muestra errores de arranque
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 
-    date_default_timezone_set('America/Monterrey');
+date_default_timezone_set('America/Monterrey');
 
-    require_once("../Login/controller/Class_Login.php");
-    require_once("controller/ClassOps.php");
+require_once("../Login/controller/Class_Login.php");
+require_once("controller/ClassOps.php");
 
-    session_start();
+session_start();
 
-    $Usuario = $_SESSION['Usuario'];
-    $Nombres = $_SESSION['Nombres'];
-    $idUsuario = $_SESSION['idUsuarios'];
-    $idModulo = 4; // ID del módulo ALMACEN
+// 👇 Evita errores de índices no definidos
+$Usuario   = $_SESSION['Usuario']   ?? 'INVITADO';
+$Nombres   = $_SESSION['Nombres']   ?? 'Usuario';
+$idUsuario = $_SESSION['idUsuarios'] ?? 0;
 
-    if (empty($Usuario)) {
-        header("location: ../Login/modal/poweroff.php");
-        exit();
-    }
+$idModulo = 4; // ID del módulo
 
-    $login = new Login();
-    $modulos = $login->cargar_modulos($idUsuario);
-    $submodulos = $login->cargar_submodulos($idModulo);
+// ❌ QUITAMOS VALIDACIÓN DE SESIÓN PARA PRUEBAS
+// if (empty($Usuario)) {
+//     header("location: ../Login/modal/poweroff.php");
+//     exit();
+// }
 
-    // --- LÓGICA DE PERMISOS PRIVILEGIADOS ---
-    $usuariosPrivilegiados = ['RYMVIEW', 'JMWU', 'RCM', 'JULIO', 'FIGR', 'SERRATOSADMIN', 'GFMT', 'JCO'];
-    // Si manejas una variable de admin en sesión úsala aquí, si no, se evalúa solo el array
-    $esAdmin = isset($_SESSION['esAdmin']) ? $_SESSION['esAdmin'] : false; 
-    
-    $tienePermisoEdicion = (in_array($Usuario, $usuariosPrivilegiados) || $esAdmin) ? 1 : 0;
+// 👇 Solo cargar módulos si hay usuario válido
+$login = new Login();
+
+$modulos = ($idUsuario > 0) ? $login->cargar_modulos($idUsuario) : [];
+$submodulos = ($idUsuario > 0) ? $login->cargar_submodulos($idModulo) : [];
+
+// --- PERMISOS ---
+$usuariosPrivilegiados = ['RYMVIEW', 'JMWU', 'RCM', 'JULIO', 'FIGR', 'SERRATOSADMIN', 'GFMT', 'JCO'];
+$esAdmin = $_SESSION['esAdmin'] ?? false;
+
+$tienePermisoEdicion = (in_array($Usuario, $usuariosPrivilegiados) || $esAdmin) ? 1 : 0;
 ?>
 <!DOCTYPE html>
 <html lang="es">
