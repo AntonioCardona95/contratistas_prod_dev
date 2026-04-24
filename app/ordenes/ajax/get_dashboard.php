@@ -13,9 +13,14 @@ $fechaFin    = $_GET['fecha_fin'] ?? null;
 $totalTac = $prod->getTotalTac();
 $totalAlertas = $prod->getTotalAlertas(); // ✅ NUEVO
 
-echo json_encode([
+/*echo json_encode([
     "total_tac" => $totalTac,
     "alertas"   => $totalAlertas
+]); */
+
+echo json_encode([
+    "total_tac" => 100,
+    "alertas" => 50
 ]);
 
 /*require_once("../controller/ClassProduccion.php");
