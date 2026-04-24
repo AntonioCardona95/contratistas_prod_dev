@@ -16,10 +16,8 @@ function cargarDashboard() {
             $('#alertas').text(res.alertas);
         },
         error: function(xhr, status, error) {
-            console.error("❌ ERROR AJAX:");
-            console.log("status:", status);
-            console.log("error:", error);
-            console.log("response:", xhr.responseText); // 🔥 CLAVE
+            console.error("❌ ERROR AJAX:", error);
+            console.log("response:", xhr.responseText);
         }
     });
 }
