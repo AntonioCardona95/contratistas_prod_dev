@@ -191,7 +191,7 @@ public function InsertarAlertasMasivo($registros)
 {
     if (empty($registros)) return;
 
-    // echo "<pre>";
+     //echo "<pre>";
     //print_r($registros);  // Muestra el contenido de $registros de forma legible
     //echo "</pre>";
 
@@ -290,36 +290,26 @@ public function InsertarAlertasMasivo($registros)
 
     // =========================
     //  LOOP PRINCIPAL
-    // =========================
-    foreach ($registros as $r) {
+foreach ($registros as $r) {
     $folio = $r['folio'];
-    echo "Procesando Folio: $folio<br>";
-    echo "<pre>";
-    print_r($coordData); // Verifica que este valor está presente en coordData
-    echo "</pre>";
     $telefono = trim($r['telefono']);
 
-    // Mostrar el folio y los datos de coordData para depuración
-    /*echo "Procesando Folio: $folio<br>";
-    echo "<pre>";
-    print_r($coordData); 
-    echo "</pre>"; */
+    // Mostrar el folio y los datos del registro actual
+    echo "Procesando Folio: $folio<br>";
+    echo "Teléfono: $telefono<br>";
 
- // Buscamos el folio en coordData
-    $found = false; // Variable para saber si encontramos el folio
-    
-    // Iteramos sobre coordData para buscar el folio
-    foreach ($coordData as $key => $data) {
-        if (isset($data['Folio_Pisa']) && $data['Folio_Pisa'] == $folio) {
-            $found = true;
-            // Procesar los datos cuando se encuentra el folio
-            echo "Folio encontrado: " . print_r($data, true) . "<br>";
-            break;  // Salimos del ciclo una vez encontrado
-        }
-    }
-    
-    // Si no se encuentra el folio, mostramos la alerta
-    if (!$found) {
+   echo "<h3>📌 Registro actual</h3>";
+    echo "<pre>";
+    print_r($r);   // 👈 aquí ves todo el contenido del registro actual
+    echo "</pre>";
+
+    echo "<h3>📊 Datos de coordData</h3>";
+    echo "<pre>";
+    print_r($coordData); // 👈 aquí ves la estructura completa de coordData
+    echo "</pre>";
+
+    if (!isset($coordData[$folio])) {
+        $alertas[] = "No Capturado Coordiapp: Folio $folio";
         echo "ALERTA: No Capturado Coordiapp - Folio $folio<br>";
     }
 
