@@ -291,22 +291,29 @@ public function InsertarAlertasMasivo($registros)
     // =========================
     //  LOOP PRINCIPAL
 foreach ($registros as $r) {
+
+    echo "<h3>📌 loop principal foreach registros </h3>";
+    echo "<pre>";
+    print_r($r);   // 👈 aquí ves todo el contenido del registro actual
+    echo "</pre>";
+   
+
     $folio = $r['folio'];
     $telefono = trim($r['telefono']);
 
     // Mostrar el folio y los datos del registro actual
-    echo "Procesando Folio: $folio<br>";
-    echo "Teléfono: $telefono<br>";
+    /*echo "Procesando Folio: $folio<br>";
+    echo "Teléfono: $telefono<br>"; */
 
-   echo "<h3>📌 Registro actual r</h3>";
+   /*echo "<h3> Registro actual r</h3>";
     echo "<pre>";
     print_r($r);   // 👈 aquí ves todo el contenido del registro actual
-    echo "</pre>";
+    echo "</pre>"; */
 
-    echo "<h3>📊 Datos de coordData</h3>";
+    /*echo "<h3> Datos de coordData</h3>";
     echo "<pre>";
-    print_r($coordData); // 👈 aquí ves la estructura completa de coordData
-    echo "</pre>";
+    print_r($coordData); //  aquí ves la estructura completa de coordData
+    echo "</pre>"; */
 
     if (!isset($coordData[$folio])) {
         $alertas[] = "No Capturado Coordiapp: Folio $folio";
