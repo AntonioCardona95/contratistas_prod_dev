@@ -305,17 +305,21 @@ public function InsertarAlertasMasivo($registros)
     print_r($coordData); 
     echo "</pre>"; */
 
-
-       // Verifica si coordData tiene el folio
-    if (isset($coordData[$folio])) {
-        // Procesar el folio si existe en coordData
-        $data = $coordData[$folio]; // Obtén los datos asociados al folio
-        
-        // Aquí puedes realizar el procesamiento que necesites con los datos del folio
-        // Por ejemplo:
-        echo "Datos del folio: " . print_r($data, true) . "<br>";
-    } else {
-        // Si no se encuentra, muestra la alerta
+ // Buscamos el folio en coordData
+    $found = false; // Variable para saber si encontramos el folio
+    
+    // Iteramos sobre coordData para buscar el folio
+    foreach ($coordData as $key => $data) {
+        if (isset($data['Folio_Pisa']) && $data['Folio_Pisa'] == $folio) {
+            $found = true;
+            // Procesar los datos cuando se encuentra el folio
+            echo "Folio encontrado: " . print_r($data, true) . "<br>";
+            break;  // Salimos del ciclo una vez encontrado
+        }
+    }
+    
+    // Si no se encuentra el folio, mostramos la alerta
+    if (!$found) {
         echo "ALERTA: No Capturado Coordiapp - Folio $folio<br>";
     }
 
