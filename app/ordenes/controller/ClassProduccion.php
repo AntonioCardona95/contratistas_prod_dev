@@ -191,10 +191,6 @@ public function InsertarAlertasMasivo($registros)
 {
     if (empty($registros)) return;
 
-     //echo "<pre>";
-    //print_r($registros);  // Muestra el contenido de $registros de forma legible
-    //echo "</pre>";
-
     $conexion = $this->get_conexion();
     $conexion_analisis = $this->get_conexiondos();
 
@@ -290,41 +286,13 @@ public function InsertarAlertasMasivo($registros)
 
     // =========================
     //  LOOP PRINCIPAL
-foreach ($registros as $r) {
+    foreach ($registros as $r) {
+        $folio = $r['folio'];
+        $telefono = trim($r['telefono']);
 
-    echo "<h3>📌 loop principal foreach registros </h3>";
-    echo "<pre>";
-    print_r($r);   // 👈 aquí ves todo el contenido del registro actual
-    echo "</pre>";
-
-
-
-   
-
-    $folio = $r['folio'];
-    $telefono = trim($r['telefono']);
-
-    // Mostrar el folio y los datos del registro actual
-    /*echo "Procesando Folio: $folio<br>";
-    echo "Teléfono: $telefono<br>"; */
-
-   /*echo "<h3> Registro actual r</h3>";
-    echo "<pre>";
-    print_r($r);   //  aquí ves todo el contenido del registro actual
-    echo "</pre>"; */
-
-    /*echo "<h3> Datos de coordData</h3>";
-    echo "<pre>";
-    print_r($coordData); //  aquí ves la estructura completa de coordData
-    echo "</pre>"; */
-
-    if (!isset($coordData[$folio])) {
-        $alertas[] = "No Capturado Coordiapp: Folio $folio";
-        echo "ALERTA: No Capturado Coordiapp - Folio $folio<br>";
-    }
-
-
-   
+        if (!isset($coordData[$folio])) {
+            $alertas[] = "No Capturado Coordiapp: Folio $folio";
+        }
 
         $coord = $coordData[$folio] ?? null;
         $tac   = $tacData[$folio] ?? null;
@@ -347,19 +315,15 @@ foreach ($registros as $r) {
             'serieEsci' => $serieEsci,
             'ontDuplicadasTac' => $ontDuplicadasTac,
             'esciSeriesMap' => $esciSeriesMap,
-            'idContratista' => $r['idContratista'] ?? 0 // Si idContratista es nulo o vacío, asignar 0
+            'idContratista' => $r['idContratista'] ?? 0
         ]);
 
         if (!empty($resultadoAlertas['alertas'])) {
-
-            // Asegurarse de que el valor de 'idContratista' no sea null
-            $idContratista = isset($r['idContratista']) && !empty($r['idContratista']) ? $r['idContratista'] : 0;  // Asignar valor predeterminado si es nulo
-
-            // Asignar valores predeterminados para 'Semana' y 'Anio' si no existen
+            $idContratista = isset($r['idContratista']) && !empty($r['idContratista']) ? $r['idContratista'] : 0;
             $semana = isset($r['semana']) ? $r['semana'] : 0;
             $anio = isset($r['anio']) ? $r['anio'] : 0;
 
-            // INSERT en Produccion_alertas (concatenado)
+            // INSERT en Produccion_alertas
             $stmtAlerta->execute([
                 $folio,
                 $telefono,
@@ -367,16 +331,16 @@ foreach ($registros as $r) {
                 $r['cope'] ?? null,
                 $r['fechaLiquidacion'] ?? null,
                 $r['fechaCarga'] ?? date('Y-m-d H:i:s'),
-                $idContratista, // Aseguramos que no sea null
-                $semana, // Aseguramos que no sea null
-                $anio,   // Aseguramos que no sea null
+                $idContratista,
+                $semana,
+                $anio,
                 $r['metraje'] ?? 0,
                 implode(' | ', array_unique($resultadoAlertas['alertas'])),
                 $resultadoAlertas['detalleEsci'] ?? null,
                 0
             ]);
 
-            // INSERT en Produccion_alertas_detalle (una fila por cada alerta)
+            // INSERT en Produccion_alertas_detalle
             foreach ($resultadoAlertas['alertas'] as $tipoAlerta) {
                 $stmtDetalle->execute([
                     $folio,
@@ -391,6 +355,16 @@ foreach ($registros as $r) {
     }
 }
 
+// Esta es la nueva función de alerta para Coordiapp
+private function alertaNoCapturadoCoordiapp($data, &$alertas)
+{
+    $folio = $data['folio'] ?? null;
+
+    if (empty($folio)) {
+        $alertas[] = 'ALERTA: No Capturado Coordiapp - Folio no encontrado';
+    }
+}
+
 
 
 private function evaluarAlertas($data)
@@ -400,6 +374,7 @@ private function evaluarAlertas($data)
     $detalleTac = null;
         //$this->alertaFolioCapturadoCoordiapp($data, $alertas);
 
+         $this->alertaNoCapturadoCoordiapp($data, $alertas);
     $this->alertaTipoTareaDiferente($data, $alertas);
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
     $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
@@ -426,6 +401,8 @@ private function evaluarAlertas($data)
         'detalleTac' => $detalleTac
     ];
 }
+
+
 
 
 /*private function evaluarAlertas($data)
