@@ -1,5 +1,3 @@
-console.log('bienvenido');
-
 function cargarDashboard() {
     console.log('cargando dashboard...');
 
@@ -8,22 +6,20 @@ function cargarDashboard() {
         method: 'GET',
         dataType: 'json',
         data: {
-            fecha_inicio: $('#Fecha1').val(), // ✅ CORREGIDO
-            fecha_fin: $('#Fecha2').val()     // ✅ CORREGIDO
+            fecha_inicio: $('#Fecha1').val(),
+            fecha_fin: $('#Fecha2').val()
         },
         success: function(res) {
-            console.log('respuesta:', res);
+            console.log('✅ RESPUESTA AJAX:', res);
 
             $('#total_tac').text(res.total_tac);
-            $('#alertas').text(res.alertas); // ✅ NUEVO
+            $('#alertas').text(res.alertas);
         },
         error: function(xhr, status, error) {
-            console.error("Error AJAX:", error);
+            console.error("❌ ERROR AJAX:");
+            console.log("status:", status);
+            console.log("error:", error);
+            console.log("response:", xhr.responseText); // 🔥 CLAVE
         }
     });
 }
-
-$(document).ready(function() {
-    console.log('DOM listo');
-    cargarDashboard();
-});
