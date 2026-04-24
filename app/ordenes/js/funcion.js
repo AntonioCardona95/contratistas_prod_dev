@@ -17,8 +17,9 @@ function procesarAlertas() {
             $('#estadoProceso').text('✅ Alertas procesadas correctamente');
             $('#btnProcesarAlertas').prop('disabled', false);
 
-            // 🔥 Recargar dashboard automáticamente
-            procesarAlertas();
+            // 👇 Aquí ya NO llamamos otra vez a procesarAlertas()
+            // Si quieres refrescar el dashboard, llama a otra función:
+            cargarDashboard();
         },
         error: function(xhr) {
             console.error(xhr.responseText);
@@ -28,6 +29,8 @@ function procesarAlertas() {
         }
     });
 }
+
+
 
 /*function cargarDashboard() {
     console.log('cargando dashboard...');
