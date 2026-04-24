@@ -175,7 +175,7 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
     return $this->runQueryAnalisis($sql);
 }
 
-public function limpiarAlertas($fechaInicio = null, $fechaFin = null)
+/*public function limpiarAlertas($fechaInicio = null, $fechaFin = null)
 {
     $where = "";
 
@@ -185,7 +185,7 @@ public function limpiarAlertas($fechaInicio = null, $fechaFin = null)
 
     $sql = "DELETE FROM Produccion_alertas $where";
     $this->runQuery($sql);
-}
+} */
 
 public function InsertarAlertasMasivo($registros)
 {
