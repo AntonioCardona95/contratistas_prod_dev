@@ -442,7 +442,7 @@ if (empty($Contratista)) {
       <script src="js/funcion.js"></script>
 
     <!-- Page level custom scripts -->
-    <script src="js/app.js"></script>
+   
     <script>
         $(document).ready(function(){
             // Trigger KPIS load when user clicks the search button (no longer on date change)
