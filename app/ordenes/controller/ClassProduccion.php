@@ -191,9 +191,9 @@ public function InsertarAlertasMasivo($registros)
 {
     if (empty($registros)) return;
 
-     echo "<pre>";
-    print_r($registros);  // Muestra el contenido de $registros de forma legible
-    echo "</pre>";
+    // echo "<pre>";
+    //print_r($registros);  // Muestra el contenido de $registros de forma legible
+    //echo "</pre>";
 
     $conexion = $this->get_conexion();
     $conexion_analisis = $this->get_conexiondos();
@@ -293,6 +293,10 @@ public function InsertarAlertasMasivo($registros)
     // =========================
     foreach ($registros as $r) {
     $folio = $r['folio'];
+    echo "Procesando Folio: $folio<br>";
+    echo "<pre>";
+    print_r($coordData); // Verifica que este valor está presente en coordData
+    echo "</pre>";
     $telefono = trim($r['telefono']);
 
     // Mostrar el folio y los datos de coordData para depuración
@@ -302,11 +306,16 @@ public function InsertarAlertasMasivo($registros)
     echo "</pre>"; */
 
 
-    // Asegúrate de que coordData[$folio] esté bien estructurado
-    if (!array_key_exists($folio, $coordData)) {
-        // Si no está en la tabla, agregar la alerta de "No Capturado Coordiapp"
-        $alertas[] = "No Capturado Coordial: Folio $folio";
-        // Debug: Confirmar que la alerta se está agregando
+       // Verifica si coordData tiene el folio
+    if (isset($coordData[$folio])) {
+        // Procesar el folio si existe en coordData
+        $data = $coordData[$folio]; // Obtén los datos asociados al folio
+        
+        // Aquí puedes realizar el procesamiento que necesites con los datos del folio
+        // Por ejemplo:
+        echo "Datos del folio: " . print_r($data, true) . "<br>";
+    } else {
+        // Si no se encuentra, muestra la alerta
         echo "ALERTA: No Capturado Coordiapp - Folio $folio<br>";
     }
 
