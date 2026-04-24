@@ -296,6 +296,14 @@ public function InsertarAlertasMasivo($registros)
         $folio = $r['folio'];
         $telefono = trim($r['telefono']);
 
+         // Verificar si el folio está en la tabla tecnico_instalaciones_coordiapp
+    if (!isset($coordData[$folio])) {
+        // Si no está en la tabla, agregar la alerta de "No Capturado Coordiapp"
+        $alertas[] = "No Capturado Coordiapp: Folio $folio";
+    }
+
+   
+
         $coord = $coordData[$folio] ?? null;
         $tac   = $tacData[$folio] ?? null;
         $esci  = $esciData[$telefono] ?? null;
