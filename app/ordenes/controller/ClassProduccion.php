@@ -391,11 +391,26 @@ private function evaluarAlertas($data)
     $alertas = [];
     $detalleEsci = null;
     $detalleTac = null;
-    $this->alertaNoCoordiapp($data, $alertas);
 
-        //$this->alertaFolioCapturadoCoordiapp($data, $alertas);
+    // 🚨 Caso especial: folio no está en Coordiapp
+    if ($data['coord'] === null) {
+        // Alertas que NO dependen de coordiapp
+        $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
+        $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
+        $this->alertaSerieDesconocida($data, $alertas);
+        $this->alertaEventoEsci($data, $alertas, $detalleEsci);
 
-        
+        // Agregamos alerta especial
+        $alertas[] = 'NO EN COORDIAPP';
+
+        return [
+            'alertas' => $alertas,
+            'detalleEsci' => $detalleEsci,
+            'detalleTac' => $detalleTac
+        ];
+    }
+
+    // 🚨 Si sí hay datos en coordiapp, corremos todas las alertas
     $this->alertaTipoTareaDiferente($data, $alertas);
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
     $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
@@ -404,8 +419,8 @@ private function evaluarAlertas($data)
     $this->alertaSeriesDiferentes($data, $alertas);
     $this->alertaTecnologiaDiferente($data, $alertas);
 
-    //  CORREGIDAS
-    $this->alertaFotoOntFallida($data, $alertas); //  SIN detalleTac
+    // CORREGIDAS (todas dependen de coordiapp)
+    $this->alertaFotoOntFallida($data, $alertas);
     $this->alertaLedsOntFallida($data, $alertas);
     $this->alertaTerminalFallida($data, $alertas);
     $this->alertaTerminalFallidaIA($data, $alertas);
@@ -414,7 +429,6 @@ private function evaluarAlertas($data)
     $this->alertaOntTrasera($data, $alertas);
     $this->alertaOntAlmacen($data, $alertas);
     $this->alertaFotoCasaCliente($data, $alertas);
-    
 
     return [
         'alertas' => $alertas,
@@ -422,6 +436,7 @@ private function evaluarAlertas($data)
         'detalleTac' => $detalleTac
     ];
 }
+
 
 
 /*private function evaluarAlertas($data)
