@@ -124,7 +124,7 @@ class Produccion extends Conexion
 
     $result = $this->runQueryAnalisis($sql);
 
-    return !empty($result) ? (int)$result[0]['total_duplicados'] : 0;
+    return !empty($result) ? (int)$result[0]['total'] : 0;
 }
 
 
