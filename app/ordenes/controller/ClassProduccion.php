@@ -319,10 +319,10 @@ $coordData = [];
         // $coordData se construyó con Folio_Pisa como índice, así que aquí busca si existe información para ese folio
         // Si el folio está en $coordData, $coord tendrá toda la fila asociada, si no será null
         $coord = $coordData[$folio] ?? null;
-        echo "<h3>Contenido de \$coord</h3>";
+       /* echo "<h3>Contenido de \$coord</h3>";
 echo "<pre>";
 print_r($coord);
-echo "</pre>";
+echo "</pre>"; */
 
 
         $tac   = $tacData[$folio] ?? null;
