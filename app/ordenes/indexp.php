@@ -452,14 +452,16 @@ if (empty($Contratista)) {
     <!-- Page level custom scripts -->
    
 <script>
-    $(document).ready(function(){
+$(document).ready(function(){
     $('#btnLoadKPIS').on('click', function(e){
         e.preventDefault();
-        procesarAlertas(); // ✅ CAMBIADO
+        procesarAlertas(); // ✅ Solo cuando das clic
     });
 
-    procesarAlertas(); // ✅ CAMBIADO
+    // ❌ Quita esta línea:
+    // procesarAlertas();
 });
+
 </script>
 </body>
 
