@@ -399,6 +399,7 @@ private function evaluarAlertas($data)
         $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
         $this->alertaSerieDesconocida($data, $alertas);
         $this->alertaEventoEsci($data, $alertas, $detalleEsci);
+        $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
 
         // Agregamos alerta especial
         $alertas[] = 'NO EN COORDIAPP';
@@ -436,6 +437,44 @@ private function evaluarAlertas($data)
         'detalleTac' => $detalleTac
     ];
 }
+
+private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
+{
+    $esci = $data['esci'] ?? null;
+    if (!$esci) {
+        return; // no hay datos de esci para este teléfono
+    }
+
+    $mSerie = strtoupper(trim($esci['M_SERIE'] ?? ''));
+    $didActivo = isset($esci['DID_ACTIVO']) ? intval($esci['DID_ACTIVO']) : null;
+    $fechaUltimoEvento = $esci['FECHA_ULTIMO_EVENTO'] ?? null;
+
+    // Caso: número de serie desconocido
+    if ($mSerie === 'DESCONOCIDO') {
+        $alertas[] = 'SIN NAVEGACION';
+        $detalleEsci = "Número de serie desconocido en Esci";
+        return;
+    }
+
+    // Caso: servicio sin navegación (DID_ACTIVO = 0)
+    if ($didActivo === 0) {
+        $alertas[] = 'SIN NAVEGACION';
+        if ($fechaUltimoEvento) {
+            $detalleEsci = "Última vez que navegó: $fechaUltimoEvento";
+        }
+        return;
+    }
+
+    // Caso: servicio inactivo (DID_ACTIVO = -1)
+    if ($didActivo === -1) {
+        $alertas[] = 'SERVICIO INACTIVO';
+        if ($fechaUltimoEvento) {
+            $detalleEsci = "Última vez que navegó: $fechaUltimoEvento";
+        }
+        return;
+    }
+}
+
 
 
 
