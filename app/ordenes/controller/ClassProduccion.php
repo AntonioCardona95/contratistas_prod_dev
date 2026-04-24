@@ -174,6 +174,20 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
 
     return $this->runQueryAnalisis($sql);
 }
+
+public function limpiarAlertas($fechaInicio = null, $fechaFin = null)
+{
+    $where = "";
+
+    if (!empty($fechaInicio) && !empty($fechaFin)) {
+        $where = "WHERE Fecha_Liquidacion BETWEEN '$fechaInicio' AND '$fechaFin'";
+    }
+
+    $sql = "DELETE FROM Produccion_alertas $where";
+    $this->runQuery($sql);
+}
+
+
 /*public function getTotalAlertas()
 {
     echo "ENTRANDO A ALERTAS<br>"; // 👈 DEBUG
