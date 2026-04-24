@@ -430,6 +430,7 @@ if (empty($Contratista)) {
     <script src="https://cdn.datatables.net/fixedcolumns/5.0.4/js/dataTables.fixedColumns.js"></script> 
     <script src="vendor/chart.js/Chart.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
+      <script src="js/funcion.js"></script>
 
     <!-- Page level custom scripts -->
     <script src="js/app.js"></script>
