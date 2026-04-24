@@ -1,15 +1,19 @@
 <?php
-
 require_once("../controller/ClassProduccion.php");
 
 $prod = new Produccion();
 
+// (por si después quieres usarlas)
+$fechaInicio = $_GET['fecha_inicio'] ?? null;
+$fechaFin    = $_GET['fecha_fin'] ?? null;
+
 $totalTac = $prod->getTotalTac();
+$totalAlertas = $prod->getTotalAlertas(); // ✅ NUEVO
 
 echo json_encode([
-    "total_tac" => $totalTac
+    "total_tac" => $totalTac,
+    "alertas"   => $totalAlertas
 ]);
-
 
 /*require_once("../controller/ClassProduccion.php");
 
