@@ -150,6 +150,30 @@ public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
     return !empty($result) ? (int)$result[0]['total_alertas'] : 0;
 }
 
+
+public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = null)
+{
+    $where = "";
+
+    if (!empty($fechaInicio) && !empty($fechaFin)) {
+        $where = "WHERE FECHA_LIQD BETWEEN '$fechaInicio' AND '$fechaFin'";
+    }
+
+    $sql = "SELECT 
+                Folio_Pisa AS folio,
+                TELEFONO AS telefono,
+                Tipo_de_Tarea AS tipoTarea,
+                NOM_CT AS cope,
+                FECHA_LIQ AS fechaLiquidacion,
+                idContratista,
+                Semana,
+                Anio,
+                0 AS metraje
+            FROM seg_ns_prod_eval
+            $where";
+
+    return $this->runQueryAnalisis($sql);
+}
 /*public function getTotalAlertas()
 {
     echo "ENTRANDO A ALERTAS<br>"; // 👈 DEBUG
