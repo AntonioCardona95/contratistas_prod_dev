@@ -108,6 +108,28 @@ class Produccion extends Conexion
 
 public function getTotalAlertas()
 {
+    echo "ENTRANDO A ALERTAS<br>"; // 👈 DEBUG
+
+    $sql = "SELECT COUNT(*) AS total_alertas
+            FROM (
+                SELECT t.Num__Serie
+                FROM qm_tac t
+                INNER JOIN seg_ns_prod_eval s 
+                    ON s.TELEFONO = t.TELEFONO
+                WHERE t.Calificador_Edo = 'COMPLETADA'
+                GROUP BY t.Num__Serie
+                HAVING COUNT(DISTINCT t.TELEFONO) > 1
+            ) AS duplicados";
+
+    $result = $this->runQueryAnalisis($sql);
+
+    var_dump($result); // 👈 DEBUG
+
+    return !empty($result) ? (int)$result[0]['total_alertas'] : 0;
+}
+
+/*public function getTotalAlertas()
+{
     $sql = "SELECT COUNT(*) AS total_alertas
             FROM (
                 SELECT t.Num__Serie
@@ -122,7 +144,7 @@ public function getTotalAlertas()
     $result = $this->runQueryAnalisis($sql);
 
     return !empty($result) ? (int)$result[0]['total_alertas'] : 0;
-} 
+} */
 
 /*public function getSeriesDuplicadas()
 {
