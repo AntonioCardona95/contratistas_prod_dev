@@ -22,9 +22,9 @@ if (empty($fechaInicio) || empty($fechaFin)) {
 }
 
 // =========================
-//  TIEMPO DE EJECUCIÓN (IMPORTANTE)
+//  TIEMPO DE EJECUCIÓN
 // =========================
-set_time_limit(300); // hasta 5 minutos si es necesario
+set_time_limit(300);
 
 try {
 
@@ -39,12 +39,7 @@ try {
     }
 
     // =========================
-    //  2. LIMPIAR ALERTAS PREVIAS (EVITA DUPLICADOS)
-    // =========================
-    $prod->limpiarAlertas($fechaInicio, $fechaFin);
-
-    // =========================
-    //  3. PROCESAR ALERTAS
+    //  2. PROCESAR ALERTAS (SIN LIMPIAR)
     // =========================
     $prod->InsertarAlertasMasivo($registros);
 
