@@ -689,11 +689,33 @@ private function alertaTerminalFallidaIA($data, &$alertas)
 
 private function alertaOntDuplicadaTac($data, &$alertas, &$detalleTac)
 {
-    if ($data['serieTac'] && isset($data['ontDuplicadasTac'][$data['serieTac']])) {
-        $alertas[] = 'ONT_DUPLICADA_EN_TAC';
-        $detalleTac = "Serie {$data['serieTac']} duplicada en TAC";
+    $tac = $data['tac'] ?? null;
+    if (!$tac) {
+        return; // no hay datos TAC para este teléfono
+    }
+
+    $telefono = $data['telefono'] ?? null;
+    $serieTac = strtoupper(trim($tac['Num__Serie'] ?? ''));
+
+    //  Validar que el número de serie sea válido
+    if (empty($serieTac) || $serieTac === 'DESCONOCIDO' || $serieTac === 'NS NO OBTENIDO') {
+        return; // no se considera duplicado si no hay serie válido
+    }
+
+    // Buscar en el mapa de duplicados por serie
+    $ontDuplicadasTac = $data['ontDuplicadasTac'] ?? [];
+
+    if (isset($ontDuplicadasTac[$serieTac])) {
+        // Verificar que el teléfono actual esté dentro de los duplicados
+        // y que haya más de un teléfono asociado a esa serie
+        $telefonosDuplicados = array_keys($ontDuplicadasTac[$serieTac] ?? []);
+        if (count($telefonosDuplicados) > 1 && in_array($telefono, $telefonosDuplicados)) {
+            $alertas[] = 'ONT_DUPLICADA_EN_TAC';
+            $detalleTac = "Serie duplicada en TAC: $serieTac en teléfonos " . implode(', ', $telefonosDuplicados);
+        }
     }
 }
+
 
 private function alertaOntDuplicadaEsci($data, &$alertas, &$detalleEsci)
 {
