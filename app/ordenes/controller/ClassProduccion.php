@@ -200,10 +200,19 @@ public function InsertarAlertasMasivo($registros)
     // =========================
     //  PREPARAR IDS
     // =========================
+    // De un arreglo de registros , cada registro es un array asociativo con varias claves, 
+    // extrae solo la columna folio, arraunique Elimina duplicados.
+    
     $folios = array_unique(array_column($registros, 'folio'));
+    // queda como un arreglo con todos los folios distintos que venían en $registros.
+    
+    
     $telefonos = array_unique(array_column($registros, 'telefono'));
 
+    //Une los elementos del array $folios en una sola cadena, separados por ','
+    // $inFolios es una cadena que contiene todos los folios separados por comas y entre comillas simples
     $inFolios = "'" . implode("','", $folios) . "'";
+    
     $inTelefonos = "'" . implode("','", $telefonos) . "'";
 
     // =========================
