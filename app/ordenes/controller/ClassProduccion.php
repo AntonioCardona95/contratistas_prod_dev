@@ -490,7 +490,7 @@ private function evaluarAlertas($data)
 
     // Si el folio no existe en la lista de folios no encontrados en CoordIAPP
     if (in_array($folio, $foliosNoExistentesCoordiapp)) {
-        $alertas[] = 'FOLIO_NO_EXISTE_EN_COORDIAPP';
+        $alertas[] = 'No Capturado Coordiapp';
     }
 }
 
