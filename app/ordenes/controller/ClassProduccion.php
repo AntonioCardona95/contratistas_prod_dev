@@ -96,7 +96,7 @@ class Produccion extends Conexion
     return !empty($result) ? (int)$result[0]['total'] : 0;
 } */
 
-    public function getTotalTac()
+   /* public function getTotalTac()
 {
     $sql = "SELECT COUNT(1) AS total
             FROM seg_ns_prod_eval";
@@ -104,7 +104,30 @@ class Produccion extends Conexion
     $result = $this->runQueryAnalisis($sql);
 
     return !empty($result) ? (int)$result[0]['total'] : 0;
+} */
+
+    public function getTotalTac()
+{
+    $sql = "
+        SELECT COUNT(DISTINCT s.TELEFONO) AS total_duplicados
+        FROM seg_ns_prod_eval s
+        INNER JOIN qm_tac q ON s.TELEFONO = q.TELEFONO
+        WHERE q.Calificador_Edo = 'COMPLETADA'
+        AND q.Num__Serie IN (
+            SELECT Num__Serie
+            FROM qm_tac
+            WHERE Calificador_Edo = 'COMPLETADA'
+            GROUP BY Num__Serie
+            HAVING COUNT(DISTINCT TELEFONO) > 1
+        )
+    ";
+
+    $result = $this->runQueryAnalisis($sql);
+
+    return !empty($result) ? (int)$result[0]['total_duplicados'] : 0;
 }
+
+
 
     /**
      * Obtiene la producción del contratista basándose en los expedientes y fechas.
