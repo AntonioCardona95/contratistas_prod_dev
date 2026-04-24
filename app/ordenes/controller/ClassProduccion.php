@@ -291,9 +291,9 @@ public function InsertarAlertasMasivo($registros)
         $telefono = trim($r['telefono']);
 
         echo "<h3>📌 Verificando Datos de coordData para Folio: $folio</h3>";
-echo "<pre>";
-print_r($coordData[$folio] ?? 'No Existe');  // Verifica si el folio tiene datos en coordData
-echo "</pre>";
+        echo "<pre>";
+        print_r($coordData[$folio] ?? 'No Existe');  // Verifica si el folio tiene datos en coordData
+        echo "</pre>";
 
         if (!isset($coordData[$folio])) {
             $alertas[] = "No Capturado Coordiapp: Folio $folio";
