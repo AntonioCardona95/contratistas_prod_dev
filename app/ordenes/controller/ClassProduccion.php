@@ -111,15 +111,17 @@ public function getTotalAlertas()
     echo "ENTRANDO A ALERTAS<br>"; // 👈 DEBUG
 
     $sql = "SELECT COUNT(*) AS total_alertas
-            FROM (
-                SELECT t.Num__Serie
-                FROM qm_tac t
-                INNER JOIN seg_ns_prod_eval s 
-                    ON s.TELEFONO = t.TELEFONO
-                WHERE t.Calificador_Edo = 'COMPLETADA'
-                GROUP BY t.Num__Serie
-                HAVING COUNT(DISTINCT t.TELEFONO) > 1
-            ) AS duplicados";
+FROM (
+    SELECT t.Num__Serie
+    FROM qm_tac t
+    WHERE t.Calificador_Edo = 'COMPLETADA'
+      AND t.TELEFONO IN (
+          SELECT DISTINCT TELEFONO 
+          FROM seg_ns_prod_eval
+      )
+    GROUP BY t.Num__Serie
+    HAVING COUNT(DISTINCT t.TELEFONO) > 1
+) AS duplicados;";
 
     $result = $this->runQueryAnalisis($sql);
 
