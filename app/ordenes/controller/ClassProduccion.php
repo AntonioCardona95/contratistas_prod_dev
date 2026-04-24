@@ -191,9 +191,9 @@ public function InsertarAlertasMasivo($registros)
 {
     if (empty($registros)) return;
 
-     echo "<pre>";
-    print_r($registros);  // Muestra el contenido de $registros de forma legible
-    echo "</pre>";
+    // echo "<pre>";
+    //print_r($registros);  // Muestra el contenido de $registros de forma legible
+    //echo "</pre>";
 
     $conexion = $this->get_conexion();
     $conexion_analisis = $this->get_conexiondos();
@@ -296,12 +296,20 @@ public function InsertarAlertasMasivo($registros)
         $folio = $r['folio'];
         $telefono = trim($r['telefono']);
 
-         // DEBUG: Mostrar el folio y los datos de coordData
-    //echo "Procesando Folio: $folio<br>"; // Ver qué folio está procesando
+         // =========================
+//  LOOP PRINCIPAL
+// =========================
+foreach ($registros as $r) {
+
+    $folio = $r['folio'];
+    $telefono = trim($r['telefono']);
+
+    // DEBUG: Mostrar el folio y los datos de coordData
+    echo "Procesando Folio: $folio<br>"; // Ver qué folio está procesando
     // Si deseas ver todo el contenido de $coordData
-    //echo "<pre>";
-    //print_r($coordData); // Ver cómo está estructurado el array coordData
-    //echo "</pre>";
+    echo "<pre>";
+    print_r($coordData); // Ver cómo está estructurado el array coordData
+    echo "</pre>";
 
     // Verificar si el folio está en la tabla tecnico_instalaciones_coordiapp
     if (!isset($coordData[$folio])) {
@@ -311,6 +319,7 @@ public function InsertarAlertasMasivo($registros)
         // DEBUG: Confirmar que la alerta se está agregando
         echo "ALERTA: No Capturado Coordiapp - Folio $folio<br>";
     }
+
    
 
         $coord = $coordData[$folio] ?? null;
