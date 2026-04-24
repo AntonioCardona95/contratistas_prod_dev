@@ -191,9 +191,8 @@ public function InsertarAlertasMasivo($registros)
 {
     if (empty($registros)) return;
 
-    // Conexión a las bases de datos
-    $conexion = $this->get_conexion(); // Conexión principal
-    $conexion_analisis = $this->get_conexion_analisis(); // Conexión de análisis
+    $conexion = $this->get_conexion();
+    $conexion_analisis = $this->get_conexiondos();
 
     $conexion->exec("SET NAMES 'utf8mb4'");
     $conexion_analisis->exec("SET NAMES 'utf8mb4'");
@@ -211,7 +210,7 @@ public function InsertarAlertasMasivo($registros)
     //  COORDIAPP
     // =========================
     $coordData = [];
-    $sql = "SELECT Folio_Pisa, Telefono, Ont, Tecnologia, Foto_Ont, No_Serie_ONT, Foto_INE, validacion_LEDS_ONT_fallida, Foto_Casa_Cliente, validacion_foto_fallida, Foto_Puerto
+    $sql = "SELECT Folio_Pisa,Telefono, Ont, Tecnologia , Foto_Ont ,No_Serie_ONT,Foto_INE, validacion_LEDS_ONT_fallida, Foto_Casa_Cliente, validacion_foto_fallida,Foto_Puerto
             FROM tecnico_instalaciones_coordiapp
             WHERE Folio_Pisa IN ($inFolios)";
     foreach ($conexion->query($sql) as $row) {
@@ -271,20 +270,6 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-    //  VERIFICAR FOLIOS NO EXISTENTES EN COORDIAPP
-    // =========================
-    $foliosNoExistentesCoordiapp = [];
-    $sql = "
-        SELECT Folio_Pisa 
-        FROM seg_ns_prod_eval_tmp 
-        WHERE Folio_Pisa IN ($inFolios) 
-          AND Folio_Pisa NOT IN (SELECT Folio_Pisa FROM tecnico_instalaciones_coordiapp)
-    ";
-    foreach ($conexion->query($sql) as $row) {
-        $foliosNoExistentesCoordiapp[] = $row['Folio_Pisa'];
-    }
-
-    // =========================
     //  INSERTS
     // =========================
     $stmtAlerta = $conexion->prepare("
@@ -328,17 +313,10 @@ public function InsertarAlertasMasivo($registros)
             'serieEsci' => $serieEsci,
             'ontDuplicadasTac' => $ontDuplicadasTac,
             'esciSeriesMap' => $esciSeriesMap,
-            'idContratista' => $r['idContratista'] ?? 0 // Si idContratista es nulo o vacío, asignar 0
+            'idContratista' => $r['idContratista']
         ]);
 
         if (!empty($resultadoAlertas['alertas'])) {
-
-            // Asegurarse de que el valor de 'idContratista' no sea null
-            $idContratista = isset($r['idContratista']) && !empty($r['idContratista']) ? $r['idContratista'] : 0;  // Asignar valor predeterminado si es nulo
-
-            // Asignar valores predeterminados para 'Semana' y 'Anio' si no existen
-            $semana = isset($r['semana']) ? $r['semana'] : 0;
-            $anio = isset($r['anio']) ? $r['anio'] : 0;
 
             // INSERT en Produccion_alertas (concatenado)
             $stmtAlerta->execute([
@@ -348,9 +326,9 @@ public function InsertarAlertasMasivo($registros)
                 $r['cope'] ?? null,
                 $r['fechaLiquidacion'] ?? null,
                 $r['fechaCarga'] ?? date('Y-m-d H:i:s'),
-                $idContratista, // Aseguramos que no sea null
-                $semana, // Aseguramos que no sea null
-                $anio,   // Aseguramos que no sea null
+                $r['idContratista'] ?? null,
+                $r['semana'] ?? 0, // Si Semana está vacía, lo reemplazamos por 0
+                $r['anio'] ?? 0,   // Lo mismo para Anio
                 $r['metraje'] ?? 0,
                 implode(' | ', array_unique($resultadoAlertas['alertas'])),
                 $resultadoAlertas['detalleEsci'] ?? null,
@@ -373,15 +351,12 @@ public function InsertarAlertasMasivo($registros)
 }
 
 
-
 private function evaluarAlertas($data)
 {
     $alertas = [];
     $detalleEsci = null;
     $detalleTac = null;
-        //$this->alertaFolioCapturadoCoordiapp($data, $alertas);
-        $this->alertaFolioNoExistenteCoordiapp($data, $alertas, $foliosNoExistentesCoordiapp);
-
+        $this->alertaFolioCapturadoCoordiapp($data, $alertas);
 
     $this->alertaTipoTareaDiferente($data, $alertas);
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
@@ -459,7 +434,7 @@ private function evaluarAlertas($data)
     ];
 } */
 
-/*private function alertaFolioCapturadoCoordiapp($data, &$alertas)
+private function alertaFolioCapturadoCoordiapp($data, &$alertas)
 {
     $folio = $data['folio'] ?? null;
 
@@ -473,7 +448,7 @@ private function evaluarAlertas($data)
     if (isset($data['coord']['Folio_Pisa']) && $data['coord']['Folio_Pisa'] !== $folio) {
         $alertas[] = 'FOLIO_NO_CARGADO_EN_COORDIAPP';
     }
-} */
+}
 
 /*private function alertaFolioCapturadoCoordiapp($data, &$alertas)
 {
@@ -484,16 +459,6 @@ private function evaluarAlertas($data)
         $alertas[] = 'FOLIO_CAPTURADO_EN_COORDIAPP';
     }
 } */
-
-    private function alertaFolioNoExistenteCoordiapp($data, &$alertas, $foliosNoExistentesCoordiapp)
-{
-    $folio = $data['folio'] ?? null;
-
-    // Si el folio no existe en la lista de folios no encontrados en CoordIAPP
-    if (in_array($folio, $foliosNoExistentesCoordiapp)) {
-        $alertas[] = 'No Capturado Coordiapp';
-    }
-}
 
 private function alertaTipoTareaDiferente($data, &$alertas)
 {
