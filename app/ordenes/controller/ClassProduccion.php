@@ -191,9 +191,9 @@ public function InsertarAlertasMasivo($registros)
 {
     if (empty($registros)) return;
 
-     echo "<pre>";
-    print_r($registros);  // Muestra el contenido de $registros de forma legible
-    echo "</pre>";
+     //echo "<pre>";
+    //print_r($registros);  // Muestra el contenido de $registros de forma legible
+    //echo "</pre>";
 
     $conexion = $this->get_conexion();
     $conexion_analisis = $this->get_conexiondos();
