@@ -1,19 +1,21 @@
 console.log('bienvenido');
 
 function cargarDashboard() {
-    console.log('hola');
+    console.log('cargando dashboard...');
 
     $.ajax({
         url: 'ajax/get_dashboard.php',
         method: 'GET',
         dataType: 'json',
         data: {
-            fecha_inicio: $('#fecha_inicio').val(),
-            fecha_fin: $('#fecha_fin').val()
+            fecha_inicio: $('#Fecha1').val(), // ✅ CORREGIDO
+            fecha_fin: $('#Fecha2').val()     // ✅ CORREGIDO
         },
         success: function(res) {
-            console.log('respuesta:', res); // 👈 para debug
+            console.log('respuesta:', res);
+
             $('#total_tac').text(res.total_tac);
+            $('#alertas').text(res.alertas); // ✅ NUEVO
         },
         error: function(xhr, status, error) {
             console.error("Error AJAX:", error);
@@ -21,7 +23,6 @@ function cargarDashboard() {
     });
 }
 
-// 👇 ESTA PARTE ES LA CLAVE
 $(document).ready(function() {
     console.log('DOM listo');
     cargarDashboard();
