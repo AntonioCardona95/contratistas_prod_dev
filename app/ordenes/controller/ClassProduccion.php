@@ -191,8 +191,9 @@ public function InsertarAlertasMasivo($registros)
 {
     if (empty($registros)) return;
 
-    $conexion = $this->get_conexion();
-    $conexion_analisis = $this->get_conexiondos();
+    // Conexión a las bases de datos
+    $conexion = $this->get_conexion(); // Conexión principal
+    $conexion_analisis = $this->get_conexion_analisis(); // Conexión de análisis
 
     $conexion->exec("SET NAMES 'utf8mb4'");
     $conexion_analisis->exec("SET NAMES 'utf8mb4'");
@@ -210,7 +211,7 @@ public function InsertarAlertasMasivo($registros)
     //  COORDIAPP
     // =========================
     $coordData = [];
-    $sql = "SELECT Folio_Pisa,Telefono, Ont, Tecnologia , Foto_Ont ,No_Serie_ONT,Foto_INE, validacion_LEDS_ONT_fallida, Foto_Casa_Cliente, validacion_foto_fallida,Foto_Puerto
+    $sql = "SELECT Folio_Pisa, Telefono, Ont, Tecnologia, Foto_Ont, No_Serie_ONT, Foto_INE, validacion_LEDS_ONT_fallida, Foto_Casa_Cliente, validacion_foto_fallida, Foto_Puerto
             FROM tecnico_instalaciones_coordiapp
             WHERE Folio_Pisa IN ($inFolios)";
     foreach ($conexion->query($sql) as $row) {
@@ -270,18 +271,18 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-//  3. VERIFICAR FOLIOS NO EXISTENTES EN COORDIAPP
-// =========================
-$foliosNoExistentesCoordiapp = [];
-$sql = "
-    SELECT Folio_Pisa 
-    FROM seg_ns_prod_eval_tmp 
-    WHERE Folio_Pisa IN ($inFolios) 
-      AND Folio_Pisa NOT IN (SELECT Folio_Pisa FROM tecnico_instalaciones_coordiapp)
-";
-foreach ($conexion->query($sql) as $row) {
-    $foliosNoExistentesCoordiapp[] = $row['Folio_Pisa'];
-}
+    //  VERIFICAR FOLIOS NO EXISTENTES EN COORDIAPP
+    // =========================
+    $foliosNoExistentesCoordiapp = [];
+    $sql = "
+        SELECT Folio_Pisa 
+        FROM seg_ns_prod_eval_tmp 
+        WHERE Folio_Pisa IN ($inFolios) 
+          AND Folio_Pisa NOT IN (SELECT Folio_Pisa FROM tecnico_instalaciones_coordiapp)
+    ";
+    foreach ($conexion->query($sql) as $row) {
+        $foliosNoExistentesCoordiapp[] = $row['Folio_Pisa'];
+    }
 
     // =========================
     //  INSERTS
