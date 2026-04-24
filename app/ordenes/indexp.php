@@ -211,9 +211,11 @@ if (empty($Contratista)) {
 </button>
 
 
+
                                 <button class="btn btn-outline-secondary" type="button" onclick="limpiarFiltros();" title="Limpiar filtros">
                                     <i class="fas fa-eraser fa-sm"></i>
                                 </button>
+                                <div id="estadoProceso" class="mt-2 text-sm text-gray-600"></div>
                             </div>
                         
                         </div>
