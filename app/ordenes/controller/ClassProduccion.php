@@ -270,6 +270,20 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
+//  3. VERIFICAR FOLIOS NO EXISTENTES EN COORDIAPP
+// =========================
+$foliosNoExistentesCoordiapp = [];
+$sql = "
+    SELECT Folio_Pisa 
+    FROM seg_ns_prod_eval_tmp 
+    WHERE Folio_Pisa IN ($inFolios) 
+      AND Folio_Pisa NOT IN (SELECT Folio_Pisa FROM tecnico_instalaciones_coordiapp)
+";
+foreach ($conexion->query($sql) as $row) {
+    $foliosNoExistentesCoordiapp[] = $row['Folio_Pisa'];
+}
+
+    // =========================
     //  INSERTS
     // =========================
     $stmtAlerta = $conexion->prepare("
@@ -364,7 +378,9 @@ private function evaluarAlertas($data)
     $alertas = [];
     $detalleEsci = null;
     $detalleTac = null;
-        $this->alertaFolioCapturadoCoordiapp($data, $alertas);
+        //$this->alertaFolioCapturadoCoordiapp($data, $alertas);
+        $this->alertaFolioNoExistenteCoordiapp($data, $alertas, $foliosNoExistentesCoordiapp);
+
 
     $this->alertaTipoTareaDiferente($data, $alertas);
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
@@ -442,7 +458,7 @@ private function evaluarAlertas($data)
     ];
 } */
 
-private function alertaFolioCapturadoCoordiapp($data, &$alertas)
+/*private function alertaFolioCapturadoCoordiapp($data, &$alertas)
 {
     $folio = $data['folio'] ?? null;
 
@@ -456,7 +472,7 @@ private function alertaFolioCapturadoCoordiapp($data, &$alertas)
     if (isset($data['coord']['Folio_Pisa']) && $data['coord']['Folio_Pisa'] !== $folio) {
         $alertas[] = 'FOLIO_NO_CARGADO_EN_COORDIAPP';
     }
-}
+} */
 
 /*private function alertaFolioCapturadoCoordiapp($data, &$alertas)
 {
@@ -467,6 +483,16 @@ private function alertaFolioCapturadoCoordiapp($data, &$alertas)
         $alertas[] = 'FOLIO_CAPTURADO_EN_COORDIAPP';
     }
 } */
+
+    private function alertaFolioNoExistenteCoordiapp($data, &$alertas, $foliosNoExistentesCoordiapp)
+{
+    $folio = $data['folio'] ?? null;
+
+    // Si el folio no existe en la lista de folios no encontrados en CoordIAPP
+    if (in_array($folio, $foliosNoExistentesCoordiapp)) {
+        $alertas[] = 'FOLIO_NO_EXISTE_EN_COORDIAPP';
+    }
+}
 
 private function alertaTipoTareaDiferente($data, &$alertas)
 {
