@@ -289,14 +289,6 @@ public function InsertarAlertasMasivo($registros)
     ");
 
     // =========================
-    //  LOOP PRINCIPAL
-    // =========================
-    foreach ($registros as $r) {
-
-        $folio = $r['folio'];
-        $telefono = trim($r['telefono']);
-
-         // =========================
 //  LOOP PRINCIPAL
 // =========================
 foreach ($registros as $r) {
@@ -319,7 +311,7 @@ foreach ($registros as $r) {
         // DEBUG: Confirmar que la alerta se está agregando
         echo "ALERTA: No Capturado Coordiapp - Folio $folio<br>";
     }
-
+}
    
 
         $coord = $coordData[$folio] ?? null;
