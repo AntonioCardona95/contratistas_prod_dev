@@ -1,4 +1,5 @@
 <?php
+
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -35,24 +36,27 @@ try {
     // =========================
     $registros = $prod->obtenerRegistrosParaAlertas($fechaInicio, $fechaFin);
 
-    // 👇 DEPURACIÓN CONTROLADA
-    echo json_encode([
-        "ok" => true,
-        "debug_registros" => $registros,
-        "total" => is_array($registros) ? count($registros) : 0
-    ]);
-    exit;
+    if (empty($registros)) {
+        echo json_encode([
+            "ok" => false,
+            "msg" => "No hay registros para procesar en ese rango"
+        ]);
+        exit;
+    }
 
     // =========================
     //  2. PROCESAR ALERTAS (SIN LIMPIAR)
     // =========================
-    // $prod->InsertarAlertasMasivo($registros);
+    $prod->InsertarAlertasMasivo($registros);
 
-    // echo json_encode([
-    //     "ok" => true,
-    //     "msg" => "Alertas procesadas correctamente",
-    //     "total" => count($registros)
-    // ]);
+    // =========================
+    //  RESPUESTA
+    // =========================
+    echo json_encode([
+        "ok" => true,
+        "msg" => "Alertas procesadas correctamente",
+        "total" => count($registros)
+    ]);
 
 } catch (Exception $e) {
 
@@ -61,6 +65,7 @@ try {
         "msg" => $e->getMessage()
     ]);
 }
+
 
 
 
