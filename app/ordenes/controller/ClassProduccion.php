@@ -327,9 +327,9 @@ public function InsertarAlertasMasivo($registros)
                 $r['fechaLiquidacion'] ?? null,
                 $r['fechaCarga'] ?? date('Y-m-d H:i:s'),
                 $r['idContratista'] ?? null,
-                $r['semana'] ?? null,
-                $r['anio'] ?? null,
-                $r['metraje'] ?? null,
+                $r['semana'] ?? 0, // Si Semana está vacía, lo reemplazamos por 0
+                $r['anio'] ?? 0,   // Lo mismo para Anio
+                $r['metraje'] ?? 0,
                 implode(' | ', array_unique($resultadoAlertas['alertas'])),
                 $resultadoAlertas['detalleEsci'] ?? null,
                 0
