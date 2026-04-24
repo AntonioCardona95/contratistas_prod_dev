@@ -367,7 +367,7 @@ if (empty($Contratista)) {
                 <div class="container-fluid">
 
                     <!-- DataTales Example -->
-                    <div id="LoadDatosOps">
+                    <div id="cargarDashboard">
 
                     </div>
 
@@ -443,7 +443,16 @@ if (empty($Contratista)) {
 
     <!-- Page level custom scripts -->
    
+<script>
+    $(document).ready(function(){
+    $('#btnLoadKPIS').on('click', function(e){
+        e.preventDefault();
+        cargarDashboard(); // ✅ CAMBIADO
+    });
 
+    cargarDashboard(); // ✅ CAMBIADO
+});
+</script>
 </body>
 
 </html>
