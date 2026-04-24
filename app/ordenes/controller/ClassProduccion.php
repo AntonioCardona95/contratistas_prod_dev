@@ -313,10 +313,17 @@ public function InsertarAlertasMasivo($registros)
             'serieEsci' => $serieEsci,
             'ontDuplicadasTac' => $ontDuplicadasTac,
             'esciSeriesMap' => $esciSeriesMap,
-            'idContratista' => $r['idContratista']
+            'idContratista' => $r['idContratista'] ?? 0 // Si idContratista es nulo o vacío, asignar 0
         ]);
 
         if (!empty($resultadoAlertas['alertas'])) {
+
+            // Asegurarse de que el valor de 'idContratista' no sea null
+            $idContratista = isset($r['idContratista']) && !empty($r['idContratista']) ? $r['idContratista'] : 0;  // Asignar valor predeterminado si es nulo
+
+            // Asignar valores predeterminados para 'Semana' y 'Anio' si no existen
+            $semana = isset($r['semana']) ? $r['semana'] : 0;
+            $anio = isset($r['anio']) ? $r['anio'] : 0;
 
             // INSERT en Produccion_alertas (concatenado)
             $stmtAlerta->execute([
@@ -326,9 +333,9 @@ public function InsertarAlertasMasivo($registros)
                 $r['cope'] ?? null,
                 $r['fechaLiquidacion'] ?? null,
                 $r['fechaCarga'] ?? date('Y-m-d H:i:s'),
-                $r['idContratista'] ?? null,
-                $r['semana'] ?? 0, // Si Semana está vacía, lo reemplazamos por 0
-                $r['anio'] ?? 0,   // Lo mismo para Anio
+                $idContratista, // Aseguramos que no sea null
+                $semana, // Aseguramos que no sea null
+                $anio,   // Aseguramos que no sea null
                 $r['metraje'] ?? 0,
                 implode(' | ', array_unique($resultadoAlertas['alertas'])),
                 $resultadoAlertas['detalleEsci'] ?? null,
@@ -349,6 +356,7 @@ public function InsertarAlertasMasivo($registros)
         }
     }
 }
+
 
 
 private function evaluarAlertas($data)
