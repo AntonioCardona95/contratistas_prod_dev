@@ -218,13 +218,23 @@ public function InsertarAlertasMasivo($registros)
     // =========================
     //  COORDIAPP
     // =========================
-    $coordData = [];
+    //$row es un array asociativo con todas las columnas de esa fila, 
+    // algo asi $row = [
+  /*'Folio_Pisa' => '54654654',
+  'Telefono' => '111',
+  ]; */
+//Aquí se está construyendo un diccionario (array asociativo) llamado $coordData.
+//La clave es el valor de la columna Folio_Pisa de esa fila.
+//El valor es toda la fila completa ($row).
+
+$coordData = [];
     $sql = "SELECT Folio_Pisa,Telefono, Ont, Tecnologia , Foto_Ont ,No_Serie_ONT,Foto_INE, validacion_LEDS_ONT_fallida, Foto_Casa_Cliente, validacion_foto_fallida,Foto_Puerto
             FROM tecnico_instalaciones_coordiapp
             WHERE Folio_Pisa IN ($inFolios)";
-    foreach ($conexion->query($sql) as $row) {
-        $coordData[$row['Folio_Pisa']] = $row;
-    }
+            foreach ($conexion->query($sql) as $row)
+                 {
+                    $coordData[$row['Folio_Pisa']] = $row;
+                 }
 
     // =========================
     //  TAC
@@ -296,6 +306,7 @@ public function InsertarAlertasMasivo($registros)
     // =========================
     //  LOOP PRINCIPAL
     foreach ($registros as $r) {
+        
         $folio = $r['folio'];
         $telefono = trim($r['telefono']);
 
@@ -303,7 +314,17 @@ public function InsertarAlertasMasivo($registros)
             $alertas[] = "No Capturado Coordiapp: Folio $folio";
         } */
 
+            
+        //  intenta acceder al elemento del arreglo $coordData cuya clave sea el valor de $folio
+        // $coordData se construyó con Folio_Pisa como índice, así que aquí busca si existe información para ese folio
+        // Si el folio está en $coordData, $coord tendrá toda la fila asociada, si no será null
         $coord = $coordData[$folio] ?? null;
+        echo "<h3>Contenido de \$coord</h3>";
+echo "<pre>";
+print_r($coord);
+echo "</pre>";
+
+
         $tac   = $tacData[$folio] ?? null;
         $esci  = $esciData[$telefono] ?? null;
 
