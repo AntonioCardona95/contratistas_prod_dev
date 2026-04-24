@@ -202,9 +202,9 @@ if (empty($Contratista)) {
                             </div>
 
                               <div class="input-group-append">
-                                <button class="btn btn-primary" type="button" onclick="cargarDashboard();">
+                             <!--   <button class="btn btn-primary" type="button" onclick="cargarDashboard();">
                                     <i class="fas fa-search fa-sm"></i> Analizar
-                                </button>
+                                </button> -->
 
                                 <button class="btn btn-warning" type="button" onclick="procesarAlertas();" id="btnProcesarAlertas">
     <i class="fas fa-cogs fa-sm"></i> Procesar Alertas
@@ -375,7 +375,7 @@ if (empty($Contratista)) {
                 <div class="container-fluid">
 
                     <!-- DataTales Example -->
-                    <div id="cargarDashboard">
+                    <div id="procesarAlertas">
 
                     </div>
 
@@ -455,10 +455,10 @@ if (empty($Contratista)) {
     $(document).ready(function(){
     $('#btnLoadKPIS').on('click', function(e){
         e.preventDefault();
-        cargarDashboard(); // ✅ CAMBIADO
+        procesarAlertas(); // ✅ CAMBIADO
     });
 
-    cargarDashboard(); // ✅ CAMBIADO
+    procesarAlertas(); // ✅ CAMBIADO
 });
 </script>
 </body>
