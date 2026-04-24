@@ -299,7 +299,7 @@ public function InsertarAlertasMasivo($registros)
          // Verificar si el folio está en la tabla tecnico_instalaciones_coordiapp
     if (!isset($coordData[$folio])) {
         // Si no está en la tabla, agregar la alerta de "No Capturado Coordiapp"
-        $alertas[] = "No Capturado Coordiapp: Folio $folio";
+        $alertas[] = "No Capturado Coordial: Folio $folio";
     }
 
    
@@ -376,7 +376,7 @@ private function evaluarAlertas($data)
     $alertas = [];
     $detalleEsci = null;
     $detalleTac = null;
-        $this->alertaFolioCapturadoCoordiapp($data, $alertas);
+        //$this->alertaFolioCapturadoCoordiapp($data, $alertas);
 
     $this->alertaTipoTareaDiferente($data, $alertas);
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
@@ -454,7 +454,7 @@ private function evaluarAlertas($data)
     ];
 } */
 
-private function alertaFolioCapturadoCoordiapp($data, &$alertas)
+/*private function alertaFolioCapturadoCoordiapp($data, &$alertas)
 {
     $folio = $data['folio'] ?? null;
 
@@ -468,7 +468,7 @@ private function alertaFolioCapturadoCoordiapp($data, &$alertas)
     if (isset($data['coord']['Folio_Pisa']) && $data['coord']['Folio_Pisa'] !== $folio) {
         $alertas[] = 'FOLIO_NO_CARGADO_EN_COORDIAPP';
     }
-}
+} */
 
 /*private function alertaFolioCapturadoCoordiapp($data, &$alertas)
 {
