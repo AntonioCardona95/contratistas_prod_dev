@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 //require_once("../controller/ClassProduccion.php");
 
-$prod = new Produccion();
+//$prod = new Produccion();
 
 // (por si después quieres usarlas)
 $fechaInicio = $_GET['fecha_inicio'] ?? null;
