@@ -290,14 +290,9 @@ public function InsertarAlertasMasivo($registros)
         $folio = $r['folio'];
         $telefono = trim($r['telefono']);
 
-        echo "<h3>📌 Verificando Datos de coordData para Folio: $folio</h3>";
-        echo "<pre>";
-        print_r($coordData[$folio] ?? 'No Existe');  // Verifica si el folio tiene datos en coordData
-        echo "</pre>";
-
-        if (!isset($coordData[$folio])) {
+       /* if (!isset($coordData[$folio])) {
             $alertas[] = "No Capturado Coordiapp: Folio $folio";
-        }
+        } */
 
         $coord = $coordData[$folio] ?? null;
         $tac   = $tacData[$folio] ?? null;
@@ -360,17 +355,6 @@ public function InsertarAlertasMasivo($registros)
     }
 }
 
-// Esta es la nueva función de alerta para Coordiapp
-private function alertaNoCapturadoCoordiapp($data, &$alertas)
-{
-    $folio = $data['folio'] ?? null;
-
-    if (empty($folio)) {
-        $alertas[] = 'ALERTA: No Capturado Coordiapp - Folio no encontrado';
-    }
-}
-
-
 
 private function evaluarAlertas($data)
 {
@@ -379,7 +363,7 @@ private function evaluarAlertas($data)
     $detalleTac = null;
         //$this->alertaFolioCapturadoCoordiapp($data, $alertas);
 
-         $this->alertaNoCapturadoCoordiapp($data, $alertas);
+        
     $this->alertaTipoTareaDiferente($data, $alertas);
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
     $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
@@ -406,8 +390,6 @@ private function evaluarAlertas($data)
         'detalleTac' => $detalleTac
     ];
 }
-
-
 
 
 /*private function evaluarAlertas($data)
