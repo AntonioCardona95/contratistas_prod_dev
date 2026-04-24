@@ -302,13 +302,24 @@ public function InsertarAlertasMasivo($registros)
     echo "</pre>";
 
     // Verificar si el folio está en la tabla tecnico_instalaciones_coordiapp
-    if (!isset($coordData[$folio])) {
+   foreach ($registros as $r) {
+    $folio = $r['folio'];
+    $telefono = trim($r['telefono']);
+
+    // Mostrar el folio y los datos de coordData para depuración
+    echo "Procesando Folio: $folio<br>";
+    echo "<pre>";
+    print_r($coordData); 
+    echo "</pre>";
+
+    // Verificar si el folio está en la tabla tecnico_instalaciones_coordiapp
+    if (!array_key_exists($folio, $coordData)) {
         // Si no está en la tabla, agregar la alerta de "No Capturado Coordiapp"
         $alertas[] = "No Capturado Coordial: Folio $folio";
         // Debug: Confirmar que la alerta se está agregando
         echo "ALERTA: No Capturado Coordiapp - Folio $folio<br>";
     }
-
+}
 
    
 
