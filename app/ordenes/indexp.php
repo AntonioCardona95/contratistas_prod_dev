@@ -284,11 +284,11 @@ if (empty($Contratista)) {
                         <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                             REGISTRADAS
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="registradas">
+                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="alertas">
                             0
                         </div>
                         <div class="text-xs text-muted">
-                            Promedio: <span id="promedio_registradas">0</span>/día
+                            Promedio: <span id="promedio_alertas">0</span>/día
                         </div>
                     </div>
 
