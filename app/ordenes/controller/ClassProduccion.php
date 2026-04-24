@@ -296,6 +296,9 @@ foreach ($registros as $r) {
     echo "<pre>";
     print_r($r);   // 👈 aquí ves todo el contenido del registro actual
     echo "</pre>";
+
+
+
    
 
     $folio = $r['folio'];
@@ -307,7 +310,7 @@ foreach ($registros as $r) {
 
    /*echo "<h3> Registro actual r</h3>";
     echo "<pre>";
-    print_r($r);   // 👈 aquí ves todo el contenido del registro actual
+    print_r($r);   //  aquí ves todo el contenido del registro actual
     echo "</pre>"; */
 
     /*echo "<h3> Datos de coordData</h3>";
