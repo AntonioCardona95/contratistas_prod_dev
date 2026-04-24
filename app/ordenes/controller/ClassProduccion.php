@@ -96,7 +96,7 @@ class Produccion extends Conexion
     return !empty($result) ? (int)$result[0]['total'] : 0;
 } */
 
-   /* public function getTotalTac()
+ public function getTotalTac()
 {
     $sql = "SELECT COUNT(1) AS total
             FROM seg_ns_prod_eval";
@@ -104,9 +104,9 @@ class Produccion extends Conexion
     $result = $this->runQueryAnalisis($sql);
 
     return !empty($result) ? (int)$result[0]['total'] : 0;
-} */
+} 
 
-    public function getTotalTac()
+public function getSeriesDuplicadas()
 {
     $sql = "
         SELECT COUNT(DISTINCT s.TELEFONO) AS total_duplicados
@@ -124,7 +124,7 @@ class Produccion extends Conexion
 
     $result = $this->runQueryAnalisis($sql);
 
-    return !empty($result) ? (int)$result[0]['total'] : 0;
+    return !empty($result) ? (int)$result[0]['total_duplicados'] : 0;
 }
 
 
