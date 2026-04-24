@@ -391,6 +391,8 @@ private function evaluarAlertas($data)
     $alertas = [];
     $detalleEsci = null;
     $detalleTac = null;
+    $this->alertaNoCoordiapp($data, $alertas);
+
         //$this->alertaFolioCapturadoCoordiapp($data, $alertas);
 
         
@@ -495,6 +497,13 @@ private function evaluarAlertas($data)
         $alertas[] = 'FOLIO_CAPTURADO_EN_COORDIAPP';
     }
 } */
+
+    private function alertaNoCoordiapp($data, &$alertas) {
+    if ($data['coord'] === null) {
+        $alertas[] = 'NO EN COORDIAPP';
+    }
+}
+
 
 private function alertaTipoTareaDiferente($data, &$alertas)
 {
