@@ -443,19 +443,16 @@ if (empty($Contratista)) {
 
     <!-- Page level custom scripts -->
    
-    <script>
-        $(document).ready(function(){
-            // Trigger KPIS load when user clicks the search button (no longer on date change)
-            $('#btnLoadKPIS').on('click', function(e){
-                e.preventDefault();
-                LoadDatosOps();
-            });
+<script>
+    $(document).ready(function(){
+    $('#btnLoadKPIS').on('click', function(e){
+        e.preventDefault();
+        cargarDashboard(); // ✅ CAMBIADO
+    });
 
-            // Initial load on page ready (remove this line if you want empty state until user clicks)
-            LoadDatosOps();
-        });
-    </script>
-
+    cargarDashboard(); // ✅ CAMBIADO
+});
+</script>
 </body>
 
 </html>
