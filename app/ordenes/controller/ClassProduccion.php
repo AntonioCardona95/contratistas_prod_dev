@@ -123,7 +123,7 @@ class Produccion extends Conexion
     return !empty($result) ? (int)$result[0]['total'] : 0;
 }
 
-public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
+/*public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
 {
     $whereFechas = "";
 
@@ -148,7 +148,7 @@ public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
     $result = $this->runQueryAnalisis($sql);
 
     return !empty($result) ? (int)$result[0]['total_alertas'] : 0;
-}
+} */
 
 
 public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = null)
