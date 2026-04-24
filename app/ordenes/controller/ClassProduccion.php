@@ -82,7 +82,7 @@ class Produccion extends Conexion
     return is_array($rows) ? $rows : array();
 }
 
-public function getTotalTac($fecha_inicio, $fecha_fin)
+/*public function getTotalTac($fecha_inicio, $fecha_fin)
 {
     $sql = "SELECT COUNT(1) AS total
             FROM seg_ns_prod_eval
@@ -92,6 +92,16 @@ public function getTotalTac($fecha_inicio, $fecha_fin)
         'inicio' => $fecha_inicio,
         'fin' => $fecha_fin
     ]);
+
+    return !empty($result) ? (int)$result[0]['total'] : 0;
+} */
+
+    public function getTotalTac()
+{
+    $sql = "SELECT COUNT(1) AS total
+            FROM seg_ns_prod_eval";
+
+    $result = $this->runQueryAnalisis($sql);
 
     return !empty($result) ? (int)$result[0]['total'] : 0;
 }
