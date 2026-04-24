@@ -443,16 +443,7 @@ if (empty($Contratista)) {
 
     <!-- Page level custom scripts -->
    
-<script>
-    $(document).ready(function(){
-    $('#btnLoadKPIS').on('click', function(e){
-        e.preventDefault();
-        cargarDashboard(); // ✅ CAMBIADO
-    });
 
-    cargarDashboard(); // ✅ CAMBIADO
-});
-</script>
 </body>
 
 </html>
