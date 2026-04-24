@@ -298,7 +298,7 @@ foreach ($registros as $r) {
     echo "Procesando Folio: $folio<br>";
     echo "Teléfono: $telefono<br>";
 
-   echo "<h3>📌 Registro actual</h3>";
+   echo "<h3>📌 Registro actual r</h3>";
     echo "<pre>";
     print_r($r);   // 👈 aquí ves todo el contenido del registro actual
     echo "</pre>";
