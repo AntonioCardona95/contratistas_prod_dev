@@ -200,6 +200,15 @@ if (empty($Contratista)) {
                                 </button>
 
                             </div>
+
+                              <div class="input-group-append">
+                                <button class="btn btn-primary" type="button" onclick="cargarDashboard();">
+                                    <i class="fas fa-search fa-sm"></i> Analizar
+                                </button>
+                                <button class="btn btn-outline-secondary" type="button" onclick="limpiarFiltros();" title="Limpiar filtros">
+                                    <i class="fas fa-eraser fa-sm"></i>
+                                </button>
+                            </div>
                         
                         </div>
 
