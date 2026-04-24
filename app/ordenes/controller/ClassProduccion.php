@@ -732,7 +732,7 @@ private function normalizarTecnologiaAlertas($valor)
     return $map[$valor] ?? $map[$valorSinEspacios] ?? $valor;
 }
 
-/*private function alertaOntAlmacen($data, &$alertas)
+private function alertaOntAlmacen($data, &$alertas)
 {
     //  VIENE DE COORDIAPP
     $ont = isset($data['coord']['Ont']) 
@@ -774,7 +774,24 @@ private function normalizarTecnologiaAlertas($valor)
         $alertas[] = 'ONT_ASIGNADA_A_OTRO_CONTRATISTA';
         return;
     }
-} */
+}
+
+private function normalizarSerie($serie)
+{
+    // Quitar espacios al inicio y fin
+    $serie = trim($serie);
+
+    // Quitar TODOS los espacios internos
+    $serie = preg_replace('/\s+/', '', $serie);
+
+    // Convertir a mayúsculas
+    $serie = strtoupper($serie);
+
+    // Opcional: quitar caracteres raros invisibles
+    $serie = preg_replace('/[^A-Z0-9]/', '', $serie);
+
+    return $serie;
+}
 
 
 public function obtenerProduccion($Fecha1, $Fecha2, $idContratistas)
