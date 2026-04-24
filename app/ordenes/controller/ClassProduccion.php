@@ -96,7 +96,7 @@ class Produccion extends Conexion
     return !empty($result) ? (int)$result[0]['total'] : 0;
 } */
 
- public function getTotalTac()
+ /*public function getTotalTac()
 {
     $sql = "SELECT COUNT(1) AS total
             FROM seg_ns_prod_eval";
@@ -104,9 +104,53 @@ class Produccion extends Conexion
     $result = $this->runQueryAnalisis($sql);
 
     return !empty($result) ? (int)$result[0]['total'] : 0;
-} 
+} */
 
-public function getTotalAlertas()
+    public function getTotalTac($fechaInicio = null, $fechaFin = null)
+{
+    $where = "";
+
+    if (!empty($fechaInicio) && !empty($fechaFin)) {
+        $where = "WHERE FECHA_LIQD BETWEEN '$fechaInicio' AND '$fechaFin'";
+    }
+
+    $sql = "SELECT COUNT(1) AS total
+            FROM seg_ns_prod_eval
+            $where";
+
+    $result = $this->runQueryAnalisis($sql);
+
+    return !empty($result) ? (int)$result[0]['total'] : 0;
+}
+
+public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
+{
+    $whereFechas = "";
+
+    if (!empty($fechaInicio) && !empty($fechaFin)) {
+        $whereFechas = "WHERE FECHA_LIQD BETWEEN '$fechaInicio' AND '$fechaFin'";
+    }
+
+    $sql = "SELECT COUNT(*) AS total_alertas
+            FROM (
+                SELECT t.Num__Serie
+                FROM qm_tac t
+                INNER JOIN (
+                    SELECT DISTINCT TELEFONO
+                    FROM seg_ns_prod_eval
+                    $whereFechas
+                ) s ON s.TELEFONO = t.TELEFONO
+                WHERE t.Calificador_Edo = 'COMPLETADA'
+                GROUP BY t.Num__Serie
+                HAVING COUNT(DISTINCT t.TELEFONO) > 1
+            ) AS duplicados";
+
+    $result = $this->runQueryAnalisis($sql);
+
+    return !empty($result) ? (int)$result[0]['total_alertas'] : 0;
+}
+
+/*public function getTotalAlertas()
 {
     echo "ENTRANDO A ALERTAS<br>"; // 👈 DEBUG
 
@@ -128,7 +172,7 @@ FROM (
     var_dump($result); // 👈 DEBUG
 
     return !empty($result) ? (int)$result[0]['total_alertas'] : 0;
-}
+} */
 
 /*public function getTotalAlertas()
 {
