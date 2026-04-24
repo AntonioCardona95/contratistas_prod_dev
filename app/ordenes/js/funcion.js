@@ -18,7 +18,7 @@ function procesarAlertas() {
             $('#btnProcesarAlertas').prop('disabled', false);
 
             // 🔥 Recargar dashboard automáticamente
-            cargarDashboard();
+            procesarAlertas();
         },
         error: function(xhr) {
             console.error(xhr.responseText);
