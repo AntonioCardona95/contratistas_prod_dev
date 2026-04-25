@@ -137,7 +137,16 @@ public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
 
     $result = $this->runQueryAnalisis($sql);
 
-    return !empty($result) ? (int)$result[0]['total_alertas'] : 0;
+    if (!empty($result)) {
+        // Maneja ambos posibles índices
+        if (isset($result[0]['total_alertas'])) {
+            return (int)$result[0]['total_alertas'];
+        } elseif (isset($result[0]['COUNT(*)'])) {
+            return (int)$result[0]['COUNT(*)'];
+        }
+    }
+
+    return 0;
 }
 
 
