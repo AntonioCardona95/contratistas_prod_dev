@@ -31,13 +31,19 @@ function procesarAlertas() {
 function actualizarCards() {
     console.log('cargando dashboard...');
 
+    // 🔎 Depuración: imprime las fechas que se envían
+    var fechaInicio = $('#Fecha1').val();
+    var fechaFin = $('#Fecha2').val();
+    console.log('📅 Fecha inicio seleccionada:', fechaInicio);
+    console.log('📅 Fecha fin seleccionada:', fechaFin);
+
     $.ajax({
         url: 'ajax/get_dashboard.php',
         method: 'GET',
         dataType: 'json',
         data: {
-            fecha_inicio: $('#Fecha1').val(),
-            fecha_fin: $('#Fecha2').val()
+            fecha_inicio: fechaInicio,
+            fecha_fin: fechaFin
         },
         success: function(res) {
             console.log('✅ RESPUESTA AJAX:', res);
@@ -51,6 +57,7 @@ function actualizarCards() {
         }
     });
 }
+
 
 
 
