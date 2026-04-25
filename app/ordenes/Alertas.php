@@ -15,13 +15,13 @@ if (empty($Contratista)) {
 }
 
 require_once($_SERVER['DOCUMENT_ROOT']."/ordenes/controller/ClassOps.php");
-//$modal = new Ops();
 
-// Cantidad de órdenes de producción del contratista logueado
-
-//$totalCoordiapp = $modal->ConteoOrdenesCoordiapp($idContratistas);
+// Obtener las fechas de la URL
+$fecha_inicio = $_GET['fecha_inicio'] ?? date('Y-m-d');
+$fecha_fin = $_GET['fecha_fin'] ?? date('Y-m-d');
 
 ?>
+
 <!DOCTYPE html>
 <html lang="en">    
 <head>
@@ -206,21 +206,9 @@ require_once($_SERVER['DOCUMENT_ROOT']."/ordenes/controller/ClassOps.php");
 
 <!-- Page Content -->
 <div class="container-fluid" style="margin-top: 40px;">
-    <form action="import_excel.php" method="post" enctype="multipart/form-data">
+     <form action="import_excel.php" method="post" enctype="multipart/form-data">
         <div class="form-group d-flex align-items-center" id="FormQueryUnidades" style="gap: 20px;">
-            <!-- Select de semanas -->
-            <div>
-                <label for="semana">Semana</label>
-                <select name="semana" id="semana" class="form-control" style="width:250px;">
-                    <option value="">Seleccionar Semana</option>
-                    <?php
-                    $numSemanas = 52;
-                    for ($i = 1; $i <= $numSemanas; $i++) {
-                        echo "<option value='$i'>$i</option>";
-                    }
-                    ?>
-                </select>
-            </div>
+            <!-- El formulario ya no necesita el campo de semana -->
         </div>
     </form>
 
