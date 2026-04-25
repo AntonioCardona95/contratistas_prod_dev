@@ -36,8 +36,13 @@ if (empty($alertas)) {
     exit;
 }
 
-// Aquí simplemente puedes devolver las alertas o procesarlas como sea necesario
-return $alertas;  // Retorna las alertas en formato de array
+// Procesar las alertas y generar la respuesta (por ejemplo, con un HTML o JSON)
+echo "<table>";
+echo "<tr><th>Expediente</th><th>Alerta</th><th>Fecha</th></tr>";
+foreach ($alertas as $alerta) {
+    echo "<tr><td>{$alerta['expediente']}</td><td>{$alerta['alerta']}</td><td>{$alerta['fecha']}</td></tr>";
+}
+echo "</table>";
 ?>
 
 
