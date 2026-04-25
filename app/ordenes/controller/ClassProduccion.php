@@ -729,6 +729,26 @@ private function alertaOntDuplicadaEsci($data, &$alertas, &$detalleEsci)
     }
 }
 
+// ESCI POSIBLE NUEVA
+
+/*private function alertaOntDuplicadaEsci($data, &$alertas, &$detalleEsci)
+{
+    $serie = strtoupper(trim($data['serieEsci'] ?? ''));
+
+    // 🚨 Validar que el número de serie sea válido
+    if (empty($serie) || $serie === 'DESCONOCIDO' || $serie === 'NS NO OBTENIDO') {
+        return; // no se considera duplicado si no hay serie válida
+    }
+
+    if (isset($data['esciSeriesMap'][$serie])) {
+        if (count($data['esciSeriesMap'][$serie]) > 1) {
+            $alertas[] = 'ONT_DUPLICADA_EN_ESCI';
+            $detalleEsci = "Serie $serie duplicada en ESCI";
+        }
+    }
+} */
+
+
 private function alertaSerieDesconocida($data, &$alertas)
 {
     if ($data['serieEsci'] === 'DESCONOCIDO') {
