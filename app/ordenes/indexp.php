@@ -177,50 +177,41 @@ if (empty($Contratista)) {
                     </button>
 
                     <!-- Topbar Search -->
-                    <form class="col-xl-10 col-md-10 mb-10" id="FormQueryUnidades">
-                        
-                        <div class="input-group">
+   <form class="col-xl-10 col-md-10 mb-10" id="FormQueryUnidades">
+    <div class="input-group">
+        <?php
+            // Valores por defecto: día actual (ambos campos)
+            $defaultFecha1 = $_POST['Fecha1'] ?? date('Y-m-d');
+            $defaultFecha2 = $_POST['Fecha2'] ?? date('Y-m-d');
+        ?>
+        
+        <input type="date" name="Fecha1" id="Fecha1" 
+               value="<?= htmlspecialchars($defaultFecha1) ?>" 
+               class="form-control bg-light border-0 small">
 
-                            <?php
-                                // Valores por defecto: día actual (ambos campos)
-                                $defaultFecha1 = $_POST['Fecha1'] ?? date('Y-m-d');
-                                $defaultFecha2 = $_POST['Fecha2'] ?? date('Y-m-d');
-                            ?>
-                            
-                            <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($defaultFecha1) ?>" class="form-control bg-light border-0 small"
-                                aria-label="AL" aria-describedby="basic-addon2">
+        <input type="date" name="Fecha2" id="Fecha2" 
+               value="<?= htmlspecialchars($defaultFecha2) ?>" 
+               class="form-control bg-light border-0 small">
 
-                            <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($defaultFecha2) ?>" class="form-control bg-light border-0 small"
-                                aria-label="AL" aria-describedby="basic-addon2">
+        <!-- Botón lupa: procesa alertas -->
+        <div class="input-group-append mr-2">
+            <button id="btnLoadKPIS" class="btn btn-primary" type="button" onclick="procesarAlertas();">
+                <i class="fas fa-search fa-sm"></i>
+            </button>
+        </div>
 
-                            <div class="input-group-append">
+        <!-- Botón limpiar: separado con margen -->
+        <div class="input-group-append">
+            <button class="btn btn-warning" type="button" onclick="limpiarFiltros();" id="btnLimpiar">
+                <i class="fas fa-eraser fa-sm"></i> Limpiar
+            </button>
+        </div>
+    </div>
 
-                                <button id="btnLoadKPIS" class="btn btn-primary" type="button">
-                                    <i class="fas fa-search fa-sm"></i>
-                                </button>
+    <!-- Estado del proceso -->
+    <div id="estadoProceso" class="mt-2 text-sm text-gray-600"></div>
+</form>
 
-                            </div>
-
-                              <div class="input-group-append">
-                             <!--   <button class="btn btn-primary" type="button" onclick="cargarDashboard();">
-                                    <i class="fas fa-search fa-sm"></i> Analizar
-                                </button> -->
-
-                                <button class="btn btn-warning" type="button" onclick="procesarAlertas();" id="btnProcesarAlertas">
-    <i class="fas fa-cogs fa-sm"></i> Procesar Alertas
-</button>
-
-
-
-                                <button class="btn btn-outline-secondary" type="button" onclick="limpiarFiltros();" title="Limpiar filtros">
-                                    <i class="fas fa-eraser fa-sm"></i>
-                                </button>
-                                <div id="estadoProceso" class="mt-2 text-sm text-gray-600"></div>
-                            </div>
-                        
-                        </div>
-
-                    </form>
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
