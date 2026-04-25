@@ -271,6 +271,7 @@ if (empty($Contratista)) {
                     <!-- Card -->
 
                     <!-- Card -->
+<!-- Tarjeta con redirección -->
 <div class="col-xl-3 col-md-6 mb-4" onclick="redirectToAlertas();">
     <div class="card border-left-success shadow h-100 py-2" style="cursor: pointer;">
         <div class="card-body">
@@ -294,7 +295,6 @@ if (empty($Contratista)) {
         </div>
     </div>
 </div>
-
 
 
                 
@@ -425,6 +425,17 @@ if (empty($Contratista)) {
     <script src="https://code.highcharts.com/highcharts.js"></script>
       <script src="js/funcion.js"></script>
 
+<script>
+// Función para redirigir con las fechas
+function redirectToAlertas() {
+    // Obtener los valores de las fechas desde los campos del formulario
+    var fecha1 = document.getElementById('Fecha1').value;
+    var fecha2 = document.getElementById('Fecha2').value;
+
+    // Redirigir a Alertas.php pasando las fechas como parámetros en la URL
+    window.location.href = 'Alertas.php?fecha_inicio=' + encodeURIComponent(fecha1) + '&fecha_fin=' + encodeURIComponent(fecha2);
+}
+</script>
 
     <!-- Page level custom scripts -->
    
