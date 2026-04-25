@@ -401,6 +401,9 @@ private function evaluarAlertas($data)
         $this->alertaEventoEsci($data, $alertas, $detalleEsci);
         $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
 
+        // 🚨 Nueva: comparar TAC vs Esci cuando no hay coordiapp
+        $this->alertaSeriesDiferente($data, $alertas);
+
         // Agregamos alerta especial
         $alertas[] = 'NO EN COORDIAPP';
 
@@ -417,7 +420,10 @@ private function evaluarAlertas($data)
     $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
     $this->alertaSerieDesconocida($data, $alertas);
     $this->alertaEventoEsci($data, $alertas, $detalleEsci);
-    $this->alertaSeriesDiferentes($data, $alertas);
+
+    // 🚨 Nueva: comparar coordiapp vs tac vs esci
+    $this->alertaSeriesDiferente($data, $alertas);
+
     $this->alertaTecnologiaDiferente($data, $alertas);
 
     // CORREGIDAS (todas dependen de coordiapp)
@@ -437,6 +443,43 @@ private function evaluarAlertas($data)
         'detalleTac' => $detalleTac
     ];
 }
+
+
+private function alertaSeriesDiferente($data, &$alertas)
+{
+    // Normalizar valores
+    $serieTac   = strtoupper(trim($data['serieTac'] ?? ''));
+    $serieCoord = strtoupper(trim($data['serieCoord'] ?? ''));
+    $serieEsci  = strtoupper(trim($data['serieEsci'] ?? ''));
+
+    // Filtrar valores inválidos
+    $invalidos = ['DESCONOCIDO', 'NS NO OBTENIDO', ''];
+    $serieTac   = in_array($serieTac, $invalidos) ? null : $serieTac;
+    $serieCoord = in_array($serieCoord, $invalidos) ? null : $serieCoord;
+    $serieEsci  = in_array($serieEsci, $invalidos) ? null : $serieEsci;
+
+    // Caso: existe Coordiapp
+    if ($data['coord'] !== null) {
+        if ($serieCoord) {
+            // Comparar los tres
+            $series = array_filter([$serieTac, $serieCoord, $serieEsci]);
+            if (count($series) > 1 && count(array_unique($series)) > 1) {
+                $alertas[] = 'NUMERO_SERIE_DIFERENTE';
+            }
+        } else {
+            // Coordiapp vacío → comparar TAC vs Esci
+            if ($serieTac && $serieEsci && $serieTac !== $serieEsci) {
+                $alertas[] = 'NUMERO_SERIE_DIFERENTE';
+            }
+        }
+    } else {
+        // Caso: no existe Coordiapp → comparar TAC vs Esci
+        if ($serieTac && $serieEsci && $serieTac !== $serieEsci) {
+            $alertas[] = 'NUMERO_SERIE_DIFERENTE';
+        }
+    }
+}
+
 
 private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
 {
