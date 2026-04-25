@@ -6,11 +6,13 @@ session_start();
 $Contratista = $_SESSION['Contratista'] ?? null;
 $idContratistas = $_SESSION['idContratistas'] ?? null;
 
-$semana = $_POST['semana'] ?? null;
+// Obtener las fechas desde la solicitud POST
+$fecha_inicio = $_POST['fecha_inicio'] ?? null;
+$fecha_fin = $_POST['fecha_fin'] ?? null;
 
-// Si no hay semana seleccionada
-if (empty($semana)) {
-    echo "";
+// Si no hay fechas seleccionadas, terminamos la ejecución
+if (empty($fecha_inicio) || empty($fecha_fin)) {
+    echo "<p>No se han recibido fechas válidas.</p>";
     exit;
 }
 
@@ -40,16 +42,24 @@ if (empty($expedientes)) {
 /* ============================
    ALERTAS
 ============================ */
-$alertas = $modal->ObtenerProduccionAlertas($idContratistas, $semana);
+// Ahora obtenemos las alertas según las fechas
+$alertas = $modal->ObtenerProduccionAlertasPorFechas($idContratistas, $fecha_inicio, $fecha_fin);
 $alertas = is_array($alertas) ? $alertas : [];
 
+// Si no hay alertas, mostramos un mensaje
+if (empty($alertas)) {
+    echo "<p>No se encontraron alertas en este rango de fechas.</p>";
+    exit;
+}
 
-
-
-
-
+// Procesar las alertas y generar la respuesta (por ejemplo, con un HTML o JSON)
+echo "<table>";
+echo "<tr><th>Expediente</th><th>Alerta</th><th>Fecha</th></tr>";
+foreach ($alertas as $alerta) {
+    echo "<tr><td>{$alerta['expediente']}</td><td>{$alerta['alerta']}</td><td>{$alerta['fecha']}</td></tr>";
+}
+echo "</table>";
 ?>
-
 
 
 
