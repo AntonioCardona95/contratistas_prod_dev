@@ -1,19 +1,17 @@
 <?php
-
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 require_once("../controller/classProduccion.php");
 
 $prod = new Produccion();
 
-// 👇 Ajuste: usar los mismos nombres que manda el JS
+// Usa los mismos nombres que manda el JS
 $fechaInicio = $_GET['fecha_inicio'] ?? null;
-$fechaFin = $_GET['fecha_fin'] ?? null;
+$fechaFin    = $_GET['fecha_fin'] ?? null;
 
-$totalTac = $prod->getTotalTac($fechaInicio, $fechaFin);
+$totalTac     = $prod->getTotalTac($fechaInicio, $fechaFin);
 $totalAlertas = $prod->getTotalAlertas($fechaInicio, $fechaFin);
 
+// Asegúrate de que SOLO se imprima JSON
+header('Content-Type: application/json; charset=utf-8');
 echo json_encode([
     "total_tac" => $totalTac,
     "alertas"   => $totalAlertas
