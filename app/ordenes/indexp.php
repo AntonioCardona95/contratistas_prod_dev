@@ -149,8 +149,6 @@ if (empty($Contratista)) {
                 </a>
             </li>
 
-
-
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
@@ -177,45 +175,43 @@ if (empty($Contratista)) {
                     </button>
 
                     <!-- Topbar Search -->
-   <form class="col-xl-10 col-md-10 mb-10" id="FormQueryUnidades">
-    <div class="input-group">
-        <?php
-            // Valores por defecto: día actual (ambos campos)
-            $defaultFecha1 = $_POST['Fecha1'] ?? date('Y-m-d');
-            $defaultFecha2 = $_POST['Fecha2'] ?? date('Y-m-d');
-        ?>
-        
-        <input type="date" name="Fecha1" id="Fecha1" 
-               value="<?= htmlspecialchars($defaultFecha1) ?>" 
-               class="form-control bg-light border-0 small">
+                    <form class="col-xl-10 col-md-10 mb-10" id="FormQueryUnidades">
+                        <div class="input-group">
+                            <?php
+                                // Valores por defecto: día actual (ambos campos)
+                                $defaultFecha1 = $_POST['Fecha1'] ?? date('Y-m-d');
+                                $defaultFecha2 = $_POST['Fecha2'] ?? date('Y-m-d');
+                            ?>
 
-        <input type="date" name="Fecha2" id="Fecha2" 
-               value="<?= htmlspecialchars($defaultFecha2) ?>" 
-               class="form-control bg-light border-0 small">
+                            <input type="date" name="Fecha1" id="Fecha1" 
+                                   value="<?= htmlspecialchars($defaultFecha1) ?>" 
+                                   class="form-control bg-light border-0 small">
 
-        <!-- Botón lupa: procesa alertas -->
-        <div class="input-group-append mr-2">
-            <button id="btnLoadKPIS" class="btn btn-primary" type="button" onclick="procesarAlertas();">
-                <i class="fas fa-search fa-sm"></i>
-            </button>
-        </div>
+                            <input type="date" name="Fecha2" id="Fecha2" 
+                                   value="<?= htmlspecialchars($defaultFecha2) ?>" 
+                                   class="form-control bg-light border-0 small">
 
-        <!-- Botón limpiar: separado con margen -->
-        <div class="input-group-append">
-            <button class="btn btn-warning" type="button" onclick="limpiarFiltros();" id="btnLimpiar">
-                <i class="fas fa-eraser fa-sm"></i> Limpiar
-            </button>
-        </div>
-    </div>
+                            <!-- Botón lupa: procesa alertas -->
+                            <div class="input-group-append mr-2">
+                                <button id="btnLoadKPIS" class="btn btn-primary" type="button" onclick="procesarAlertas();">
+                                    <i class="fas fa-search fa-sm"></i>
+                                </button>
+                            </div>
 
-    <!-- Estado del proceso -->
-    <div id="estadoProceso" class="mt-2 text-sm text-gray-600"></div>
-</form>
+                            <!-- Botón limpiar: separado con margen -->
+                            <div class="input-group-append">
+                                <button class="btn btn-warning" type="button" onclick="limpiarFiltros();" id="btnLimpiar">
+                                    <i class="fas fa-eraser fa-sm"></i> Limpiar
+                                </button>
+                            </div>
+                        </div>
 
+                        <!-- Estado del proceso -->
+                        <div id="estadoProceso" class="mt-2 text-sm text-gray-600"></div>
+                    </form>
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
-
                         <div class="topbar-divider d-none d-sm-block"></div>
 
                         <!-- Nav Item - User Information -->
@@ -240,138 +236,123 @@ if (empty($Contratista)) {
                                 </a>
                             </div>
                         </li>
-
                     </ul>
 
                 </nav>
                 <!-- End of Topbar -->
 
-                 <!-- TOTAL TAC -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-primary shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                            TOTAL TAC
-                        </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="total_tac">
-                            0
-                        </div>
-                        <div class="text-xs text-muted">
-                            Promedio: <span id="promedio_tac">0</span>/día
-                        </div>
-                    </div>
+                <!-- TOTAL TAC -->
+                <div class="row">
+                    <!-- Card -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            TOTAL TAC
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="total_tac">
+                                            0
+                                        </div>
+                                        <div class="text-xs text-muted">
+                                            Promedio: <span id="promedio_tac">0</span>/día
+                                        </div>
+                                    </div>
 
-                    <div class="col-auto">
-                        <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                                    </div>
 
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- REGISTRADAS -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-success shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                            REGISTRADAS
-                        </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="alertas">
-                            0
-                        </div>
-                        <div class="text-xs text-muted">
-                            Promedio: <span id="promedio_alertas">0</span>/día
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- FALTANTES -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-danger shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                            FALTANTES
-                        </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="faltantes">
-                            0
-                        </div>
-                        <div class="text-xs text-muted">
-                            Promedio: <span id="promedio_faltantes">0</span>/día
-                        </div>
-                    </div>
-
-                    <div class="col-auto">
-                        <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- CUMPLIMIENTO -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-warning shadow h-100 py-2">
-            <div class="card-body">
-                
-                <div class="row no-gutters align-items-center">
-                    
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                            CUMPLIMIENTO
-                        </div>
-                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="cumplimiento">
-                            0%
-                        </div>
-
-                        <!-- Barra -->
-                        <div class="progress mt-2" style="height: 8px;">
-                            <div class="progress-bar bg-warning" role="progressbar"
-                                style="width: 0%" id="barra_cumplimiento">
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-auto">
-                        <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                    <!-- Card -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-success shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            REGISTRADAS
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="alertas">
+                                            0
+                                        </div>
+                                        <div class="text-xs text-muted">
+                                            Promedio: <span id="promedio_alertas">0</span>/día
+                                        </div>
+                                    </div>
+
+                                    <div class="col-auto">
+                                        <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                </div>
+                    <!-- Card -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-danger shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                            FALTANTES
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="faltantes">
+                                            0
+                                        </div>
+                                        <div class="text-xs text-muted">
+                                            Promedio: <span id="promedio_faltantes">0</span>/día
+                                        </div>
+                                    </div>
 
-            </div>
-        </div>
-    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                                    </div>
 
-</div>
-
-                <!-- Begin Page Content -->
-                <div class="container-fluid">
-
-                    <!-- DataTales Example -->
-                    <div id="procesarAlertas">
-
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
+                    <!-- Card -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-warning shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                            CUMPLIMIENTO
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="cumplimiento">
+                                            0%
+                                        </div>
+
+                                        <!-- Barra -->
+                                        <div class="progress mt-2" style="height: 8px;">
+                                            <div class="progress-bar bg-warning" role="progressbar"
+                                                style="width: 0%" id="barra_cumplimiento">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-auto">
+                                        <i class="fas fa-percentage fa-2x text-gray-300"></i>
+                                    </div>
+
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <!-- /.container-fluid -->
+                <!-- End of Cards -->
 
             </div>
             <!-- End of Main Content -->
