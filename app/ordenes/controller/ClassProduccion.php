@@ -123,7 +123,22 @@ class Produccion extends Conexion
     return !empty($result) ? (int)$result[0]['total'] : 0;
 }
 
-public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
+public function getTotalAlertas()
+{
+    $sql = "SELECT COUNT(*) AS total_alertas
+            FROM Produccion_alertas";
+
+    $result = $this->runQueryAnalisis($sql);
+
+    // 🔎 Depuración en pantalla
+    echo "<pre>SQL ejecutada: $sql</pre>";
+    echo "<pre>Resultado crudo: " . print_r($result, true) . "</pre>";
+
+    return !empty($result) ? (int)$result[0]['total_alertas'] : 0;
+}
+
+
+/*public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
 {
     $where = "";
 
@@ -138,7 +153,7 @@ public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
     $result = $this->runQueryAnalisis($sql);
 
     return !empty($result) ? (int)$result[0]['total_alertas'] : 0;
-}
+} */
 
 
 /*public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
