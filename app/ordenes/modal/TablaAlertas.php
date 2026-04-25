@@ -24,22 +24,6 @@ if (empty($Contratista) || empty($idContratistas)) {
 $modal = new Ops();
 
 /* ============================
-   🔹 EXPEDIENTES (SE CONSERVA)
-============================ */
-$expedientesData = $modal->ObtenerExpedientesPorContratista($idContratistas);
-$expedientesData = is_array($expedientesData) ? $expedientesData : [];
-
-$expedientes = [];
-foreach ($expedientesData as $exp) {
-    $expedientes[] = $exp['NExpediente'];
-}
-
-if (empty($expedientes)) {
-    echo "<p>No se encontraron expedientes de técnicos para este contratista.</p>";
-    exit;
-}
-
-/* ============================
    ALERTAS
 ============================ */
 // Ahora obtenemos las alertas según las fechas
@@ -52,13 +36,8 @@ if (empty($alertas)) {
     exit;
 }
 
-// Procesar las alertas y generar la respuesta (por ejemplo, con un HTML o JSON)
-echo "<table>";
-echo "<tr><th>Expediente</th><th>Alerta</th><th>Fecha</th></tr>";
-foreach ($alertas as $alerta) {
-    echo "<tr><td>{$alerta['expediente']}</td><td>{$alerta['alerta']}</td><td>{$alerta['fecha']}</td></tr>";
-}
-echo "</table>";
+// Aquí simplemente puedes devolver las alertas o procesarlas como sea necesario
+return $alertas;  // Retorna las alertas en formato de array
 ?>
 
 
