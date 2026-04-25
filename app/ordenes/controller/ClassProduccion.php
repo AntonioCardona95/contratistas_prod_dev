@@ -123,6 +123,24 @@ class Produccion extends Conexion
     return !empty($result) ? (int)$result[0]['total'] : 0;
 }
 
+public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
+{
+    $where = "";
+
+    if (!empty($fechaInicio) && !empty($fechaFin)) {
+        $where = "WHERE Fecha_Liquidacion BETWEEN '$fechaInicio' AND '$fechaFin'";
+    }
+
+    $sql = "SELECT COUNT(*) AS total_alertas
+            FROM Produccion_alertas
+            $where";
+
+    $result = $this->runQueryAnalisis($sql);
+
+    return !empty($result) ? (int)$result[0]['total_alertas'] : 0;
+}
+
+
 /*public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
 {
     $whereFechas = "";
