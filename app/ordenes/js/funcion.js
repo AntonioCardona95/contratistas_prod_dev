@@ -34,8 +34,9 @@ function actualizarCards() {
     // 🔎 Depuración: imprime las fechas que se envían
     var fechaInicio = $('#Fecha1').val();
     var fechaFin = $('#Fecha2').val();
-    console.log('📅 Fecha inicio seleccionada:', fechaInicio);
-    console.log('📅 Fecha fin seleccionada:', fechaFin);
+
+    console.log('📅 Valor en #Fecha1:', fechaInicio);
+    console.log('📅 Valor en #Fecha2:', fechaFin);
 
     $.ajax({
         url: 'ajax/get_dashboard.php',
