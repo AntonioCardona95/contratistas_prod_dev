@@ -2608,6 +2608,27 @@ public function ObtenerExpedientesPorContratista($idContratistas)
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+public function ObtenerAlertas($fecha_inicio, $fecha_fin)
+{
+    // Obtener la conexión
+    $conexion = $this->get_conexion();
+
+    // Consulta SQL ajustada para filtrar por fechas en lugar de semana e id de contratista
+    $sql = "SELECT * 
+            FROM Produccion_alertas 
+            WHERE Fecha >= :fecha_inicio
+            AND Fecha <= :fecha_fin";
+
+    // Preparar la consulta
+    $stmt = $conexion->prepare($sql);
+    $stmt->bindParam(':fecha_inicio', $fecha_inicio);
+    $stmt->bindParam(':fecha_fin', $fecha_fin);
+    $stmt->execute();
+
+    // Devolver todos los resultados
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
 /*public function OrdenesConIncidencias($idContratistas, $expedientes = [], $semana = null)
 {
