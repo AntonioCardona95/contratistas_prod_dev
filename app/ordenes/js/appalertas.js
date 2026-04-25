@@ -16,7 +16,7 @@ $(document).ready(function(){
 function LoadAlertas(semana){
     $.ajax({
         type:'POST',
-        url:'modal/TablaNuevaAlertas.php',
+        url:'modal/TablaAlertas.php',
         data: { semana: semana }, // enviamos solo la semana
         beforeSend: function(){
             $("#LoadAlertas").html("<center><img src='../image/loading-46.gif'></center>");
