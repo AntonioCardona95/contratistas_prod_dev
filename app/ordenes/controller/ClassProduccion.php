@@ -215,8 +215,8 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
                 Semana,
                 Anio,
                 0 AS metraje
-            FROM seg_ns_prod_eval
-            /*FROM seg_ns_prod_eval_tmp */
+           /* FROM seg_ns_prod_eval */
+            FROM seg_ns_prod_eval_tmp 
             $where";
 
     return $this->runQueryAnalisis($sql);
