@@ -420,6 +420,7 @@ if (empty($Contratista)) {
     <script src="vendor/chart.js/Chart.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
       <script src="js/funcion.js"></script>
+      
 
     <!-- Page level custom scripts -->
    
