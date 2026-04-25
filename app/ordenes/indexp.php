@@ -423,16 +423,7 @@ if (empty($Contratista)) {
 
     <!-- Page level custom scripts -->
    
-<script>
-$(document).ready(function(){
-    $('#btnLoadKPIS').on('click', function(e){
-        e.preventDefault();
-        procesarAlertas();
-    });
 
-    // procesarAlertas();
-});
-</script>
 
 </body>
 
