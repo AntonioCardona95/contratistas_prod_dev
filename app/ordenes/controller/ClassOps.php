@@ -2613,11 +2613,11 @@ public function ObtenerAlertas($fecha_inicio, $fecha_fin)
     // Obtener la conexión
     $conexion = $this->get_conexion();
 
-    // Consulta SQL ajustada para filtrar por fechas en lugar de semana e id de contratista
+    // Consulta SQL ajustada para filtrar por las fechas de liquidación en lugar de la columna 'Fecha'
     $sql = "SELECT * 
             FROM Produccion_alertas 
-            WHERE Fecha >= :fecha_inicio
-            AND Fecha <= :fecha_fin";
+            WHERE Fecha_Liquidacion >= :fecha_inicio
+            AND Fecha_Liquidacion <= :fecha_fin"; // Usamos 'Fecha_Liquidacion'
 
     // Preparar la consulta
     $stmt = $conexion->prepare($sql);
