@@ -427,14 +427,13 @@ if (empty($Contratista)) {
 $(document).ready(function(){
     $('#btnLoadKPIS').on('click', function(e){
         e.preventDefault();
-        procesarAlertas(); // ✅ Solo cuando das clic
+        procesarAlertas();
     });
 
-    // ❌ Quita esta línea:
     // procesarAlertas();
 });
-
 </script>
+
 </body>
 
 </html>
