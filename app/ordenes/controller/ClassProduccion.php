@@ -135,10 +135,10 @@ public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
             FROM Produccion_alertas
             $where";
 
-    $result = $this->runQueryAnalisis($sql);
+    //  Usa la conexión principal
+    $result = $this->runQuery($sql);
 
     if (!empty($result)) {
-        // Maneja ambos posibles índices
         if (isset($result[0]['total_alertas'])) {
             return (int)$result[0]['total_alertas'];
         } elseif (isset($result[0]['COUNT(*)'])) {
@@ -148,6 +148,7 @@ public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
 
     return 0;
 }
+
 
 
 /*public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
