@@ -128,7 +128,7 @@ public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
     $where = "";
 
     if (!empty($fechaInicio) && !empty($fechaFin)) {
-        $where = "WHERE Fecha_Liquidacion BETWEEN '$fechaInicio' AND '$fechaFin'";
+        $where = "WHERE Fecha_Liquidacion BETWEEN '$fechaInicio 00:00:00' AND '$fechaFin 23:59:59'";
     }
 
     $sql = "SELECT COUNT(*) AS total_alertas
@@ -139,6 +139,24 @@ public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
 
     return !empty($result) ? (int)$result[0]['total_alertas'] : 0;
 }
+
+
+/*public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
+{
+    $where = "";
+
+    if (!empty($fechaInicio) && !empty($fechaFin)) {
+        $where = "WHERE Fecha_Liquidacion BETWEEN '$fechaInicio' AND '$fechaFin'";
+    }
+
+    $sql = "SELECT COUNT(*) AS total_alertas
+            FROM Produccion_alertas
+            $where";
+
+    $result = $this->runQueryAnalisis($sql);
+
+    return !empty($result) ? (int)$result[0]['total_alertas'] : 0;
+} */
 
 
 /*public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
