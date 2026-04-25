@@ -1,5 +1,5 @@
 <?php
-require_once("../controller/classProduccion.php");
+require_once("../controller/ClassProduccion.php");
 
 $prod = new Produccion();
 
