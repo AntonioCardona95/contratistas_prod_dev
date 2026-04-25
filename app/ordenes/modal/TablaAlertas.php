@@ -43,7 +43,7 @@ if (empty($expedientes)) {
    ALERTAS
 ============================ */
 // Ahora obtenemos las alertas según las fechas
-$alertas = $modal->ObtenerProduccionAlertasPorFechas($idContratistas, $fecha_inicio, $fecha_fin);
+$alertas = $modal->ObtenerAlertas($fecha_inicio, $fecha_fin);
 $alertas = is_array($alertas) ? $alertas : [];
 
 // Si no hay alertas, mostramos un mensaje
