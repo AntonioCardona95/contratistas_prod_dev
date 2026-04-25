@@ -168,7 +168,6 @@ if (empty($Contratista)) {
 
                 <!-- Topbar -->
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-
                     <!-- Sidebar Toggle (Topbar) -->
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                         <i class="fa fa-bars"></i>
@@ -420,7 +419,7 @@ if (empty($Contratista)) {
     <script src="vendor/chart.js/Chart.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
       <script src="js/funcion.js"></script>
-      
+
 
     <!-- Page level custom scripts -->
    

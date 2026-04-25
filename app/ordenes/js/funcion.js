@@ -1,7 +1,7 @@
 function procesarAlertas() {
     console.log('Procesando alertas...');
 
-    $('#btnProcesarAlertas').prop('disabled', true);
+    $('#btnLoadKPIS').prop('disabled', true);
     $('#estadoProceso').text('⏳ Procesando alertas, espera...');
 
     $.ajax({
@@ -15,23 +15,19 @@ function procesarAlertas() {
             console.log('Proceso terminado:', res);
 
             $('#estadoProceso').text('✅ Alertas procesadas correctamente');
-            $('#btnProcesarAlertas').prop('disabled', false);
+            $('#btnLoadKPIS').prop('disabled', false);
 
-            // 👇 Aquí ya NO llamamos otra vez a procesarAlertas()
-            // Si quieres refrescar el dashboard, llama a otra función:
-            cargarDashboard();
+            // Ahora refrescamos las cards
+            actualizarCards();
         },
         error: function(xhr) {
             console.error(xhr.responseText);
-
             $('#estadoProceso').text('❌ Error al procesar alertas');
-            $('#btnProcesarAlertas').prop('disabled', false);
+            $('#btnLoadKPIS').prop('disabled', false);
         }
     });
 }
 
-
-// Nueva función para refrescar las cards con get_dashboard.php
 function actualizarCards() {
     console.log('cargando dashboard...');
 
@@ -46,7 +42,6 @@ function actualizarCards() {
         success: function(res) {
             console.log('✅ RESPUESTA AJAX:', res);
 
-            // Actualizamos directamente las cards
             $('#total_tac').text(res.total_tac);
             $('#alertas').text(res.alertas);
         },
