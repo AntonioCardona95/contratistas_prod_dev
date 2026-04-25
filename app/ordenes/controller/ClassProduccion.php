@@ -267,10 +267,31 @@ $coordData = [];
         $tacData[$row['Folio_Pisa']] = $row;
     }
 
+    // Modifica esta parte en InsertarAlertasMasivo
+$sqlOntDuplicada = "
+    SELECT Num__Serie, GROUP_CONCAT(DISTINCT TELEFONO) as telefonos
+    FROM qm_tac
+    WHERE Calificador_Edo = 'COMPLETADA'
+      AND Num__Serie IS NOT NULL
+      AND Num__Serie != ''
+    GROUP BY Num__Serie
+    HAVING COUNT(DISTINCT TELEFONO) > 1
+";
+
+$ontDuplicadasTac = [];
+foreach ($conexion_analisis->query($sqlOntDuplicada) as $row) {
+    $serie = strtoupper(trim($row['Num__Serie']));
+    // Convertimos la cadena "tel1,tel2" en un array donde el teléfono es la llave
+    $listaTels = explode(',', $row['telefonos']);
+    foreach ($listaTels as $t) {
+        $ontDuplicadasTac[$serie][trim($t)] = true; 
+    }
+}
+
     // =========================
     //  ONT DUPLICADA TAC
     // =========================
-    $sqlOntDuplicada = "
+    /*$sqlOntDuplicada = "
         SELECT Num__Serie
         FROM qm_tac
         WHERE Calificador_Edo = 'COMPLETADA'
@@ -283,7 +304,7 @@ $coordData = [];
     foreach ($conexion_analisis->query($sqlOntDuplicada) as $row) {
         $serie = strtoupper(trim($row['Num__Serie']));
         $ontDuplicadasTac[$serie] = true;
-    }
+    } */
 
     // =========================
     //  ESCI
