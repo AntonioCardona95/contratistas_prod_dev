@@ -347,7 +347,7 @@ $(document).ready(function() {
 });
 </script> -->
 <!-- <script src="js/appsinprocesoapago.js"></script> -->
-<script src="js/appalertas.js"></script>
+<script src="js/appalertasgenerales.js"></script>
 
 <!--<script>
     $(document).ready(function(){
