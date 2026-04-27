@@ -51,6 +51,7 @@ if (empty($alertas)) {
             <th>Alerta</th>
             <th>Detalle Esci</th>
             <th>Revisión</th>
+            <th>Contratista</th>
             <th>Galería</th>
         </tr>
     </thead>
@@ -81,6 +82,7 @@ if (empty($alertas)) {
             <td style="text-align:center;">
                 <?= !empty($row['Bandera_Revision']) ? '✔' : '✖' ?>
             </td>
+            <td><?= htmlspecialchars($row['nombre_completo'] ?? '') ?></td>
 
             <td>
                 <button 
