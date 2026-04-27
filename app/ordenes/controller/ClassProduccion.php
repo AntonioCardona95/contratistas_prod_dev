@@ -509,23 +509,29 @@ private function evaluarAlertas($data)
 
     $this->alertaTecnologiaDiferente($data, $alertas);
 
-    // CORREGIDAS (todas dependen de coordiapp)
+
+    $esQueja = $this->esTipoQueja($data['tipoTarea'] ?? '');
+
+//  VALIDACIONES NORMALES (solo si NO es queja)
+if (!$esQueja) {
+
     $this->alertaFotoOntFallida($data, $alertas);
+    $this->alertaOntTrasera($data, $alertas);
+    $this->alertaFotoCasaCliente($data, $alertas);
+    $this->alertaFotoR20($data, $alertas);
+
     $this->alertaLedsOntFallida($data, $alertas);
     $this->alertaTerminalFallida($data, $alertas);
     $this->alertaTerminalFallidaIA($data, $alertas);
     $this->alertaFotoDomicilioFallida($data, $alertas);
-    $this->alertaFotoR20($data, $alertas);
-    $this->alertaOntTrasera($data, $alertas);
     $this->alertaOntAlmacen($data, $alertas);
-    $this->alertaFotoCasaCliente($data, $alertas);
-    $this->alertaFotosPorTipoQueja($data, $alertas);
+}
 
-    return [
-        'alertas' => $alertas,
-        'detalleEsci' => $detalleEsci,
-        'detalleTac' => $detalleTac
-    ];
+//  VALIDACIÓN ESPECIAL (solo si SÍ es queja)
+if ($esQueja) {
+    $this->alertaFotosPorTipoQueja($data, $alertas);
+}
+
 }
 
 
@@ -696,6 +702,19 @@ private function alertaTipoTareaDiferente($data, &$alertas)
     if ($tipoTareaTac && $tipoTareaCoord && $tipoTareaTac !== $tipoTareaCoord) {
         $alertas[] = 'TIPO_TAREA_DIFERENTE';
     }
+}
+
+private function esTipoQueja($tipoTarea)
+{
+    $tipoTarea = strtoupper(trim($tipoTarea));
+    $tipos = ['Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597', 'F841'];
+
+    foreach ($tipos as $t) {
+        if (strpos($tipoTarea, $t) === 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 private function alertaTerminalFallida($data, &$alertas)
