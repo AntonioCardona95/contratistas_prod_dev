@@ -3,28 +3,34 @@ require_once("../controller/ClassOps.php");
 
 session_start();
 
-$Contratista = $_SESSION['Contratista'] ?? null;
+$Contratista   = $_SESSION['Contratista'] ?? null;
 $idContratistas = $_SESSION['idContratistas'] ?? null;
 
 $fecha_inicio = $_POST['fecha_inicio'] ?? null;
 $fecha_fin    = $_POST['fecha_fin'] ?? null;
 
-if (empty($fecha_inicio) || empty($fecha_fin)) {
-    echo "<p>No se han recibido fechas válidas.</p>";
-    exit;
-}
-
+// Validar sesión (esto sí debe quedarse)
 if (empty($Contratista) || empty($idContratistas)) {
     echo "<p>No se encontró información del contratista.</p>";
     exit;
 }
 
-$modal   = new Ops();
-$alertas = $modal->ObtenerAlertasSinFechas($fecha_inicio, $fecha_fin);
+$modal = new Ops();
+
+//  AQUÍ ESTÁ LA CLAVE
+if (!empty($fecha_inicio) && !empty($fecha_fin)) {
+    //  CON FECHAS
+    $alertas = $modal->ObtenerAlertasSinFechas($fecha_inicio, $fecha_fin);
+} else {
+    //  SIN FECHAS → TRAER TODO
+    $alertas = $modal->ObtenerTodasLasAlertas(); // 👈 necesitas este método
+}
+
 $alertas = is_array($alertas) ? $alertas : [];
 
+// Mensaje si no hay datos
 if (empty($alertas)) {
-    echo "<p>No se encontraron alertas en este rango de fechas.</p>";
+    echo "<p>No se encontraron alertas.</p>";
     exit;
 }
 ?>
