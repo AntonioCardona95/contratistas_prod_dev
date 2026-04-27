@@ -17,13 +17,12 @@ if (empty($Contratista) || empty($idContratistas)) {
 
 $modal = new Ops();
 
-//  AQUÍ ESTÁ LA CLAVE
 if (!empty($fecha_inicio) && !empty($fecha_fin)) {
-    //  CON FECHAS
-    $alertas = $modal->ObtenerAlertasSinFechas($fecha_inicio, $fecha_fin);
+    //  CON FECHAS (correcto)
+    $alertas = $modal->ObtenerAlertasConFechas($fecha_inicio, $fecha_fin);
 } else {
-    //  SIN FECHAS → TRAER TODO
-    $alertas = $modal->ObtenerAlertasConFechas($fecha_inicio, $fecha_fin); // 👈 necesitas este método
+    //  SIN FECHAS (correcto)
+    $alertas = $modal->ObtenerAlertasSinFechas();
 }
 
 $alertas = is_array($alertas) ? $alertas : [];
