@@ -519,6 +519,7 @@ private function evaluarAlertas($data)
     $this->alertaOntTrasera($data, $alertas);
     $this->alertaOntAlmacen($data, $alertas);
     $this->alertaFotoCasaCliente($data, $alertas);
+    $this->alertaFotosPorTipoQueja($data, $alertas);
 
     return [
         'alertas' => $alertas,
@@ -1058,6 +1059,69 @@ private function normalizarSerie($serie)
     $serie = preg_replace('/[^A-Z0-9]/', '', $serie);
 
     return $serie;
+}
+
+private function alertaFotosPorTipoQueja($data, &$alertas)
+{
+    $tipoTarea = strtoupper(trim($data['tipoTarea'] ?? ''));
+    $codigoLiquidacion = strtoupper(trim($data['coord']['Codigo_Liquidacion'] ?? ''));
+
+    $tipos = ['Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597', 'F841'];
+
+    $esQueja = false;
+    foreach ($tipos as $t) {
+        if (strpos($tipoTarea, $t) === 0) {
+            $esQueja = true;
+            break;
+        }
+    }
+
+    if (!$esQueja) return;
+
+    $validar = [];
+
+    if (in_array($codigoLiquidacion, [
+        'JUMPER/PARALELO EXTERIOR',
+        'CONECTOR MECANICO DAÑADO',
+        'CAMBIO DE PUERTO',
+        'CAMBIO DE TERMINAL'
+    ])) {
+        $validar = ['Foto_Casa_Cliente','Foto_Puerto'];
+    } elseif ($codigoLiquidacion === 'MODEM DAÑADO') {
+        $validar = ['Foto_Casa_Cliente','Foto_Ont'];
+    } elseif (in_array($codigoLiquidacion, [
+        'CAMBIO PAR PRINCIPAL',
+        'CAMBIO PAR SECUNDARIO',
+        'ROSETA OPTICA',
+        'CAMBIO DE INTERIOR'
+    ])) {
+        $validar = ['Foto_Casa_Cliente'];
+    } elseif (in_array($codigoLiquidacion, [
+        'CAMBIO PARALELO Y MODEM',
+        'OTRO'
+    ])) {
+        $validar = ['Foto_Casa_Cliente','Foto_Puerto','Foto_Ont'];
+    }
+
+    // 🔴 VALIDAR SOLO ESAS
+    foreach ($validar as $campo) {
+        $valor = $data['coord'][$campo] ?? '';
+
+        if (empty($valor) || !preg_match('/\.(jpg|jpeg|png)$/i', $valor)) {
+            $alertas[] = "FALTA_EVIDENCIA_" . strtoupper($campo);
+        }
+    }
+
+    // 🔴 VALIDACIONES 1/0 SOLO SI ES QUEJA
+    if (!empty($validar)) {
+        if ((int)($data['coord']['validacion_foto_fallida'] ?? 0) === 1) {
+            $alertas[] = 'VALIDACION_FOTO_FALLIDA';
+        }
+
+        if ((int)($data['coord']['validacion_LEDS_ONT_fallida'] ?? 0) === 1) {
+            $alertas[] = 'VALIDACION_LEDS_FALLIDA';
+        }
+    }
 }
 
 
