@@ -321,33 +321,7 @@ if (empty($Contratista)) {
         </div>
     </div>
 </div>
-                    <!-- Card -->
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-warning shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                            CUMPLIMIENTO
-                                        </div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="cumplimiento">
-                                            0%
-                                        </div>
-
-                                        <!-- Barra -->
-                                        <div class="progress mt-2" style="height: 8px;">
-                                            <div class="progress-bar bg-warning" role="progressbar"
-                                                style="width: 0%" id="barra_cumplimiento">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-auto">
-                                        <i class="fas fa-percentage fa-2x text-gray-300"></i>
-                                    </div>
-
-                                </div>
-
+                    
                             </div>
                         </div>
                     </div>
