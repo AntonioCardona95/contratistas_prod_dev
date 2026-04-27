@@ -286,7 +286,8 @@ $coordData = [];
     validacion_LEDS_ONT_fallida,
     Foto_Casa_Cliente,
     validacion_foto_fallida,
-    Foto_Puerto
+    Foto_Puerto,
+    Codigo_Liquidacion
 FROM tecnico_instalaciones_coordiapp
 WHERE Folio_Pisa IN ($inFolios)
   AND Estatus_Orden = 'COMPLETADA'
