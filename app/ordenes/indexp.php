@@ -310,12 +310,8 @@ if (empty($Contratista)) {
                     <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                         TOTAL ALERTAS GENERALES
                     </div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="alertasg">
-                        0
-                    </div>
-                    <div class="text-xs text-muted">
-                        Promedio: <span id="promedio_alertas">0</span>/día
-                    </div>
+                  
+                   
                 </div>
 
                 <div class="col-auto">
@@ -461,6 +457,10 @@ function redirectToAlertas() {
 
     // Redirigir a Alertas.php pasando las fechas como parámetros en la URL
     window.location.href = 'Alertas.php?fecha_inicio=' + encodeURIComponent(fecha1) + '&fecha_fin=' + encodeURIComponent(fecha2);
+}
+
+function redirectToAlertasGenerales() {
+    window.location.href = 'AlertasGenerales.php';
 }
 </script>
 
