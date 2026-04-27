@@ -27,6 +27,11 @@ if (!empty($fecha_inicio) && !empty($fecha_fin)) {
 
 $alertas = is_array($alertas) ? $alertas : [];
 
+echo "<pre>";
+print_r($alertas);
+echo "</pre>";
+exit;
+
 // Mensaje si no hay datos
 if (empty($alertas)) {
     echo "<p>No se encontraron alertas.</p>";
