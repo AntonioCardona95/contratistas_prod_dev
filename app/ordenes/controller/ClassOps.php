@@ -2646,6 +2646,25 @@ public function ObtenerAlertasSinFechas()
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+public function ObtenerAlertasConFechas($fecha_inicio, $fecha_fin)
+{
+    $conexion = $this->get_conexion();
+
+    $sql = "SELECT pa.*, 
+                   CONCAT(c.Contratista, ' ', c.apellido_paterno, ' ', c.apellido_materno) AS nombre_completo
+            FROM Produccion_alertas pa
+            LEFT JOIN contratistas c ON pa.FK_Contratista = c.idContratistas
+            WHERE pa.Fecha_Liquidacion BETWEEN :inicio AND :fin";
+
+    $stmt = $conexion->prepare($sql);
+    $stmt->bindParam(':inicio', $fecha_inicio);
+    $stmt->bindParam(':fin', $fecha_fin);
+
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
 
 // NUEVA FUNCION //
