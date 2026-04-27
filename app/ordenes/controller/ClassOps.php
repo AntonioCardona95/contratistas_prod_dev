@@ -2618,11 +2618,7 @@ public function ObtenerAlertas($fecha_inicio, $fecha_fin)
     $fecha_fin    = $fecha_fin . " 23:59:59";
 
     $sql = "SELECT pa.*, 
-                   CONCAT(
-                       COALESCE(c.Contratista, ''), ' ',
-                       COALESCE(c.apellido_paterno, ''), ' ',
-                       COALESCE(c.apellido_materno, '')
-                   ) AS nombre_completo
+                   CONCAT(c.Contratista, ' ', c.apellido_paterno, ' ', c.apellido_materno) AS nombre_completo
             FROM Produccion_alertas pa
             LEFT JOIN contratistas c ON pa.FK_Contratista = c.idContratistas
             WHERE pa.Fecha_Liquidacion BETWEEN :fecha_inicio AND :fecha_fin";
