@@ -190,19 +190,21 @@ if (empty($Contratista)) {
                                    value="<?= htmlspecialchars($defaultFecha2) ?>" 
                                    class="form-control bg-light border-0 small">
 
-                            <!-- Botón lupa: procesa alertas -->
-                            <div class="input-group-append mr-2">
-                                <button id="btnLoadKPIS" class="btn btn-primary" type="button" onclick="procesarAlertas();">
-                                    <i class="fas fa-search fa-sm"></i>
-                                </button>
-                            </div>
+                            <!-- Botón lupa: solo buscar -->
+<div class="input-group-append mr-2">
+    <button id="btnBuscar" class="btn btn-primary" type="button" onclick="actualizarCards();">
+        <i class="fas fa-search fa-sm"></i> Buscar
+    </button>
+</div>
 
-                            <!-- Botón limpiar: separado con margen -->
-                            <div class="input-group-append">
-                                <button class="btn btn-warning" type="button" onclick="limpiarFiltros();" id="btnLimpiar">
-                                    <i class="fas fa-eraser fa-sm"></i> Limpiar
-                                </button>
-                            </div>
+<!-- Botón procesar alertas: separado y con color distinto -->
+<div class="input-group-append mr-2">
+<button id="btnProcesar" class="btn btn-danger" type="button" onclick="mostrarModalProcesar();">
+    <i class="fas fa-cogs fa-sm"></i> Procesar Alertas
+</button>
+
+</div>
+
                         </div>
 
                         <!-- Estado del proceso -->
@@ -402,6 +404,33 @@ if (empty($Contratista)) {
         </div>
     </div>
 
+    <!-- Modal Confirmación Procesar Alertas -->
+<div class="modal fade" id="modalProcesarAlertas" tabindex="-1" role="dialog" aria-labelledby="modalProcesarAlertasLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="modalProcesarAlertasLabel">Confirmar procesamiento</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <p>¿Desea <strong>generar alertas nuevas</strong> para el rango de fechas seleccionado?</p>
+        <p class="text-muted">Esto puede insertar registros adicionales en la base de datos.</p>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" id="btnConfirmarProcesar">Sí, procesar alertas</button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -437,6 +466,19 @@ function redirectToAlertas() {
 }
 </script>
 
+<script>
+    // Mostrar el modal cuando el usuario da clic en el botón "Procesar"
+function mostrarModalProcesar() {
+    $('#modalProcesarAlertas').modal('show');
+}
+
+// Cuando el usuario confirma en el modal
+$(document).on('click', '#btnConfirmarProcesar', function() {
+    $('#modalProcesarAlertas').modal('hide'); // cerrar modal
+    procesarAlertas(); // ejecutar tu función original
+});
+
+</script>
     <!-- Page level custom scripts -->
    
 
