@@ -180,7 +180,7 @@ if (empty($alertas)) {
 <!-- Script para inicializar DataTable con estilos y botones -->
 <script>
 $(document).ready(function () {
-    new DataTable('#ventas', {
+    new DataTable('#ventasg', {
         fixedColumns: { start: 1, end: 1 },
         responsive:true,
         language: { URL:'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
