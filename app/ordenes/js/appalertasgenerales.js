@@ -1,4 +1,6 @@
+console.log('entramos a js alertas generales')
 $(document).ready(function(){
+    console.log('ejectudado')
     // Obtener las fechas de la URL
     var urlParams = new URLSearchParams(window.location.search);
     var fecha_inicio = urlParams.get('fecha_inicio');
