@@ -300,31 +300,31 @@ if (empty($Contratista)) {
 
 
                 
-
                     <!-- Card -->
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-danger shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2"
-                                        <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                            TOTAL GENERAL
-                                        </div>
-                                        <!--<div class="h5 mb-0 font-weight-bold text-gray-800" id="faltantes">
-                                            0
-                                        </div> -->
-                                        
-                                    </div>
-
-                                    <div class="col-auto">
-                                        <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
+<!-- Tarjeta con redirección -->
+<div class="col-xl-3 col-md-6 mb-4" onclick="redirectToAlertasGenerales();">
+    <div class="card border-left-success shadow h-100 py-2" style="cursor: pointer;">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                        TOTAL ALERTAS GENERALES
                     </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="alertasg">
+                        0
+                    </div>
+                    <div class="text-xs text-muted">
+                        Promedio: <span id="promedio_alertas">0</span>/día
+                    </div>
+                </div>
 
+                <div class="col-auto">
+                    <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
                     <!-- Card -->
                     <div class="col-xl-3 col-md-6 mb-4">
                         <div class="card border-left-warning shadow h-100 py-2">
