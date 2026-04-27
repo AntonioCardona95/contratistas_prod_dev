@@ -6,25 +6,25 @@ $(document).ready(function(){
 
     // Si las fechas están disponibles, ejecutamos la función LoadAlertas
     if (fecha_inicio && fecha_fin) {
-        LoadAlertas(fecha_inicio, fecha_fin);
+        LoadAlertasGenerales(fecha_inicio, fecha_fin);
     }
 
 });
 
 // Función AJAX que envía las fechas seleccionadas
-function LoadAlertas(fecha_inicio, fecha_fin){
+function LoadAlertasGenerales(fecha_inicio, fecha_fin){
     $.ajax({
         type: 'POST',
-        url: 'modal/TablaAlertas.php', // El archivo que procesa la solicitud
+        url: 'modal/TablaAlertasGenerales.php', // El archivo que procesa la solicitud
         data: { 
             fecha_inicio: fecha_inicio, 
             fecha_fin: fecha_fin 
         }, // enviamos las fechas
         beforeSend: function(){
-            $("#LoadAlertas").html("<center><img src='../image/loading-46.gif'></center>");
+            $("#LoadAlertasGenerales").html("<center><img src='../image/loading-46.gif'></center>");
         },
         success:function(data){
-            $("#LoadAlertas").html(data);
+            $("#LoadAlertasGenerales").html(data);
         },
         error: function(err){
             console.log(err);
