@@ -275,9 +275,23 @@ public function InsertarAlertasMasivo($registros)
 //El valor es toda la fila completa ($row).
 
 $coordData = [];
-    $sql = "SELECT Folio_Pisa,Telefono, Ont, Tecnologia , Foto_Ont ,No_Serie_ONT,Foto_INE, validacion_LEDS_ONT_fallida, Foto_Casa_Cliente, validacion_foto_fallida,Foto_Puerto
-            FROM tecnico_instalaciones_coordiapp
-            WHERE Folio_Pisa IN ($inFolios)";
+    $sql = "SELECT 
+    Folio_Pisa,
+    Telefono,
+    Ont,
+    Tecnologia,
+    Foto_Ont,
+    No_Serie_ONT,
+    Foto_INE,
+    validacion_LEDS_ONT_fallida,
+    Foto_Casa_Cliente,
+    validacion_foto_fallida,
+    Foto_Puerto
+FROM tecnico_instalaciones_coordiapp
+WHERE Folio_Pisa IN ($inFolios)
+  AND Estatus_Orden = 'COMPLETADA'
+  AND Step_Registro = '5';
+";
             foreach ($conexion->query($sql) as $row)
                  {
                     $coordData[$row['Folio_Pisa']] = $row;
