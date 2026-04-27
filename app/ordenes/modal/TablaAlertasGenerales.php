@@ -20,7 +20,7 @@ if (empty($Contratista) || empty($idContratistas)) {
 }
 
 $modal   = new Ops();
-$alertas = $modal->ObtenerAlertas($fecha_inicio, $fecha_fin);
+$alertas = $modal->ObtenerAlertasSinFechas($fecha_inicio, $fecha_fin);
 $alertas = is_array($alertas) ? $alertas : [];
 
 if (empty($alertas)) {
