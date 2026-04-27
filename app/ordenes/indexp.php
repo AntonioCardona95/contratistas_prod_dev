@@ -457,8 +457,11 @@ $(document).on('click', '#btnConfirmarProcesar', function() {
     };
 });
 </script>
-
-    <!-- Page level custom scripts -->
+<script>
+    function redirectToAlertasGenerales() {
+    window.location.href = 'AlertasGenerales.php';
+}
+</script>    <!-- Page level custom scripts -->
    
 
 
