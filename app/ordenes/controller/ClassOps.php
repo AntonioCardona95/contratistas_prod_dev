@@ -2610,6 +2610,26 @@ public function ObtenerExpedientesPorContratista($idContratistas)
 
 public function ObtenerAlertas($fecha_inicio, $fecha_fin)
 {
+    $conexion = $this->get_conexion();
+
+    $sql = "SELECT pa.*, 
+                   CONCAT(c.Contratista, ' ', c.apellido_paterno, ' ', c.apellido_materno) AS nombre_completo
+            FROM Produccion_alertas pa
+            INNER JOIN contratistas c ON pa.FK_Contratista = c.idContratistas
+            WHERE pa.Fecha_Liquidacion >= :fecha_inicio
+              AND pa.Fecha_Liquidacion <= :fecha_fin";
+
+    $stmt = $conexion->prepare($sql);
+    $stmt->bindParam(':fecha_inicio', $fecha_inicio);
+    $stmt->bindParam(':fecha_fin', $fecha_fin);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+/*public function ObtenerAlertas($fecha_inicio, $fecha_fin)
+{
     // Obtener la conexión
     $conexion = $this->get_conexion();
 
@@ -2627,7 +2647,7 @@ public function ObtenerAlertas($fecha_inicio, $fecha_fin)
 
     // Devolver todos los resultados
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+} */
 
 
 /*public function OrdenesConIncidencias($idContratistas, $expedientes = [], $semana = null)
