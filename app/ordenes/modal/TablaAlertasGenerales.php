@@ -9,7 +9,11 @@ $idContratistas = $_SESSION['idContratistas'] ?? null;
 $fecha_inicio = $_POST['fecha_inicio'] ?? null;
 $fecha_fin    = $_POST['fecha_fin'] ?? null;
 
-// Validar sesión (esto sí debe quedarse)
+// Normalizar fechas (clave)
+$fecha_inicio = (!empty($fecha_inicio) && $fecha_inicio !== 'null') ? $fecha_inicio : null;
+$fecha_fin    = (!empty($fecha_fin) && $fecha_fin !== 'null') ? $fecha_fin : null;
+
+// Validar sesión
 if (empty($Contratista) || empty($idContratistas)) {
     echo "<p>No se encontró información del contratista.</p>";
     exit;
@@ -17,22 +21,16 @@ if (empty($Contratista) || empty($idContratistas)) {
 
 $modal = new Ops();
 
-if (!empty($fecha_inicio) && !empty($fecha_fin)) {
-    //  CON FECHAS (correcto)
+// Lógica correcta
+if ($fecha_inicio && $fecha_fin) {
     $alertas = $modal->ObtenerAlertasConFechas($fecha_inicio, $fecha_fin);
 } else {
-    //  SIN FECHAS (correcto)
     $alertas = $modal->ObtenerAlertasSinFechas();
 }
 
 $alertas = is_array($alertas) ? $alertas : [];
 
-echo "<pre>";
-print_r($alertas);
-echo "</pre>";
-exit;
 
-// Mensaje si no hay datos
 if (empty($alertas)) {
     echo "<p>No se encontraron alertas.</p>";
     exit;
