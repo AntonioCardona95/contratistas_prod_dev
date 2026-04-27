@@ -322,9 +322,7 @@ if (empty($Contratista)) {
     </div>
 </div>
                     
-                            </div>
-                        </div>
-                    </div>
+                     
                 </div>
                 <!-- End of Cards -->
 
