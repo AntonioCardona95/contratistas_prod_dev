@@ -280,7 +280,7 @@ if (empty($Contratista)) {
             <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
                     <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                        REGISTRADAS
+                        ORDENES CON ALERTA POR RANGO DE FECHAS
                     </div>
                     <div class="h5 mb-0 font-weight-bold text-gray-800" id="alertas">
                         0
@@ -308,7 +308,7 @@ if (empty($Contratista)) {
                                 <div class="row no-gutters align-items-center">
                                     <div class="col mr-2"
                                         <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                            FALTANTES
+                                            TOTAL GENERAL
                                         </div>
                                         <div class="h5 mb-0 font-weight-bold text-gray-800" id="faltantes">
                                             0
