@@ -475,7 +475,7 @@ private function evaluarAlertas($data)
     $detalleEsci = null;
     $detalleTac = null;
 
-    // 🚨 Caso especial: folio no está en Coordiapp
+    //  Caso especial: folio no está en Coordiapp
     if ($data['coord'] === null) {
         // Alertas que NO dependen de coordiapp
         $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
@@ -483,8 +483,7 @@ private function evaluarAlertas($data)
         $this->alertaSerieDesconocida($data, $alertas);
         $this->alertaEventoEsci($data, $alertas, $detalleEsci);
         $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
-
-        // 🚨 Nueva: comparar TAC vs Esci cuando no hay coordiapp
+        //  Nueva: comparar TAC vs Esci cuando no hay coordiapp
         $this->alertaSeriesDiferente($data, $alertas);
 
         // Agregamos alerta especial
@@ -497,14 +496,14 @@ private function evaluarAlertas($data)
         ];
     }
 
-    // 🚨 Si sí hay datos en coordiapp, corremos todas las alertas
+    //  Si sí hay datos en coordiapp, corremos todas las alertas
     $this->alertaTipoTareaDiferente($data, $alertas);
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
     $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
     $this->alertaSerieDesconocida($data, $alertas);
     $this->alertaEventoEsci($data, $alertas, $detalleEsci);
 
-    // 🚨 Nueva: comparar coordiapp vs tac vs esci
+    //  Nueva: comparar coordiapp vs tac vs esci
     $this->alertaSeriesDiferente($data, $alertas);
 
     $this->alertaTecnologiaDiferente($data, $alertas);
