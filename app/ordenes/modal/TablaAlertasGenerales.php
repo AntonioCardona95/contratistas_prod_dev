@@ -35,7 +35,7 @@ if (empty($alertas)) {
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="css/EstilosTablaSinProcesoPago.css">
 <link rel="stylesheet" type="text/css" href="css/modalprenomina.css">
-<table class="table table-bordered display nowrap" style="width:100%" id="ventas">
+<table class="table table-bordered display nowrap" style="width:100%" id="ventasg">
 
     <thead>
         <tr>
