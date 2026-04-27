@@ -23,7 +23,7 @@ if (!empty($fecha_inicio) && !empty($fecha_fin)) {
     $alertas = $modal->ObtenerAlertasSinFechas($fecha_inicio, $fecha_fin);
 } else {
     //  SIN FECHAS → TRAER TODO
-    $alertas = $modal->ObtenerTodasLasAlertas(); // 👈 necesitas este método
+    $alertas = $modal->ObtenerAlertasConFechas($fecha_inicio, $fecha_fin); // 👈 necesitas este método
 }
 
 $alertas = is_array($alertas) ? $alertas : [];
