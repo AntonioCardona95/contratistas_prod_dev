@@ -274,8 +274,10 @@ if (empty($Contratista)) {
 
                     <!-- Card -->
 <!-- Tarjeta con redirección -->
-<div class="col-xl-3 col-md-6 mb-4" onclick="redirectToAlertas();">
-    <div class="card border-left-success shadow h-100 py-2" style="cursor: pointer;">
+<!-- Tarjeta de en medio -->
+<div class="col-xl-3 col-md-6 mb-4">
+    <div id="cardAlertas" class="card border-left-success shadow h-100 py-2" 
+         style="cursor: not-allowed; opacity: 0.6;">
         <div class="card-body">
             <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
@@ -289,7 +291,6 @@ if (empty($Contratista)) {
                         Promedio: <span id="promedio_alertas">0</span>/día
                     </div>
                 </div>
-
                 <div class="col-auto">
                     <i class="fas fa-check-circle fa-2x text-gray-300"></i>
                 </div>
@@ -297,6 +298,7 @@ if (empty($Contratista)) {
         </div>
     </div>
 </div>
+
 
 
                 
@@ -423,32 +425,39 @@ if (empty($Contratista)) {
 <script>
 // Función para redirigir con las fechas
 function redirectToAlertas() {
-    // Obtener los valores de las fechas desde los campos del formulario
     var fecha1 = document.getElementById('Fecha1').value;
     var fecha2 = document.getElementById('Fecha2').value;
-
-    // Redirigir a Alertas.php pasando las fechas como parámetros en la URL
     window.location.href = 'Alertas.php?fecha_inicio=' + encodeURIComponent(fecha1) + '&fecha_fin=' + encodeURIComponent(fecha2);
 }
 
-function redirectToAlertasGenerales() {
-    window.location.href = 'AlertasGenerales.php';
-}
+// Inicialmente la tarjeta no hace nada
+document.getElementById('cardAlertas').onclick = function(e) {
+    e.preventDefault();
+    alert("Primero debe procesar alertas.");
+};
 </script>
 
 <script>
-    // Mostrar el modal cuando el usuario da clic en el botón "Procesar"
+// Mostrar el modal cuando el usuario da clic en el botón "Procesar"
 function mostrarModalProcesar() {
     $('#modalProcesarAlertas').modal('show');
 }
 
 // Cuando el usuario confirma en el modal
 $(document).on('click', '#btnConfirmarProcesar', function() {
-    $('#modalProcesarAlertas').modal('hide'); // cerrar modal
-    procesarAlertas(); // ejecutar tu función original
-});
+    $('#modalProcesarAlertas').modal('hide'); 
+    procesarAlertas(); 
 
+    // Habilitar la tarjeta de en medio después de procesar
+    var card = document.getElementById('cardAlertas');
+    card.style.cursor = "pointer";
+    card.style.opacity = "1";
+    card.onclick = function() {
+        redirectToAlertas();
+    };
+});
 </script>
+
     <!-- Page level custom scripts -->
    
 
