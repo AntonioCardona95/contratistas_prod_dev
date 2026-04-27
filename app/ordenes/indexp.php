@@ -310,12 +310,10 @@ if (empty($Contratista)) {
                                         <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
                                             TOTAL GENERAL
                                         </div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="faltantes">
+                                        <!--<div class="h5 mb-0 font-weight-bold text-gray-800" id="faltantes">
                                             0
-                                        </div>
-                                        <div class="text-xs text-muted">
-                                            Promedio: <span id="promedio_faltantes">0</span>/día
-                                        </div>
+                                        </div> -->
+                                        
                                     </div>
 
                                     <div class="col-auto">
