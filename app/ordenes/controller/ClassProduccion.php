@@ -293,23 +293,26 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
     }
 
     // =========================
-    //  🔥 NUEVO: HISTORIAL ORDEN (30 DÍAS)
-    // =========================
-    $tacOrdenData = [];
+// 🔥 NUEVO: HISTORIAL ORDEN (30 DÍAS)
+// =========================
+$tacOrdenData = [];
 
-    $sqlOrden = "
-        SELECT TELEFONO, FECHA_LIQ
-        FROM qm_tac
-        WHERE TELEFONO IN ($inTelefonos)
-          AND TIPO = 'ORDEN'
-          AND Calificador_Edo = 'COMPLETADA'
-        ORDER BY TELEFONO, FECHA_LIQ ASC
-    ";
+$sqlOrden = "
+    SELECT Folio_Pisa, TELEFONO, FECHA_LIQ
+    FROM qm_tac
+    WHERE (Folio_Pisa, TELEFONO) IN (" . implode(",", array_map(function($r) {
+        return "('{$r['folio']}', '{$r['telefono']}')";
+    }, $registros)) . ")
+      AND TIPO = 'ORDEN'
+      AND Calificador_Edo = 'COMPLETADA'
+    ORDER BY TELEFONO, FECHA_LIQ ASC
+";
 
-    foreach ($conexion_analisis->query($sqlOrden) as $row) {
-        $tel = trim($row['TELEFONO']);
-        $tacOrdenData[$tel][] = $row['FECHA_LIQ'];
-    }
+foreach ($conexion_analisis->query($sqlOrden) as $row) {
+    $folio = trim($row['Folio_Pisa']);
+    $telefono = trim($row['TELEFONO']);
+    $tacOrdenData["$folio-$telefono"][] = $row['FECHA_LIQ'];
+}
 
     // =========================
     //  ESCI
@@ -426,7 +429,10 @@ private function evaluarAlertas($data)
     // =========================
     // 🔥 NUEVO: ALERTA ORDEN 30 DÍAS
     // =========================
-    $this->alertaOrdenRevision30Dias($data, $alertas);
+     $this->alertaOrdenRevision30Dias($data, $alertas);
+
+    //$folioTelefono = $data['folio'] . '-' . $data['telefono'];
+
 
     //  Caso especial: folio no está en Coordiapp
     if ($data['coord'] === null) {
@@ -497,28 +503,34 @@ private function evaluarAlertas($data)
 private function alertaOrdenRevision30Dias($data, &$alertas)
 {
     $fechas = $data['tacOrdenHist'] ?? null;
+    $fechaLiquidacion = $data['coord']['Fecha_Liquidacion'] ?? null;
 
-    if (empty($fechas) || count($fechas) < 2) return;
+    // Verificamos que tengamos fechas y que exista la Fecha de Liquidación
+    if (empty($fechas) || !$fechaLiquidacion) return;
 
-    sort($fechas);
+    // Convertimos la Fecha de Liquidación a timestamp
+    $fechaLiquidacionTimestamp = strtotime($fechaLiquidacion);
 
-    $total = count($fechas);
+    // Definir los límites de tiempo (30 días antes y 30 días después de la fecha de liquidación)
+    $limiteInferior = $fechaLiquidacionTimestamp - (30 * 86400); // 30 días antes
+    $limiteSuperior = $fechaLiquidacionTimestamp + (30 * 86400); // 30 días después
 
-    for ($i = 0; $i < $total; $i++) {
+    // Ahora iteramos las fechas de las órdenes
+    $dentroDelRango = false; // Variable para indicar si encontramos una fecha dentro del rango
+    foreach ($fechas as $fecha) {
+        $fechaOrdenTimestamp = strtotime($fecha); // Convertir fecha de orden a timestamp
 
-        $f1 = strtotime($fechas[$i]);
-
-        for ($j = $i + 1; $j < $total; $j++) {
-
-            $f2 = strtotime($fechas[$j]);
-
-            $diff = abs(($f2 - $f1) / 86400);
-
-            if ($diff <= 30) {
-                $alertas[] = "ORDEN A REVISION POR 30 DIAS";
-                return;
-            }
+        // Verificamos si la fecha de orden está dentro del rango
+        if ($fechaOrdenTimestamp >= $limiteInferior && $fechaOrdenTimestamp <= $limiteSuperior) {
+            // Si la fecha de orden está en el rango de 30 días, marcamos la bandera como verdadera
+            $dentroDelRango = true;
+            break; // Solo necesitamos una fecha dentro del rango
         }
+    }
+
+    // Si encontramos alguna fecha dentro del rango de 30 días, agregamos la alerta
+    if ($dentroDelRango) {
+        $alertas[] = "ORDEN A REVISION POR 30 DIAS";
     }
 }
 
