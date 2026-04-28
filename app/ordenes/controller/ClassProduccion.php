@@ -247,22 +247,14 @@ public function InsertarAlertasMasivo($registros)
     // =========================
     //  PREPARAR IDS
     // =========================
-    // De un arreglo de registros , cada registro es un array asociativo con varias claves, 
-    // extrae solo la columna folio, arraunique Elimina duplicados.
-    
     $folios = array_unique(array_column($registros, 'folio'));
-    // queda como un arreglo con todos los folios distintos que venían en $registros.
-    
     $telefonos = array_unique(array_column($registros, 'telefono'));
 
-    //Une los elementos del array $folios en una sola cadena, separados por ','
-    // $inFolios es una cadena que contiene todos los folios separados por comas y entre comillas simples
     $inFolios = "'" . implode("','", $folios) . "'";
-    
     $inTelefonos = "'" . implode("','", $telefonos) . "'";
 
     // =========================
-    // 🔥 TELEFONOS DUPLICADOS (NUEVA ALERTA)
+    // 🔥 TELEFONOS DUPLICADOS
     // =========================
     $telefonosDuplicados = [];
     $sqlTelDuplicado = "
@@ -285,15 +277,6 @@ public function InsertarAlertasMasivo($registros)
     // =========================
     //  COORDIAPP
     // =========================
-    //$row es un array asociativo con todas las columnas de esa fila, 
-    // algo asi $row = [
-    /*'Folio_Pisa' => '54654654',
-      'Telefono' => '111',
-    ]; */
-    //Aquí se está construyendo un diccionario (array asociativo) llamado $coordData.
-    //La clave es el valor de la columna Folio_Pisa de esa fila.
-    //El valor es toda la fila completa ($row).
-
     $coordData = [];
     $sql = "SELECT 
         Folio_Pisa,
@@ -318,15 +301,28 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-    //  TAC
+    //  TAC (🔥 MODIFICADO)
     // =========================
     $tacData = [];
-    $sql = "SELECT Folio_Pisa, TELEFONO, Num__Serie, TECNOLOGIA
+    $tacTelefonosMap = [];
+
+    $sql = "SELECT Folio_Pisa, TELEFONO, Num__Serie, TECNOLOGIA, TIPO, FECHA_LIQ
             FROM qm_tac
-            WHERE Folio_Pisa IN ($inFolios)
+            WHERE TELEFONO IN ($inTelefonos)
               AND Calificador_Edo = 'COMPLETADA'";
+
     foreach ($conexion_analisis->query($sql) as $row) {
-        $tacData[$row['Folio_Pisa']] = $row;
+
+        $folio = $row['Folio_Pisa'];
+        $tel = trim($row['TELEFONO']);
+
+        $tacData[$folio] = $row;
+
+        $tacTelefonosMap[$tel][] = [
+            'folio' => $folio,
+            'fecha' => $row['FECHA_LIQ'],
+            'tipo'  => $row['TIPO']
+        ];
     }
 
     // =========================
@@ -352,31 +348,32 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-//  ESCI
-// =========================
-$esciData = [];
-$esciSeriesMap = [];
-$sql = "
-    SELECT TELEFONO, M_SERIE, DID_ACTIVO, F_CONSULTA
-    FROM seg_ns_eci
-    WHERE TELEFONO IN ($inTelefonos)
-";
-foreach ($conexion_analisis->query($sql) as $row) {
-    $tel = trim($row['TELEFONO']);
-    $serie = strtoupper(trim($row['M_SERIE']));
+    //  ESCI
+    // =========================
+    $esciData = [];
+    $esciSeriesMap = [];
+    $sql = "
+        SELECT TELEFONO, M_SERIE, DID_ACTIVO, F_CONSULTA
+        FROM seg_ns_eci
+        WHERE TELEFONO IN ($inTelefonos)
+    ";
 
-    if (!isset($esciData[$tel])) {
-        $esciData[$tel] = $row;
-        $esciData[$tel]['M_SERIE'] = $serie;
-    }
+    foreach ($conexion_analisis->query($sql) as $row) {
+        $tel = trim($row['TELEFONO']);
+        $serie = strtoupper(trim($row['M_SERIE']));
 
-    if (!empty($serie) && $serie !== 'DESCONOCIDO') {
-        $esciSeriesMap[$serie][$tel] = true;
+        if (!isset($esciData[$tel])) {
+            $esciData[$tel] = $row;
+            $esciData[$tel]['M_SERIE'] = $serie;
+        }
+
+        if (!empty($serie) && $serie !== 'DESCONOCIDO') {
+            $esciSeriesMap[$serie][$tel] = true;
+        }
     }
-}
 
     // =========================
-    // 🔥 MAPA EXISTENTES (OPTIMIZACIÓN)
+    // MAPA EXISTENTES
     // =========================
     $existentesMap = [];
     $sql = "SELECT Folio_Pisa, Alerta FROM Produccion_alertas 
@@ -386,7 +383,7 @@ foreach ($conexion_analisis->query($sql) as $row) {
     }
 
     // =========================
-    // 🔥 PREPARES (UPSERT + HISTORIAL)
+    // PREPARES
     // =========================
     $stmtUpsert = $conexion->prepare("
         INSERT INTO Produccion_alertas
@@ -417,10 +414,10 @@ foreach ($conexion_analisis->query($sql) as $row) {
     ");
 
     // =========================
-    //  LOOP PRINCIPAL
+    // LOOP
     // =========================
     foreach ($registros as $r) {
-        
+
         $folio = $r['folio'];
         $telefono = trim($r['telefono']);
 
@@ -428,12 +425,10 @@ foreach ($conexion_analisis->query($sql) as $row) {
         $tac   = $tacData[$folio] ?? null;
         $esci  = $esciData[$telefono] ?? null;
 
-        // SERIES
         $serieTac   = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
         $serieEsci  = $esci['M_SERIE'] ?? null;
 
-        // MOTOR DE ALERTAS
         $resultadoAlertas = $this->evaluarAlertas([
             'folio' => $folio,
             'telefono' => $telefono,
@@ -446,48 +441,30 @@ foreach ($conexion_analisis->query($sql) as $row) {
             'ontDuplicadasTac' => $ontDuplicadasTac,
             'esciSeriesMap' => $esciSeriesMap,
             'telefonosDuplicados' => $telefonosDuplicados,
+            'telefonosTacMap' => $tacTelefonosMap, // 🔥 NUEVO
+            'fechaLiquidacion' => $r['fechaLiquidacion'] ?? null, // 🔥 NUEVO
             'idContratista' => $r['idContratista'] ?? 0
         ]);
 
-        // =========================
-        // ALERTAS NUEVAS
-        // =========================
         $nuevas = array_unique($resultadoAlertas['alertas'] ?? []);
         $nuevaAlertaTexto = implode(' | ', $nuevas);
 
-        // =========================
-        // ALERTAS ANTERIORES
-        // =========================
         $alertaAnteriorTexto = $existentesMap[$folio] ?? null;
         $anteriores = $alertaAnteriorTexto ? explode(' | ', $alertaAnteriorTexto) : [];
 
-        // =========================
-        // CAMBIOS
-        // =========================
         if ($alertaAnteriorTexto !== null && $alertaAnteriorTexto !== $nuevaAlertaTexto) {
 
-            $stmtHist->execute([
-                $folio,
-                $telefono,
-                $alertaAnteriorTexto,
-                $nuevaAlertaTexto
-            ]);
+            $stmtHist->execute([$folio, $telefono, $alertaAnteriorTexto, $nuevaAlertaTexto]);
 
-            $agregadas = array_diff($nuevas, $anteriores);
-            $eliminadas = array_diff($anteriores, $nuevas);
-
-            foreach ($agregadas as $a) {
+            foreach (array_diff($nuevas, $anteriores) as $a) {
                 $stmtCambio->execute([$folio, $a, 'AGREGADA']);
             }
 
-            foreach ($eliminadas as $a) {
+            foreach (array_diff($anteriores, $nuevas) as $a) {
                 $stmtCambio->execute([$folio, $a, 'ELIMINADA']);
             }
         }
 
-        // =========================
-        // UPSERT FINAL
-        // =========================
         $stmtUpsert->execute([
             $folio,
             $telefono,
@@ -514,17 +491,20 @@ private function evaluarAlertas($data)
 
     //  Caso especial: folio no está en Coordiapp
     if ($data['coord'] === null) {
+
         // Alertas que NO dependen de coordiapp
         $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
         $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
         $this->alertaSerieDesconocida($data, $alertas);
         $this->alertaEventoEsci($data, $alertas, $detalleEsci);
         $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
+
         //  Nueva: comparar TAC vs Esci cuando no hay coordiapp
         $this->alertaSeriesDiferente($data, $alertas);
 
-        // 🔥 VALIDACIÓN GLOBAL (SIEMPRE)
+        // 🔥 VALIDACIONES GLOBALES (SIEMPRE)
         $this->alertaTelefonoDuplicado($data, $alertas);
+        $this->alertaOrdenMismoTelefono($data, $alertas); // 👈 NUEVA
 
         // Agregamos alerta especial
         $alertas[] = 'NO EN COORDIAPP';
@@ -536,24 +516,30 @@ private function evaluarAlertas($data)
         ];
     }
 
-    //  Si sí hay datos en coordiapp, corremos todas las alertas
+    // =========================
+    // SI SÍ HAY COORDIAPP
+    // =========================
+
     $this->alertaTipoTareaDiferente($data, $alertas);
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
     $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
     $this->alertaSerieDesconocida($data, $alertas);
     $this->alertaEventoEsci($data, $alertas, $detalleEsci);
 
-    //  Nueva: comparar coordiapp vs tac vs esci
+    // Comparación de series
     $this->alertaSeriesDiferente($data, $alertas);
 
     $this->alertaTecnologiaDiferente($data, $alertas);
 
-    // 🔥 VALIDACIÓN GLOBAL (SIEMPRE)
+    // 🔥 VALIDACIONES GLOBALES (SIEMPRE)
     $this->alertaTelefonoDuplicado($data, $alertas);
+    $this->alertaOrdenMismoTelefono($data, $alertas); // 👈 NUEVA
 
     $esQueja = $this->esTipoQueja($data['tipoTarea'] ?? '');
 
-    //  VALIDACIONES NORMALES (solo si NO es queja)
+    // =========================
+    // VALIDACIONES NORMALES
+    // =========================
     if (!$esQueja) {
 
         $this->alertaFotoOntFallida($data, $alertas);
@@ -566,21 +552,57 @@ private function evaluarAlertas($data)
         $this->alertaTerminalFallidaIA($data, $alertas);
         $this->alertaFotoDomicilioFallida($data, $alertas);
         $this->alertaOntAlmacen($data, $alertas);
-        
     }
 
-    //  VALIDACIÓN ESPECIAL (solo si SÍ es queja)
+    // =========================
+    // VALIDACIÓN QUEJA
+    // =========================
     if ($esQueja) {
         $this->alertaFotosPorTipoQueja($data, $alertas);
     }
 
-    // 🔥 IMPORTANTE: siempre regresar
     return [
         'alertas' => $alertas,
         'detalleEsci' => $detalleEsci,
         'detalleTac' => $detalleTac
     ];
 }
+
+
+private function alertaTelefonoOrden30Dias($data, &$alertas)
+{
+    $telefono = $data['telefono'] ?? null;
+    $folioActual = $data['folio'] ?? null;
+    $fechaActual = $data['fechaLiquidacion'] ?? null;
+    $map = $data['telefonosTacMap'] ?? [];
+
+    if (!$telefono || !$fechaActual || !isset($map[$telefono])) {
+        return;
+    }
+
+    $fechaBase = strtotime($fechaActual);
+
+    foreach ($map[$telefono] as $registro) {
+
+        if (($registro['tipo'] ?? '') !== 'ORDEN') {
+            continue;
+        }
+
+        if ($registro['folio'] == $folioActual) {
+            continue;
+        }
+
+        $fechaComparar = strtotime($registro['fecha']);
+        $dias = abs(($fechaComparar - $fechaBase) / 86400);
+
+        if ($dias <= 30) {
+            $alertas[] = 'TELEFONO_ORDEN_30_DIAS';
+            return;
+        }
+    }
+}
+
+
 private function alertaTelefonoDuplicado($data, &$alertas)
 {
     $telefono = $data['telefono'];
