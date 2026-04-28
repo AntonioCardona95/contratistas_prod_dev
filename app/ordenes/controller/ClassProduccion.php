@@ -257,6 +257,7 @@ public function InsertarAlertasMasivo($registros)
     //  COORDIAPP
     // =========================
     $coordData = [];
+
     $sql = "SELECT 
         Folio_Pisa,
         Telefono,
@@ -283,6 +284,7 @@ public function InsertarAlertasMasivo($registros)
     //  TAC
     // =========================
     $tacData = [];
+
     $sql = "SELECT Folio_Pisa, TELEFONO, Num__Serie, TECNOLOGIA
             FROM qm_tac
             WHERE Folio_Pisa IN ($inFolios)
@@ -293,22 +295,26 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-    //  🔥 NUEVO: HISTORIAL ORDEN (30 DÍAS)
+    //  🔥 HISTORIAL ORDEN (CORREGIDO)
     // =========================
     $tacOrdenData = [];
 
     $sqlOrden = "
-        SELECT TELEFONO, FECHA_LIQ
+        SELECT TELEFONO, Folio_Pisa, FECHA_LIQ
         FROM qm_tac
         WHERE TELEFONO IN ($inTelefonos)
+          AND Folio_Pisa IN ($inFolios)
           AND TIPO = 'ORDEN'
           AND Calificador_Edo = 'COMPLETADA'
-        ORDER BY TELEFONO, FECHA_LIQ ASC
+        ORDER BY TELEFONO, Folio_Pisa, FECHA_LIQ ASC
     ";
 
     foreach ($conexion_analisis->query($sqlOrden) as $row) {
-        $tel = trim($row['TELEFONO']);
-        $tacOrdenData[$tel][] = $row['FECHA_LIQ'];
+
+        $tel   = trim($row['TELEFONO']);
+        $folio = $row['Folio_Pisa'];
+
+        $tacOrdenData[$tel][$folio][] = $row['FECHA_LIQ'];
     }
 
     // =========================
@@ -324,6 +330,7 @@ public function InsertarAlertasMasivo($registros)
     ";
 
     foreach ($conexion_analisis->query($sql) as $row) {
+
         $tel = trim($row['TELEFONO']);
         $serie = strtoupper(trim($row['M_SERIE']));
 
@@ -364,8 +371,8 @@ public function InsertarAlertasMasivo($registros)
         $tac   = $tacData[$folio] ?? null;
         $esci  = $esciData[$telefono] ?? null;
 
-        // 🔥 NUEVO: historial orden
-        $tacOrdenHist = $tacOrdenData[$telefono] ?? null;
+        // 🔥 historial orden corregido
+        $tacOrdenHist = $tacOrdenData[$telefono][$folio] ?? [];
 
         $serieTac   = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
@@ -381,6 +388,7 @@ public function InsertarAlertasMasivo($registros)
             'serieCoord' => $serieCoord,
             'serieEsci' => $serieEsci,
             'tacOrdenHist' => $tacOrdenHist,
+            'Fecha_Liquidacion' => $r['fechaLiquidacion'] ?? null,
             'idContratista' => $r['idContratista'] ?? 0
         ]);
 
@@ -415,7 +423,6 @@ public function InsertarAlertasMasivo($registros)
         }
     }
 }
-
 
 private function evaluarAlertas($data)
 {
@@ -492,30 +499,26 @@ private function evaluarAlertas($data)
     ];
 }
 
+
 private function alertaOrdenRevision30Dias($data, &$alertas)
 {
-    $fechas = $data['tacOrdenHist'] ?? null;
+    $fechas = $data['tacOrdenHist'] ?? [];
 
     if (empty($fechas) || count($fechas) < 2) return;
 
-    sort($fechas);
+    $fechaBase = strtotime($data['Fecha_Liquidacion'] ?? 'now');
 
-    $total = count($fechas);
+    foreach ($fechas as $fecha) {
 
-    for ($i = 0; $i < $total; $i++) {
+        $f = strtotime($fecha);
 
-        $f1 = strtotime($fechas[$i]);
+        if (!$f) continue;
 
-        for ($j = $i + 1; $j < $total; $j++) {
+        $diffDias = ($f - $fechaBase) / 86400;
 
-            $f2 = strtotime($fechas[$j]);
-
-            $diff = abs(($f2 - $f1) / 86400);
-
-            if ($diff <= 30) {
-                $alertas[] = "ORDEN A REVISION POR 30 DIAS";
-                return;
-            }
+        if (abs($diffDias) <= 30 && $f != $fechaBase) {
+            $alertas[] = "SEGUNDA ORDEN ATENDIDA EN 30 DIAS";
+            return;
         }
     }
 }
