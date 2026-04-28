@@ -352,26 +352,28 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-    //  ESCI
-    // =========================
-    $esciData = [];
-    $esciSeriesMap = [];
-    $sql = "
-        SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO
-        FROM seg_ns_eci
-        WHERE TELEFONO IN ($inTelefonos)
-    ";
-    foreach ($conexion_analisis->query($sql) as $row) {
-        $tel = trim($row['TELEFONO']);
-        $serie = strtoupper(trim($row['M_SERIE']));
-        if (!isset($esciData[$tel])) {
-            $esciData[$tel] = $row;
-            $esciData[$tel]['M_SERIE'] = $serie;
-        }
-        if (!empty($serie) && $serie !== 'DESCONOCIDO') {
-            $esciSeriesMap[$serie][$tel] = true;
-        }
+//  ESCI
+// =========================
+$esciData = [];
+$esciSeriesMap = [];
+$sql = "
+    SELECT TELEFONO, M_SERIE, DID_ACTIVO, F_CONSULTA
+    FROM seg_ns_eci
+    WHERE TELEFONO IN ($inTelefonos)
+";
+foreach ($conexion_analisis->query($sql) as $row) {
+    $tel = trim($row['TELEFONO']);
+    $serie = strtoupper(trim($row['M_SERIE']));
+
+    if (!isset($esciData[$tel])) {
+        $esciData[$tel] = $row;
+        $esciData[$tel]['M_SERIE'] = $serie;
     }
+
+    if (!empty($serie) && $serie !== 'DESCONOCIDO') {
+        $esciSeriesMap[$serie][$tel] = true;
+    }
+}
 
     // =========================
     // 🔥 MAPA EXISTENTES (OPTIMIZACIÓN)
@@ -628,36 +630,53 @@ private function alertaSeriesDiferente($data, &$alertas)
 private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
 {
     $esci = $data['esci'] ?? null;
+
     if (!$esci) {
         return; // no hay datos de esci para este teléfono
     }
 
     $mSerie = strtoupper(trim($esci['M_SERIE'] ?? ''));
     $didActivo = isset($esci['DID_ACTIVO']) ? intval($esci['DID_ACTIVO']) : null;
-    $fechaUltimoEvento = $esci['FECHA_ULTIMO_EVENTO'] ?? null;
+    $fechaConsulta = $esci['F_CONSULTA'] ?? null;
 
-    // Caso: número de serie desconocido
+    // =========================
+    // SIN NAVEGACIÓN (SERIE DESCONOCIDA)
+    // =========================
     if ($mSerie === 'DESCONOCIDO') {
-        $alertas[] = 'SIN NAVEGACION';
-        $detalleEsci = "Número de serie desconocido en Esci";
+        $alertas[] = 'SIN_NAVEGACION';
+
+        if ($fechaConsulta) {
+            $detalleEsci = "Último registro consultado: $fechaConsulta";
+        } else {
+            $detalleEsci = "Sin información de consulta en Esci";
+        }
+
         return;
     }
 
-    // Caso: servicio sin navegación (DID_ACTIVO = 0)
+    // =========================
+    // SIN NAVEGACIÓN (DID_ACTIVO = 0)
+    // =========================
     if ($didActivo === 0) {
-        $alertas[] = 'SIN NAVEGACION';
-        if ($fechaUltimoEvento) {
-            $detalleEsci = "Última vez que navegó: $fechaUltimoEvento";
+        $alertas[] = 'SIN_NAVEGACION';
+
+        if ($fechaConsulta) {
+            $detalleEsci = "Último registro consultado: $fechaConsulta";
         }
+
         return;
     }
 
-    // Caso: servicio inactivo (DID_ACTIVO = -1)
+    // =========================
+    // SERVICIO INACTIVO (DID_ACTIVO = -1)
+    // =========================
     if ($didActivo === -1) {
-        $alertas[] = 'SERVICIO INACTIVO';
-        if ($fechaUltimoEvento) {
-            $detalleEsci = "Última vez que navegó: $fechaUltimoEvento";
+        $alertas[] = 'SERVICIO_INACTIVO';
+
+        if ($fechaConsulta) {
+            $detalleEsci = "Último registro consultado: $fechaConsulta";
         }
+
         return;
     }
 }
