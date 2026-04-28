@@ -430,7 +430,6 @@ private function evaluarAlertas($data)
 
     //  Caso especial: folio no está en Coordiapp
     if ($data['coord'] === null) {
-
         // Alertas que NO dependen de coordiapp
         $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
         $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
@@ -467,12 +466,10 @@ private function evaluarAlertas($data)
 
     //  VALIDACIONES NORMALES (solo si NO es queja)
     if (!$esQueja) {
-
         $this->alertaFotoOntFallida($data, $alertas);
         $this->alertaOntTrasera($data, $alertas);
         $this->alertaFotoCasaCliente($data, $alertas);
         $this->alertaFotoR20($data, $alertas);
-
         $this->alertaLedsOntFallida($data, $alertas);
         $this->alertaTerminalFallida($data, $alertas);
         $this->alertaTerminalFallidaIA($data, $alertas);
@@ -496,28 +493,35 @@ private function evaluarAlertas($data)
 
 private function alertaOrdenRevision30Dias($data, &$alertas)
 {
-    $fechas = $data['tacOrdenHist'] ?? null;
+    // Obtenemos la fecha de liquidación de la orden actual (FECHA_LIQ)
+    $fechaLiquidacion = $data['fechaLiquidacion'] ?? null;
+    $telefono = $data['telefono'] ?? null;
 
-    if (empty($fechas) || count($fechas) < 2) return;
+    // Verificamos que tengamos la fecha de liquidación y el teléfono
+    if (empty($fechaLiquidacion) || empty($telefono)) return;
 
-    sort($fechas);
+    // Convertimos la fecha de liquidación a timestamp
+    $fechaLiquidacionTimestamp = strtotime($fechaLiquidacion);
 
-    $total = count($fechas);
+    // Definimos los límites de tiempo (30 días antes y 30 días después de la fecha de liquidación)
+    $limiteInferior = $fechaLiquidacionTimestamp - (30 * 86400); // 30 días antes
+    $limiteSuperior = $fechaLiquidacionTimestamp + (30 * 86400); // 30 días después
 
-    for ($i = 0; $i < $total; $i++) {
+    // Verificamos si existen fechas para este teléfono en el arreglo tacOrdenData
+    $fechas = $tacOrdenData[$telefono] ?? null;
 
-        $f1 = strtotime($fechas[$i]);
+    // Si no hay fechas para este teléfono, no hacemos nada
+    if (empty($fechas)) return;
 
-        for ($j = $i + 1; $j < $total; $j++) {
+    // Comprobamos si alguna de las fechas está dentro del rango de 30 días
+    foreach ($fechas as $fecha) {
+        $fechaOrdenTimestamp = strtotime($fecha); // Convertimos la fecha de orden a timestamp
 
-            $f2 = strtotime($fechas[$j]);
-
-            $diff = abs(($f2 - $f1) / 86400);
-
-            if ($diff <= 30) {
-                $alertas[] = "ORDEN A REVISION POR 30 DIAS";
-                return;
-            }
+        // Verificamos si la fecha de orden está dentro del rango de 30 días
+        if ($fechaOrdenTimestamp >= $limiteInferior && $fechaOrdenTimestamp <= $limiteSuperior) {
+            // Si la fecha está dentro del rango, agregamos la alerta
+            $alertas[] = "ORDEN A REVISION POR 30 DIAS";
+            return; // Solo necesitamos una alerta, salimos del ciclo
         }
     }
 }
