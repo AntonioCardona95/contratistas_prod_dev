@@ -553,6 +553,16 @@ private function alertaTelefonoOrdenDuplicadaTac($data, &$alertas)
 }
 
 
+private function alertaTelefonoDuplicado($data, &$alertas)
+{
+    $telefono = $data['telefono'] ?? null;
+    $folios = $data['telefonosDuplicados'] ?? [];
+
+    if ($telefono && isset($folios[$telefono])) {
+        $alertas[] = 'TELEFONO DUPLICADO EN PRODUCCION';
+    }
+}
+
 
 private function alertaSeriesDiferente($data, &$alertas)
 {
