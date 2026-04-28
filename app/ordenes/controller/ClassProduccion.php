@@ -439,6 +439,7 @@ private function evaluarAlertas($data)
     if ($data['coord'] === null) {
 
         // Alertas que NO dependen de coordiapp
+        $this->alertaOntAlmacen($data, $alertas);
         $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
         $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
         $this->alertaSerieDesconocida($data, $alertas);
@@ -459,6 +460,7 @@ private function evaluarAlertas($data)
     }
 
     //  Si sí hay datos en coordiapp, corremos todas las alertas
+    $this->alertaOntAlmacen($data, $alertas);
     $this->alertaTipoTareaDiferente($data, $alertas);
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
     $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
