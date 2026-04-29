@@ -421,6 +421,12 @@ foreach ($conexion_analisis->query($sql) as $row) {
 
 private function evaluarAlertas($data)
 {
+
+// 🔎 Debug: imprimir lo que llega en $data
+    echo "<pre>";
+    echo "=== CONTENIDO DE \$data ===\n";
+    var_dump($data);
+    echo "</pre>";
     $alertas = [];
     $detalleEsci = null;
     $detalleTac = null;
