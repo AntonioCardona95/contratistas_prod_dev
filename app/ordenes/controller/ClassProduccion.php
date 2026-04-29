@@ -293,13 +293,10 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
     }
 
     // =========================
-    //   NUEVO: HISTORIAL ORDEN (30 DÍAS)
+    //  🔥 NUEVO: HISTORIAL ORDEN (30 DÍAS)
     // =========================
-
-    // Aquí se van a guardar las fechas de liquidación (FECHA_LIQ) agrupadas por cada número de teléfono.
     $tacOrdenData = [];
 
-    // Tienen un teléfono dentro de la lista $inTelefonos ,Son de tipo ORDEN,Están marcados como COMPLETADA.
     $sqlOrden = "
         SELECT TELEFONO, FECHA_LIQ
         FROM qm_tac
@@ -309,12 +306,9 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
         ORDER BY TELEFONO, FECHA_LIQ ASC
     ";
 
-    //Para cada fila, toma el teléfono y lo usa como clave en el array, 
-    //Va acumulando todas las fechas de liquidación (FECHA_LIQ) asociadas a ese teléfono en un arreglo.
     foreach ($conexion_analisis->query($sqlOrden) as $row) {
         $tel = trim($row['TELEFONO']);
         $tacOrdenData[$tel][] = $row['FECHA_LIQ'];
-        
     }
 
     // =========================
@@ -438,7 +432,6 @@ private function evaluarAlertas($data)
     if ($data['coord'] === null) {
 
         // Alertas que NO dependen de coordiapp
-        $this->alertaOntAlmacen($data, $alertas);
         $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
         $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
         $this->alertaSerieDesconocida($data, $alertas);
@@ -459,7 +452,6 @@ private function evaluarAlertas($data)
     }
 
     //  Si sí hay datos en coordiapp, corremos todas las alertas
-    $this->alertaOntAlmacen($data, $alertas);
     $this->alertaTipoTareaDiferente($data, $alertas);
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
     $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
@@ -503,27 +495,31 @@ private function evaluarAlertas($data)
 
 private function alertaOrdenRevision30Dias($data, &$alertas)
 {
-    $fechas = $data['tacOrdenHist'] ?? [];
+    $fechas = $data['tacOrdenHist'] ?? null;
 
     if (empty($fechas) || count($fechas) < 2) return;
 
-    $fechaBase = strtotime($data['Fecha_Liquidacion'] ?? 'now');
+    sort($fechas);
 
-    foreach ($fechas as $fecha) {
+    $total = count($fechas);
 
-        $f = strtotime($fecha);
+    for ($i = 0; $i < $total; $i++) {
 
-        if (!$f) continue;
+        $f1 = strtotime($fechas[$i]);
 
-        $diffDias = ($f - $fechaBase) / 86400;
+        for ($j = $i + 1; $j < $total; $j++) {
 
-        if (abs($diffDias) <= 30 && $f != $fechaBase) {
-            $alertas[] = "SEGUNDA ORDEN ATENDIDA EN 30 DIAS";
-            return;
+            $f2 = strtotime($fechas[$j]);
+
+            $diff = abs(($f2 - $f1) / 86400);
+
+            if ($diff <= 30) {
+                $alertas[] = "ORDEN A REVISION POR 30 DIAS";
+                return;
+            }
         }
     }
 }
-
 
 private function alertaSeriesDiferente($data, &$alertas)
 {
