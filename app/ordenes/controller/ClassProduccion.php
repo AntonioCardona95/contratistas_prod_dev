@@ -310,35 +310,32 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
         $tel = trim($row['TELEFONO']);
         $tacOrdenData[$tel][] = $row['FECHA_LIQ'];
     }
-// =========================
-//  ESCI
-// =========================
-$esciData = [];
-$esciSeriesMap = [];
 
-$sql = "
-    SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
-    FROM seg_ns_eci
-    WHERE TELEFONO IN ($inTelefonos)
-    ORDER BY TELEFONO, F_CONSULTA DESC
-";
+    // =========================
+    //  ESCI
+    // =========================
+    $esciData = [];
+    $esciSeriesMap = [];
 
-foreach ($conexion_analisis->query($sql) as $row) {
-    $tel = trim($row['TELEFONO']);
-    $serie = strtoupper(trim($row['M_SERIE']));
+    $sql = "
+        SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA
+        FROM seg_ns_eci
+        WHERE TELEFONO IN ($inTelefonos)
+    ";
 
-    // Solo guardar el primer registro por teléfono (el más reciente gracias al ORDER BY)
-    if (!isset($esciData[$tel])) {
-        $esciData[$tel] = $row;
-        $esciData[$tel]['M_SERIE'] = $serie;
+    foreach ($conexion_analisis->query($sql) as $row) {
+        $tel = trim($row['TELEFONO']);
+        $serie = strtoupper(trim($row['M_SERIE']));
+
+        if (!isset($esciData[$tel])) {
+            $esciData[$tel] = $row;
+            $esciData[$tel]['M_SERIE'] = $serie;
+        }
+
+        if (!empty($serie) && $serie !== 'DESCONOCIDO') {
+            $esciSeriesMap[$serie][$tel] = true;
+        }
     }
-
-    // Mapear series válidas (no desconocidas)
-    if (!empty($serie) && $serie !== 'DESCONOCIDO') {
-        $esciSeriesMap[$serie][$tel] = true;
-    }
-}
-
 
     // =========================
     //  INSERTS
