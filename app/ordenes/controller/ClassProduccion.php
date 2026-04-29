@@ -697,7 +697,7 @@ private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
     if ($didActivo === 0) {
         $alertas[] = 'SIN NAVEGACION';
         if ($fConsulta) {
-            $detalleEsci = "Última vez que navegó: $fConsulta";
+            $detalleEsci = "ultima vez que navego: $fConsulta";
         }
         return;
     }
@@ -706,7 +706,7 @@ private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
     if ($didActivo === -1) {
         $alertas[] = 'SERVICIO INACTIVO';
         if ($fConsulta) {
-            $detalleEsci = "Última vez que navegó: $fConsulta";
+            $detalleEsci = "ultima vez que navego: $fConsulta";
         }
         return;
     }
