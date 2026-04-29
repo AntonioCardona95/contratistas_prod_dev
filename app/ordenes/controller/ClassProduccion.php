@@ -318,7 +318,7 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
     $esciSeriesMap = [];
 
     $sql = "
-        SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO
+        SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA
         FROM seg_ns_eci
         WHERE TELEFONO IN ($inTelefonos)
     ";
