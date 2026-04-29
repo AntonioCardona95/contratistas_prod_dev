@@ -293,24 +293,33 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
         $tacData[$row['Folio_Pisa']] = $row;
     }
 
-    // =========================
-    //  🔥 NUEVO: HISTORIAL ORDEN (30 DÍAS)
-    // =========================
-    $tacOrdenData = [];
+// 🔥 NUEVO: HISTORIAL ORDEN (30 DÍAS optimizado)
+$tacOrdenData = [];
 
-    $sqlOrden = "
-        SELECT TELEFONO, FECHA_LIQ
+$sqlOrden = "
+    WITH ultimas AS (
+        SELECT TELEFONO, MAX(DATE(FECHA_LIQ)) AS ultima_fecha
         FROM qm_tac
-        WHERE TELEFONO IN ($inTelefonos)
+        WHERE Calificador_Edo = 'COMPLETADA'
           AND TIPO = 'ORDEN'
-          AND Calificador_Edo = 'COMPLETADA'
-        ORDER BY TELEFONO, FECHA_LIQ ASC
-    ";
+        GROUP BY TELEFONO
+    )
+    SELECT u.TELEFONO, t.Folio_Pisa, DATE(t.FECHA_LIQ) AS Fecha_Liq, u.ultima_fecha
+    FROM ultimas u
+    JOIN qm_tac t ON t.TELEFONO = u.TELEFONO
+    WHERE t.Calificador_Edo = 'COMPLETADA'
+      AND t.TIPO = 'ORDEN'
+      AND DATE(t.FECHA_LIQ) BETWEEN u.ultima_fecha - INTERVAL 30 DAY
+                               AND u.ultima_fecha + INTERVAL 30 DAY
+      AND DATE(t.FECHA_LIQ) <> u.ultima_fecha
+    ORDER BY u.TELEFONO, t.FECHA_LIQ;
+";
 
-    foreach ($conexion_analisis->query($sqlOrden) as $row) {
-        $tel = trim($row['TELEFONO']);
-        $tacOrdenData[$tel][] = $row['FECHA_LIQ'];
-    }
+foreach ($conexion_analisis->query($sqlOrden) as $row) {
+    $tel = trim($row['TELEFONO']);
+    $tacOrdenData[$tel][] = $row['Fecha_Liq']; // ya solo guarda las fechas que cumplen la condición
+}
+
 
     //  ESCI
 // =========================
