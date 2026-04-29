@@ -492,8 +492,27 @@ private function evaluarAlertas($data)
     ];
 }
 
-
 private function alertaOrdenRevision30Dias($data, &$alertas)
+{
+    $fechas = $data['tacOrdenHist'] ?? null;
+    $fechaActual = $data['fechaLiquidacion'] ?? null;
+
+    if (empty($fechas) || empty($fechaActual)) return;
+
+    $fechaBase = strtotime($fechaActual);
+
+    foreach ($fechas as $fechaComparar) {
+        $diff = abs(($fechaBase - strtotime($fechaComparar)) / 86400);
+        if ($diff <= 30 && $fechaComparar != $fechaActual) {
+            $alertas[] = "ORDEN A REVISION POR 30 DIAS";
+            return;
+        }
+    }
+}
+
+
+
+/*private function alertaOrdenRevision30Dias($data, &$alertas)
 {
     $fechas = $data['tacOrdenHist'] ?? null;
 
@@ -519,7 +538,7 @@ private function alertaOrdenRevision30Dias($data, &$alertas)
             }
         }
     }
-}
+} */
 
 private function alertaSeriesDiferente($data, &$alertas)
 {
