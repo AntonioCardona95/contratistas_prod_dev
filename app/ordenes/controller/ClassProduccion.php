@@ -419,7 +419,6 @@ foreach ($conexion_analisis->query($sql) as $row) {
     }
 }
 
-
 private function evaluarAlertas($data)
 {
     $alertas = [];
@@ -431,20 +430,20 @@ private function evaluarAlertas($data)
     // =========================
     $this->alertaOrdenRevision30Dias($data, $alertas);
 
-    //  Caso especial: folio no está en Coordiapp
+    // =========================
+    // CASO: folio no está en Coordiapp
+    // =========================
     if ($data['coord'] === null) {
-
         // Alertas que NO dependen de coordiapp
         $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
         $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
         $this->alertaSerieDesconocida($data, $alertas);
-        //$this->alertaEventoEsci($data, $alertas, $detalleEsci);
         $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
 
-        // Nueva: comparar TAC vs Esci cuando no hay coordiapp
+        // Comparar TAC vs Esci cuando no hay coordiapp
         $this->alertaSeriesDiferente($data, $alertas);
 
-        // Agregamos alerta especial
+        // Agregar alerta especial
         $alertas[] = 'NO EN COORDIAPP';
 
         return [
@@ -454,23 +453,26 @@ private function evaluarAlertas($data)
         ];
     }
 
-    //  Si sí hay datos en coordiapp, corremos todas las alertas
+    // =========================
+    // CASO: sí hay datos en Coordiapp
+    // =========================
     $this->alertaTipoTareaDiferente($data, $alertas);
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
     $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
     $this->alertaSerieDesconocida($data, $alertas);
-    //$this->alertaEventoEsci($data, $alertas, $detalleEsci);
 
-    // Nueva: comparar coordiapp vs tac vs esci
+    // Comparar coordiapp vs tac vs esci
     $this->alertaSeriesDiferente($data, $alertas);
 
     $this->alertaTecnologiaDiferente($data, $alertas);
 
+    // =========================
+    // Detección de queja
+    // =========================
     $esQueja = $this->esTipoQueja($data['tipoTarea'] ?? '');
 
-    //  VALIDACIONES NORMALES (solo si NO es queja)
+    // VALIDACIONES NORMALES (solo si NO es queja)
     if (!$esQueja) {
-
         $this->alertaFotoOntFallida($data, $alertas);
         $this->alertaOntTrasera($data, $alertas);
         $this->alertaFotoCasaCliente($data, $alertas);
@@ -483,7 +485,7 @@ private function evaluarAlertas($data)
         $this->alertaOntAlmacen($data, $alertas);
     }
 
-    //  VALIDACIÓN ESPECIAL (solo si SÍ es queja)
+    // VALIDACIÓN ESPECIAL (solo si SÍ es queja)
     if ($esQueja) {
         $this->alertaFotosPorTipoQueja($data, $alertas);
     }
@@ -494,6 +496,7 @@ private function evaluarAlertas($data)
         'detalleTac' => $detalleTac
     ];
 }
+
 
 /*private function alertaOrdenRevision30Dias($data, &$alertas)
 {
@@ -713,18 +716,19 @@ private function alertaTipoTareaDiferente($data, &$alertas)
     }
 }
 
-private function esTipoQueja($tipoTarea)
+private function esTipoQueja(string $tipoTarea): bool
 {
     $tipoTarea = strtoupper(trim($tipoTarea));
-    $tipos = ['Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597', 'F841'];
+    $tiposQueja = ['Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597', 'F841'];
 
-    foreach ($tipos as $t) {
-        if (strpos($tipoTarea, $t) === 0) {
+    foreach ($tiposQueja as $prefijo) {
+        if (strpos($tipoTarea, $prefijo) === 0) {
             return true;
         }
     }
     return false;
 }
+
 
 private function alertaTerminalFallida($data, &$alertas)
 {
@@ -1094,33 +1098,14 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     $tipoTarea = strtoupper(trim($data['tipoTarea'] ?? ''));
     $codigoLiquidacion = strtoupper(trim($data['coord']['Codigo_Liquidacion'] ?? ''));
 
-    // Debug: imprimir lo que llega
-    echo "<pre>";
-    echo "=== DATA ===\n";
-    print_r($data);
-
-    echo "\n=== ALERTAS ===\n";
-    print_r($alertas);
-
-    echo "\n=== VALORES ===\n";
-    echo "tipoTarea: " . $tipoTarea . "\n";
-    echo "codigoLiquidacion: " . $codigoLiquidacion . "\n";
-    echo "</pre>";
-
-    $tipos = ['Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597', 'F841'];
-
-    $esQueja = false;
-    foreach ($tipos as $t) {
-        if (strpos($tipoTarea, $t) === 0) {
-            $esQueja = true;
-            break;
-        }
+    // Si no es queja, no hacemos nada
+    if (!$this->esTipoQueja($tipoTarea)) {
+        return;
     }
-
-    if (!$esQueja) return;
 
     $validar = [];
 
+    // Definir qué fotos sí se deben validar según el código de liquidación
     if (in_array($codigoLiquidacion, [
         'JUMPER/PARALELO EXTERIOR',
         'CONECTOR MECANICO DAÑADO',
@@ -1144,7 +1129,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
         $validar = ['Foto_Casa_Cliente','Foto_Puerto','Foto_Ont'];
     }
 
-    // 🔴 VALIDAR SOLO ESAS
+    // Validar solo esas evidencias
     foreach ($validar as $campo) {
         $valor = $data['coord'][$campo] ?? '';
 
@@ -1153,7 +1138,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
         }
     }
 
-    // 🔴 VALIDACIONES 1/0 SOLO SI ES QUEJA
+    // Validaciones binarias (solo si es queja y hay evidencias a validar)
     if (!empty($validar)) {
         if ((int)($data['coord']['validacion_foto_fallida'] ?? 0) === 1) {
             $alertas[] = 'VALIDACION_FOTO_FALLIDA';
@@ -1164,6 +1149,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
         }
     }
 }
+
 
 
 public function obtenerProduccion($Fecha1, $Fecha2, $idContratistas)
