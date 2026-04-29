@@ -312,30 +312,37 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
     }
 
     // =========================
-    //  ESCI
-    // =========================
-    $esciData = [];
-    $esciSeriesMap = [];
+//  ESCI
+// =========================
+$esciData = [];
+$esciSeriesMap = [];
+
+foreach (explode(',', $inTelefonos) as $tel) {
+    $tel = trim($tel);
+    if ($tel === '') continue;
 
     $sql = "
-        SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA
+        SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
         FROM seg_ns_eci
-        WHERE TELEFONO IN ($inTelefonos)
+        WHERE TELEFONO = :telefono
+        ORDER BY F_CONSULTA DESC
+        LIMIT 1
     ";
 
-    foreach ($conexion_analisis->query($sql) as $row) {
-        $tel = trim($row['TELEFONO']);
-        $serie = strtoupper(trim($row['M_SERIE']));
+    $stmt = $conexion_analisis->prepare($sql);
+    $stmt->execute([':telefono' => $tel]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!isset($esciData[$tel])) {
-            $esciData[$tel] = $row;
-            $esciData[$tel]['M_SERIE'] = $serie;
-        }
+    if ($row) {
+        $serie = strtoupper(trim($row['M_SERIE']));
+        $esciData[$tel] = $row;
+        $esciData[$tel]['M_SERIE'] = $serie;
 
         if (!empty($serie) && $serie !== 'DESCONOCIDO') {
             $esciSeriesMap[$serie][$tel] = true;
         }
     }
+}
 
     // =========================
     //  INSERTS
