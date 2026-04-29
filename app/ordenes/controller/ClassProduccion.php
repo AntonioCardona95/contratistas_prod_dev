@@ -292,35 +292,34 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
         $tacData[$row['Folio_Pisa']] = $row;
     }
 
-$tacOrdenData = [];
+    // =========================
+    //   NUEVO: HISTORIAL ORDEN (30 DÍAS)
+    // =========================
 
-// Consulta todas las órdenes completadas para los teléfonos en lista,
-// pero solo aquellas que tienen otra orden del mismo teléfono en ±30 días
-$sqlOrden = "
-    SELECT TELEFONO, FECHA_LIQ
-    FROM qm_tac t1
-    WHERE TELEFONO IN ($inTelefonos)
-      AND TIPO = 'ORDEN'
-      AND Calificador_Edo = 'COMPLETADA'
-      AND EXISTS (
-          SELECT 1
-          FROM qm_tac t2
-          WHERE t2.TELEFONO = t1.TELEFONO
-            AND t2.TIPO = 'ORDEN'
-            AND t2.Calificador_Edo = 'COMPLETADA'
-            AND ABS(DATEDIFF(t1.FECHA_LIQ, t2.FECHA_LIQ)) <= 30
-            AND t1.FECHA_LIQ <> t2.FECHA_LIQ
-      )
-    ORDER BY TELEFONO, FECHA_LIQ ASC
-";
+    // Aquí se van a guardar las fechas de liquidación (FECHA_LIQ) agrupadas por cada número de teléfono.
+    $tacOrdenData = [];
 
-// Para cada fila, toma el teléfono y lo usa como clave en el array,
-// acumulando solo las fechas que cumplen la condición de ±30 días
-foreach ($conexion_analisis->query($sqlOrden) as $row) {
-    $tel = trim($row['TELEFONO']);
-    $tacOrdenData[$tel][] = $row['FECHA_LIQ'];
+    // Tienen un teléfono dentro de la lista $inTelefonos ,Son de tipo ORDEN,Están marcados como COMPLETADA.
+    $sqlOrden = "
+        SELECT TELEFONO, FECHA_LIQ
+        FROM qm_tac
+        WHERE TELEFONO IN ($inTelefonos)
+          AND TIPO = 'ORDEN'
+          AND Calificador_Edo = 'COMPLETADA'
+        ORDER BY TELEFONO, FECHA_LIQ ASC
+    ";
+
+    //Para cada fila, toma el teléfono y lo usa como clave en el array, 
+    //Va acumulando todas las fechas de liquidación (FECHA_LIQ) asociadas a ese teléfono en un arreglo.
+    foreach ($conexion_analisis->query($sqlOrden) as $row) {
+        $tel = trim($row['TELEFONO']);
+        $tacOrdenData[$tel][] = $row['FECHA_LIQ'];
+    
+        /*   $tacOrdenData = [
+    '8711234567' => ['2026-03-01', '2026-03-15', '2026-04-02'],
+    '8717654321' => ['2026-03-05', '2026-03-20']
+]; */
 }
-
 
     // =========================
     //  ESCI
@@ -506,15 +505,25 @@ private function evaluarAlertas($data)
 }
 
 
-private function alertaOrdenRevision30Dias($data, &$alertas) {
-    if (empty($data['tacOrdenHist']) || empty($data['fechaLiquidacion'])) return;
+private function alertaOrdenRevision30Dias($data, &$alertas)
+{
+    $fechas = $data['tacOrdenHist'] ?? [];
 
-    $fechaBase = strtotime($data['fechaLiquidacion']);
-    foreach ($data['tacOrdenHist'] as $fechaComparar) {
-        $diff = abs(($fechaBase - strtotime($fechaComparar)) / 86400);
-        if ($diff <= 30 && $fechaComparar != $data['fechaLiquidacion']) {
-            $alertas[] = 'ORDEN EN ±30 DÍAS';
-            break; // basta con encontrar una coincidencia
+    if (empty($fechas) || count($fechas) < 2) return;
+
+    $fechaBase = strtotime($data['Fecha_Liquidacion'] ?? 'now');
+
+    foreach ($fechas as $fecha) {
+
+        $f = strtotime($fecha);
+
+        if (!$f) continue;
+
+        $diffDias = ($f - $fechaBase) / 86400;
+
+        if (abs($diffDias) <= 30 && $f != $fechaBase) {
+            $alertas[] = "SEGUNDA ORDEN ATENDIDA EN 30 DIAS";
+            return;
         }
     }
 }
