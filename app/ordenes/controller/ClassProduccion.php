@@ -599,9 +599,19 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     }
 } */
 
+    private function alertaOrdenRevision30Dias($data, &$alertas)
+{
+    $fechas = $data['tacOrdenHist'] ?? null;
+
+    // Si el SQL ya filtró, basta con verificar si hay registros
+    if (!empty($fechas)) {
+        $alertas[] = "ORDEN A REVISION POR 30 DIAS";
+    }
+}
 
 
-private function alertaOrdenRevision30Dias($data, &$alertas)
+
+/*private function alertaOrdenRevision30Dias($data, &$alertas)
 {
     $fechas = $data['tacOrdenHist'] ?? null;
 
@@ -627,7 +637,7 @@ private function alertaOrdenRevision30Dias($data, &$alertas)
             }
         }
     }
-}
+} */
 
 private function alertaSeriesDiferente($data, &$alertas)
 {
