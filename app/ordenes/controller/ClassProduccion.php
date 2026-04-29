@@ -435,7 +435,7 @@ private function evaluarAlertas($data)
         $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
         $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
         $this->alertaSerieDesconocida($data, $alertas);
-        $this->alertaEventoEsci($data, $alertas, $detalleEsci);
+        //$this->alertaEventoEsci($data, $alertas, $detalleEsci);
         $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
 
         // Nueva: comparar TAC vs Esci cuando no hay coordiapp
@@ -456,7 +456,7 @@ private function evaluarAlertas($data)
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
     $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
     $this->alertaSerieDesconocida($data, $alertas);
-    $this->alertaEventoEsci($data, $alertas, $detalleEsci);
+    //$this->alertaEventoEsci($data, $alertas, $detalleEsci);
 
     // Nueva: comparar coordiapp vs tac vs esci
     $this->alertaSeriesDiferente($data, $alertas);
@@ -585,7 +585,7 @@ private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
 
     $mSerie = strtoupper(trim($esci['M_SERIE'] ?? ''));
     $didActivo = isset($esci['DID_ACTIVO']) ? intval($esci['DID_ACTIVO']) : null;
-    $fechaUltimoEvento = $esci['FECHA_ULTIMO_EVENTO'] ?? null;
+    $fConsulta = $esci['F_CONSULTA'] ?? null; // ahora usamos F_CONSULTA
 
     // Caso: número de serie desconocido
     if ($mSerie === 'DESCONOCIDO') {
@@ -597,8 +597,8 @@ private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
     // Caso: servicio sin navegación (DID_ACTIVO = 0)
     if ($didActivo === 0) {
         $alertas[] = 'SIN NAVEGACION';
-        if ($fechaUltimoEvento) {
-            $detalleEsci = "Última vez que navegó: $fechaUltimoEvento";
+        if ($fConsulta) {
+            $detalleEsci = "Última vez que navegó: $fConsulta";
         }
         return;
     }
@@ -606,12 +606,13 @@ private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
     // Caso: servicio inactivo (DID_ACTIVO = -1)
     if ($didActivo === -1) {
         $alertas[] = 'SERVICIO INACTIVO';
-        if ($fechaUltimoEvento) {
-            $detalleEsci = "Última vez que navegó: $fechaUltimoEvento";
+        if ($fConsulta) {
+            $detalleEsci = "Última vez que navegó: $fConsulta";
         }
         return;
     }
 }
+
 
 
 
@@ -907,7 +908,7 @@ private function alertaSerieDesconocida($data, &$alertas)
     }
 }
 
-private function alertaEventoEsci($data, &$alertas, &$detalleEsci)
+/*private function alertaEventoEsci($data, &$alertas, &$detalleEsci)
 {
     $evento = $data['esci']['ULTIMO_EVENTO'] ?? null;
     $serie = $data['serieEsci'];
@@ -924,7 +925,7 @@ private function alertaEventoEsci($data, &$alertas, &$detalleEsci)
             $detalleEsci = "Serie $serie con servicio inactivo";
         }
     }
-}
+} */
 
 private function alertaSeriesDiferentes($data, &$alertas)
 {
