@@ -269,7 +269,8 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
         Foto_Casa_Cliente,
         validacion_foto_fallida,
         Foto_Puerto,
-        Codigo_Liquidacion
+        Codigo_Liquidacion,
+        Tipo_Tarea
     FROM tecnico_instalaciones_coordiapp
     WHERE Folio_Pisa IN ($inFolios)
       AND Estatus_Orden = 'COMPLETADA'
@@ -384,7 +385,8 @@ foreach ($conexion_analisis->query($sql) as $row) {
             'serieCoord' => $serieCoord,
             'serieEsci' => $serieEsci,
             'tacOrdenHist' => $tacOrdenHist,
-            'idContratista' => $r['idContratista'] ?? 0
+            'idContratista' => $r['idContratista'] ?? 0,
+            'tipoTarea' => $coord['Tipo_Tarea'] ?? ($r['tipoTarea'] ?? '')
         ]);
 
         if (!empty($resultadoAlertas['alertas'])) {
@@ -427,6 +429,7 @@ private function evaluarAlertas($data)
     echo "=== CONTENIDO DE \$data ===\n";
     var_dump($data);
     echo "</pre>";
+    
     $alertas = [];
     $detalleEsci = null;
     $detalleTac = null;
