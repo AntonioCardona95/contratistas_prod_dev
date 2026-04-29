@@ -1094,6 +1094,19 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     $tipoTarea = strtoupper(trim($data['tipoTarea'] ?? ''));
     $codigoLiquidacion = strtoupper(trim($data['coord']['Codigo_Liquidacion'] ?? ''));
 
+    // Debug: imprimir lo que llega
+    echo "<pre>";
+    echo "=== DATA ===\n";
+    print_r($data);
+
+    echo "\n=== ALERTAS ===\n";
+    print_r($alertas);
+
+    echo "\n=== VALORES ===\n";
+    echo "tipoTarea: " . $tipoTarea . "\n";
+    echo "codigoLiquidacion: " . $codigoLiquidacion . "\n";
+    echo "</pre>";
+
     $tipos = ['Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597', 'F841'];
 
     $esQueja = false;
