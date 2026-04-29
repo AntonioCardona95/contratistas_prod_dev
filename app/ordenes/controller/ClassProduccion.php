@@ -426,7 +426,7 @@ private function evaluarAlertas($data)
     $detalleTac = null;
 
     // =========================
-    // 🔥 NUEVO: ALERTA ORDEN 30 DÍAS
+    // 🔥 ALERTA ORDEN 30 DÍAS
     // =========================
     $this->alertaOrdenRevision30Dias($data, $alertas);
 
@@ -434,16 +434,12 @@ private function evaluarAlertas($data)
     // CASO: folio no está en Coordiapp
     // =========================
     if ($data['coord'] === null) {
-        // Alertas que NO dependen de coordiapp
         $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
         $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
         $this->alertaSerieDesconocida($data, $alertas);
         $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
-
-        // Comparar TAC vs Esci cuando no hay coordiapp
         $this->alertaSeriesDiferente($data, $alertas);
 
-        // Agregar alerta especial
         $alertas[] = 'NO EN COORDIAPP';
 
         return [
@@ -460,10 +456,7 @@ private function evaluarAlertas($data)
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
     $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
     $this->alertaSerieDesconocida($data, $alertas);
-
-    // Comparar coordiapp vs tac vs esci
     $this->alertaSeriesDiferente($data, $alertas);
-
     $this->alertaTecnologiaDiferente($data, $alertas);
 
     // =========================
@@ -473,11 +466,10 @@ private function evaluarAlertas($data)
 
     // VALIDACIONES NORMALES (solo si NO es queja)
     if (!$esQueja) {
-        $this->alertaFotoOntFallida($data, $alertas);
-        $this->alertaOntTrasera($data, $alertas);
+        $this->alertaFotoOntFallida($data, $alertas);   // Foto ONT frontal
+        $this->alertaOntTrasera($data, $alertas);       // Foto ONT trasera
         $this->alertaFotoCasaCliente($data, $alertas);
         $this->alertaFotoR20($data, $alertas);
-
         $this->alertaLedsOntFallida($data, $alertas);
         $this->alertaTerminalFallida($data, $alertas);
         $this->alertaTerminalFallidaIA($data, $alertas);
@@ -496,6 +488,78 @@ private function evaluarAlertas($data)
         'detalleTac' => $detalleTac
     ];
 }
+
+private function esTipoQueja(string $tipoTarea): bool
+{
+    $tipoTarea = strtoupper(trim($tipoTarea));
+    $tiposQueja = ['Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597', 'F841'];
+
+    foreach ($tiposQueja as $prefijo) {
+        if (strpos($tipoTarea, $prefijo) === 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+private function alertaFotosPorTipoQueja($data, &$alertas)
+{
+    $tipoTarea = strtoupper(trim($data['tipoTarea'] ?? ''));
+    $codigoLiquidacion = strtoupper(trim($data['coord']['Codigo_Liquidacion'] ?? ''));
+
+    // Si no es queja, no hacemos nada
+    if (!$this->esTipoQueja($tipoTarea)) {
+        return;
+    }
+
+    $validar = [];
+
+    // Definir qué fotos sí se deben validar según el código de liquidación
+    if (in_array($codigoLiquidacion, [
+        'JUMPER/PARALELO EXTERIOR',
+        'CONECTOR MECANICO DAÑADO',
+        'CAMBIO DE PUERTO',
+        'CAMBIO DE TERMINAL'
+    ])) {
+        $validar = ['Foto_Casa_Cliente','Foto_Puerto'];
+    } elseif ($codigoLiquidacion === 'MODEM DAÑADO') {
+        $validar = ['Foto_Casa_Cliente','Foto_Ont'];
+    } elseif (in_array($codigoLiquidacion, [
+        'CAMBIO PAR PRINCIPAL',
+        'CAMBIO PAR SECUNDARIO',
+        'ROSETA OPTICA',
+        'CAMBIO DE INTERIOR'
+    ])) {
+        $validar = ['Foto_Casa_Cliente'];
+    } elseif (in_array($codigoLiquidacion, [
+        'CAMBIO PARALELO Y MODEM',
+        'OTRO'
+    ])) {
+        $validar = ['Foto_Casa_Cliente','Foto_Puerto','Foto_Ont'];
+    }
+
+    // Validar solo esas evidencias
+    foreach ($validar as $campo) {
+        $valor = $data['coord'][$campo] ?? '';
+
+        if (empty($valor) || !preg_match('/\.(jpg|jpeg|png)$/i', $valor)) {
+            $alertas[] = "FALTA_EVIDENCIA_" . strtoupper($campo);
+        }
+    }
+
+    // Validaciones binarias (solo si es queja y hay evidencias a validar)
+    if (!empty($validar)) {
+        if ((int)($data['coord']['validacion_foto_fallida'] ?? 0) === 1) {
+            $alertas[] = 'VALIDACION_FOTO_FALLIDA';
+        }
+
+        if ((int)($data['coord']['validacion_LEDS_ONT_fallida'] ?? 0) === 1) {
+            $alertas[] = 'VALIDACION_LEDS_FALLIDA';
+        }
+    }
+}
+
 
 
 /*private function alertaOrdenRevision30Dias($data, &$alertas)
@@ -714,19 +778,6 @@ private function alertaTipoTareaDiferente($data, &$alertas)
     if ($tipoTareaTac && $tipoTareaCoord && $tipoTareaTac !== $tipoTareaCoord) {
         $alertas[] = 'TIPO_TAREA_DIFERENTE';
     }
-}
-
-private function esTipoQueja(string $tipoTarea): bool
-{
-    $tipoTarea = strtoupper(trim($tipoTarea));
-    $tiposQueja = ['Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597', 'F841'];
-
-    foreach ($tiposQueja as $prefijo) {
-        if (strpos($tipoTarea, $prefijo) === 0) {
-            return true;
-        }
-    }
-    return false;
 }
 
 
@@ -1091,63 +1142,6 @@ private function normalizarSerie($serie)
     $serie = preg_replace('/[^A-Z0-9]/', '', $serie);
 
     return $serie;
-}
-
-private function alertaFotosPorTipoQueja($data, &$alertas)
-{
-    $tipoTarea = strtoupper(trim($data['tipoTarea'] ?? ''));
-    $codigoLiquidacion = strtoupper(trim($data['coord']['Codigo_Liquidacion'] ?? ''));
-
-    // Si no es queja, no hacemos nada
-    if (!$this->esTipoQueja($tipoTarea)) {
-        return;
-    }
-
-    $validar = [];
-
-    // Definir qué fotos sí se deben validar según el código de liquidación
-    if (in_array($codigoLiquidacion, [
-        'JUMPER/PARALELO EXTERIOR',
-        'CONECTOR MECANICO DAÑADO',
-        'CAMBIO DE PUERTO',
-        'CAMBIO DE TERMINAL'
-    ])) {
-        $validar = ['Foto_Casa_Cliente','Foto_Puerto'];
-    } elseif ($codigoLiquidacion === 'MODEM DAÑADO') {
-        $validar = ['Foto_Casa_Cliente','Foto_Ont'];
-    } elseif (in_array($codigoLiquidacion, [
-        'CAMBIO PAR PRINCIPAL',
-        'CAMBIO PAR SECUNDARIO',
-        'ROSETA OPTICA',
-        'CAMBIO DE INTERIOR'
-    ])) {
-        $validar = ['Foto_Casa_Cliente'];
-    } elseif (in_array($codigoLiquidacion, [
-        'CAMBIO PARALELO Y MODEM',
-        'OTRO'
-    ])) {
-        $validar = ['Foto_Casa_Cliente','Foto_Puerto','Foto_Ont'];
-    }
-
-    // Validar solo esas evidencias
-    foreach ($validar as $campo) {
-        $valor = $data['coord'][$campo] ?? '';
-
-        if (empty($valor) || !preg_match('/\.(jpg|jpeg|png)$/i', $valor)) {
-            $alertas[] = "FALTA_EVIDENCIA_" . strtoupper($campo);
-        }
-    }
-
-    // Validaciones binarias (solo si es queja y hay evidencias a validar)
-    if (!empty($validar)) {
-        if ((int)($data['coord']['validacion_foto_fallida'] ?? 0) === 1) {
-            $alertas[] = 'VALIDACION_FOTO_FALLIDA';
-        }
-
-        if ((int)($data['coord']['validacion_LEDS_ONT_fallida'] ?? 0) === 1) {
-            $alertas[] = 'VALIDACION_LEDS_FALLIDA';
-        }
-    }
 }
 
 
