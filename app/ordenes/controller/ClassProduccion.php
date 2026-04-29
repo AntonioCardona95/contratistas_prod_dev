@@ -314,12 +314,8 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
     foreach ($conexion_analisis->query($sqlOrden) as $row) {
         $tel = trim($row['TELEFONO']);
         $tacOrdenData[$tel][] = $row['FECHA_LIQ'];
-    
-        /*   $tacOrdenData = [
-    '8711234567' => ['2026-03-01', '2026-03-15', '2026-04-02'],
-    '8717654321' => ['2026-03-05', '2026-03-20']
-]; */
-}
+        
+    }
 
     // =========================
     //  ESCI
