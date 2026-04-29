@@ -467,6 +467,7 @@ private function evaluarAlertas($data)
     $this->alertaSerieDesconocida($data, $alertas);
     $this->alertaSeriesDiferente($data, $alertas);
     $this->alertaTecnologiaDiferente($data, $alertas);
+    $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
 
     // =========================
     // Detección de queja
