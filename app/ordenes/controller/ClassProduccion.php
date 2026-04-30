@@ -245,113 +245,113 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
     $conexion_analisis->exec("SET NAMES 'utf8mb4'");
 
     // =========================
-    //  PREPARAR IDS
+    // CREAR TABLAS TEMPORALES
     // =========================
-    $folios = array_unique(array_column($registros, 'folio'));
-    $telefonos = array_unique(array_column($registros, 'telefono'));
+    $conexion->exec("CREATE TEMPORARY TABLE tmp_folios (folio VARCHAR(50) PRIMARY KEY)");
+    $conexion->exec("CREATE TEMPORARY TABLE tmp_telefonos (telefono VARCHAR(50) PRIMARY KEY)");
 
-    $inFolios = "'" . implode("','", $folios) . "'";
-    $inTelefonos = "'" . implode("','", $telefonos) . "'";
+    $stmtFolio = $conexion->prepare("INSERT IGNORE INTO tmp_folios (folio) VALUES (?)");
+    $stmtTel   = $conexion->prepare("INSERT IGNORE INTO tmp_telefonos (telefono) VALUES (?)");
+
+    foreach ($registros as $r) {
+        $stmtFolio->execute([$r['folio']]);
+        $stmtTel->execute([trim($r['telefono'])]);
+    }
 
     // =========================
-    //  COORDIAPP
+    // COORDIAPP
     // =========================
     $coordData = [];
     $sql = "SELECT 
-        Folio_Pisa,
-        Telefono,
-        Ont,
-        Tecnologia,
-        Foto_Ont,
-        No_Serie_ONT,
-        Foto_INE,
-        validacion_LEDS_ONT_fallida,
-        Foto_Casa_Cliente,
-        validacion_foto_fallida,
-        Foto_Puerto,
-        Codigo_Liquidacion,
-        Tipo_Tarea
-    FROM tecnico_instalaciones_coordiapp
-    WHERE Folio_Pisa IN ($inFolios)
-      AND Estatus_Orden = 'COMPLETADA'
-      AND Step_Registro = '5'";
+                c.Folio_Pisa,
+                c.Telefono,
+                c.Ont,
+                c.Tecnologia,
+                c.Foto_Ont,
+                c.No_Serie_ONT,
+                c.Foto_INE,
+                c.validacion_LEDS_ONT_fallida,
+                c.Foto_Casa_Cliente,
+                c.validacion_foto_fallida,
+                c.Foto_Puerto,
+                c.Codigo_Liquidacion,
+                c.Tipo_Tarea
+            FROM tecnico_instalaciones_coordiapp c
+            JOIN tmp_folios f ON c.Folio_Pisa = f.folio
+            WHERE c.Estatus_Orden = 'COMPLETADA'
+              AND c.Step_Registro = '5'";
 
     foreach ($conexion->query($sql) as $row) {
         $coordData[$row['Folio_Pisa']] = $row;
     }
 
     // =========================
-    //  TAC
+    // TAC
     // =========================
     $tacData = [];
-    $sql = "SELECT Folio_Pisa, TELEFONO, Num__Serie, TECNOLOGIA, Tipo_de_Tarea AS Tipo_De_Tarea
-            FROM qm_tac
-            WHERE Folio_Pisa IN ($inFolios)
-              AND Calificador_Edo = 'COMPLETADA'";
+    $sql = "SELECT t.Folio_Pisa, t.TELEFONO, t.Num__Serie, t.TECNOLOGIA, t.Tipo_de_Tarea AS Tipo_De_Tarea
+            FROM qm_tac t
+            JOIN tmp_folios f ON t.Folio_Pisa = f.folio
+            WHERE t.Calificador_Edo = 'COMPLETADA'";
 
     foreach ($conexion_analisis->query($sql) as $row) {
         $tacData[$row['Folio_Pisa']] = $row;
     }
 
-// 🔥 NUEVO: HISTORIAL ORDEN (30 DÍAS optimizado)
-$tacOrdenData = [];
+    // =========================
+    // HISTORIAL ORDEN (30 DÍAS)
+    // =========================
+    $tacOrdenData = [];
+    $sqlOrden = "
+        WITH ultimas AS (
+            SELECT TELEFONO, MAX(DATE(FECHA_LIQ)) AS ultima_fecha
+            FROM qm_tac
+            JOIN tmp_telefonos tt ON qm_tac.TELEFONO = tt.telefono
+            WHERE Calificador_Edo = 'COMPLETADA'
+              AND TIPO = 'ORDEN'
+            GROUP BY TELEFONO
+        )
+        SELECT u.TELEFONO, t.Folio_Pisa, DATE(t.FECHA_LIQ) AS Fecha_Liq, u.ultima_fecha
+        FROM ultimas u
+        JOIN qm_tac t ON t.TELEFONO = u.TELEFONO
+        WHERE t.Calificador_Edo = 'COMPLETADA'
+          AND t.TIPO = 'ORDEN'
+          AND DATE(t.FECHA_LIQ) BETWEEN u.ultima_fecha - INTERVAL 30 DAY
+                                   AND u.ultima_fecha + INTERVAL 30 DAY
+          AND DATE(t.FECHA_LIQ) <> u.ultima_fecha
+        ORDER BY u.TELEFONO, t.FECHA_LIQ;
+    ";
 
-$sqlOrden = "
-    WITH ultimas AS (
-        SELECT TELEFONO, MAX(DATE(FECHA_LIQ)) AS ultima_fecha
-        FROM qm_tac
-        WHERE Calificador_Edo = 'COMPLETADA'
-          AND TIPO = 'ORDEN'
-        GROUP BY TELEFONO
-    )
-    SELECT u.TELEFONO, t.Folio_Pisa, DATE(t.FECHA_LIQ) AS Fecha_Liq, u.ultima_fecha
-    FROM ultimas u
-    JOIN qm_tac t ON t.TELEFONO = u.TELEFONO
-    WHERE t.Calificador_Edo = 'COMPLETADA'
-      AND t.TIPO = 'ORDEN'
-      AND DATE(t.FECHA_LIQ) BETWEEN u.ultima_fecha - INTERVAL 30 DAY
-                               AND u.ultima_fecha + INTERVAL 30 DAY
-      AND DATE(t.FECHA_LIQ) <> u.ultima_fecha
-    ORDER BY u.TELEFONO, t.FECHA_LIQ;
-";
-
-foreach ($conexion_analisis->query($sqlOrden) as $row) {
-    $tel = trim($row['TELEFONO']);
-    $tacOrdenData[$tel][] = $row['Fecha_Liq']; // ya solo guarda las fechas que cumplen la condición
-}
-
-
-    //  ESCI
-// =========================
-$esciData = [];
-$esciSeriesMap = [];
-
-$sql = "
-    SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
-    FROM seg_ns_eci
-    WHERE TELEFONO IN ($inTelefonos)
-    ORDER BY TELEFONO, F_CONSULTA DESC
-";
-
-foreach ($conexion_analisis->query($sql) as $row) {
-    $tel = trim($row['TELEFONO']);
-    $serie = strtoupper(trim($row['M_SERIE']));
-
-    // Solo guardar el primer registro por teléfono (el más reciente gracias al ORDER BY)
-    if (!isset($esciData[$tel])) {
-        $esciData[$tel] = $row;
-        $esciData[$tel]['M_SERIE'] = $serie;
+    foreach ($conexion_analisis->query($sqlOrden) as $row) {
+        $tel = trim($row['TELEFONO']);
+        $tacOrdenData[$tel][] = $row['Fecha_Liq'];
     }
-
-    // Mapear series válidas (no desconocidas)
-    if (!empty($serie) && $serie !== 'DESCONOCIDO') {
-        $esciSeriesMap[$serie][$tel] = true;
-    }
-}
-
 
     // =========================
-    //  INSERTS
+    // ESCI
+    // =========================
+    $esciData = [];
+    $esciSeriesMap = [];
+
+    $sql = "SELECT e.TELEFONO, e.M_SERIE, e.ULTIMO_EVENTO, e.F_CONSULTA, e.DID_ACTIVO
+            FROM seg_ns_eci e
+            JOIN tmp_telefonos t ON e.TELEFONO = t.telefono
+            ORDER BY e.TELEFONO, e.F_CONSULTA DESC";
+
+    foreach ($conexion_analisis->query($sql) as $row) {
+        $tel = trim($row['TELEFONO']);
+        $serie = strtoupper(trim($row['M_SERIE']));
+        if (!isset($esciData[$tel])) {
+            $esciData[$tel] = $row;
+            $esciData[$tel]['M_SERIE'] = $serie;
+        }
+        if (!empty($serie) && $serie !== 'DESCONOCIDO') {
+            $esciSeriesMap[$serie][$tel] = true;
+        }
+    }
+
+    // =========================
+    // INSERTS
     // =========================
     $stmtAlerta = $conexion->prepare("
         INSERT INTO Produccion_alertas
@@ -366,18 +366,15 @@ foreach ($conexion_analisis->query($sql) as $row) {
     ");
 
     // =========================
-    //  LOOP PRINCIPAL
+    // LOOP PRINCIPAL
     // =========================
     foreach ($registros as $r) {
-
         $folio = $r['folio'];
         $telefono = trim($r['telefono']);
 
         $coord = $coordData[$folio] ?? null;
         $tac   = $tacData[$folio] ?? null;
         $esci  = $esciData[$telefono] ?? null;
-
-        // 🔥 NUEVO: historial orden
         $tacOrdenHist = $tacOrdenData[$telefono] ?? null;
 
         $serieTac   = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
@@ -399,7 +396,6 @@ foreach ($conexion_analisis->query($sql) as $row) {
         ]);
 
         if (!empty($resultadoAlertas['alertas'])) {
-
             $stmtAlerta->execute([
                 $folio,
                 $telefono,
