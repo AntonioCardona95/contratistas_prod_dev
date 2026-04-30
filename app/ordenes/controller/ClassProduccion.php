@@ -430,50 +430,6 @@ foreach ($conexion_analisis->query($sql) as $row) {
     }
 }
 
-public function InsertarOrdenesCorrectas($registros)
-{
-    if (empty($registros)) return;
-
-    $conexion = $this->get_conexion();
-    $conexion->exec("SET NAMES 'utf8mb4'");
-
-    $stmtCorrecta = $conexion->prepare("
-        INSERT INTO Ordenes_Correctas
-        (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje)
-        VALUES (?,?,?,?,?,?,?,?,?,?)
-    ");
-
-    foreach ($registros as $r) {
-        $resultadoAlertas = $this->evaluarAlertas([
-            'folio' => $r['folio'],
-            'telefono' => $r['telefono'],
-            'coord' => $r['coord'] ?? null,
-            'tac' => $r['tac'] ?? null,
-            'esci' => $r['esci'] ?? null,
-            'serieTac' => $r['serieTac'] ?? null,
-            'serieCoord' => $r['serieCoord'] ?? null,
-            'serieEsci' => $r['serieEsci'] ?? null,
-            'tacOrdenHist' => $r['tacOrdenHist'] ?? null,
-            'idContratista' => $r['idContratista'] ?? 0,
-            'tipoTarea' => $r['tipoTarea'] ?? ''
-        ]);
-
-        if (empty($resultadoAlertas['alertas'])) {
-            $stmtCorrecta->execute([
-                $r['folio'],
-                trim($r['telefono']),
-                $r['tipoTarea'] ?? null,
-                $r['cope'] ?? null,
-                $r['fechaLiquidacion'] ?? null,
-                $r['fechaCarga'] ?? date('Y-m-d H:i:s'),
-                $r['idContratista'] ?? 0,
-                $r['semana'] ?? 0,
-                $r['anio'] ?? 0,
-                $r['metraje'] ?? 0
-            ]);
-        }
-    }
-}
 
 
 
