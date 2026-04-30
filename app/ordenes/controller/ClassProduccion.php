@@ -234,7 +234,7 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
     $this->runQuery($sql);
 } */
 
-/*public function InsertarAlertasMasivo($registros)
+    public function InsertarAlertasMasivo($registros)
 {
     if (empty($registros)) return;
 
@@ -250,8 +250,8 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
     $folios = array_unique(array_column($registros, 'folio'));
     $telefonos = array_unique(array_column($registros, 'telefono'));
 
-    $inFolios = "'" . implode("','", array_map('addslashes', $folios)) . "'";
-    $inTelefonos = "'" . implode("','", array_map('addslashes', $telefonos)) . "'";
+    $inFolios = "'" . implode("','", $folios) . "'";
+    $inTelefonos = "'" . implode("','", $telefonos) . "'";
 
     // =========================
     //  COORDIAPP
@@ -284,12 +284,7 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
     //  TAC
     // =========================
     $tacData = [];
-    $sql = "SELECT 
-                Folio_Pisa, 
-                TELEFONO, 
-                Num__Serie, 
-                TECNOLOGIA, 
-                Tipo_de_Tarea AS Tipo_De_Tarea
+    $sql = "SELECT Folio_Pisa, TELEFONO, Num__Serie, TECNOLOGIA, Tipo_de_Tarea AS Tipo_De_Tarea
             FROM qm_tac
             WHERE Folio_Pisa IN ($inFolios)
               AND Calificador_Edo = 'COMPLETADA'";
@@ -298,69 +293,65 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
         $tacData[$row['Folio_Pisa']] = $row;
     }
 
-    // =========================
-    // 🔥 HISTORIAL ORDEN (OPTIMIZADO POR TELÉFONO)
-    // =========================
-    $tacOrdenData = [];
+// 🔥 NUEVO: HISTORIAL ORDEN (30 DÍAS optimizado)
+$tacOrdenData = [];
 
-    if (!empty($telefonos)) {
+$sqlOrden = "
+    WITH ultimas AS (
+        SELECT TELEFONO, MAX(DATE(FECHA_LIQ)) AS ultima_fecha
+        FROM qm_tac
+        WHERE Calificador_Edo = 'COMPLETADA'
+          AND TIPO = 'ORDEN'
+        GROUP BY TELEFONO
+    )
+    SELECT u.TELEFONO, t.Folio_Pisa, DATE(t.FECHA_LIQ) AS Fecha_Liq, u.ultima_fecha
+    FROM ultimas u
+    JOIN qm_tac t ON t.TELEFONO = u.TELEFONO
+    WHERE t.Calificador_Edo = 'COMPLETADA'
+      AND t.TIPO = 'ORDEN'
+      AND DATE(t.FECHA_LIQ) BETWEEN u.ultima_fecha - INTERVAL 30 DAY
+                               AND u.ultima_fecha + INTERVAL 30 DAY
+      AND DATE(t.FECHA_LIQ) <> u.ultima_fecha
+    ORDER BY u.TELEFONO, t.FECHA_LIQ;
+";
 
-        $sqlOrden = "
-            WITH ultimas AS (
-                SELECT TELEFONO, MAX(DATE(FECHA_LIQ)) AS ultima_fecha
-                FROM qm_tac
-                WHERE Calificador_Edo = 'COMPLETADA'
-                  AND TIPO = 'ORDEN'
-                  AND TELEFONO IN ($inTelefonos)
-                GROUP BY TELEFONO
-            )
-            SELECT 
-                u.TELEFONO, 
-                DATE(t.FECHA_LIQ) AS Fecha_Liq
-            FROM ultimas u
-            JOIN qm_tac t ON t.TELEFONO = u.TELEFONO
-            WHERE t.Calificador_Edo = 'COMPLETADA'
-              AND t.TIPO = 'ORDEN'
-              AND DATE(t.FECHA_LIQ) BETWEEN u.ultima_fecha - INTERVAL 30 DAY
-                                       AND u.ultima_fecha + INTERVAL 30 DAY
-              AND DATE(t.FECHA_LIQ) <> u.ultima_fecha
-        ";
+foreach ($conexion_analisis->query($sqlOrden) as $row) {
+    $tel = trim($row['TELEFONO']);
+    $tacOrdenData[$tel][] = $row['Fecha_Liq']; // ya solo guarda las fechas que cumplen la condición
+}
 
-        foreach ($conexion_analisis->query($sqlOrden) as $row) {
-            $tel = trim($row['TELEFONO']);
-            $tacOrdenData[$tel][] = $row['Fecha_Liq'];
-        }
-    }
 
-    // =========================
     //  ESCI
-    // =========================
-    $esciData = [];
-    $esciSeriesMap = [];
+// =========================
+$esciData = [];
+$esciSeriesMap = [];
 
-    $sql = "
-        SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
-        FROM seg_ns_eci
-        WHERE TELEFONO IN ($inTelefonos)
-        ORDER BY TELEFONO, F_CONSULTA DESC
-    ";
+$sql = "
+    SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
+    FROM seg_ns_eci
+    WHERE TELEFONO IN ($inTelefonos)
+    ORDER BY TELEFONO, F_CONSULTA DESC
+";
 
-    foreach ($conexion_analisis->query($sql) as $row) {
-        $tel = trim($row['TELEFONO']);
-        $serie = strtoupper(trim($row['M_SERIE']));
+foreach ($conexion_analisis->query($sql) as $row) {
+    $tel = trim($row['TELEFONO']);
+    $serie = strtoupper(trim($row['M_SERIE']));
 
-        if (!isset($esciData[$tel])) {
-            $esciData[$tel] = $row;
-            $esciData[$tel]['M_SERIE'] = $serie;
-        }
-
-        if (!empty($serie) && $serie !== 'DESCONOCIDO') {
-            $esciSeriesMap[$serie][$tel] = true;
-        }
+    // Solo guardar el primer registro por teléfono (el más reciente gracias al ORDER BY)
+    if (!isset($esciData[$tel])) {
+        $esciData[$tel] = $row;
+        $esciData[$tel]['M_SERIE'] = $serie;
     }
 
+    // Mapear series válidas (no desconocidas)
+    if (!empty($serie) && $serie !== 'DESCONOCIDO') {
+        $esciSeriesMap[$serie][$tel] = true;
+    }
+}
+
+
     // =========================
-    //  INSERT ALERTAS (SIN DETALLE)
+    //  INSERTS
     // =========================
     $stmtAlerta = $conexion->prepare("
         INSERT INTO Produccion_alertas
@@ -368,7 +359,11 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
         VALUES (?,?,?,?,?,?,?,?,?,?,?, ?, ?)
     ");
 
-    $fechaActual = date('Y-m-d H:i:s');
+    $stmtDetalle = $conexion->prepare("
+        INSERT INTO Produccion_alertas_detalle
+        (Folio_Pisa, Tipo_Alerta, Activa, Fecha_Creacion, Detalle_Esci, Detalle_Tac)
+        VALUES (?,?,?,?,?,?)
+    ");
 
     // =========================
     //  LOOP PRINCIPAL
@@ -382,6 +377,7 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
         $tac   = $tacData[$folio] ?? null;
         $esci  = $esciData[$telefono] ?? null;
 
+        // 🔥 NUEVO: historial orden
         $tacOrdenHist = $tacOrdenData[$telefono] ?? null;
 
         $serieTac   = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
@@ -410,7 +406,7 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
                 $r['tipoTarea'] ?? null,
                 $r['cope'] ?? null,
                 $r['fechaLiquidacion'] ?? null,
-                $fechaActual,
+                $r['fechaCarga'] ?? date('Y-m-d H:i:s'),
                 $r['idContratista'] ?? 0,
                 $r['semana'] ?? 0,
                 $r['anio'] ?? 0,
@@ -419,165 +415,21 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
                 $resultadoAlertas['detalleEsci'] ?? null,
                 0
             ]);
+
+            foreach ($resultadoAlertas['alertas'] as $tipoAlerta) {
+                $stmtDetalle->execute([
+                    $folio,
+                    $tipoAlerta,
+                    1,
+                    date('Y-m-d H:i:s'),
+                    $resultadoAlertas['detalleEsci'] ?? null,
+                    $resultadoAlertas['detalleTac'] ?? null
+                ]);
+            }
         }
     }
-} */
-
-    public function InsertarAlertasMasivo($registros_totales)
-{
-    if (empty($registros_totales)) return;
-
-    $conexion = $this->get_conexion();
-    $conexion_analisis = $this->get_conexiondos();
-
-    $conexion->exec("SET NAMES 'utf8mb4'");
-    $conexion_analisis->exec("SET NAMES 'utf8mb4'");
-
-    // =========================
-    //  PREPARAR STATEMENT UNA SOLA VEZ
-    // =========================
-    $stmtAlerta = $conexion->prepare("
-        INSERT INTO Produccion_alertas
-        (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci, Bandera_Revision)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?, ?, ?)
-    ");
-
-    $fechaActual = date('Y-m-d H:i:s');
-
-    // =========================
-    //  DIVIDIR EN LOTES (CHUNKS)
-    // =========================
-    // Procesaremos de 500 en 500 para no ahogar la base de datos
-    $tamanio_lote = 500;
-    $lotes = array_chunk($registros_totales, $tamanio_lote);
-
-    // INICIAR TRANSACCIÓN (Hace que los inserts sean miles de veces más rápidos)
-    $conexion->beginTransaction();
-
-    try {
-        foreach ($lotes as $registros) {
-            
-            // 1. PREPARAR IDS DEL LOTE ACTUAL
-            $folios = array_unique(array_column($registros, 'folio'));
-            $telefonos = array_unique(array_column($registros, 'telefono'));
-
-            $inFolios = "'" . implode("','", array_map('addslashes', $folios)) . "'";
-            $inTelefonos = "'" . implode("','", array_map('addslashes', $telefonos)) . "'";
-
-            // 2. COORDIAPP (Solo para 500 folios)
-            $coordData = [];
-            $sqlCoord = "SELECT Folio_Pisa, Telefono, Ont, Tecnologia, Foto_Ont, No_Serie_ONT, Foto_INE, 
-                        validacion_LEDS_ONT_fallida, Foto_Casa_Cliente, validacion_foto_fallida, Foto_Puerto, 
-                        Codigo_Liquidacion, Tipo_Tarea
-                        FROM tecnico_instalaciones_coordiapp
-                        WHERE Folio_Pisa IN ($inFolios) AND Estatus_Orden = 'COMPLETADA' AND Step_Registro = '5'";
-            foreach ($conexion->query($sqlCoord) as $row) {
-                $coordData[$row['Folio_Pisa']] = $row;
-            }
-
-            // 3. TAC (Solo para 500 folios)
-            $tacData = [];
-            $sqlTac = "SELECT Folio_Pisa, TELEFONO, Num__Serie, TECNOLOGIA, Tipo_de_Tarea AS Tipo_De_Tarea
-                        FROM qm_tac
-                        WHERE Folio_Pisa IN ($inFolios) AND Calificador_Edo = 'COMPLETADA'";
-            foreach ($conexion_analisis->query($sqlTac) as $row) {
-                $tacData[$row['Folio_Pisa']] = $row;
-            }
-
-            // 4. HISTORIAL ORDEN (Solo para 500 teléfonos)
-            $tacOrdenData = [];
-            if (!empty($telefonos)) {
-                $sqlOrden = "
-                    WITH ultimas AS (
-                        SELECT TELEFONO, MAX(DATE(FECHA_LIQ)) AS ultima_fecha
-                        FROM qm_tac
-                        WHERE Calificador_Edo = 'COMPLETADA' AND TIPO = 'ORDEN' AND TELEFONO IN ($inTelefonos)
-                        GROUP BY TELEFONO
-                    )
-                    SELECT u.TELEFONO, DATE(t.FECHA_LIQ) AS Fecha_Liq
-                    FROM ultimas u
-                    JOIN qm_tac t ON t.TELEFONO = u.TELEFONO
-                    WHERE t.Calificador_Edo = 'COMPLETADA' AND t.TIPO = 'ORDEN'
-                      AND DATE(t.FECHA_LIQ) BETWEEN u.ultima_fecha - INTERVAL 30 DAY AND u.ultima_fecha + INTERVAL 30 DAY
-                      AND DATE(t.FECHA_LIQ) <> u.ultima_fecha
-                ";
-                foreach ($conexion_analisis->query($sqlOrden) as $row) {
-                    $tacOrdenData[trim($row['TELEFONO'])][] = $row['Fecha_Liq'];
-                }
-            }
-
-            // 5. ESCI (Solo para 500 teléfonos)
-            $esciData = [];
-            $sqlEsci = "SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
-                        FROM seg_ns_eci
-                        WHERE TELEFONO IN ($inTelefonos) ORDER BY TELEFONO, F_CONSULTA DESC";
-            foreach ($conexion_analisis->query($sqlEsci) as $row) {
-                $tel = trim($row['TELEFONO']);
-                $serie = strtoupper(trim($row['M_SERIE']));
-
-                if (!isset($esciData[$tel])) {
-                    $esciData[$tel] = $row;
-                    $esciData[$tel]['M_SERIE'] = $serie;
-                }
-            }
-
-            // 6. EVALUAR E INSERTAR LOTE ACTUAL
-            foreach ($registros as $r) {
-                $folio = $r['folio'];
-                $telefono = trim($r['telefono']);
-
-                $coord = $coordData[$folio] ?? null;
-                $tac   = $tacData[$folio] ?? null;
-                $esci  = $esciData[$telefono] ?? null;
-                $tacOrdenHist = $tacOrdenData[$telefono] ?? null;
-
-                $serieTac   = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
-                $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
-                $serieEsci  = $esci['M_SERIE'] ?? null;
-
-                $resultadoAlertas = $this->evaluarAlertas([
-                    'folio' => $folio,
-                    'telefono' => $telefono,
-                    'coord' => $coord,
-                    'tac' => $tac,
-                    'esci' => $esci,
-                    'serieTac' => $serieTac,
-                    'serieCoord' => $serieCoord,
-                    'serieEsci' => $serieEsci,
-                    'tacOrdenHist' => $tacOrdenHist,
-                    'idContratista' => $r['idContratista'] ?? 0,
-                    'tipoTarea' => $coord['Tipo_Tarea'] ?? ($r['tipoTarea'] ?? '')
-                ]);
-
-                if (!empty($resultadoAlertas['alertas'])) {
-                    $stmtAlerta->execute([
-                        $folio,
-                        $telefono,
-                        $r['tipoTarea'] ?? null,
-                        $r['cope'] ?? null,
-                        $r['fechaLiquidacion'] ?? null,
-                        $fechaActual,
-                        $r['idContratista'] ?? 0,
-                        $r['semana'] ?? 0,
-                        $r['anio'] ?? 0,
-                        $r['metraje'] ?? 0,
-                        implode(' | ', array_unique($resultadoAlertas['alertas'])),
-                        $resultadoAlertas['detalleEsci'] ?? null,
-                        0
-                    ]);
-                }
-            }
-        } // Fin del foreach de lotes
-
-        // CONFIRMAR TODOS LOS INSERTS EN LA BASE DE DATOS
-        $conexion->commit();
-
-    } catch (Exception $e) {
-        // Si hay un error, revertir los inserts para mantener consistencia
-        $conexion->rollBack();
-        throw $e;
-    }
 }
+
 
 
 
