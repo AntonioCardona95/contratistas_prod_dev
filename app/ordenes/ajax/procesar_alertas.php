@@ -45,7 +45,7 @@ try {
     }
 
     // =========================
-    //  2. PROCESAR ALERTAS (SIN LIMPIAR)
+    //  2. PROCESAR ALERTAS + CORRECTAS (SIN DUPLICADOS)
     // =========================
     $prod->InsertarAlertasMasivo($registros);
 
@@ -54,7 +54,7 @@ try {
     // =========================
     echo json_encode([
         "ok" => true,
-        "msg" => "Alertas procesadas correctamente",
+        "msg" => "Procesamiento completado (alertas y correctas, sin duplicados)",
         "total" => count($registros)
     ]);
 
