@@ -444,21 +444,37 @@ public function InsertarOrdenesCorrectas($registros)
     ");
 
     foreach ($registros as $r) {
-        // Inserta directamente usando los mismos campos que ya tienes en $registros
-        $stmtCorrecta->execute([
-            $r['folio'],
-            trim($r['telefono']),
-            $r['tipoTarea'] ?? null,
-            $r['cope'] ?? null,
-            $r['fechaLiquidacion'] ?? null,
-            $r['fechaCarga'] ?? date('Y-m-d H:i:s'),
-            $r['idContratista'] ?? 0,
-            $r['semana'] ?? 0,
-            $r['anio'] ?? 0,
-            $r['metraje'] ?? 0
+        $resultadoAlertas = $this->evaluarAlertas([
+            'folio' => $r['folio'],
+            'telefono' => $r['telefono'],
+            'coord' => $r['coord'] ?? null,
+            'tac' => $r['tac'] ?? null,
+            'esci' => $r['esci'] ?? null,
+            'serieTac' => $r['serieTac'] ?? null,
+            'serieCoord' => $r['serieCoord'] ?? null,
+            'serieEsci' => $r['serieEsci'] ?? null,
+            'tacOrdenHist' => $r['tacOrdenHist'] ?? null,
+            'idContratista' => $r['idContratista'] ?? 0,
+            'tipoTarea' => $r['tipoTarea'] ?? ''
         ]);
+
+        if (empty($resultadoAlertas['alertas'])) {
+            $stmtCorrecta->execute([
+                $r['folio'],
+                trim($r['telefono']),
+                $r['tipoTarea'] ?? null,
+                $r['cope'] ?? null,
+                $r['fechaLiquidacion'] ?? null,
+                $r['fechaCarga'] ?? date('Y-m-d H:i:s'),
+                $r['idContratista'] ?? 0,
+                $r['semana'] ?? 0,
+                $r['anio'] ?? 0,
+                $r['metraje'] ?? 0
+            ]);
+        }
     }
 }
+
 
 
 private function evaluarAlertas($data)
