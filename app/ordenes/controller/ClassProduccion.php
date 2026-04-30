@@ -717,7 +717,7 @@ private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
     // Caso: número de serie desconocido
     if ($mSerie === 'DESCONOCIDO') {
         $alertas[] = 'SIN NAVEGACION';
-        $detalleEsci = "Número de serie desconocido en Esci";
+        $detalleEsci = "Numero de serie desconocido en Esci";
         return;
     }
 
