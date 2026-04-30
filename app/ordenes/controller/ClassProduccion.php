@@ -284,7 +284,7 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
     //  TAC
     // =========================
     $tacData = [];
-    $sql = "SELECT Folio_Pisa, TELEFONO, Num__Serie, TECNOLOGIA
+    $sql = "SELECT Folio_Pisa, TELEFONO, Num__Serie, TECNOLOGIA, Tipo_de_Tarea
             FROM qm_tac
             WHERE Folio_Pisa IN ($inFolios)
               AND Calificador_Edo = 'COMPLETADA'";
