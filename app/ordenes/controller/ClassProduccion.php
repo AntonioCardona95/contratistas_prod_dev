@@ -234,7 +234,7 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
     $this->runQuery($sql);
 } */
 
-    public function InsertarAlertasMasivo($registros)
+public function InsertarAlertasMasivo($registros)
 {
     if (empty($registros)) return;
 
@@ -293,62 +293,80 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
         $tacData[$row['Folio_Pisa']] = $row;
     }
 
-// 🔥 NUEVO: HISTORIAL ORDEN (30 DÍAS optimizado)
-$tacOrdenData = [];
+    // =========================
+    // 🔥 MAPA DUPLICADOS TAC
+    // =========================
+    $ontDuplicadasTac = [];
 
-$sqlOrden = "
-    WITH ultimas AS (
-        SELECT TELEFONO, MAX(DATE(FECHA_LIQ)) AS ultima_fecha
+    $sql = "
+        SELECT Num__Serie, TELEFONO
         FROM qm_tac
-        WHERE Calificador_Edo = 'COMPLETADA'
-          AND TIPO = 'ORDEN'
-        GROUP BY TELEFONO
-    )
-    SELECT u.TELEFONO, t.Folio_Pisa, DATE(t.FECHA_LIQ) AS Fecha_Liq, u.ultima_fecha
-    FROM ultimas u
-    JOIN qm_tac t ON t.TELEFONO = u.TELEFONO
-    WHERE t.Calificador_Edo = 'COMPLETADA'
-      AND t.TIPO = 'ORDEN'
-      AND DATE(t.FECHA_LIQ) BETWEEN u.ultima_fecha - INTERVAL 30 DAY
-                               AND u.ultima_fecha + INTERVAL 30 DAY
-      AND DATE(t.FECHA_LIQ) <> u.ultima_fecha
-    ORDER BY u.TELEFONO, t.FECHA_LIQ;
-";
+        WHERE Num__Serie IS NOT NULL
+          AND Num__Serie != ''
+          AND Num__Serie != 'DESCONOCIDO'
+          AND Num__Serie != 'NS NO OBTENIDO'
+    ";
 
-foreach ($conexion_analisis->query($sqlOrden) as $row) {
-    $tel = trim($row['TELEFONO']);
-    $tacOrdenData[$tel][] = $row['Fecha_Liq']; // ya solo guarda las fechas que cumplen la condición
-}
+    foreach ($conexion_analisis->query($sql) as $row) {
+        $serie = strtoupper(trim($row['Num__Serie']));
+        $tel   = trim($row['TELEFONO']);
 
+        $ontDuplicadasTac[$serie][$tel] = true;
+    }
 
+    // 🔥 NUEVO: HISTORIAL ORDEN (30 DÍAS optimizado)
+    $tacOrdenData = [];
+
+    $sqlOrden = "
+        WITH ultimas AS (
+            SELECT TELEFONO, MAX(DATE(FECHA_LIQ)) AS ultima_fecha
+            FROM qm_tac
+            WHERE Calificador_Edo = 'COMPLETADA'
+              AND TIPO = 'ORDEN'
+            GROUP BY TELEFONO
+        )
+        SELECT u.TELEFONO, t.Folio_Pisa, DATE(t.FECHA_LIQ) AS Fecha_Liq, u.ultima_fecha
+        FROM ultimas u
+        JOIN qm_tac t ON t.TELEFONO = u.TELEFONO
+        WHERE t.Calificador_Edo = 'COMPLETADA'
+          AND t.TIPO = 'ORDEN'
+          AND DATE(t.FECHA_LIQ) BETWEEN u.ultima_fecha - INTERVAL 30 DAY
+                                   AND u.ultima_fecha + INTERVAL 30 DAY
+          AND DATE(t.FECHA_LIQ) <> u.ultima_fecha
+        ORDER BY u.TELEFONO, t.FECHA_LIQ;
+    ";
+
+    foreach ($conexion_analisis->query($sqlOrden) as $row) {
+        $tel = trim($row['TELEFONO']);
+        $tacOrdenData[$tel][] = $row['Fecha_Liq'];
+    }
+
+    // =========================
     //  ESCI
-// =========================
-$esciData = [];
-$esciSeriesMap = [];
+    // =========================
+    $esciData = [];
+    $esciSeriesMap = [];
 
-$sql = "
-    SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
-    FROM seg_ns_eci
-    WHERE TELEFONO IN ($inTelefonos)
-    ORDER BY TELEFONO, F_CONSULTA DESC
-";
+    $sql = "
+        SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
+        FROM seg_ns_eci
+        WHERE TELEFONO IN ($inTelefonos)
+        ORDER BY TELEFONO, F_CONSULTA DESC
+    ";
 
-foreach ($conexion_analisis->query($sql) as $row) {
-    $tel = trim($row['TELEFONO']);
-    $serie = strtoupper(trim($row['M_SERIE']));
+    foreach ($conexion_analisis->query($sql) as $row) {
+        $tel = trim($row['TELEFONO']);
+        $serie = strtoupper(trim($row['M_SERIE']));
 
-    // Solo guardar el primer registro por teléfono (el más reciente gracias al ORDER BY)
-    if (!isset($esciData[$tel])) {
-        $esciData[$tel] = $row;
-        $esciData[$tel]['M_SERIE'] = $serie;
+        if (!isset($esciData[$tel])) {
+            $esciData[$tel] = $row;
+            $esciData[$tel]['M_SERIE'] = $serie;
+        }
+
+        if (!empty($serie) && $serie !== 'DESCONOCIDO') {
+            $esciSeriesMap[$serie][$tel] = true;
+        }
     }
-
-    // Mapear series válidas (no desconocidas)
-    if (!empty($serie) && $serie !== 'DESCONOCIDO') {
-        $esciSeriesMap[$serie][$tel] = true;
-    }
-}
-
 
     // =========================
     //  INSERTS
@@ -377,7 +395,6 @@ foreach ($conexion_analisis->query($sql) as $row) {
         $tac   = $tacData[$folio] ?? null;
         $esci  = $esciData[$telefono] ?? null;
 
-        // 🔥 NUEVO: historial orden
         $tacOrdenHist = $tacOrdenData[$telefono] ?? null;
 
         $serieTac   = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
@@ -394,6 +411,11 @@ foreach ($conexion_analisis->query($sql) as $row) {
             'serieCoord' => $serieCoord,
             'serieEsci' => $serieEsci,
             'tacOrdenHist' => $tacOrdenHist,
+
+            // 🔥 CLAVE DEL FIX
+            'ontDuplicadasTac' => $ontDuplicadasTac,
+            'esciSeriesMap' => $esciSeriesMap,
+
             'idContratista' => $r['idContratista'] ?? 0,
             'tipoTarea' => $coord['Tipo_Tarea'] ?? ($r['tipoTarea'] ?? '')
         ]);
@@ -428,87 +450,6 @@ foreach ($conexion_analisis->query($sql) as $row) {
             }
         }
     }
-}
-
-
-
-
-private function evaluarAlertas($data)
-{
-
-//  Debug: imprimir lo que llega en $data
-    /*echo "<pre>";
-    echo "=== CONTENIDO DE \$data ===\n";
-    var_dump($data);
-    echo "</pre>"; */
-    
-    $alertas = [];
-    $detalleEsci = null;
-    $detalleTac = null;
-
-    // =========================
-    // 🔥 ALERTA ORDEN 30 DÍAS
-    // =========================
-    $this->alertaOrdenRevision30Dias($data, $alertas);
-
-    // =========================
-    // CASO: folio no está en Coordiapp
-    // =========================
-    if ($data['coord'] === null) {
-        $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
-        $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
-        $this->alertaSerieDesconocida($data, $alertas);
-        $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
-        $this->alertaSeriesDiferente($data, $alertas);
-
-        $alertas[] = 'NO EN COORDIAPP';
-
-        return [
-            'alertas' => $alertas,
-            'detalleEsci' => $detalleEsci,
-            'detalleTac' => $detalleTac
-        ];
-    }
-
-    // =========================
-    // CASO: sí hay datos en Coordiapp
-    // =========================
-    $this->alertaTipoTareaDiferente($data, $alertas);
-    $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
-    $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
-    $this->alertaSerieDesconocida($data, $alertas);
-    $this->alertaSeriesDiferente($data, $alertas);
-    $this->alertaTecnologiaDiferente($data, $alertas);
-    $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
-
-    // =========================
-    // Detección de queja
-    // =========================
-    $esQueja = $this->esTipoQueja($data['tipoTarea'] ?? '');
-
-    // VALIDACIONES NORMALES (solo si NO es queja)
-    if (!$esQueja) {
-        $this->alertaFotoOntFallida($data, $alertas);   // Foto ONT frontal
-        $this->alertaOntTrasera($data, $alertas);       // Foto ONT trasera
-        $this->alertaFotoCasaCliente($data, $alertas);
-        $this->alertaFotoR20($data, $alertas);
-        $this->alertaLedsOntFallida($data, $alertas);
-        $this->alertaTerminalFallida($data, $alertas);
-        $this->alertaTerminalFallidaIA($data, $alertas);
-        $this->alertaFotoDomicilioFallida($data, $alertas);
-        $this->alertaOntAlmacen($data, $alertas);
-    }
-
-    // VALIDACIÓN ESPECIAL (solo si SÍ es queja)
-    if ($esQueja) {
-        $this->alertaFotosPorTipoQueja($data, $alertas);
-    }
-
-    return [
-        'alertas' => $alertas,
-        'detalleEsci' => $detalleEsci,
-        'detalleTac' => $detalleTac
-    ];
 }
 
 private function esTipoQueja(string $tipoTarea): bool
