@@ -64,7 +64,7 @@ try {
         "ok" => false,
         "msg" => $e->getMessage()
     ]);
-}  */
+}
 
 
 
