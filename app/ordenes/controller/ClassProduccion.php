@@ -452,6 +452,86 @@ public function InsertarAlertasMasivo($registros)
     }
 }
 
+
+
+private function evaluarAlertas($data)
+{
+
+//  Debug: imprimir lo que llega en $data
+    /*echo "<pre>";
+    echo "=== CONTENIDO DE \$data ===\n";
+    var_dump($data);
+    echo "</pre>"; */
+    
+    $alertas = [];
+    $detalleEsci = null;
+    $detalleTac = null;
+
+    // =========================
+    // 🔥 ALERTA ORDEN 30 DÍAS
+    // =========================
+    $this->alertaOrdenRevision30Dias($data, $alertas);
+
+    // =========================
+    // CASO: folio no está en Coordiapp
+    // =========================
+    if ($data['coord'] === null) {
+        $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
+        $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
+        $this->alertaSerieDesconocida($data, $alertas);
+        $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
+        $this->alertaSeriesDiferente($data, $alertas);
+
+        $alertas[] = 'NO EN COORDIAPP';
+
+        return [
+            'alertas' => $alertas,
+            'detalleEsci' => $detalleEsci,
+            'detalleTac' => $detalleTac
+        ];
+    }
+
+    // =========================
+    // CASO: sí hay datos en Coordiapp
+    // =========================
+    $this->alertaTipoTareaDiferente($data, $alertas);
+    $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
+    $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
+    $this->alertaSerieDesconocida($data, $alertas);
+    $this->alertaSeriesDiferente($data, $alertas);
+    $this->alertaTecnologiaDiferente($data, $alertas);
+    $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
+
+    // =========================
+    // Detección de queja
+    // =========================
+    $esQueja = $this->esTipoQueja($data['tipoTarea'] ?? '');
+
+    // VALIDACIONES NORMALES (solo si NO es queja)
+    if (!$esQueja) {
+        $this->alertaFotoOntFallida($data, $alertas);   // Foto ONT frontal
+        $this->alertaOntTrasera($data, $alertas);       // Foto ONT trasera
+        $this->alertaFotoCasaCliente($data, $alertas);
+        $this->alertaFotoR20($data, $alertas);
+        $this->alertaLedsOntFallida($data, $alertas);
+        $this->alertaTerminalFallida($data, $alertas);
+        $this->alertaTerminalFallidaIA($data, $alertas);
+        $this->alertaFotoDomicilioFallida($data, $alertas);
+        $this->alertaOntAlmacen($data, $alertas);
+    }
+
+    // VALIDACIÓN ESPECIAL (solo si SÍ es queja)
+    if ($esQueja) {
+        $this->alertaFotosPorTipoQueja($data, $alertas);
+    }
+
+    return [
+        'alertas' => $alertas,
+        'detalleEsci' => $detalleEsci,
+        'detalleTac' => $detalleTac
+    ];
+}
+
 private function esTipoQueja(string $tipoTarea): bool
 {
     $tipoTarea = strtoupper(trim($tipoTarea));
