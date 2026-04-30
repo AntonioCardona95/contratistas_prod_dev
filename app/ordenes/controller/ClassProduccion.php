@@ -430,6 +430,37 @@ foreach ($conexion_analisis->query($sql) as $row) {
     }
 }
 
+public function InsertarOrdenesCorrectas($registros)
+{
+    if (empty($registros)) return;
+
+    $conexion = $this->get_conexion();
+    $conexion->exec("SET NAMES 'utf8mb4'");
+
+    $stmtCorrecta = $conexion->prepare("
+        INSERT INTO Ordenes_Correctas
+        (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje)
+        VALUES (?,?,?,?,?,?,?,?,?,?)
+    ");
+
+    foreach ($registros as $r) {
+        // Inserta directamente usando los mismos campos que ya tienes en $registros
+        $stmtCorrecta->execute([
+            $r['folio'],
+            trim($r['telefono']),
+            $r['tipoTarea'] ?? null,
+            $r['cope'] ?? null,
+            $r['fechaLiquidacion'] ?? null,
+            $r['fechaCarga'] ?? date('Y-m-d H:i:s'),
+            $r['idContratista'] ?? 0,
+            $r['semana'] ?? 0,
+            $r['anio'] ?? 0,
+            $r['metraje'] ?? 0
+        ]);
+    }
+}
+
+
 private function evaluarAlertas($data)
 {
 
