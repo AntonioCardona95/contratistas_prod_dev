@@ -27,7 +27,9 @@ if (empty($fechaInicio) || empty($fechaFin)) {
 // =========================
 //  TIEMPO DE EJECUCIÓN
 // =========================
-set_time_limit(0); // ahora controlamos nosotros
+set_time_limit(0);
+
+$inicioTotal = microtime(true);
 
 try {
 
@@ -47,7 +49,7 @@ try {
     // =========================
     //  2. PROCESAR POR LOTES
     // =========================
-    $tamanoLote = 200; // 🔥 AJUSTA (100 - 500 recomendado)
+    $tamanoLote = 100; // 🔥 más estable
     $lotes = array_chunk($registros, $tamanoLote);
 
     $totalProcesados = 0;
@@ -55,7 +57,9 @@ try {
 
     foreach ($lotes as $index => $lote) {
 
-        //  KILL SWITCH (puedes crear este archivo para detener proceso)
+        $inicioLote = microtime(true);
+
+        // 🔴 KILL SWITCH
         if (file_exists("/tmp/stop_alertas")) {
             throw new Exception("Proceso detenido manualmente");
         }
@@ -65,16 +69,20 @@ try {
 
         $totalProcesados += count($lote);
 
-        // 🔹 Log opcional (para monitorear)
+        $tiempoLote = round(microtime(true) - $inicioLote, 2);
+
+        // 🔹 Log detallado
         file_put_contents(
             "/tmp/proceso_alertas.log",
-            "Lote " . ($index + 1) . "/$totalLotes procesado. Total: $totalProcesados\n",
+            "Lote " . ($index + 1) . "/$totalLotes | Registros: " . count($lote) . " | Tiempo: {$tiempoLote}s | Total: $totalProcesados\n",
             FILE_APPEND
         );
 
-        //  Pequeña pausa para no saturar
-        usleep(200000); // 0.2 segundos
+        // ❌ QUITAMOS usleep (solo úsalo si saturas BD)
+        // usleep(200000);
     }
+
+    $tiempoTotal = round(microtime(true) - $inicioTotal, 2);
 
     // =========================
     //  RESPUESTA
@@ -83,7 +91,8 @@ try {
         "ok" => true,
         "msg" => "Procesamiento por lotes completado",
         "total" => $totalProcesados,
-        "lotes" => $totalLotes
+        "lotes" => $totalLotes,
+        "tiempo_total_segundos" => $tiempoTotal
     ]);
 
 } catch (Exception $e) {
