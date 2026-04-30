@@ -45,14 +45,9 @@ try {
     }
 
     // =========================
-    //  2. PROCESAR ALERTAS
+    //  2. PROCESAR ALERTAS + CORRECTAS (SIN DUPLICADOS)
     // =========================
     $prod->InsertarAlertasMasivo($registros);
-
-    // =========================
-    //  3. PROCESAR ÓRDENES CORRECTAS
-    // =========================
-    $prod->InsertarOrdenesCorrectas($registros);
 
     // =========================
     //  RESPUESTA
@@ -70,7 +65,6 @@ try {
         "msg" => $e->getMessage()
     ]);
 }
-
 
 
 
