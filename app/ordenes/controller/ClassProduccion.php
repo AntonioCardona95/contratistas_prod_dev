@@ -234,7 +234,7 @@ public function obtenerRegistrosParaAlertas($fechaInicio = null, $fechaFin = nul
     $this->runQuery($sql);
 } */
 
-public function InsertarAlertasMasivo($registros)
+    public function InsertarAlertasMasivo($registros)
 {
     if (empty($registros)) return;
 
@@ -293,80 +293,62 @@ public function InsertarAlertasMasivo($registros)
         $tacData[$row['Folio_Pisa']] = $row;
     }
 
-    // =========================
-    // 🔥 MAPA DUPLICADOS TAC
-    // =========================
-    $ontDuplicadasTac = [];
+// 🔥 NUEVO: HISTORIAL ORDEN (30 DÍAS optimizado)
+$tacOrdenData = [];
 
-    $sql = "
-        SELECT Num__Serie, TELEFONO
+$sqlOrden = "
+    WITH ultimas AS (
+        SELECT TELEFONO, MAX(DATE(FECHA_LIQ)) AS ultima_fecha
         FROM qm_tac
-        WHERE Num__Serie IS NOT NULL
-          AND Num__Serie != ''
-          AND Num__Serie != 'DESCONOCIDO'
-          AND Num__Serie != 'NS NO OBTENIDO'
-    ";
+        WHERE Calificador_Edo = 'COMPLETADA'
+          AND TIPO = 'ORDEN'
+        GROUP BY TELEFONO
+    )
+    SELECT u.TELEFONO, t.Folio_Pisa, DATE(t.FECHA_LIQ) AS Fecha_Liq, u.ultima_fecha
+    FROM ultimas u
+    JOIN qm_tac t ON t.TELEFONO = u.TELEFONO
+    WHERE t.Calificador_Edo = 'COMPLETADA'
+      AND t.TIPO = 'ORDEN'
+      AND DATE(t.FECHA_LIQ) BETWEEN u.ultima_fecha - INTERVAL 30 DAY
+                               AND u.ultima_fecha + INTERVAL 30 DAY
+      AND DATE(t.FECHA_LIQ) <> u.ultima_fecha
+    ORDER BY u.TELEFONO, t.FECHA_LIQ;
+";
 
-    foreach ($conexion_analisis->query($sql) as $row) {
-        $serie = strtoupper(trim($row['Num__Serie']));
-        $tel   = trim($row['TELEFONO']);
+foreach ($conexion_analisis->query($sqlOrden) as $row) {
+    $tel = trim($row['TELEFONO']);
+    $tacOrdenData[$tel][] = $row['Fecha_Liq']; // ya solo guarda las fechas que cumplen la condición
+}
 
-        $ontDuplicadasTac[$serie][$tel] = true;
-    }
 
-    // 🔥 NUEVO: HISTORIAL ORDEN (30 DÍAS optimizado)
-    $tacOrdenData = [];
-
-    $sqlOrden = "
-        WITH ultimas AS (
-            SELECT TELEFONO, MAX(DATE(FECHA_LIQ)) AS ultima_fecha
-            FROM qm_tac
-            WHERE Calificador_Edo = 'COMPLETADA'
-              AND TIPO = 'ORDEN'
-            GROUP BY TELEFONO
-        )
-        SELECT u.TELEFONO, t.Folio_Pisa, DATE(t.FECHA_LIQ) AS Fecha_Liq, u.ultima_fecha
-        FROM ultimas u
-        JOIN qm_tac t ON t.TELEFONO = u.TELEFONO
-        WHERE t.Calificador_Edo = 'COMPLETADA'
-          AND t.TIPO = 'ORDEN'
-          AND DATE(t.FECHA_LIQ) BETWEEN u.ultima_fecha - INTERVAL 30 DAY
-                                   AND u.ultima_fecha + INTERVAL 30 DAY
-          AND DATE(t.FECHA_LIQ) <> u.ultima_fecha
-        ORDER BY u.TELEFONO, t.FECHA_LIQ;
-    ";
-
-    foreach ($conexion_analisis->query($sqlOrden) as $row) {
-        $tel = trim($row['TELEFONO']);
-        $tacOrdenData[$tel][] = $row['Fecha_Liq'];
-    }
-
-    // =========================
     //  ESCI
-    // =========================
-    $esciData = [];
-    $esciSeriesMap = [];
+// =========================
+$esciData = [];
+$esciSeriesMap = [];
 
-    $sql = "
-        SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
-        FROM seg_ns_eci
-        WHERE TELEFONO IN ($inTelefonos)
-        ORDER BY TELEFONO, F_CONSULTA DESC
-    ";
+$sql = "
+    SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
+    FROM seg_ns_eci
+    WHERE TELEFONO IN ($inTelefonos)
+    ORDER BY TELEFONO, F_CONSULTA DESC
+";
 
-    foreach ($conexion_analisis->query($sql) as $row) {
-        $tel = trim($row['TELEFONO']);
-        $serie = strtoupper(trim($row['M_SERIE']));
+foreach ($conexion_analisis->query($sql) as $row) {
+    $tel = trim($row['TELEFONO']);
+    $serie = strtoupper(trim($row['M_SERIE']));
 
-        if (!isset($esciData[$tel])) {
-            $esciData[$tel] = $row;
-            $esciData[$tel]['M_SERIE'] = $serie;
-        }
-
-        if (!empty($serie) && $serie !== 'DESCONOCIDO') {
-            $esciSeriesMap[$serie][$tel] = true;
-        }
+    // Solo guardar el primer registro por teléfono (el más reciente gracias al ORDER BY)
+    if (!isset($esciData[$tel])) {
+        $esciData[$tel] = $row;
+        $esciData[$tel]['M_SERIE'] = $serie;
     }
+
+    // Mapear series válidas (no desconocidas)
+    if (!empty($serie) && $serie !== 'DESCONOCIDO') {
+        $esciSeriesMap[$serie][$tel] = true;
+    }
+}
+
 
     // =========================
     //  INSERTS
@@ -395,6 +377,7 @@ public function InsertarAlertasMasivo($registros)
         $tac   = $tacData[$folio] ?? null;
         $esci  = $esciData[$telefono] ?? null;
 
+        // 🔥 NUEVO: historial orden
         $tacOrdenHist = $tacOrdenData[$telefono] ?? null;
 
         $serieTac   = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
@@ -411,11 +394,6 @@ public function InsertarAlertasMasivo($registros)
             'serieCoord' => $serieCoord,
             'serieEsci' => $serieEsci,
             'tacOrdenHist' => $tacOrdenHist,
-
-            // 🔥 CLAVE DEL FIX
-            'ontDuplicadasTac' => $ontDuplicadasTac,
-            'esciSeriesMap' => $esciSeriesMap,
-
             'idContratista' => $r['idContratista'] ?? 0,
             'tipoTarea' => $coord['Tipo_Tarea'] ?? ($r['tipoTarea'] ?? '')
         ]);
@@ -454,14 +432,15 @@ public function InsertarAlertasMasivo($registros)
 
 
 
+
 private function evaluarAlertas($data)
 {
 
 //  Debug: imprimir lo que llega en $data
-    /*echo "<pre>";
+    echo "<pre>";
     echo "=== CONTENIDO DE \$data ===\n";
     var_dump($data);
-    echo "</pre>"; */
+    echo "</pre>";
     
     $alertas = [];
     $detalleEsci = null;
