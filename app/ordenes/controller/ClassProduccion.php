@@ -802,15 +802,39 @@ private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
 
 private function alertaTipoTareaDiferente($data, &$alertas)
 {
-    // Obtener los tipos de tarea de TAC y CoordIAPP
-    $tipoTareaTac = $data['tac']['Tipo_De_Tarea'] ?? null;
-    $tipoTareaCoord = $data['coord']['Tipo_Tarea'] ?? null;
+    // Obtener y normalizar valores
+    $tipoTareaTac = isset($data['tac']['Tipo_De_Tarea']) 
+        ? $this->normalizarTexto($data['tac']['Tipo_De_Tarea']) 
+        : null;
 
-    // Comparar los valores de Tipo_De_Tarea y Tipo_Tarea
+    $tipoTareaCoord = isset($data['coord']['Tipo_Tarea']) 
+        ? $this->normalizarTexto($data['coord']['Tipo_Tarea']) 
+        : null;
+
+    // Debug opcional (puedes comentarlo después)
+    /*
+    error_log("TAC: [$tipoTareaTac] | COORD: [$tipoTareaCoord]");
+    */
+
+    // Comparar
     if ($tipoTareaTac && $tipoTareaCoord && $tipoTareaTac !== $tipoTareaCoord) {
         $alertas[] = 'TIPO_TAREA_DIFERENTE';
     }
 }
+
+private function normalizarTexto($texto)
+{
+    if (!$texto) return $texto;
+
+    $texto = strtoupper(trim($texto));
+
+    // Quitar acentos
+    $buscar = ['Á','É','Í','Ó','Ú','Ñ'];
+    $reemplazar = ['A','E','I','O','U','N'];
+
+    return str_replace($buscar, $reemplazar, $texto);
+}
+
 
 
 private function alertaTerminalFallida($data, &$alertas)
