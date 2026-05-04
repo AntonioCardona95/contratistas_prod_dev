@@ -649,7 +649,8 @@ private function evaluarAlertas($data)
     return [
         'alertas' => $alertas,
         'detalleEsci' => $detalleEsci,
-        'detalleTac' => $detalleTac
+        'detalleTac' => $detalleTac,
+        'detalleTipoTarea' => $detalleTipoTarea
     ];
 }
 
