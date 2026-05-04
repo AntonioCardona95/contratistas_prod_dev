@@ -1246,19 +1246,20 @@ private function alertaTecnologiaDiferente($data, &$alertas, &$detalleTecnologia
     $tecTac   = $this->normalizarTecnologiaAlertas($tecTacRaw);
     $tecCoord = $this->normalizarTecnologiaAlertas($tecCoordRaw);
 
+    // Caso 1: TAC tiene valor y Coordiapp no
     if ($tecTac && !$tecCoord) {
         $alertas[] = 'TECNOLOGIA_DIFERENTE';
-
         $detalleTecnologia = "TECNOLOGIA COORDIAPP: " . ($tecCoordRaw ?: 'SIN DATO') .
                              " | TECNOLOGIA TAC: " . ($tecTacRaw ?: 'SIN DATO');
     }
+    // Caso 2: Ambos tienen valor y son diferentes
     elseif ($tecTac && $tecCoord && $tecTac !== $tecCoord) {
         $alertas[] = 'TECNOLOGIA_DIFERENTE';
-
         $detalleTecnologia = "TECNOLOGIA COORDIAPP: " . ($tecCoordRaw ?: 'SIN DATO') .
                              " | TECNOLOGIA TAC: " . ($tecTacRaw ?: 'SIN DATO');
     }
 }
+
 
 private function normalizarTecnologiaAlertas($valor)
 {
