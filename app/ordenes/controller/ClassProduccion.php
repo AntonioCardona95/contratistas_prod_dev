@@ -481,9 +481,6 @@ public function InsertarAlertasMasivo($registros)
     }
 }
 
-
-
-
 private function evaluarAlertas($data)
 {
 
@@ -580,6 +577,22 @@ private function evaluarAlertas($data)
         'detalleTac' => $detalleTac,
         'comparativos' => $comparativos // 🔥 NUEVO
     ];
+}
+
+
+
+
+private function esTipoQueja(string $tipoTarea): bool
+{
+    $tipoTarea = strtoupper(trim($tipoTarea));
+    $tiposQueja = ['Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597', 'F841'];
+
+    foreach ($tiposQueja as $prefijo) {
+        if (strpos($tipoTarea, $prefijo) === 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 
