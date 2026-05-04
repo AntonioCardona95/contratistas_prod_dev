@@ -402,8 +402,8 @@ public function InsertarAlertasMasivo($registros)
     $stmtAlerta = $conexion->prepare("
     INSERT INTO Produccion_alertas
     (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga,
-     FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci, Bandera_Revision, Detalle_Tipo_Tarea)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+     FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci, Bandera_Revision, Detalle_Tipo_Tarea,Detalle_Tecnologia)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 ");
  
 $stmtUpdate = $conexion->prepare("
@@ -411,7 +411,7 @@ $stmtUpdate = $conexion->prepare("
         Telefono = ?, Tipo_Tarea = ?, Cope = ?, Fecha_Liquidacion = ?,
         Fecha_Carga = ?, FK_Contratista = ?, Semana = ?, anio = ?, metraje = ?,
         Alerta = ?, Detalle_Esci = ?, Bandera_Revision = 0,
-        Detalle_Tipo_Tarea = ?
+        Detalle_Tipo_Tarea = ?, Detalle_Tecnologia = ?
     WHERE Folio_Pisa = ?
 ");
 
@@ -493,7 +493,8 @@ $stmtUpdate = $conexion->prepare("
                     $alertasTexto,
                     $resultadoAlertas['detalleEsci'] ?? null,
                     0,
-                    $resultadoAlertas['detalleTipoTarea'] ?? null
+                    $resultadoAlertas['detalleTipoTarea'] ?? null,
+                    $resultadoAlertas['detalleTecnologia'] ?? null
                 ]);
             }
 
@@ -513,6 +514,7 @@ $stmtUpdate = $conexion->prepare("
                 $alertasTexto,
                 $resultadoAlertas['detalleEsci'] ?? null,
                 $resultadoAlertas['detalleTipoTarea'] ?? null, 
+                $resultadoAlertas['detalleTecnologia'] ?? null,
                 $folio
             ]);
         }
@@ -584,6 +586,7 @@ private function evaluarAlertas($data)
     $detalleEsci = null;
     $detalleTac = null;
     $detalleTipoTarea = null;
+    $detalleTecnologia = null;
 
     // =========================
     //  ALERTA ORDEN 30 DÍAS
@@ -616,11 +619,12 @@ private function evaluarAlertas($data)
     // =========================
     //$this->alertaTipoTareaDiferente($data, $alertas);
     $this->alertaTipoTareaDiferente($data, $alertas, $detalleTipoTarea);
+
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
     $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
     $this->alertaSerieDesconocida($data, $alertas);
     $this->alertaSeriesDiferente($data, $alertas);
-    $this->alertaTecnologiaDiferente($data, $alertas);
+    $this->alertaTecnologiaDiferente($data, $alertas, $detalleTecnologia);
     $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
 
     // =========================
@@ -650,7 +654,8 @@ private function evaluarAlertas($data)
         'alertas' => $alertas,
         'detalleEsci' => $detalleEsci,
         'detalleTac' => $detalleTac,
-        'detalleTipoTarea' => $detalleTipoTarea
+        'detalleTipoTarea' => $detalleTipoTarea,
+        'detalleTecnologia' => $detalleTecnologia
     ];
 }
 
@@ -1239,24 +1244,26 @@ private function alertaSeriesDiferentes($data, &$alertas)
     }
 } */
 
-private function alertaTecnologiaDiferente($data, &$alertas)
+private function alertaTecnologiaDiferente($data, &$alertas, &$detalleTecnologia)
 {
-    // Normalizar los valores de TAC y CoordIAPP
     $tecTacRaw   = $data['tac']['TECNOLOGIA'] ?? null;
     $tecCoordRaw = $data['coord']['Tecnologia'] ?? null;
 
-    //  Normalizamos los valores
     $tecTac   = $this->normalizarTecnologiaAlertas($tecTacRaw);
     $tecCoord = $this->normalizarTecnologiaAlertas($tecCoordRaw);
 
-    // Si la tecnología de TAC está definida y la de CoordIAPP está vacía
     if ($tecTac && !$tecCoord) {
         $alertas[] = 'TECNOLOGIA_DIFERENTE';
-    }
 
-    // Comparamos las tecnologías normalizadas
+        $detalleTecnologia = 
+            "TECNOLOGIA COORDIAPP: " . ($tecCoordRaw ?? 'NULL') .
+            " | TECNOLOGIA TAC: " . ($tecTacRaw ?? 'NULL');
+    }
     elseif ($tecTac && $tecCoord && $tecTac !== $tecCoord) {
         $alertas[] = 'TECNOLOGIA_DIFERENTE';
+
+        $detalleTecnologia = 
+            "TECNOLOGIA COORDIAPP: {$tecCoordRaw} | TECNOLOGIA TAC: {$tecTacRaw}";
     }
 }
 
