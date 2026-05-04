@@ -245,7 +245,7 @@ public function InsertarAlertasMasivo($registros)
     $conexion_analisis->exec("SET NAMES 'utf8mb4'");
 
     // =========================
-    //  PREPARAR IDS
+    // PREPARAR IDS
     // =========================
     $folios = array_unique(array_column($registros, 'folio'));
     $telefonos = array_unique(array_column($registros, 'telefono'));
@@ -254,7 +254,35 @@ public function InsertarAlertasMasivo($registros)
     $inTelefonos = "'" . implode("','", $telefonos) . "'";
 
     // =========================
-    //  COORDIAPP
+    // 🔥 EXISTENTES (cabecera)
+    // =========================
+    $existentes = [];
+    $sqlExistentes = "
+        SELECT Folio_Pisa
+        FROM Produccion_alertas
+        WHERE Folio_Pisa IN ($inFolios)
+    ";
+    foreach ($conexion->query($sqlExistentes) as $row) {
+        $existentes[$row['Folio_Pisa']] = true;
+    }
+
+    // =========================
+    // 🔥 DETALLE EXISTENTE (histórico)
+    // =========================
+    $detalleExistente = [];
+    $sqlDetalleExistente = "
+        SELECT Folio_Pisa, Tipo_Alerta, Activa
+        FROM Produccion_alertas_detalle
+        WHERE Folio_Pisa IN ($inFolios)
+    ";
+    foreach ($conexion->query($sqlDetalleExistente) as $row) {
+        $detalleExistente[$row['Folio_Pisa']][$row['Tipo_Alerta']] = [
+            'activa' => (int)$row['Activa']
+        ];
+    }
+
+    // =========================
+    // COORDIAPP
     // =========================
     $coordData = [];
     $sql = "SELECT 
@@ -275,25 +303,23 @@ public function InsertarAlertasMasivo($registros)
     WHERE Folio_Pisa IN ($inFolios)
       AND Estatus_Orden = 'COMPLETADA'
       AND Step_Registro = '5'";
-
     foreach ($conexion->query($sql) as $row) {
         $coordData[$row['Folio_Pisa']] = $row;
     }
 
     // =========================
-    //  TAC
+    // TAC
     // =========================
     $tacData = [];
     $sql = "SELECT Folio_Pisa, TELEFONO, Num__Serie, TECNOLOGIA, Tipo_de_Tarea AS Tipo_De_Tarea
             FROM qm_tac
             WHERE Folio_Pisa IN ($inFolios)
               AND Calificador_Edo = 'COMPLETADA'";
-
     foreach ($conexion_analisis->query($sql) as $row) {
         $tacData[$row['Folio_Pisa']] = $row;
     }
 
-    // 🔥 Construir mapa de duplicados TAC
+    // 🔥 Duplicados TAC
     $ontDuplicadasTac = [];
     foreach ($tacData as $row) {
         $serie = strtoupper(trim($row['Num__Serie']));
@@ -304,7 +330,7 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-    // HISTORIAL ORDEN (30 DÍAS optimizado)
+    // HISTORIAL ORDEN (30 días)
     // =========================
     $tacOrdenData = [];
     $sqlOrden = "
@@ -323,82 +349,69 @@ public function InsertarAlertasMasivo($registros)
           AND DATE(t.FECHA_LIQ) BETWEEN u.ultima_fecha - INTERVAL 30 DAY
                                    AND u.ultima_fecha + INTERVAL 30 DAY
           AND DATE(t.FECHA_LIQ) <> u.ultima_fecha
-        ORDER BY u.TELEFONO, t.FECHA_LIQ;
+        ORDER BY u.TELEFONO, t.FECHA_LIQ
     ";
-
     foreach ($conexion_analisis->query($sqlOrden) as $row) {
         $tel = trim($row['TELEFONO']);
         $tacOrdenData[$tel][] = $row['Fecha_Liq'];
     }
 
     // =========================
-// ESCI
-// =========================
-$esciData = [];
-$esciSeriesMap = [];
+    // ESCI
+    // =========================
+    $esciData = [];
+    $esciSeriesMap = [];
+    $series = [];
 
-// =========================
-// 🔥 PASO 1: obtener series de los teléfonos
-// =========================
-$series = [];
-
-$sqlSeries = "
-    SELECT DISTINCT M_SERIE
-    FROM seg_ns_eci
-    WHERE TELEFONO IN ($inTelefonos)
-";
-
-foreach ($conexion_analisis->query($sqlSeries) as $row) {
-    $serie = strtoupper(trim($row['M_SERIE']));
-
-    if (!empty($serie) && $serie !== 'DESCONOCIDO') {
-        $series[] = "'$serie'";
+    $sqlSeries = "
+        SELECT DISTINCT M_SERIE
+        FROM seg_ns_eci
+        WHERE TELEFONO IN ($inTelefonos)
+    ";
+    foreach ($conexion_analisis->query($sqlSeries) as $row) {
+        $serie = strtoupper(trim($row['M_SERIE']));
+        if (!empty($serie) && $serie !== 'DESCONOCIDO') {
+            $series[] = "'$serie'";
+        }
     }
-}
+    $inSeries = !empty($series) ? implode(',', array_unique($series)) : "''";
 
-$inSeries = !empty($series) ? implode(',', array_unique($series)) : "''";
+    $sql = "
+        SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
+        FROM seg_ns_eci
+        WHERE M_SERIE IN ($inSeries)
+        ORDER BY TELEFONO, F_CONSULTA DESC
+    ";
+    foreach ($conexion_analisis->query($sql) as $row) {
+        $tel = preg_replace('/\D/', '', $row['TELEFONO']);
+        $serie = strtoupper(trim($row['M_SERIE']));
 
+        if (!isset($esciData[$tel])) {
+            $esciData[$tel] = $row;
+            $esciData[$tel]['M_SERIE'] = $serie;
+        }
 
-// =========================
-// 🔥 PASO 2: traer TODOS los teléfonos de esas series
-// =========================
-$sql = "
-    SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
-    FROM seg_ns_eci
-    WHERE M_SERIE IN ($inSeries)
-    ORDER BY TELEFONO, F_CONSULTA DESC
-";
-
-foreach ($conexion_analisis->query($sql) as $row) {
-
-    // 🔥 NORMALIZAR TELÉFONO (CLAVE)
-    $tel = preg_replace('/\D/', '', $row['TELEFONO']);
-    $serie = strtoupper(trim($row['M_SERIE']));
-
-    // =========================
-    // ESCI DATA (solo el más reciente por teléfono)
-    // =========================
-    if (!isset($esciData[$tel])) {
-        $esciData[$tel] = $row;
-        $esciData[$tel]['M_SERIE'] = $serie;
+        if (!empty($serie) && $serie !== 'DESCONOCIDO' && !empty($tel)) {
+            $esciSeriesMap[$serie][$tel] = true;
+        }
     }
 
     // =========================
-    // 🔥 MAPA REAL PARA DUPLICADOS
-    // =========================
-    if (!empty($serie) && $serie !== 'DESCONOCIDO' && !empty($tel)) {
-        $esciSeriesMap[$serie][$tel] = true;
-    }
-}
-
-
-    // =========================
-    // INSERTS
+    // PREPARES
     // =========================
     $stmtAlerta = $conexion->prepare("
         INSERT INTO Produccion_alertas
-        (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga, FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci, Bandera_Revision)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?, ?, ?)
+        (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga,
+         FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci, Bandera_Revision)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+    ");
+
+    $stmtUpdate = $conexion->prepare("
+        UPDATE Produccion_alertas SET
+            Telefono = ?, Tipo_Tarea = ?, Cope = ?, Fecha_Liquidacion = ?,
+            Fecha_Carga = ?, FK_Contratista = ?, Semana = ?, anio = ?, metraje = ?,
+            Alerta = ?, Detalle_Esci = ?, Bandera_Revision = 0
+        WHERE Folio_Pisa = ?
     ");
 
     $stmtDetalle = $conexion->prepare("
@@ -407,10 +420,23 @@ foreach ($conexion_analisis->query($sql) as $row) {
         VALUES (?,?,?,?,?,?)
     ");
 
+    $stmtDesactivar = $conexion->prepare("
+        UPDATE Produccion_alertas_detalle
+        SET Activa = 0
+        WHERE Folio_Pisa = ? AND Tipo_Alerta = ?
+    ");
+
+    $stmtActivar = $conexion->prepare("
+        UPDATE Produccion_alertas_detalle
+        SET Activa = 1, Fecha_Creacion = ?, Detalle_Esci = ?, Detalle_Tac = ?
+        WHERE Folio_Pisa = ? AND Tipo_Alerta = ?
+    ");
+
     // =========================
     // LOOP PRINCIPAL
     // =========================
     foreach ($registros as $r) {
+
         $folio = $r['folio'];
         $telefono = trim($r['telefono']);
 
@@ -440,24 +466,73 @@ foreach ($conexion_analisis->query($sql) as $row) {
             'esciSeriesMap' => $esciSeriesMap
         ]);
 
-        if (!empty($resultadoAlertas['alertas'])) {
-            $stmtAlerta->execute([
-                $folio,
+        $alertasActuales = $resultadoAlertas['alertas'] ?? [];
+        $alertasTexto = !empty($alertasActuales)
+            ? implode(' | ', array_unique($alertasActuales))
+            : null;
+
+        // =========================
+        // INSERT o UPDATE (cabecera)
+        // =========================
+        if (!isset($existentes[$folio])) {
+
+            if (!empty($alertasActuales)) {
+                $stmtAlerta->execute([
+                    $folio,
+                    $telefono,
+                    $r['tipoTarea'] ?? null,
+                    $r['cope'] ?? null,
+                    $r['fechaLiquidacion'] ?? null,
+                    date('Y-m-d H:i:s'),
+                    $r['idContratista'] ?? 0,
+                    $r['semana'] ?? 0,
+                    $r['anio'] ?? 0,
+                    $r['metraje'] ?? 0,
+                    $alertasTexto,
+                    $resultadoAlertas['detalleEsci'] ?? null,
+                    0
+                ]);
+            }
+
+        } else {
+
+            // UPDATE SIEMPRE (reevaluación)
+            $stmtUpdate->execute([
                 $telefono,
                 $r['tipoTarea'] ?? null,
                 $r['cope'] ?? null,
                 $r['fechaLiquidacion'] ?? null,
-                $r['fechaCarga'] ?? date('Y-m-d H:i:s'),
+                date('Y-m-d H:i:s'),
                 $r['idContratista'] ?? 0,
                 $r['semana'] ?? 0,
                 $r['anio'] ?? 0,
                 $r['metraje'] ?? 0,
-                implode(' | ', array_unique($resultadoAlertas['alertas'])),
+                $alertasTexto,
                 $resultadoAlertas['detalleEsci'] ?? null,
-                0
+                $folio
             ]);
+        }
 
-            foreach ($resultadoAlertas['alertas'] as $tipoAlerta) {
+        // =========================
+        // 🔥 MANEJO DE DETALLE (SIN DELETE)
+        // =========================
+
+        // 1) Desactivar las que ya no aplican
+        if (isset($detalleExistente[$folio])) {
+            foreach ($detalleExistente[$folio] as $tipoAnterior => $info) {
+                if (!in_array($tipoAnterior, $alertasActuales, true) && $info['activa'] === 1) {
+                    $stmtDesactivar->execute([$folio, $tipoAnterior]);
+                    $detalleExistente[$folio][$tipoAnterior]['activa'] = 0;
+                }
+            }
+        }
+
+        // 2) Insertar nuevas o reactivar existentes
+        foreach ($alertasActuales as $tipoAlerta) {
+
+            // No existe → INSERT
+            if (!isset($detalleExistente[$folio][$tipoAlerta])) {
+
                 $stmtDetalle->execute([
                     $folio,
                     $tipoAlerta,
@@ -466,6 +541,24 @@ foreach ($conexion_analisis->query($sql) as $row) {
                     $resultadoAlertas['detalleEsci'] ?? null,
                     $resultadoAlertas['detalleTac'] ?? null
                 ]);
+
+                $detalleExistente[$folio][$tipoAlerta] = ['activa' => 1];
+
+            } else {
+
+                // Existe pero inactiva → REACTIVAR
+                if ($detalleExistente[$folio][$tipoAlerta]['activa'] === 0) {
+
+                    $stmtActivar->execute([
+                        date('Y-m-d H:i:s'),
+                        $resultadoAlertas['detalleEsci'] ?? null,
+                        $resultadoAlertas['detalleTac'] ?? null,
+                        $folio,
+                        $tipoAlerta
+                    ]);
+
+                    $detalleExistente[$folio][$tipoAlerta]['activa'] = 1;
+                }
             }
         }
     }
@@ -478,17 +571,17 @@ private function evaluarAlertas($data)
 {
 
 //  Debug: imprimir lo que llega en $data
-    echo "<pre>";
+    /*echo "<pre>";
     echo "=== CONTENIDO DE \$data ===\n";
     var_dump($data);
-    echo "</pre>";
+    echo "</pre>"; */
     
     $alertas = [];
     $detalleEsci = null;
     $detalleTac = null;
 
     // =========================
-    // 🔥 ALERTA ORDEN 30 DÍAS
+    //  ALERTA ORDEN 30 DÍAS
     // =========================
     $this->alertaOrdenRevision30Dias($data, $alertas);
 
