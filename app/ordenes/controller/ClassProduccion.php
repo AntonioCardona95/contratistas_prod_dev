@@ -654,6 +654,34 @@ private function evaluarAlertas($data)
     ];
 }
 
+private function alertaTipoTareaDiferente($data, &$alertas, &$detalleTipoTarea)
+{
+    $tipoTareaTac = isset($data['tac']['Tipo_De_Tarea']) 
+        ? trim($data['tac']['Tipo_De_Tarea']) 
+        : null;
+
+    $tipoTareaCoord = isset($data['coord']['Tipo_Tarea']) 
+        ? trim($data['coord']['Tipo_Tarea']) 
+        : null;
+
+    $tipoTacNorm   = $tipoTareaTac ? $this->normalizarTexto($tipoTareaTac) : null;
+    $tipoCoordNorm = $tipoTareaCoord ? $this->normalizarTexto($tipoTareaCoord) : null;
+
+    //  Si TAC termina en PE o PI, recortamos ese sufijo
+    if ($tipoTacNorm && preg_match('/(PE|PI)$/i', $tipoTacNorm)) {
+        $tipoTacNorm = substr($tipoTacNorm, 0, -2);
+    }
+
+    if ($tipoTacNorm && $tipoCoordNorm && $tipoTacNorm !== $tipoCoordNorm) {
+        $alertas[] = 'TIPO_TAREA_DIFERENTE';
+
+        //  Detalle de la diferencia
+        $detalleTipoTarea = 
+            "TIPO DE TAREA COORDIAPP: {$tipoTareaCoord} | TIPO DE TAREA TAC: {$tipoTareaTac}";
+    }
+}
+
+
 private function esTipoQueja(string $tipoTarea): bool
 {
     $tipoTarea = strtoupper(trim($tipoTarea));
@@ -942,36 +970,6 @@ private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
     }
 }
 
-private function alertaTipoTareaDiferente($data, &$alertas, &$detalleTipoTarea)
-{
-    $tipoTareaTac = isset($data['tac']['Tipo_De_Tarea']) 
-        ? trim($data['tac']['Tipo_De_Tarea']) 
-        : null;
-
-    $tipoTareaCoord = isset($data['coord']['Tipo_Tarea']) 
-        ? trim($data['coord']['Tipo_Tarea']) 
-        : null;
-
-    $tipoTacNorm   = $tipoTareaTac ? $this->normalizarTexto($tipoTareaTac) : null;
-    $tipoCoordNorm = $tipoTareaCoord ? $this->normalizarTexto($tipoTareaCoord) : null;
-
-    //  Si termina en PE o PI, no marcar alerta
-    $ignorar = false;
-    if ($tipoCoordNorm) {
-        $sufijo = strtoupper(substr($tipoCoordNorm, -2)); // últimos 2 caracteres
-        if ($sufijo === 'PE' || $sufijo === 'PI') {
-            $ignorar = true;
-        }
-    }
-
-    if (!$ignorar && $tipoTacNorm && $tipoCoordNorm && $tipoTacNorm !== $tipoCoordNorm) {
-        $alertas[] = 'TIPO_TAREA_DIFERENTE';
-
-        //  Detalle de la diferencia
-        $detalleTipoTarea = 
-            "TIPO DE TAREA COORDIAPP: {$tipoTareaCoord} | TIPO DE TAREA TAC: {$tipoTareaTac}";
-    }
-}
 
 
 private function normalizarTexto($texto)
