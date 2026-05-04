@@ -955,15 +955,24 @@ private function alertaTipoTareaDiferente($data, &$alertas, &$detalleTipoTarea)
     $tipoTacNorm   = $tipoTareaTac ? $this->normalizarTexto($tipoTareaTac) : null;
     $tipoCoordNorm = $tipoTareaCoord ? $this->normalizarTexto($tipoTareaCoord) : null;
 
-    if ($tipoTacNorm && $tipoCoordNorm && $tipoTacNorm !== $tipoCoordNorm) {
+    //  Si termina en PE o PI, no marcar alerta
+    $ignorar = false;
+    if ($tipoCoordNorm) {
+        $sufijo = strtoupper(substr($tipoCoordNorm, -2)); // últimos 2 caracteres
+        if ($sufijo === 'PE' || $sufijo === 'PI') {
+            $ignorar = true;
+        }
+    }
 
+    if (!$ignorar && $tipoTacNorm && $tipoCoordNorm && $tipoTacNorm !== $tipoCoordNorm) {
         $alertas[] = 'TIPO_TAREA_DIFERENTE';
 
-        // 🔥 AQUÍ ARMAS EL DETALLE
+        //  Detalle de la diferencia
         $detalleTipoTarea = 
             "TIPO DE TAREA COORDIAPP: {$tipoTareaCoord} | TIPO DE TAREA TAC: {$tipoTareaTac}";
     }
 }
+
 
 private function normalizarTexto($texto)
 {
