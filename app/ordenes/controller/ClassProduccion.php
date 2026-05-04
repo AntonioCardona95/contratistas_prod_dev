@@ -332,31 +332,65 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-    // ESCI
-    // =========================
-    $esciData = [];
-    $esciSeriesMap = [];
+// ESCI
+// =========================
+$esciData = [];
+$esciSeriesMap = [];
 
-    $sql = "
-        SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
-        FROM seg_ns_eci
-        WHERE TELEFONO IN ($inTelefonos)
-        ORDER BY TELEFONO, F_CONSULTA DESC
-    ";
+// =========================
+// 🔥 PASO 1: obtener series de los teléfonos
+// =========================
+$series = [];
 
-    foreach ($conexion_analisis->query($sql) as $row) {
-        $tel = trim($row['TELEFONO']);
-        $serie = strtoupper(trim($row['M_SERIE']));
+$sqlSeries = "
+    SELECT DISTINCT M_SERIE
+    FROM seg_ns_eci
+    WHERE TELEFONO IN ($inTelefonos)
+";
 
-        if (!isset($esciData[$tel])) {
-            $esciData[$tel] = $row;
-            $esciData[$tel]['M_SERIE'] = $serie;
-        }
+foreach ($conexion_analisis->query($sqlSeries) as $row) {
+    $serie = strtoupper(trim($row['M_SERIE']));
 
-        if (!empty($serie) && $serie !== 'DESCONOCIDO') {
-            $esciSeriesMap[$serie][$tel] = true;
-        }
+    if (!empty($serie) && $serie !== 'DESCONOCIDO') {
+        $series[] = "'$serie'";
     }
+}
+
+$inSeries = !empty($series) ? implode(',', array_unique($series)) : "''";
+
+
+// =========================
+// 🔥 PASO 2: traer TODOS los teléfonos de esas series
+// =========================
+$sql = "
+    SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
+    FROM seg_ns_eci
+    WHERE M_SERIE IN ($inSeries)
+    ORDER BY TELEFONO, F_CONSULTA DESC
+";
+
+foreach ($conexion_analisis->query($sql) as $row) {
+
+    // 🔥 NORMALIZAR TELÉFONO (CLAVE)
+    $tel = preg_replace('/\D/', '', $row['TELEFONO']);
+    $serie = strtoupper(trim($row['M_SERIE']));
+
+    // =========================
+    // ESCI DATA (solo el más reciente por teléfono)
+    // =========================
+    if (!isset($esciData[$tel])) {
+        $esciData[$tel] = $row;
+        $esciData[$tel]['M_SERIE'] = $serie;
+    }
+
+    // =========================
+    // 🔥 MAPA REAL PARA DUPLICADOS
+    // =========================
+    if (!empty($serie) && $serie !== 'DESCONOCIDO' && !empty($tel)) {
+        $esciSeriesMap[$serie][$tel] = true;
+    }
+}
+
 
     // =========================
     // INSERTS
@@ -995,9 +1029,15 @@ private function alertaOntDuplicadaEsci($data, &$alertas, &$detalleEsci)
     $serie = $data['serieEsci'];
 
     if ($serie && isset($data['esciSeriesMap'][$serie])) {
-        if (count($data['esciSeriesMap'][$serie]) > 1) {
+
+        $telefonos = array_keys($data['esciSeriesMap'][$serie]);
+
+        // 🔥 asegurar únicos reales
+        $telefonos = array_unique($telefonos);
+
+        if (count($telefonos) > 1) {
             $alertas[] = 'ONT_DUPLICADA_EN_ESCI';
-            $detalleEsci = "Serie $serie duplicada en ESCI";
+            $detalleEsci = "Serie $serie con teléfonos: " . implode(',', $telefonos);
         }
     }
 }
