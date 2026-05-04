@@ -514,7 +514,7 @@ public function InsertarAlertasMasivo($registros)
         }
 
         // =========================
-        // 🔥 MANEJO DE DETALLE (SIN DELETE)
+        //  MANEJO DE DETALLE (SIN DELETE)
         // =========================
 
         // 1) Desactivar las que ya no aplican
