@@ -87,7 +87,10 @@ if (empty($alertas)) {
             <td><?= htmlspecialchars($row['nombre_completo'] ?? '') ?></td>
             <td><?= htmlspecialchars($row['Detalle_Tipo_Tarea'] ?? '') ?></td>
             
-            <td><?= htmlspecialchars($row['Detalle_Tecnologia	'] ?? '') ?></td>
+            <td>
+    <?= nl2br(htmlspecialchars($row['Detalle_Tecnologia'] ?? '')) ?>
+</td>
+
 
             <td>
                 <button 
