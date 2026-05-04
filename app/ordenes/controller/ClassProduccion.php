@@ -400,19 +400,21 @@ public function InsertarAlertasMasivo($registros)
     // PREPARES
     // =========================
     $stmtAlerta = $conexion->prepare("
-        INSERT INTO Produccion_alertas
-        (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga,
-         FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci, Bandera_Revision)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
-    ");
+    INSERT INTO Produccion_alertas
+    (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga,
+     FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci, Bandera_Revision, Detalle_Tipo_Tarea)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+");
+ 
+$stmtUpdate = $conexion->prepare("
+    UPDATE Produccion_alertas SET
+        Telefono = ?, Tipo_Tarea = ?, Cope = ?, Fecha_Liquidacion = ?,
+        Fecha_Carga = ?, FK_Contratista = ?, Semana = ?, anio = ?, metraje = ?,
+        Alerta = ?, Detalle_Esci = ?, Bandera_Revision = 0,
+        Detalle_Tipo_Tarea = ?
+    WHERE Folio_Pisa = ?
+");
 
-    $stmtUpdate = $conexion->prepare("
-        UPDATE Produccion_alertas SET
-            Telefono = ?, Tipo_Tarea = ?, Cope = ?, Fecha_Liquidacion = ?,
-            Fecha_Carga = ?, FK_Contratista = ?, Semana = ?, anio = ?, metraje = ?,
-            Alerta = ?, Detalle_Esci = ?, Bandera_Revision = 0
-        WHERE Folio_Pisa = ?
-    ");
 
     $stmtDetalle = $conexion->prepare("
         INSERT INTO Produccion_alertas_detalle
@@ -490,7 +492,8 @@ public function InsertarAlertasMasivo($registros)
                     $r['metraje'] ?? 0,
                     $alertasTexto,
                     $resultadoAlertas['detalleEsci'] ?? null,
-                    0
+                    0,
+                    $resultadoAlertas['detalleTipoTarea'] ?? null
                 ]);
             }
 
@@ -509,6 +512,7 @@ public function InsertarAlertasMasivo($registros)
                 $r['metraje'] ?? 0,
                 $alertasTexto,
                 $resultadoAlertas['detalleEsci'] ?? null,
+                $resultadoAlertas['detalleTipoTarea'] ?? null, 
                 $folio
             ]);
         }
@@ -579,6 +583,7 @@ private function evaluarAlertas($data)
     $alertas = [];
     $detalleEsci = null;
     $detalleTac = null;
+    $detalleTipoTarea = null;
 
     // =========================
     //  ALERTA ORDEN 30 DÍAS
@@ -600,14 +605,17 @@ private function evaluarAlertas($data)
         return [
             'alertas' => $alertas,
             'detalleEsci' => $detalleEsci,
-            'detalleTac' => $detalleTac
+            'detalleTac' => $detalleTac,
+            'detalleTipoTarea' => $detalleTipoTarea
+
         ];
     }
 
     // =========================
     // CASO: sí hay datos en Coordiapp
     // =========================
-    $this->alertaTipoTareaDiferente($data, $alertas);
+    //$this->alertaTipoTareaDiferente($data, $alertas);
+    $this->alertaTipoTareaDiferente($data, $alertas, $detalleTipoTarea);
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
     $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
     $this->alertaSerieDesconocida($data, $alertas);
@@ -933,26 +941,26 @@ private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
     }
 }
 
-
-private function alertaTipoTareaDiferente($data, &$alertas)
+private function alertaTipoTareaDiferente($data, &$alertas, &$detalleTipoTarea)
 {
-    // Obtener y normalizar valores
     $tipoTareaTac = isset($data['tac']['Tipo_De_Tarea']) 
-        ? $this->normalizarTexto($data['tac']['Tipo_De_Tarea']) 
+        ? trim($data['tac']['Tipo_De_Tarea']) 
         : null;
 
     $tipoTareaCoord = isset($data['coord']['Tipo_Tarea']) 
-        ? $this->normalizarTexto($data['coord']['Tipo_Tarea']) 
+        ? trim($data['coord']['Tipo_Tarea']) 
         : null;
 
-    // Debug opcional (puedes comentarlo después)
-    /*
-    error_log("TAC: [$tipoTareaTac] | COORD: [$tipoTareaCoord]");
-    */
+    $tipoTacNorm   = $tipoTareaTac ? $this->normalizarTexto($tipoTareaTac) : null;
+    $tipoCoordNorm = $tipoTareaCoord ? $this->normalizarTexto($tipoTareaCoord) : null;
 
-    // Comparar
-    if ($tipoTareaTac && $tipoTareaCoord && $tipoTareaTac !== $tipoTareaCoord) {
+    if ($tipoTacNorm && $tipoCoordNorm && $tipoTacNorm !== $tipoCoordNorm) {
+
         $alertas[] = 'TIPO_TAREA_DIFERENTE';
+
+        // 🔥 AQUÍ ARMAS EL DETALLE
+        $detalleTipoTarea = 
+            "TIPO DE TAREA COORDIAPP: {$tipoTareaCoord} | TIPO DE TAREA TAC: {$tipoTareaTac}";
     }
 }
 
