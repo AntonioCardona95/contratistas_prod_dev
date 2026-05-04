@@ -661,18 +661,13 @@ private function evaluarAlertas($data)
 
 private function alertaTipoTareaDiferente($data, &$alertas, &$detalleTipoTarea)
 {
-    $tipoTareaTac = isset($data['tac']['Tipo_De_Tarea']) 
-        ? trim($data['tac']['Tipo_De_Tarea']) 
-        : null;
+    $tipoTareaTac   = isset($data['tac']['Tipo_De_Tarea']) ? trim($data['tac']['Tipo_De_Tarea']) : '';
+    $tipoTareaCoord = isset($data['coord']['Tipo_Tarea'])   ? trim($data['coord']['Tipo_Tarea'])   : '';
 
-    $tipoTareaCoord = isset($data['coord']['Tipo_Tarea']) 
-        ? trim($data['coord']['Tipo_Tarea']) 
-        : null;
+    $tipoTacNorm   = $tipoTareaTac   ? $this->normalizarTexto($tipoTareaTac)   : '';
+    $tipoCoordNorm = $tipoTareaCoord ? $this->normalizarTexto($tipoTareaCoord) : '';
 
-    $tipoTacNorm   = $tipoTareaTac ? $this->normalizarTexto($tipoTareaTac) : null;
-    $tipoCoordNorm = $tipoTareaCoord ? $this->normalizarTexto($tipoTareaCoord) : null;
-
-    //  Si TAC termina en PE o PI, recortamos ese sufijo
+    // Si TAC termina en PE o PI, recortamos ese sufijo
     if ($tipoTacNorm && preg_match('/(PE|PI)$/i', $tipoTacNorm)) {
         $tipoTacNorm = substr($tipoTacNorm, 0, -2);
     }
@@ -680,9 +675,8 @@ private function alertaTipoTareaDiferente($data, &$alertas, &$detalleTipoTarea)
     if ($tipoTacNorm && $tipoCoordNorm && $tipoTacNorm !== $tipoCoordNorm) {
         $alertas[] = 'TIPO_TAREA_DIFERENTE';
 
-        //  Detalle de la diferencia
-        $detalleTipoTarea = 
-            "TIPO DE TAREA COORDIAPP: {$tipoTareaCoord} | TIPO DE TAREA TAC: {$tipoTareaTac}";
+        $detalleTipoTarea = "TIPO DE TAREA COORDIAPP: " . ($tipoTareaCoord ?: 'SIN DATO') .
+                            " | TIPO DE TAREA TAC: " . ($tipoTareaTac ?: 'SIN DATO');
     }
 }
 
@@ -1246,8 +1240,8 @@ private function alertaSeriesDiferentes($data, &$alertas)
 
 private function alertaTecnologiaDiferente($data, &$alertas, &$detalleTecnologia)
 {
-    $tecTacRaw   = $data['tac']['TECNOLOGIA'] ?? null;
-    $tecCoordRaw = $data['coord']['Tecnologia'] ?? null;
+    $tecTacRaw   = $data['tac']['TECNOLOGIA']   ?? '';
+    $tecCoordRaw = $data['coord']['Tecnologia'] ?? '';
 
     $tecTac   = $this->normalizarTecnologiaAlertas($tecTacRaw);
     $tecCoord = $this->normalizarTecnologiaAlertas($tecCoordRaw);
@@ -1255,15 +1249,14 @@ private function alertaTecnologiaDiferente($data, &$alertas, &$detalleTecnologia
     if ($tecTac && !$tecCoord) {
         $alertas[] = 'TECNOLOGIA_DIFERENTE';
 
-        $detalleTecnologia = 
-            "TECNOLOGIA COORDIAPP: " . ($tecCoordRaw ?? 'NULL') .
-            " | TECNOLOGIA TAC: " . ($tecTacRaw ?? 'NULL');
+        $detalleTecnologia = "TECNOLOGIA COORDIAPP: " . ($tecCoordRaw ?: 'SIN DATO') .
+                             " | TECNOLOGIA TAC: " . ($tecTacRaw ?: 'SIN DATO');
     }
     elseif ($tecTac && $tecCoord && $tecTac !== $tecCoord) {
         $alertas[] = 'TECNOLOGIA_DIFERENTE';
 
-        $detalleTecnologia = 
-            "TECNOLOGIA COORDIAPP: {$tecCoordRaw} | TECNOLOGIA TAC: {$tecTacRaw}";
+        $detalleTecnologia = "TECNOLOGIA COORDIAPP: " . ($tecCoordRaw ?: 'SIN DATO') .
+                             " | TECNOLOGIA TAC: " . ($tecTacRaw ?: 'SIN DATO');
     }
 }
 

@@ -86,6 +86,7 @@ if (empty($alertas)) {
             </td>
             <td><?= htmlspecialchars($row['nombre_completo'] ?? '') ?></td>
             <td><?= htmlspecialchars($row['Detalle_Tipo_Tarea'] ?? '') ?></td>
+            
             <td><?= htmlspecialchars($row['Detalle_Tecnologia	'] ?? '') ?></td>
 
             <td>
