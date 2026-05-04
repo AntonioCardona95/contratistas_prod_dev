@@ -667,16 +667,20 @@ private function alertaTipoTareaDiferente($data, &$alertas, &$detalleTipoTarea)
     $tipoTacNorm   = $tipoTareaTac   ? $this->normalizarTexto($tipoTareaTac)   : '';
     $tipoCoordNorm = $tipoTareaCoord ? $this->normalizarTexto($tipoTareaCoord) : '';
 
-    // Si TAC termina en PE o PI, recortamos ese sufijo
-    if ($tipoTacNorm && preg_match('/(PE|PI)$/i', $tipoTacNorm)) {
+    // Detectar sufijo en TAC y Coordiapp
+    $tacTieneSufijo    = preg_match('/(PE|PI)$/i', $tipoTacNorm);
+    $coordTieneSufijo  = preg_match('/(PE|PI)$/i', $tipoCoordNorm);
+
+    // Si TAC tiene sufijo y Coordiapp no → recortamos TAC
+    if ($tacTieneSufijo && !$coordTieneSufijo) {
         $tipoTacNorm = substr($tipoTacNorm, 0, -2);
     }
 
+    // Comparación final
     if ($tipoTacNorm && $tipoCoordNorm && $tipoTacNorm !== $tipoCoordNorm) {
         $alertas[] = 'TIPO_TAREA_DIFERENTE';
-
-        $detalleTipoTarea = "TIPO DE TAREA COORDIAPP: " . ($tipoTareaCoord ?: 'SIN DATO') .
-                            " | TIPO DE TAREA TAC: " . ($tipoTareaTac ?: 'SIN DATO');
+        $detalleTipoTarea =
+            "TIPO DE TAREA COORDIAPP: {$tipoTareaCoord} | TIPO DE TAREA TAC: {$tipoTareaTac}";
     }
 }
 
