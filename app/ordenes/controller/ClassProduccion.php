@@ -1302,11 +1302,23 @@ private function normalizarTecnologiaAlertas($valor)
 
 private function alertaOntAlmacen($data, &$alertas)
 {
-    // DEBUG: mostrar TODO lo que llega en $data
-    echo "<pre>";
-    echo "=== DEBUG ENTRADA ALERTA ONT ALMACEN ===\n";
-    var_dump($data);
-    echo "</pre>";
+    // DEBUG SOLO PARA FOLIOS ESPECÍFICOS
+    $folio = null;
+
+    if (isset($data['folio'])) {
+        $folio = (int)$data['folio'];
+    } elseif (isset($data['coord']['Folio_Pisa'])) {
+        $folio = (int)$data['coord']['Folio_Pisa'];
+    }
+
+    if ($folio === 41071124 || $folio === 8625167) {
+        echo "<pre>";
+        echo "=== DEBUG FOLIO ENTRANTE ===\n";
+        var_dump($folio);
+        echo "Contenido completo de $data:\n";
+        var_dump($data);
+        echo "</pre>";
+    }
 
     //  VIENE DE COORDIAPP
     $ont = isset($data['coord']['Ont']) 
@@ -1349,6 +1361,7 @@ private function alertaOntAlmacen($data, &$alertas)
         return;
     }
 }
+
 
 
 
