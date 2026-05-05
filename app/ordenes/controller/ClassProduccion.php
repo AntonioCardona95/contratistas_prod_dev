@@ -1302,20 +1302,11 @@ private function normalizarTecnologiaAlertas($valor)
 
 private function alertaOntAlmacen($data, &$alertas)
 {
-    // DEBUG SOLO PARA EL FOLIO 41071124
-    if (isset($data['Folio_Pisa'])) {
-        if ((int)$data['Folio_Pisa'] === 41071124) {
-            echo "<pre>";
-            echo "=== DEBUG FOLIO 41071124 ENTRANTE ===\n";
-            echo "Folio_Pisa:\n";
-            var_dump($data['Folio_Pisa']);
-            echo "Contenido completo de $data:\n";
-            var_dump($data);
-            echo "</pre>";
-        }
-    } else {
-        echo "<pre>No hay Folio_Pisa en \$data</pre>";
-    }
+    // DEBUG: mostrar TODO lo que llega en $data
+    echo "<pre>";
+    echo "=== DEBUG ENTRADA ALERTA ONT ALMACEN ===\n";
+    var_dump($data);
+    echo "</pre>";
 
     //  VIENE DE COORDIAPP
     $ont = isset($data['coord']['Ont']) 
@@ -1358,6 +1349,7 @@ private function alertaOntAlmacen($data, &$alertas)
         return;
     }
 }
+
 
 
 
