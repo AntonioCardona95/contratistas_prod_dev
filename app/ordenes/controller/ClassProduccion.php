@@ -1306,12 +1306,14 @@ private function alertaOntAlmacen($data, &$alertas)
     if (isset($data['coord']['Ont'])) {
         $ontCrudo = $data['coord']['Ont'];
 
-        // Comparamos con la ONT que quieres revisar
+        // Si coincide con la ONT que quieres revisar
         if (strtoupper(trim($ontCrudo)) === 'HWTCDF9DF4B3') {
             echo "<pre>";
             echo "=== DEBUG SOLO PARA HWTCDF9DF4B3 ===\n";
-            echo "Valor crudo recibido: [" . $ontCrudo . "]\n";
-            echo "Valor en HEX: [" . bin2hex($ontCrudo) . "]\n";
+            echo "Valor crudo recibido:\n";
+            var_dump($ontCrudo);
+            echo "Valor en HEX:\n";
+            var_dump(bin2hex($ontCrudo));
             echo "</pre>";
         }
     }
