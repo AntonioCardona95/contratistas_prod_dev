@@ -1303,6 +1303,77 @@ private function normalizarTecnologiaAlertas($valor)
 private function alertaOntAlmacen($data, &$alertas)
 {
     //  VIENE DE COORDIAPP
+    $ontOriginal = isset($data['coord']['Ont']) 
+        ? $data['coord']['Ont'] 
+        : '';
+
+    echo "<pre>";
+    echo "=== DEBUG ALERTA ONT ALMACEN ===\n";
+    echo "ONT original (de Coordiapp): [$ontOriginal]\n";
+
+    $ont = strtoupper(trim($ontOriginal));
+    echo "ONT después de strtoupper/trim: [$ont]\n";
+
+    if ($ont === '') {
+        echo "ONT vacío, se sale de la función\n";
+        echo "</pre>";
+        return;
+    }
+
+    //  NORMALIZAR
+    $ont = $this->normalizarSerie($ont);
+    echo "ONT después de normalizarSerie: [$ont]\n";
+
+    $conexion = $this->get_conexion();
+
+    $sql = "
+        SELECT FK_Contratista_Salida, Num_Serie_S
+        FROM material_det_salida
+        WHERE REPLACE(UPPER(Num_Serie_S), ' ', '') = ?
+        LIMIT 1
+    ";
+    echo "SQL ejecutado:\n$sql\n";
+    echo "Parámetro enviado: [$ont]\n";
+
+    $stmt = $conexion->prepare($sql);
+    $stmt->execute([$ont]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    echo "Resultado de la consulta:\n";
+    var_dump($row);
+    echo "</pre>";
+
+    // =========================
+    //  ALERTAS
+    // =========================
+
+    if (!$row) {
+        echo "No se encontró coincidencia en material_det_salida\n";
+        $alertas[] = 'ONT_NO_ENCONTRADA_EN_ALMACEN';
+        return;
+    }
+
+    if (empty($row['FK_Contratista_Salida'])) {
+        echo "ONT encontrada pero sin contratista asignado\n";
+        $alertas[] = 'ONT_NO_ASIGNADA_AL_CONTRATISTA';
+        return;
+    }
+
+    if ((int)$row['FK_Contratista_Salida'] !== (int)$data['idContratista']) {
+        echo "ONT encontrada pero asignada a otro contratista\n";
+        echo "FK_Contratista_Salida en BD: " . $row['FK_Contratista_Salida'] . "\n";
+        echo "idContratista en data: " . $data['idContratista'] . "\n";
+        $alertas[] = 'ONT_ASIGNADA_A_OTRO_CONTRATISTA';
+        return;
+    }
+
+    echo "ONT encontrada y asignada correctamente al contratista\n";
+}
+
+
+/*private function alertaOntAlmacen($data, &$alertas)
+{
+    //  VIENE DE COORDIAPP
     $ont = isset($data['coord']['Ont']) 
         ? strtoupper(trim($data['coord']['Ont'])) 
         : '';
@@ -1342,7 +1413,7 @@ private function alertaOntAlmacen($data, &$alertas)
         $alertas[] = 'ONT_ASIGNADA_A_OTRO_CONTRATISTA';
         return;
     }
-}
+} */
 
 private function normalizarSerie($serie)
 {
