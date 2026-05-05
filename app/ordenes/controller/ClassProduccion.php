@@ -1302,58 +1302,46 @@ private function normalizarTecnologiaAlertas($valor)
 
 private function alertaOntAlmacen($data, &$alertas)
 {
-    echo "<pre>";
-    echo "=== DEBUG ENTRADA ALERTA ONT ALMACEN ===\n";
-    echo "Contenido de \$data:\n";
-    var_dump($data);
-    echo "Contenido inicial de \$alertas:\n";
-    var_dump($alertas);
-    echo "</pre>";
-
+    //  VIENE DE COORDIAPP
     $ont = isset($data['coord']['Ont']) 
         ? strtoupper(trim($data['coord']['Ont'])) 
         : '';
 
     if ($ont === '') return;
 
+    //  NORMALIZAR
     $ont = $this->normalizarSerie($ont);
+
     $conexion = $this->get_conexion();
 
-    // Verificar si existe en materiales_det (almacén)
     $stmt = $conexion->prepare("
-        SELECT idMaterial, Num_Serie, HEX(Num_Serie) AS HexSerie, FK_Almacen_Entrada_Det
-        FROM materiales_det
-        WHERE REPLACE(UPPER(Num_Serie), ' ', '') = ?
+        SELECT FK_Contratista_Salida
+        FROM material_det_salida
+        WHERE REPLACE(UPPER(Num_Serie_S), ' ', '') = ?
         LIMIT 1
     ");
+
     $stmt->execute([$ont]);
-    $rowEntrada = $stmt->fetch(PDO::FETCH_ASSOC);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if (!$rowEntrada) {
+    // =========================
+    //  ALERTAS
+    // =========================
+
+    if (!$row) {
         $alertas[] = 'ONT_NO_ENCONTRADA_EN_ALMACEN';
-    } else {
-        // Verificar si está asignada en material_det_salida
-        $stmt = $conexion->prepare("
-            SELECT FK_Contratista_Salida, Num_Serie_S, HEX(Num_Serie_S) AS HexSerie
-            FROM material_det_salida
-            WHERE REPLACE(UPPER(Num_Serie_S), ' ', '') = ?
-            LIMIT 1
-        ");
-        $stmt->execute([$ont]);
-        $rowSalida = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$rowSalida) {
-            $alertas[] = 'ONT_NO_ASIGNADA_AL_CONTRATISTA';
-        } elseif ((int)$rowSalida['FK_Contratista_Salida'] !== (int)$data['idContratista']) {
-            $alertas[] = 'ONT_ASIGNADA_A_OTRO_CONTRATISTA';
-        }
+        return;
     }
 
-    echo "<pre>";
-    echo "=== DEBUG SALIDA ALERTA ONT ALMACEN ===\n";
-    echo "Contenido final de \$alertas:\n";
-    var_dump($alertas);
-    echo "</pre>";
+    if (empty($row['FK_Contratista_Salida'])) {
+        $alertas[] = 'ONT_NO_ASIGNADA_AL_CONTRATISTA';
+        return;
+    }
+
+    if ((int)$row['FK_Contratista_Salida'] !== (int)$data['idContratista']) {
+        $alertas[] = 'ONT_ASIGNADA_A_OTRO_CONTRATISTA';
+        return;
+    }
 }
 
 
