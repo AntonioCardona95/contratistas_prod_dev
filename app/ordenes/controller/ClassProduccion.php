@@ -400,21 +400,20 @@ public function InsertarAlertasMasivo($registros)
     // PREPARES
     // =========================
     $stmtAlerta = $conexion->prepare("
-    INSERT INTO Produccion_alertas
-    (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga,
-     FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci, Bandera_Revision, Detalle_Tipo_Tarea,Detalle_Tecnologia)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+INSERT INTO Produccion_alertas
+(Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga,
+ FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci, Bandera_Revision, Detalle_Tipo_Tarea, Detalle_Tecnologia, Detalle_Series)
+VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 ");
  
 $stmtUpdate = $conexion->prepare("
-    UPDATE Produccion_alertas SET
-        Telefono = ?, Tipo_Tarea = ?, Cope = ?, Fecha_Liquidacion = ?,
-        Fecha_Carga = ?, FK_Contratista = ?, Semana = ?, anio = ?, metraje = ?,
-        Alerta = ?, Detalle_Esci = ?, Bandera_Revision = 0,
-        Detalle_Tipo_Tarea = ?, Detalle_Tecnologia = ?
-    WHERE Folio_Pisa = ?
+UPDATE Produccion_alertas SET
+    Telefono = ?, Tipo_Tarea = ?, Cope = ?, Fecha_Liquidacion = ?,
+    Fecha_Carga = ?, FK_Contratista = ?, Semana = ?, anio = ?, metraje = ?,
+    Alerta = ?, Detalle_Esci = ?, Bandera_Revision = 0,
+    Detalle_Tipo_Tarea = ?, Detalle_Tecnologia = ?, Detalle_Series = ?
+WHERE Folio_Pisa = ?
 ");
-
 
     $stmtDetalle = $conexion->prepare("
         INSERT INTO Produccion_alertas_detalle
@@ -494,7 +493,8 @@ $stmtUpdate = $conexion->prepare("
                     $resultadoAlertas['detalleEsci'] ?? null,
                     0,
                     $resultadoAlertas['detalleTipoTarea'] ?? null,
-                    $resultadoAlertas['detalleTecnologia'] ?? null
+                    $resultadoAlertas['detalleTecnologia'] ?? null,
+                    $resultadoAlertas['detalleSeries'] ?? null
                 ]);
             }
 
@@ -515,6 +515,7 @@ $stmtUpdate = $conexion->prepare("
                 $resultadoAlertas['detalleEsci'] ?? null,
                 $resultadoAlertas['detalleTipoTarea'] ?? null, 
                 $resultadoAlertas['detalleTecnologia'] ?? null,
+                $resultadoAlertas['detalleSeries'] ?? null,
                 $folio
             ]);
         }
@@ -587,6 +588,7 @@ private function evaluarAlertas($data)
     $detalleTac = null;
     $detalleTipoTarea = null;
     $detalleTecnologia = null;
+    $detalleSeries = null;
 
     // =========================
     //  ALERTA ORDEN 30 DÍAS
@@ -602,6 +604,7 @@ private function evaluarAlertas($data)
         $this->alertaSerieDesconocida($data, $alertas);
         $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
         $this->alertaSeriesDiferente($data, $alertas);
+        $this->alertaSeriesDiferente($data, $alertas, $detalleSeries);
 
         $alertas[] = 'NO EN COORDIAPP';
 
@@ -626,6 +629,7 @@ private function evaluarAlertas($data)
     $this->alertaSeriesDiferente($data, $alertas);
     $this->alertaTecnologiaDiferente($data, $alertas, $detalleTecnologia);
     $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
+    $this->alertaSeriesDiferente($data, $alertas, $detalleSeries);
 
     // =========================
     // Detección de queja
@@ -655,7 +659,8 @@ private function evaluarAlertas($data)
         'detalleEsci' => $detalleEsci,
         'detalleTac' => $detalleTac,
         'detalleTipoTarea' => $detalleTipoTarea,
-        'detalleTecnologia' => $detalleTecnologia
+        'detalleTecnologia' => $detalleTecnologia,
+        'detalleSeries' => $detalleSeries
     ];
 }
 
@@ -816,7 +821,49 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     }
 } */
 
-private function alertaSeriesDiferente($data, &$alertas)
+    private function alertaSeriesDiferente($data, &$alertas, &$detalleSeries)
+{
+    // Normalizar valores
+    $serieTac   = strtoupper(trim($data['serieTac'] ?? ''));
+    $serieCoord = strtoupper(trim($data['serieCoord'] ?? ''));
+    $serieEsci  = strtoupper(trim($data['serieEsci'] ?? ''));
+
+    // Filtrar valores inválidos
+    $invalidos = ['DESCONOCIDO', 'NS NO OBTENIDO', ''];
+    $serieTac   = in_array($serieTac, $invalidos) ? null : $serieTac;
+    $serieCoord = in_array($serieCoord, $invalidos) ? null : $serieCoord;
+    $serieEsci  = in_array($serieEsci, $invalidos) ? null : $serieEsci;
+
+    $hayDiferencia = false;
+
+    if ($data['coord'] !== null) {
+        if ($serieCoord) {
+            $series = array_filter([$serieTac, $serieCoord, $serieEsci]);
+            if (count($series) > 1 && count(array_unique($series)) > 1) {
+                $hayDiferencia = true;
+            }
+        } else {
+            if ($serieTac && $serieEsci && $serieTac !== $serieEsci) {
+                $hayDiferencia = true;
+            }
+        }
+    } else {
+        if ($serieTac && $serieEsci && $serieTac !== $serieEsci) {
+            $hayDiferencia = true;
+        }
+    }
+
+    if ($hayDiferencia) {
+        $alertas[] = 'NUMERO_SERIE_DIFERENTE';
+
+        //  AQUÍ ARMAS EL DETALLE
+        $detalleSeries = "Coordiapp: " . ($serieCoord ?? 'N/A') .
+                         " | TAC: " . ($serieTac ?? 'N/A') .
+                         " | ESCI: " . ($serieEsci ?? 'N/A');
+    }
+}
+
+/*private function alertaSeriesDiferente($data, &$alertas)
 {
     // Normalizar valores
     $serieTac   = strtoupper(trim($data['serieTac'] ?? ''));
@@ -849,7 +896,7 @@ private function alertaSeriesDiferente($data, &$alertas)
             $alertas[] = 'NUMERO_SERIE_DIFERENTE';
         }
     }
-}
+} */
 
 
 private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
