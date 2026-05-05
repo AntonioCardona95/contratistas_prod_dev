@@ -1302,6 +1302,88 @@ private function normalizarTecnologiaAlertas($valor)
 
 private function alertaOntAlmacen($data, &$alertas)
 {
+    $ontOriginal = isset($data['coord']['Ont']) 
+        ? $data['coord']['Ont'] 
+        : '';
+
+    echo "<pre>";
+    echo "=== DEBUG ALERTA ONT ALMACEN ===\n";
+    echo "ONT original (de Coordiapp): [$ontOriginal]\n";
+
+    $ont = strtoupper(trim($ontOriginal));
+    echo "ONT después de strtoupper/trim: [$ont]\n";
+
+    if ($ont === '') {
+        echo "ONT vacío, se sale de la función\n";
+        echo "</pre>";
+        return;
+    }
+
+    $ont = $this->normalizarSerie($ont);
+    echo "ONT después de normalizarSerie: [$ont]\n";
+
+    $conexion = $this->get_conexion();
+
+    // 1️⃣ Verificar si existe en materiales_det (almacén)
+    $stmt = $conexion->prepare("
+        SELECT idMaterial, Num_Serie, HEX(Num_Serie) AS HexSerie, FK_Almacen_Entrada_Det
+        FROM materiales_det
+        WHERE REPLACE(UPPER(Num_Serie), ' ', '') = ?
+        LIMIT 1
+    ");
+    $stmt->execute([$ont]);
+    $rowEntrada = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    echo "=== DEBUG REGISTRO MATERIALES_DET ===\n";
+    if ($rowEntrada) {
+        echo "idMaterial: " . $rowEntrada['idMaterial'] . "\n";
+        echo "Num_Serie (tal cual): [" . $rowEntrada['Num_Serie'] . "]\n";
+        echo "Num_Serie en HEX: [" . $rowEntrada['HexSerie'] . "]\n";
+    } else {
+        echo "No se encontró en materiales_det\n";
+    }
+    echo "</pre>";
+
+    if (!$rowEntrada) {
+        $alertas[] = 'ONT_NO_ENCONTRADA_EN_ALMACEN';
+        return;
+    }
+
+    // 2️⃣ Verificar si está asignada en material_det_salida
+    $stmt = $conexion->prepare("
+        SELECT FK_Contratista_Salida, Num_Serie_S, HEX(Num_Serie_S) AS HexSerie
+        FROM material_det_salida
+        WHERE REPLACE(UPPER(Num_Serie_S), ' ', '') = ?
+        LIMIT 1
+    ");
+    $stmt->execute([$ont]);
+    $rowSalida = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    echo "<pre>";
+    echo "=== DEBUG REGISTRO MATERIAL_DET_SALIDA ===\n";
+    if ($rowSalida) {
+        echo "Num_Serie_S (tal cual): [" . $rowSalida['Num_Serie_S'] . "]\n";
+        echo "Num_Serie_S en HEX: [" . $rowSalida['HexSerie'] . "]\n";
+        echo "FK_Contratista_Salida: " . $rowSalida['FK_Contratista_Salida'] . "\n";
+    } else {
+        echo "No se encontró en material_det_salida\n";
+    }
+    echo "</pre>";
+
+    if (!$rowSalida) {
+        $alertas[] = 'ONT_NO_ASIGNADA_AL_CONTRATISTA';
+        return;
+    }
+
+    if ((int)$rowSalida['FK_Contratista_Salida'] !== (int)$data['idContratista']) {
+        $alertas[] = 'ONT_ASIGNADA_A_OTRO_CONTRATISTA';
+        return;
+    }
+}
+
+
+/*private function alertaOntAlmacen($data, &$alertas)
+{
     $ont = isset($data['coord']['Ont']) 
         ? strtoupper(trim($data['coord']['Ont'])) 
         : '';
@@ -1345,7 +1427,7 @@ private function alertaOntAlmacen($data, &$alertas)
         $alertas[] = 'ONT_ASIGNADA_A_OTRO_CONTRATISTA';
         return;
     }
-}
+} */
 
 
 /*private function alertaOntAlmacen($data, &$alertas)
