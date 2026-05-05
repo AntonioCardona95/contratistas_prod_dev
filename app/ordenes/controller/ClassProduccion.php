@@ -1302,6 +1302,17 @@ private function normalizarTecnologiaAlertas($valor)
 
 private function alertaOntAlmacen($data, &$alertas)
 {
+
+ echo "<pre>";
+    echo "=== DEBUG ENTRADA ALERTA ONT ALMACEN ===\n";
+    echo "Contenido de \$data:\n";
+    var_dump($data);
+    echo "Contenido inicial de \$alertas:\n";
+    var_dump($alertas);
+    echo "</pre>";
+
+
+
     $ont = isset($data['coord']['Ont']) 
         ? strtoupper(trim($data['coord']['Ont'])) 
         : '';
