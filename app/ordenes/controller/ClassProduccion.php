@@ -1300,6 +1300,54 @@ private function normalizarTecnologiaAlertas($valor)
     return $map[$valor] ?? $map[$valorSinEspacios] ?? $valor;
 }
 
+private function alertaOntAlmacen($data, &$alertas)
+{
+    $ont = isset($data['coord']['Ont']) 
+        ? strtoupper(trim($data['coord']['Ont'])) 
+        : '';
+
+    if ($ont === '') return;
+
+    $ont = $this->normalizarSerie($ont);
+    $conexion = $this->get_conexion();
+
+    //  Verificar si existe en materiales_det (almacén)
+    $stmt = $conexion->prepare("
+        SELECT idMaterial, FK_Almacen_Entrada_Det
+        FROM materiales_det
+        WHERE REPLACE(UPPER(Num_Serie), ' ', '') = ?
+        LIMIT 1
+    ");
+    $stmt->execute([$ont]);
+    $rowEntrada = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$rowEntrada) {
+        $alertas[] = 'ONT_NO_ENCONTRADA_EN_ALMACEN';
+        return;
+    }
+
+    //Verificar si está asignada en material_det_salida
+    $stmt = $conexion->prepare("
+        SELECT FK_Contratista_Salida
+        FROM material_det_salida
+        WHERE REPLACE(UPPER(Num_Serie_S), ' ', '') = ?
+        LIMIT 1
+    ");
+    $stmt->execute([$ont]);
+    $rowSalida = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$rowSalida) {
+        $alertas[] = 'ONT_NO_ASIGNADA_AL_CONTRATISTA';
+        return;
+    }
+
+    if ((int)$rowSalida['FK_Contratista_Salida'] !== (int)$data['idContratista']) {
+        $alertas[] = 'ONT_ASIGNADA_A_OTRO_CONTRATISTA';
+        return;
+    }
+}
+
+
 /*private function alertaOntAlmacen($data, &$alertas)
 {
     //  VIENE DE COORDIAPP
@@ -1371,7 +1419,7 @@ private function normalizarTecnologiaAlertas($valor)
 } */
 
 
-private function alertaOntAlmacen($data, &$alertas)
+/*private function alertaOntAlmacen($data, &$alertas)
 {
     //  VIENE DE COORDIAPP
     $ont = isset($data['coord']['Ont']) 
@@ -1413,7 +1461,7 @@ private function alertaOntAlmacen($data, &$alertas)
         $alertas[] = 'ONT_ASIGNADA_A_OTRO_CONTRATISTA';
         return;
     }
-} 
+} */
 
 private function normalizarSerie($serie)
 {
