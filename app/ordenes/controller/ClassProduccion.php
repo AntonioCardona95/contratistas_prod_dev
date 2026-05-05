@@ -576,13 +576,6 @@ WHERE Folio_Pisa = ?
 
 private function evaluarAlertas($data)
 {
-
-//  Debug: imprimir lo que llega en $data
-    /*echo "<pre>";
-    echo "=== CONTENIDO DE \$data ===\n";
-    var_dump($data);
-    echo "</pre>"; */
-    
     $alertas = [];
     $detalleEsci = null;
     $detalleTac = null;
@@ -591,19 +584,21 @@ private function evaluarAlertas($data)
     $detalleSeries = null;
 
     // =========================
-    //  ALERTA ORDEN 30 DÍAS
+    // ALERTA ORDEN 30 DÍAS
     // =========================
     $this->alertaOrdenRevision30Dias($data, $alertas);
 
     // =========================
-    // CASO: folio no está en Coordiapp
+    // CASO: NO EXISTE COORDIAPP
     // =========================
     if ($data['coord'] === null) {
+
         $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
         $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
         $this->alertaSerieDesconocida($data, $alertas);
         $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
-        $this->alertaSeriesDiferente($data, $alertas);
+
+        //  SOLO UNA VEZ (con detalle)
         $this->alertaSeriesDiferente($data, $alertas, $detalleSeries);
 
         $alertas[] = 'NO EN COORDIAPP';
@@ -612,34 +607,38 @@ private function evaluarAlertas($data)
             'alertas' => $alertas,
             'detalleEsci' => $detalleEsci,
             'detalleTac' => $detalleTac,
-            'detalleTipoTarea' => $detalleTipoTarea
-
+            'detalleTipoTarea' => $detalleTipoTarea,
+            'detalleTecnologia' => $detalleTecnologia,
+            'detalleSeries' => $detalleSeries
         ];
     }
 
     // =========================
-    // CASO: sí hay datos en Coordiapp
+    // CASO: SÍ EXISTE COORDIAPP
     // =========================
-    //$this->alertaTipoTareaDiferente($data, $alertas);
     $this->alertaTipoTareaDiferente($data, $alertas, $detalleTipoTarea);
 
     $this->alertaOntDuplicadaTac($data, $alertas, $detalleTac);
     $this->alertaOntDuplicadaEsci($data, $alertas, $detalleEsci);
     $this->alertaSerieDesconocida($data, $alertas);
-    $this->alertaSeriesDiferente($data, $alertas);
-    $this->alertaTecnologiaDiferente($data, $alertas, $detalleTecnologia);
-    $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
+
+    //  SOLO UNA VEZ (con detalle)
     $this->alertaSeriesDiferente($data, $alertas, $detalleSeries);
 
+    $this->alertaTecnologiaDiferente($data, $alertas, $detalleTecnologia);
+    $this->alertaEstadoEsci($data, $alertas, $detalleEsci);
+
     // =========================
-    // Detección de queja
+    // DETECCIÓN DE QUEJA
     // =========================
     $esQueja = $this->esTipoQueja($data['tipoTarea'] ?? '');
 
-    // VALIDACIONES NORMALES (solo si NO es queja)
+    // =========================
+    // VALIDACIONES NORMALES
+    // =========================
     if (!$esQueja) {
-        $this->alertaFotoOntFallida($data, $alertas);   // Foto ONT frontal
-        $this->alertaOntTrasera($data, $alertas);       // Foto ONT trasera
+        $this->alertaFotoOntFallida($data, $alertas);
+        $this->alertaOntTrasera($data, $alertas);
         $this->alertaFotoCasaCliente($data, $alertas);
         $this->alertaFotoR20($data, $alertas);
         $this->alertaLedsOntFallida($data, $alertas);
@@ -649,11 +648,16 @@ private function evaluarAlertas($data)
         $this->alertaOntAlmacen($data, $alertas);
     }
 
-    // VALIDACIÓN ESPECIAL (solo si SÍ es queja)
+    // =========================
+    // VALIDACIÓN ESPECIAL (QUEJAS)
+    // =========================
     if ($esQueja) {
         $this->alertaFotosPorTipoQueja($data, $alertas);
     }
 
+    // =========================
+    // RETURN FINAL
+    // =========================
     return [
         'alertas' => $alertas,
         'detalleEsci' => $detalleEsci,
