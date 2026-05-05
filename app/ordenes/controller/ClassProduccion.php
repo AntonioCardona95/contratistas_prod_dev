@@ -1300,7 +1300,7 @@ private function normalizarTecnologiaAlertas($valor)
     return $map[$valor] ?? $map[$valorSinEspacios] ?? $valor;
 }
 
-private function alertaOntAlmacen($data, &$alertas)
+/*private function alertaOntAlmacen($data, &$alertas)
 {
     //  VIENE DE COORDIAPP
     $ontOriginal = isset($data['coord']['Ont']) 
@@ -1368,10 +1368,10 @@ private function alertaOntAlmacen($data, &$alertas)
     }
 
     echo "ONT encontrada y asignada correctamente al contratista\n";
-}
+} */
 
 
-/*private function alertaOntAlmacen($data, &$alertas)
+private function alertaOntAlmacen($data, &$alertas)
 {
     //  VIENE DE COORDIAPP
     $ont = isset($data['coord']['Ont']) 
@@ -1413,7 +1413,7 @@ private function alertaOntAlmacen($data, &$alertas)
         $alertas[] = 'ONT_ASIGNADA_A_OTRO_CONTRATISTA';
         return;
     }
-} */
+} 
 
 private function normalizarSerie($serie)
 {
