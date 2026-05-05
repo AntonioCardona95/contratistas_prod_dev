@@ -254,7 +254,7 @@ public function InsertarAlertasMasivo($registros)
     $inTelefonos = "'" . implode("','", $telefonos) . "'";
 
     // =========================
-    // 🔥 EXISTENTES (cabecera)
+    //  EXISTENTES (cabecera)
     // =========================
     $existentes = [];
     $sqlExistentes = "
@@ -267,7 +267,7 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-    // 🔥 DETALLE EXISTENTE (histórico)
+    //  DETALLE EXISTENTE (histórico)
     // =========================
     $detalleExistente = [];
     $sqlDetalleExistente = "
@@ -319,7 +319,7 @@ public function InsertarAlertasMasivo($registros)
         $tacData[$row['Folio_Pisa']] = $row;
     }
 
-    // 🔥 Duplicados TAC
+    //  Duplicados TAC
     $ontDuplicadasTac = [];
     foreach ($tacData as $row) {
         $serie = strtoupper(trim($row['Num__Serie']));
