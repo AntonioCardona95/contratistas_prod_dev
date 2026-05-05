@@ -1359,7 +1359,11 @@ private function alertaOntAlmacen($data, &$alertas)
         ? strtoupper(trim($data['coord']['Ont'])) 
         : '';
 
-    if ($ont === '') return;
+    // Si viene vacío, N/A o NULL → alerta directa
+    if ($ont === '' || $ont === 'N/A' || $ont === 'NULL') {
+        $alertas[] = 'ONT_NO_ENCONTRADA_EN_ALMACEN';
+        return;
+    }
 
     //  NORMALIZAR
     $ont = $this->normalizarSerie($ont);
@@ -1395,6 +1399,7 @@ private function alertaOntAlmacen($data, &$alertas)
         return;
     }
 }
+
 
 
 
