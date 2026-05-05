@@ -874,7 +874,7 @@ private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
     if ($didActivo === 0) {
         $alertas[] = 'SIN NAVEGACION';
         if ($fConsulta) {
-            $detalleEsci = "ultima vez que navego: $fConsulta";
+            $detalleEsci = "ultima revision: $fConsulta";
         }
         return;
     }
