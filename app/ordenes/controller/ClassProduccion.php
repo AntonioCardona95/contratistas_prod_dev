@@ -383,22 +383,10 @@ public function InsertarAlertasMasivo($registros)
         ORDER BY TELEFONO, F_CONSULTA DESC
     ";
 
-    foreach ($conexion_analisis->query($sql) as $row) {
-    $tel = preg_replace('/\D/', '', $row['TELEFONO']);
-    $serie = strtoupper(trim($row['M_SERIE']));
-
-    // Siempre guardar el último registro (ya viene ordenado por fecha DESC)
-    $esciData[$tel] = $row;
-    $esciData[$tel]['M_SERIE'] = $serie;
-
-    if (!empty($serie) && $serie !== 'DESCONOCIDO' && !empty($tel)) {
-        $esciSeriesMap[$serie][$tel] = true;
-    }
-}
+    
 
 
-
-   /* foreach ($conexion_analisis->query($sql) as $row) {
+   foreach ($conexion_analisis->query($sql) as $row) {
         $tel = preg_replace('/\D/', '', $row['TELEFONO']);
         $serie = strtoupper(trim($row['M_SERIE']));
 
@@ -410,7 +398,21 @@ public function InsertarAlertasMasivo($registros)
         if (!empty($serie) && $serie !== 'DESCONOCIDO' && !empty($tel)) {
             $esciSeriesMap[$serie][$tel] = true;
         }
-    }  */
+    }  
+
+   /* foreach ($conexion_analisis->query($sql) as $row) {
+    $tel = preg_replace('/\D/', '', $row['TELEFONO']);
+    $serie = strtoupper(trim($row['M_SERIE']));
+
+    // Siempre guardar el último registro (ya viene ordenado por fecha DESC)
+    $esciData[$tel] = $row;
+    $esciData[$tel]['M_SERIE'] = $serie;
+
+    if (!empty($serie) && $serie !== 'DESCONOCIDO' && !empty($tel)) {
+        $esciSeriesMap[$serie][$tel] = true;
+    }
+} */
+
 
     // =========================
     // PREPARES
