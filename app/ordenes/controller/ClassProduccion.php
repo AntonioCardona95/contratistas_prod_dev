@@ -377,7 +377,7 @@ foreach ($conexion_analisis->query($sqlSeries) as $row) {
 }
 $inSeries = !empty($series) ? implode(',', array_unique($series)) : "''";
 
-// 2. Traer registros ordenados por serie y fecha de consulta
+// 2. Traer todos los registros de esas series ordenados por fecha
 $sql = "
     SELECT TELEFONO, M_SERIE, DID_ACTIVO, ULTIMO_EVENTO, F_CONSULTA
     FROM seg_ns_eci
@@ -389,17 +389,13 @@ foreach ($conexion_analisis->query($sql) as $row) {
     $tel   = preg_replace('/\D/', '', $row['TELEFONO']);
     $serie = strtoupper(trim($row['M_SERIE']));
 
-    // Guardar solo el primer registro por serie (último gracias al ORDER BY)
-    if (!isset($esciData[$serie])) {
-        $esciData[$serie] = $row;
-        $esciData[$serie]['M_SERIE'] = $serie;
-    }
+    // Guardar todos los registros por serie
+    $esciData[$serie][] = $row;
 
     if (!empty($serie) && $serie !== 'DESCONOCIDO' && !empty($tel)) {
         $esciSeriesMap[$serie][$tel] = true;
     }
 }
-
 
    /* foreach ($conexion_analisis->query($sql) as $row) {
     $tel = preg_replace('/\D/', '', $row['TELEFONO']);
@@ -922,39 +918,33 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
 } */
 
 
-private function alertaEstadoEsci($esci, &$alertas, &$detalleEsci)
+private function alertaEstadoEsci($registrosSerie, &$alertas, &$detalleEsci)
 {
-    if (!$esci) {
-        return; // no hay datos de esci para esta serie
+    if (empty($registrosSerie)) return;
+
+    // Tomar el más reciente
+    $ultimo = $registrosSerie[0];
+    $mSerie = strtoupper(trim($ultimo['M_SERIE'] ?? ''));
+    $fConsulta = $ultimo['F_CONSULTA'] ?? null;
+
+    // Revisar si hay algún registro reciente con DID_ACTIVO = 0
+    foreach ($registrosSerie as $reg) {
+        if (intval($reg['DID_ACTIVO']) === 0) {
+            $alertas[]   = 'SIN NAVEGACION';
+            $detalleEsci = $fConsulta ? "última revisión: $fConsulta" : "sin navegación detectada";
+            return;
+        }
     }
 
-    $mSerie    = strtoupper(trim($esci['M_SERIE'] ?? ''));
-    $didActivo = isset($esci['DID_ACTIVO']) ? intval($esci['DID_ACTIVO']) : null;
-    $fConsulta = $esci['F_CONSULTA'] ?? null;
-
-    // Caso: número de serie desconocido
-    if ($mSerie === 'DESCONOCIDO') {
-        $alertas[]   = 'SIN NAVEGACION';
-        $detalleEsci = "Número de serie desconocido en Esci";
-        return;
-    }
-
-    // Caso: servicio sin navegación (último registro con DID_ACTIVO = 0)
-    if ($didActivo === 0) {
-        $alertas[]   = 'SIN NAVEGACION';
-        $detalleEsci = $fConsulta ? "última revisión: $fConsulta" : "sin navegación detectada";
-        return;
-    }
-
-    // Caso: servicio inactivo (DID_ACTIVO = -1)
-    if ($didActivo === -1) {
+    // Caso: servicio inactivo
+    if (intval($ultimo['DID_ACTIVO']) === -1) {
         $alertas[]   = 'SERVICIO INACTIVO';
         $detalleEsci = $fConsulta ? "última vez que navegó: $fConsulta" : "servicio inactivo";
         return;
     }
 
-    // Caso: servicio activo (DID_ACTIVO = 1)
-    if ($didActivo === 1) {
+    // Caso: servicio activo
+    if (intval($ultimo['DID_ACTIVO']) === 1) {
         $detalleEsci = $fConsulta ? "navegando, última revisión: $fConsulta" : "navegando actualmente";
         return;
     }
