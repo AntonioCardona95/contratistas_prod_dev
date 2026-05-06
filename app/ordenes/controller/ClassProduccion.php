@@ -52,7 +52,7 @@ class Produccion extends Conexion
     protected function runQueryAnalisis($sql, $params = array())
 {
     $rows = array();
-    $conexion = $this->get_conexion_analisis(); // 👈 IMPORTANTE
+    $conexion = $this->get_conexion_analisis(); //  IMPORTANTE
 
     try {
         $stmt = $conexion->prepare($sql);
