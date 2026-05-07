@@ -357,54 +357,48 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-// ESCI
-// =========================
-$esciData = [];
-$esciSeriesMap = [];
-$series = [];
+    // ESCI
+    // =========================
+    $esciData = [];
+    $esciSeriesMap = [];
+    $series = [];
 
-// Primero obtenemos las series válidas de los teléfonos en la lista
-$sqlSeries = "
-    SELECT DISTINCT M_SERIE
-    FROM seg_ns_eci
-    WHERE TELEFONO IN ($inTelefonos)
-";
-foreach ($conexion_analisis->query($sqlSeries) as $row) {
-    $serie = strtoupper(trim($row['M_SERIE']));
-    if (!empty($serie) && $serie !== 'DESCONOCIDO') {
-        $series[] = "'$serie'";
-    }
-}
-$inSeries = !empty($series) ? implode(',', array_unique($series)) : "''";
-
-// Ahora, para cada teléfono en $inTelefonos, traemos SOLO su último registro
-$telefonosArray = explode(',', $inTelefonos);
-foreach ($telefonosArray as $tel) {
-    $tel = trim($tel);
-    if (empty($tel)) continue;
-
-    $sql = "
-        SELECT TELEFONO, M_SERIE, FECHA_ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
+    $sqlSeries = "
+        SELECT DISTINCT M_SERIE
         FROM seg_ns_eci
-        WHERE TELEFONO = $tel AND M_SERIE IN ($inSeries)
-        ORDER BY F_CONSULTA DESC, FECHA_ULTIMO_EVENTO DESC
-        LIMIT 1
+        WHERE TELEFONO IN ($inTelefonos)
     ";
-
-    foreach ($conexion_analisis->query($sql) as $row) {
-        $telefono = preg_replace('/\D/', '', $row['TELEFONO']);
-        $serie    = strtoupper(trim($row['M_SERIE']));
-
-        // Guardamos el último registro de ese teléfono
-        $esciData[$telefono] = $row;
-        $esciData[$telefono]['M_SERIE'] = $serie;
-
-        // Mapeo serie → teléfono
-        if (!empty($serie) && $serie !== 'DESCONOCIDO' && !empty($telefono)) {
-            $esciSeriesMap[$serie][$telefono] = true;
+    foreach ($conexion_analisis->query($sqlSeries) as $row) {
+        $serie = strtoupper(trim($row['M_SERIE']));
+        if (!empty($serie) && $serie !== 'DESCONOCIDO') {
+            $series[] = "'$serie'";
         }
     }
-}
+    $inSeries = !empty($series) ? implode(',', array_unique($series)) : "''";
+
+    $sql = "
+        SELECT TELEFONO, M_SERIE, ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
+        FROM seg_ns_eci
+        WHERE M_SERIE IN ($inSeries)
+        ORDER BY TELEFONO, F_CONSULTA DESC
+    ";
+
+    
+
+
+   foreach ($conexion_analisis->query($sql) as $row) {
+        $tel = preg_replace('/\D/', '', $row['TELEFONO']);
+        $serie = strtoupper(trim($row['M_SERIE']));
+
+        if (!isset($esciData[$tel])) {
+            $esciData[$tel] = $row;
+            $esciData[$tel]['M_SERIE'] = $serie;
+        }
+
+        if (!empty($serie) && $serie !== 'DESCONOCIDO' && !empty($tel)) {
+            $esciSeriesMap[$serie][$tel] = true;
+        }
+    }  
 
    /* foreach ($conexion_analisis->query($sql) as $row) {
     $tel = preg_replace('/\D/', '', $row['TELEFONO']);
@@ -930,42 +924,47 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
 private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
 {
     $esci = $data['esci'] ?? null;
+    //var_dump($esci);
+    
     if (!$esci) {
         return; // no hay datos de esci para este teléfono
     }
 
-    $telefono  = $esci['TELEFONO'] ?? '';
-    $mSerie    = strtoupper(trim($esci['M_SERIE'] ?? ''));
+    //tomar el campo M_SERIE del array $esci.
+    $mSerie = strtoupper(trim($esci['M_SERIE'] ?? ''));
+    
+    // tomar el campo DID_ACTIVO del array $esci.
     $didActivo = isset($esci['DID_ACTIVO']) ? intval($esci['DID_ACTIVO']) : null;
-    $fConsulta = $esci['F_CONSULTA'] ?? null;
+    
+    //tomas el campo F_CONSULTA del array $esci.
+    $fConsulta = $esci['F_CONSULTA'] ?? null; // ahora usamos F_CONSULTA
 
     // Caso: número de serie desconocido
     if ($mSerie === 'DESCONOCIDO') {
-        $alertas[]   = 'SIN NAVEGACION';
-        $detalleEsci = "Tel: $telefono, Serie: $mSerie → desconocido en Esci";
+        $alertas[] = 'SIN NAVEGACION';
+        $detalleEsci = "Número de serie desconocido en Esci";
         return;
     }
 
     // Caso: servicio sin navegación (DID_ACTIVO = 0)
     if ($didActivo === 0) {
-        $alertas[]   = 'SIN NAVEGACION';
-        $detalleEsci = "Tel: $telefono, Serie: $mSerie → última revisión: $fConsulta";
+        $alertas[] = 'SIN NAVEGACION';
+        if ($fConsulta) {
+            $detalleEsci = "ultima revision: $fConsulta";
+        }
         return;
     }
 
     // Caso: servicio inactivo (DID_ACTIVO = -1)
     if ($didActivo === -1) {
-        $alertas[]   = 'SERVICIO INACTIVO';
-        $detalleEsci = "Tel: $telefono, Serie: $mSerie → última vez que navegó: $fConsulta";
+        $alertas[] = 'SERVICIO INACTIVO';
+        if ($fConsulta) {
+            $detalleEsci = "ultima vez que navego: $fConsulta";
+        }
         return;
     }
-
-    // Caso: servicio activo (DID_ACTIVO = 1)
-    if ($didActivo === 1) {
-        // No se dispara alerta, pero puedes registrar detalle si quieres
-        $detalleEsci = "Tel: $telefono, Serie: $mSerie → navegando (última consulta: $fConsulta)";
-    }
 }
+
 
 
 
