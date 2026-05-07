@@ -924,7 +924,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
 private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
 {
     $esci = $data['esci'] ?? null;
-    var_dump($esci);
+    //var_dump($esci);
     
     if (!$esci) {
         return; // no hay datos de esci para este teléfono
