@@ -60,6 +60,9 @@ if (empty($alertas)) {
             <th>Detalle Esci</th>
             <th>Revisión</th>
             <th>Contratista</th>
+            <th>Comparativa Tip Tarea</th>
+            <th>Comparativa Tecnologia</th>
+            <th>Comparativa Numeros de serie</th>
             <th>Galería</th>
         </tr>
     </thead>
@@ -91,6 +94,15 @@ if (empty($alertas)) {
                 <?= !empty($row['Bandera_Revision']) ? '✔' : '✖' ?>
             </td>
             <td><?= htmlspecialchars($row['nombre_completo'] ?? '') ?></td>
+            <td><?= htmlspecialchars($row['Detalle_Tipo_Tarea'] ?? '') ?></td>
+            
+            <td>
+    <?= nl2br(htmlspecialchars($row['Detalle_Tecnologia'] ?? '')) ?>
+</td>
+
+<td>
+    <?= nl2br(htmlspecialchars($row['Detalle_Series'] ?? '')) ?>
+</td>
 
             <td>
                 <button 
