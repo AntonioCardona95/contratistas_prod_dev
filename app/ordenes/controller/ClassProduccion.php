@@ -930,8 +930,13 @@ private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
         return; // no hay datos de esci para este teléfono
     }
 
+    //tomar el campo M_SERIE del array $esci.
     $mSerie = strtoupper(trim($esci['M_SERIE'] ?? ''));
+    
+    // tomar el campo DID_ACTIVO del array $esci.
     $didActivo = isset($esci['DID_ACTIVO']) ? intval($esci['DID_ACTIVO']) : null;
+    
+    //tomar el campo F_CONSULTA del array $esci.
     $fConsulta = $esci['F_CONSULTA'] ?? null; // ahora usamos F_CONSULTA
 
     // Caso: número de serie desconocido

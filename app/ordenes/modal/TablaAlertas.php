@@ -54,6 +54,7 @@ if (empty($alertas)) {
             <th>Contratista</th>
             <th>Comparativa Tip Tarea</th>
             <th>Comparativa Tecnologia</th>
+            <th>Comparativa Numeros de serie</th>
             <th>Galería</th>
         </tr>
     </thead>
@@ -89,6 +90,10 @@ if (empty($alertas)) {
             
             <td>
     <?= nl2br(htmlspecialchars($row['Detalle_Tecnologia'] ?? '')) ?>
+</td>
+
+<td>
+    <?= nl2br(htmlspecialchars($row['Detalle_Series'] ?? '')) ?>
 </td>
 
 
