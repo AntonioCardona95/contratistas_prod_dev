@@ -357,24 +357,43 @@ public function InsertarAlertasMasivo($registros)
     }
 
     // =========================
-//  ESCI
+// ESCI
 // =========================
 $esciData = [];
 $esciSeriesMap = [];
+$series = [];
 
-// Iteramos cada teléfono en la lista
-foreach ($telefonos as $tel) {
+// Primero obtenemos las series válidas de los teléfonos en la lista
+$sqlSeries = "
+    SELECT DISTINCT M_SERIE
+    FROM seg_ns_eci
+    WHERE TELEFONO IN ($inTelefonos)
+";
+foreach ($conexion_analisis->query($sqlSeries) as $row) {
+    $serie = strtoupper(trim($row['M_SERIE']));
+    if (!empty($serie) && $serie !== 'DESCONOCIDO') {
+        $series[] = "'$serie'";
+    }
+}
+$inSeries = !empty($series) ? implode(',', array_unique($series)) : "''";
+
+// Ahora, para cada teléfono en $inTelefonos, traemos SOLO su último registro
+$telefonosArray = explode(',', $inTelefonos);
+foreach ($telefonosArray as $tel) {
+    $tel = trim($tel);
+    if (empty($tel)) continue;
+
     $sql = "
-        SELECT Telefono, M_Serie, FECHA_ULTIMO_EVENTO, F_CONSULTA, DID_Activo
+        SELECT TELEFONO, M_SERIE, FECHA_ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
         FROM seg_ns_eci
-        WHERE Telefono = $tel
+        WHERE TELEFONO = $tel AND M_SERIE IN ($inSeries)
         ORDER BY F_CONSULTA DESC, FECHA_ULTIMO_EVENTO DESC
         LIMIT 1
     ";
 
     foreach ($conexion_analisis->query($sql) as $row) {
-        $telefono = preg_replace('/\D/', '', $row['Telefono']);
-        $serie    = strtoupper(trim($row['M_Serie']));
+        $telefono = preg_replace('/\D/', '', $row['TELEFONO']);
+        $serie    = strtoupper(trim($row['M_SERIE']));
 
         // Guardamos el último registro de ese teléfono
         $esciData[$telefono] = $row;
@@ -908,9 +927,6 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
 } */
 
 
-// =========================
-//  FUNCIÓN ALERTA ESCI
-// =========================
 private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
 {
     $esci = $data['esci'] ?? null;
@@ -918,9 +934,9 @@ private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
         return; // no hay datos de esci para este teléfono
     }
 
-    $telefono  = $esci['Telefono'] ?? '';
+    $telefono  = $esci['TELEFONO'] ?? '';
     $mSerie    = strtoupper(trim($esci['M_SERIE'] ?? ''));
-    $didActivo = isset($esci['DID_Activo']) ? intval($esci['DID_Activo']) : null;
+    $didActivo = isset($esci['DID_ACTIVO']) ? intval($esci['DID_ACTIVO']) : null;
     $fConsulta = $esci['F_CONSULTA'] ?? null;
 
     // Caso: número de serie desconocido
@@ -950,7 +966,6 @@ private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
         $detalleEsci = "Tel: $telefono, Serie: $mSerie → navegando (última consulta: $fConsulta)";
     }
 }
-
 
 
 
