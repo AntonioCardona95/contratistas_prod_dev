@@ -291,7 +291,59 @@ var_dump($inTelefonos);
     // =========================
     // COORDIAPP
     // =========================
-    $coordData = [];
+
+    // =========================
+// COORDIAPP
+// =========================
+$coordData = [];
+
+$sql = "SELECT 
+    Folio_Pisa,
+    Telefono,
+    Ont,
+    Tecnologia,
+    Foto_Ont,
+    No_Serie_ONT,
+    Foto_INE,
+    validacion_LEDS_ONT_fallida,
+    Foto_Casa_Cliente,
+    validacion_foto_fallida,
+    Foto_Puerto,
+    Codigo_Liquidacion,
+    Tipo_Tarea,
+    Fecha_Coordiapp
+FROM tecnico_instalaciones_coordiapp
+WHERE Folio_Pisa IN ($inFolios)
+  AND Telefono IN ($inTelefonos)
+  AND Estatus_Orden = 'COMPLETADA'
+  AND Step_Registro = '5'
+ORDER BY Fecha_Coordiapp DESC";
+
+foreach ($conexion->query($sql) as $row) {
+
+    $folio    = trim((string)$row['Folio_Pisa']);
+    $telefono = trim((string)$row['Telefono']);
+
+    // =========================
+    // LLAVE COMPUESTA
+    // =========================
+    $key = $folio . '_' . $telefono;
+
+    /*
+        IMPORTANTE:
+        Como puede haber históricos,
+        nos quedamos con el MÁS RECIENTE
+        gracias al ORDER BY DESC.
+    */
+
+    if (!isset($coordData[$key])) {
+        $coordData[$key] = $row;
+    }
+}
+    
+    
+    // anterior //
+    /*$coordData = [];
     $sql = "SELECT 
         Folio_Pisa,
         Telefono,
@@ -312,7 +364,7 @@ var_dump($inTelefonos);
       AND Step_Registro = '5'";
     foreach ($conexion->query($sql) as $row) {
         $coordData[$row['Folio_Pisa']] = $row;
-    }
+    } */
     
 
     // está tomando el último registro que devuelve el query para ese folio
