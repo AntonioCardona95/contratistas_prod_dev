@@ -253,6 +253,13 @@ public function InsertarAlertasMasivo($registros)
     $inFolios = "'" . implode("','", $folios) . "'";
     $inTelefonos = "'" . implode("','", $telefonos) . "'";
 
+    // Debug con var_dump en pantalla (texto plano)
+var_dump("=== Folios ===");
+var_dump($inFolios);
+
+var_dump("=== Telefonos ===");
+var_dump($inTelefonos);
+
     // =========================
     //  EXISTENTES (cabecera)
     // =========================
