@@ -1214,6 +1214,7 @@ private function alertaOntDuplicadaTac($data, &$alertas, &$detalleTac)
 }
 
 
+
 private function alertaOntDuplicadaEsci($data, &$alertas, &$detalleEsci)
 {
     $serie = $data['serieEsci'];
