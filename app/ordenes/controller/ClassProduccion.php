@@ -1398,41 +1398,52 @@ private function alertaOntAlmacen($data, &$alertas)
 
     $conexion = $this->get_conexion();
 
-    // Consulta única con LEFT JOIN
+    // Buscar primero en material_det_salida (cuando ya salió al contratista)
     $stmt = $conexion->prepare("
-        SELECT md.idMaterial,
-               mds.FK_Contratista_Salida
-        FROM materiales_det md
-        LEFT JOIN material_det_salida mds
-               ON REPLACE(UPPER(md.Num_Serie), ' ', '') = REPLACE(UPPER(mds.Num_Serie_S), ' ', '')
-        WHERE REPLACE(UPPER(md.Num_Serie), ' ', '') = ?
+        SELECT FK_Contratista_Salida
+        FROM material_det_salida
+        WHERE Num_Serie_S = ?
         LIMIT 1
     ");
-
     $stmt->execute([$ont]);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $rowSalida = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // =========================
-    //  ALERTAS
-    // =========================
+    if ($rowSalida) {
+        // =========================
+        //  ALERTAS DE SALIDA
+        // =========================
+        if (empty($rowSalida['FK_Contratista_Salida'])) {
+            $alertas[] = 'ONT_NO_ASIGNADA_AL_CONTRATISTA';
+            return;
+        }
 
-    if (!$row) {
-        // No existe en almacén ni salida
-        $alertas[] = 'ONT_NO_ENCONTRADA_EN_ALMACEN';
-        return;
+        if ((int)$rowSalida['FK_Contratista_Salida'] !== (int)$data['idContratista']) {
+            $alertas[] = 'ONT_ASIGNADA_A_OTRO_CONTRATISTA';
+            return;
+        }
+
+        return; // todo correcto, no hay alerta
     }
 
-    if (empty($row['FK_Contratista_Salida'])) {
+    // Si no está en salida, verificar si existe en almacén
+    $stmt = $conexion->prepare("
+        SELECT idMaterial
+        FROM materiales_det
+        WHERE Num_Serie = ?
+        LIMIT 1
+    ");
+    $stmt->execute([$ont]);
+    $rowAlmacen = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($rowAlmacen) {
         // Existe en almacén pero no ha salido
         $alertas[] = 'ONT_NO_ASIGNADA_AL_CONTRATISTA';
-        return;
-    }
-
-    if ((int)$row['FK_Contratista_Salida'] !== (int)$data['idContratista']) {
-        $alertas[] = 'ONT_ASIGNADA_A_OTRO_CONTRATISTA';
-        return;
+    } else {
+        // No existe en ninguna tabla
+        $alertas[] = 'ONT_NO_ENCONTRADA_EN_ALMACEN';
     }
 }
+
 
 
 
