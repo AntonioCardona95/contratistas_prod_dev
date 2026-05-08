@@ -1398,10 +1398,14 @@ private function alertaOntAlmacen($data, &$alertas)
 
     $conexion = $this->get_conexion();
 
+    // Consulta única con LEFT JOIN
     $stmt = $conexion->prepare("
-        SELECT FK_Contratista_Salida
-        FROM material_det_salida
-        WHERE REPLACE(UPPER(Num_Serie_S), ' ', '') = ?
+        SELECT md.idMaterial,
+               mds.FK_Contratista_Salida
+        FROM materiales_det md
+        LEFT JOIN material_det_salida mds
+               ON REPLACE(UPPER(md.Num_Serie), ' ', '') = REPLACE(UPPER(mds.Num_Serie_S), ' ', '')
+        WHERE REPLACE(UPPER(md.Num_Serie), ' ', '') = ?
         LIMIT 1
     ");
 
@@ -1413,11 +1417,13 @@ private function alertaOntAlmacen($data, &$alertas)
     // =========================
 
     if (!$row) {
+        // No existe en almacén ni salida
         $alertas[] = 'ONT_NO_ENCONTRADA_EN_ALMACEN';
         return;
     }
 
     if (empty($row['FK_Contratista_Salida'])) {
+        // Existe en almacén pero no ha salido
         $alertas[] = 'ONT_NO_ASIGNADA_AL_CONTRATISTA';
         return;
     }
@@ -1427,6 +1433,7 @@ private function alertaOntAlmacen($data, &$alertas)
         return;
     }
 }
+
 
 
 
