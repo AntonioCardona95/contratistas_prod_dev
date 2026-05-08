@@ -295,6 +295,9 @@ var_dump($inTelefonos);
     // =========================
 // COORDIAPP
 // =========================
+// =========================
+// COORDIAPP
+// =========================
 $coordData = [];
 
 $sql = "SELECT 
@@ -324,23 +327,14 @@ foreach ($conexion->query($sql) as $row) {
     $folio    = trim((string)$row['Folio_Pisa']);
     $telefono = trim((string)$row['Telefono']);
 
-    // =========================
-    // LLAVE COMPUESTA
-    // =========================
+    // llave compuesta
     $key = $folio . '_' . $telefono;
 
-    /*
-        IMPORTANTE:
-        Como puede haber históricos,
-        nos quedamos con el MÁS RECIENTE
-        gracias al ORDER BY DESC.
-    */
-
+    // nos quedamos con el más reciente
     if (!isset($coordData[$key])) {
         $coordData[$key] = $row;
     }
 }
-    
     
     // anterior //
     /*$coordData = [];
@@ -522,7 +516,12 @@ WHERE Folio_Pisa = ?
         $folio = $r['folio'];
         $telefono = trim($r['telefono']);
 
-        $coord = $coordData[$folio] ?? null;
+        //$coord = $coordData[$folio] ?? null;
+        // NUEVO
+    $keyCoord = $folio . '_' . $telefono;
+
+    $coord = $coordData[$keyCoord] ?? null;
+
         $tac   = $tacData[$folio] ?? null;
         $esci  = $esciData[$telefono] ?? null;
 
