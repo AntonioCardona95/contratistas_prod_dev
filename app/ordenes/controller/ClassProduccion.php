@@ -306,7 +306,9 @@ public function InsertarAlertasMasivo($registros)
     foreach ($conexion->query($sql) as $row) {
         $coordData[$row['Folio_Pisa']] = $row;
     }
+    
 
+    // está tomando el último registro que devuelve el query para ese folio
     // =========================
     // TAC
     // =========================
