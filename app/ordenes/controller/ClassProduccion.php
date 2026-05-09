@@ -317,7 +317,9 @@ $sql = "SELECT
     Fecha_Coordiapp,
     validacion_foto_fachada_intento,
     validacion_foto_terminal_intento,
-validacion_leds_ont_intento
+validacion_leds_ont_intento,
+origen_ont,
+carga_manual
 FROM tecnico_instalaciones_coordiapp
 WHERE Folio_Pisa IN ($inFolios)
   AND Telefono IN ($inTelefonos)
