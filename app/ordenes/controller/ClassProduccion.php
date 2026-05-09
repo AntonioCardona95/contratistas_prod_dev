@@ -1159,7 +1159,7 @@ private function alertaOntTrasera($data, &$alertas)
 }
 
 
-// FALLA FOTO LEDS ENCENDIDOS IA 
+
 private function alertaFotoR20($data, &$alertas)
 {
     $foto = $data['coord']['Foto_INE'] ?? '';
@@ -1211,7 +1211,7 @@ private function alertaFotoCasaCliente($data, &$alertas)
 
 
 
-//  LEDS
+// FOTO LEDS FALLIDA IA
 private function alertaLedsOntFallida($data, &$alertas)
 {
     $valor = $data['coord']['validacion_LEDS_ONT_fallida'] ?? 0;
