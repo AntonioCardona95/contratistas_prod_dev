@@ -254,11 +254,11 @@ public function InsertarAlertasMasivo($registros)
     $inTelefonos = "'" . implode("','", $telefonos) . "'";
 
     // Debug con var_dump en pantalla (texto plano)
-var_dump("=== Folios ===");
-var_dump($inFolios);
+//var_dump("=== Folios ===");
+//var_dump($inFolios);
 
-var_dump("=== Telefonos ===");
-var_dump($inTelefonos);
+//var_dump("=== Telefonos ===");
+//var_dump($inTelefonos);
 
     // =========================
     //  EXISTENTES (cabecera)
@@ -1054,6 +1054,64 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     $hayDiferencia = false;
 
     if ($data['coord'] !== null) {
+        // Caso: coord tiene serie válida
+        if ($serieCoord) {
+            $series = array_filter([$serieTac, $serieCoord, $serieEsci]);
+            if (count($series) > 1 && count(array_unique($series)) > 1) {
+                $hayDiferencia = true;
+            }
+        } else {
+            // Caso: coord vacío/null → igual debe evaluarse
+            if (($serieTac && $serieEsci) || ($serieTac || $serieEsci)) {
+                // Si TAC y ESCI existen y son distintos → diferencia
+                if ($serieTac && $serieEsci && $serieTac !== $serieEsci) {
+                    $hayDiferencia = true;
+                }
+                // Si coord está vacío/null pero TAC o ESCI sí tienen valores → también consideramos diferencia
+                if (!$serieCoord) {
+                    $hayDiferencia = true;
+                }
+            }
+        }
+    } else {
+        // No existe coord → comparar TAC vs ESCI
+        if ($serieTac && $serieEsci && $serieTac !== $serieEsci) {
+            $hayDiferencia = true;
+        }
+    }
+
+    if ($hayDiferencia) {
+        $alertas[] = 'NUMERO_SERIE_DIFERENTE';
+
+        // Base del detalle
+        $detalleSeries = "Coordiapp: " . ($serieCoord ?? 'N/A') .
+                         " | TAC: " . ($serieTac ?? 'N/A') .
+                         " | ESCI: " . ($serieEsci ?? 'N/A');
+
+        // Agregar origen_ont si existe en coordiapp
+        if (!empty($data['coord']['origen_ont'])) {
+            $detalleSeries .= " | ORIGEN: " . $data['coord']['origen_ont'];
+        }
+    }
+}
+
+
+   /* private function alertaSeriesDiferente($data, &$alertas, &$detalleSeries)
+{
+    // Normalizar valores
+    $serieTac   = strtoupper(trim($data['serieTac'] ?? ''));
+    $serieCoord = strtoupper(trim($data['serieCoord'] ?? ''));
+    $serieEsci  = strtoupper(trim($data['serieEsci'] ?? ''));
+
+    // Filtrar valores inválidos
+    $invalidos = ['DESCONOCIDO', 'NS NO OBTENIDO', ''];
+    $serieTac   = in_array($serieTac, $invalidos) ? null : $serieTac;
+    $serieCoord = in_array($serieCoord, $invalidos) ? null : $serieCoord;
+    $serieEsci  = in_array($serieEsci, $invalidos) ? null : $serieEsci;
+
+    $hayDiferencia = false;
+
+    if ($data['coord'] !== null) {
         if ($serieCoord) {
             $series = array_filter([$serieTac, $serieCoord, $serieEsci]);
             if (count($series) > 1 && count(array_unique($series)) > 1) {
@@ -1078,7 +1136,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
                          " | TAC: " . ($serieTac ?? 'N/A') .
                          " | ESCI: " . ($serieEsci ?? 'N/A');
     }
-}
+} */
 
 /*private function alertaSeriesDiferente($data, &$alertas)
 {
