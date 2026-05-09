@@ -1158,6 +1158,8 @@ private function alertaOntTrasera($data, &$alertas)
     }
 }
 
+
+// FALLA FOTO LEDS ENCENDIDOS IA 
 private function alertaFotoR20($data, &$alertas)
 {
     $foto = $data['coord']['Foto_INE'] ?? '';
