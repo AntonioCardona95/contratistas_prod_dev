@@ -315,7 +315,9 @@ $sql = "SELECT
     Codigo_Liquidacion,
     Tipo_Tarea,
     Fecha_Coordiapp,
-    validacion_foto_fachada_intento
+    validacion_foto_fachada_intento,
+    validacion_foto_terminal_intento,
+validacion_leds_ont_intento
 FROM tecnico_instalaciones_coordiapp
 WHERE Folio_Pisa IN ($inFolios)
   AND Telefono IN ($inTelefonos)
@@ -1213,15 +1215,29 @@ private function alertaFotoCasaCliente($data, &$alertas)
 
 
 // FOTO LEDS FALLIDA IA
+
 private function alertaLedsOntFallida($data, &$alertas)
+{
+    $valor = $data['coord']['validacion_LEDS_ONT_fallida'] ?? 0;
+    $foto = $data['coord']['validacion_leds_ont_intento'];
+
+    if ((int)$valor === 1 && str_contains($foto, 'NO RECONOCIO')) {
+        $primeros3 = substr($foto, 0, 3);
+        $alertas[] = 'FOTO LEDS FALLIDA MAL TOMADA (' . $primeros3 . ' NO RECONOCIO)';
+    } elseif ((int)$valor === 1 && str_contains($foto, 'NO RESPONDIO')) {
+        $primeros3 = substr($foto, 0, 3);
+        $alertas[] = 'FOTO LEDS FALLIDA ERROR IA (' . $primeros3 . ' NO RESPONDIO)';
+    }
+}
+/*private function alertaLedsOntFallida($data, &$alertas)
 {
     $valor = $data['coord']['validacion_LEDS_ONT_fallida'] ?? 0;
 
     if ((int)$valor === 1) {
         $alertas[] = 'EVIDENCIA_LEDS_ONT_FALLIDA';
     }
-}
-
+} */
+ 
 private function alertaFotoDomicilioFallida($data, &$alertas)
 {
     $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
@@ -1229,10 +1245,10 @@ private function alertaFotoDomicilioFallida($data, &$alertas)
 
     if ((int)$valor === 1 && str_contains($foto, 'NO RECONOCIO')) {
         $primeros3 = substr($foto, 0, 3);
-        $alertas[] = 'Foto domicilio fallida mal tomada (' . $primeros3 . ' NO RECONOCIO)';
+        $alertas[] = 'FOTO DOMICILIO FALLIDA MAL TOMADA (' . $primeros3 . ' NO RECONOCIO)';
     } elseif ((int)$valor === 1 && str_contains($foto, 'NO RESPONDIO')) {
         $primeros3 = substr($foto, 0, 3);
-        $alertas[] = 'Foto domicilio fallida error IA (' . $primeros3 . ' NO RESPONDIO)';
+        $alertas[] = 'FOTO DOMICILIO FALLIDA ERROR IA (' . $primeros3 . ' NO RESPONDIO)';
     }
 }
 
@@ -1264,14 +1280,30 @@ private function alertaFotoDomicilioFallida($data, &$alertas)
 
 
 // FOTO TERMINAL IA
+
 private function alertaTerminalFallidaIA($data, &$alertas)
+{
+    $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
+    $foto = $data['coord']['validacion_foto_terminal_intento'];
+
+    if ((int)$valor === 1 && str_contains($foto, 'NO RECONOCIO')) {
+        $primeros3 = substr($foto, 0, 3);
+        $alertas[] = 'FOTO TERMINAL FALLIDA MAL TOMADA (' . $primeros3 . ' NO RECONOCIO)';
+    } elseif ((int)$valor === 1 && str_contains($foto, 'NO RESPONDIO')) {
+        $primeros3 = substr($foto, 0, 3);
+        $alertas[] = 'FOTO TERMINAL FALLIDA ERROR IA (' . $primeros3 . ' NO RESPONDIO)';
+    }
+}
+
+
+/*private function alertaTerminalFallidaIA($data, &$alertas)
 {
     $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
 
     if ((int)$valor === 1) {
         $alertas[] = 'FOTO TERMINAL FALLIDA';
     }
-}
+} */
 
 
 
