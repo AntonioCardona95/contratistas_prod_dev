@@ -792,8 +792,103 @@ private function esTipoQueja(string $tipoTarea): bool
     return false;
 }
 
+// QUEJAS //
 
 private function alertaFotosPorTipoQueja($data, &$alertas)
+{
+    $tipoTarea = strtoupper(trim($data['tipoTarea'] ?? ''));
+    $codigoLiquidacion = strtoupper(trim($data['coord']['Codigo_Liquidacion'] ?? ''));
+
+    // Si no es queja, no hacemos nada
+    if (!$this->esTipoQueja($tipoTarea)) {
+        return;
+    }
+
+    $validar = [];
+
+    // Definir qué fotos sí se deben validar según el código de liquidación
+    if (in_array($codigoLiquidacion, [
+        'JUMPER/PARALELO EXTERIOR',
+        'CONECTOR MECANICO DAÑADO',
+        'CAMBIO DE PUERTO',
+        'CAMBIO DE TERMINAL'
+    ])) {
+        $validar = ['Foto_Casa_Cliente','Foto_Puerto'];
+    } elseif ($codigoLiquidacion === 'MODEM DAÑADO') {
+        $validar = ['Foto_Casa_Cliente','Foto_Ont'];
+    } elseif (in_array($codigoLiquidacion, [
+        'CAMBIO PAR PRINCIPAL',
+        'CAMBIO PAR SECUNDARIO',
+        'ROSETA OPTICA',
+        'CAMBIO DE INTERIOR'
+    ])) {
+        $validar = ['Foto_Casa_Cliente'];
+    } elseif (in_array($codigoLiquidacion, [
+        'CAMBIO PARALELO Y MODEM',
+        'OTRO'
+    ])) {
+        $validar = ['Foto_Casa_Cliente','Foto_Puerto','Foto_Ont'];
+    }
+
+    // Validar solo esas evidencias
+    foreach ($validar as $campo) {
+        $valor = $data['coord'][$campo] ?? '';
+
+        if (empty($valor) || !preg_match('/\.(jpg|jpeg|png)$/i', $valor)) {
+            $alertas[] = "FALTA_EVIDENCIA_" . strtoupper($campo);
+        }
+    }
+
+    // Validaciones binarias (solo si es queja y hay evidencias a validar)
+    if (!empty($validar)) {
+	
+	$valor = $data['coord']['validacion_foto_fallida'] ?? 0;
+        $foto = $data['coord']['validacion_foto_fachada_intento'];
+
+        if ((int)$valor === 1 && str_contains($foto, 'NO RECONOCIO')) {
+            $primeros3 = substr($foto, 0, 3);
+            $alertas[] = 'FOTO DOMICILIO FALLIDA MAL TOMADA (' . $primeros3 . ' NO RECONOCIO)';
+        } elseif ((int)$valor === 1 && str_contains($foto, 'NO RESPONDIO 422')) {
+            $primeros3 = substr($foto, 0, 3);
+            $alertas[] = 'FOTO DOMICILIO FALLIDA MAL TOMADA (' . $primeros3 . ' NO RECONOCIO)';
+        } elseif ((int)$valor === 1 && str_contains($foto, 'NO RESPONDIO 500')) {
+       	    $primeros3 = substr($foto, 0, 3);
+            $alertas[] = 'FOTO DOMICILIO FALLIDA ERROR IA (' . $primeros3 . ' NO RESPONDIO)';
+        }
+
+	$valor = $data['coord']['validacion_foto_fallida'] ?? 0;
+    	$foto = $data['coord']['validacion_foto_terminal_intento'];
+
+    	if ((int)$valor === 1 && str_contains($foto, 'NO RECONOCIO')) {
+             $primeros3 = substr($foto, 0, 3);
+             $alertas[] = 'FOTO TERMINAL FALLIDA MAL TOMADA (' . $primeros3 . ' NO RECONOCIO)';
+    	} elseif ((int)$valor === 1 && str_contains($foto, 'NO RESPONDIO 422')) {
+             $primeros3 = substr($foto, 0, 3);
+             $alertas[] = 'FOTO TERMINAL FALLIDA MAL TOMADA (' . $primeros3 . ' NO RECONOCIO)';
+    	} elseif ((int)$valor === 1 && str_contains($foto, 'NO RESPONDIO 500')) {
+             $primeros3 = substr($foto, 0, 3);
+             $alertas[] = 'FOTO TERMINAL FALLIDA ERROR IA (' . $primeros3 . ' NO RESPONDIO)';
+    	}
+
+	$valor = $data['coord']['validacion_LEDS_ONT_fallida'] ?? 0;
+    	$foto = $data['coord']['validacion_leds_ont_intento'];
+
+    	if ((int)$valor === 1 && str_contains($foto, 'NO RECONOCIO')) {
+            $primeros3 = substr($foto, 0, 3);
+            $alertas[] = 'FOTO LEDS FALLIDA MAL TOMADA (' . $primeros3 . ' NO RECONOCIO)';
+    	} elseif ((int)$valor === 1 && str_contains($foto, 'NO RESPONDIO 422')) {
+            $primeros3 = substr($foto, 0, 3);
+            $alertas[] = 'FOTO LEDS FALLIDA MAL TOMADA (' . $primeros3 . ' NO RECONOCIO)';
+    	} elseif ((int)$valor === 1 && str_contains($foto, 'NO RESPONDIO 500')) {
+            $primeros3 = substr($foto, 0, 3);
+            $alertas[] = 'FOTO LEDS FALLIDA ERROR IA (' . $primeros3 . ' NO RESPONDIO)';
+    	}
+
+    }
+}
+
+
+/*private function alertaFotosPorTipoQueja($data, &$alertas)
 {
     $tipoTarea = strtoupper(trim($data['tipoTarea'] ?? ''));
     $codigoLiquidacion = strtoupper(trim($data['coord']['Codigo_Liquidacion'] ?? ''));
@@ -848,7 +943,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
             $alertas[] = 'VALIDACION_LEDS_FALLIDA';
         }
     }
-}
+} */
 
 
 
