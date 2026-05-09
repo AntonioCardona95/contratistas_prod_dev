@@ -773,10 +773,43 @@ private function alertaTipoTareaDiferente($data, &$alertas, &$detalleTipoTarea)
     // Comparación final
     if ($tipoTacNorm && $tipoCoordNorm && $tipoTacNorm !== $tipoCoordNorm) {
         $alertas[] = 'TIPO_TAREA_DIFERENTE';
+
+        // Base del detalle
+        $detalleTipoTarea =
+            "TIPO DE TAREA COORDIAPP: {$tipoTareaCoord} | TIPO DE TAREA TAC: {$tipoTareaTac}";
+
+        // Si fue carga manual (campo = 1), lo indicamos
+        if (!empty($data['coord']['carga_manual']) && (int)$data['coord']['carga_manual'] === 1) {
+            $detalleTipoTarea .= " | CARGA MANUAL";
+        }
+    }
+}
+
+
+/*private function alertaTipoTareaDiferente($data, &$alertas, &$detalleTipoTarea)
+{
+    $tipoTareaTac   = isset($data['tac']['Tipo_De_Tarea']) ? trim($data['tac']['Tipo_De_Tarea']) : '';
+    $tipoTareaCoord = isset($data['coord']['Tipo_Tarea'])   ? trim($data['coord']['Tipo_Tarea'])   : '';
+
+    $tipoTacNorm   = $tipoTareaTac   ? $this->normalizarTexto($tipoTareaTac)   : '';
+    $tipoCoordNorm = $tipoTareaCoord ? $this->normalizarTexto($tipoTareaCoord) : '';
+
+    // Detectar sufijo en TAC y Coordiapp
+    $tacTieneSufijo    = preg_match('/(PE|PI)$/i', $tipoTacNorm);
+    $coordTieneSufijo  = preg_match('/(PE|PI)$/i', $tipoCoordNorm);
+
+    // Si TAC tiene sufijo y Coordiapp no → recortamos TAC
+    if ($tacTieneSufijo && !$coordTieneSufijo) {
+        $tipoTacNorm = substr($tipoTacNorm, 0, -2);
+    }
+
+    // Comparación final
+    if ($tipoTacNorm && $tipoCoordNorm && $tipoTacNorm !== $tipoCoordNorm) {
+        $alertas[] = 'TIPO_TAREA_DIFERENTE';
         $detalleTipoTarea =
             "TIPO DE TAREA COORDIAPP: {$tipoTareaCoord} | TIPO DE TAREA TAC: {$tipoTareaTac}";
     }
-}
+} */
 
 
 private function esTipoQueja(string $tipoTarea): bool
