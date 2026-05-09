@@ -1219,7 +1219,7 @@ private function alertaLedsOntFallida($data, &$alertas)
     }
 }
 
-//  FOTO DOMICILIO
+//  FOTO DOMICILIO IA 
 private function alertaFotoDomicilioFallida($data, &$alertas)
 {
     $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
@@ -1229,6 +1229,8 @@ private function alertaFotoDomicilioFallida($data, &$alertas)
     }
 }
 
+
+// FOTO TERMINAL IA
 private function alertaTerminalFallidaIA($data, &$alertas)
 {
     $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
