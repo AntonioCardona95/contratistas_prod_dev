@@ -314,7 +314,8 @@ $sql = "SELECT
     Foto_Puerto,
     Codigo_Liquidacion,
     Tipo_Tarea,
-    Fecha_Coordiapp
+    Fecha_Coordiapp,
+    validacion_foto_fachada_intento
 FROM tecnico_instalaciones_coordiapp
 WHERE Folio_Pisa IN ($inFolios)
   AND Telefono IN ($inTelefonos)
@@ -1222,12 +1223,26 @@ private function alertaLedsOntFallida($data, &$alertas)
 }
 
 //  FOTO DOMICILIO IA 
-private function alertaFotoDomicilioFallida($data, &$alertas)
+/*private function alertaFotoDomicilioFallida($data, &$alertas)
 {
     $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
 
     if ((int)$valor === 1) {
         $alertas[] = 'FOTO_DOMICILIO_FALLIDA';
+    }
+} */
+
+private function alertaFotoDomicilioFallida($data, &$alertas)
+{
+    $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
+    $foto = $data['coord']['validacion_foto_fachada_intento'];
+
+    if ((int)$valor === 1 && str_contains($foto, 'NO RECONOCIO')) {
+        $primeros3 = substr($foto, 0, 3);
+        $alertas[] = 'Foto fallida mal tomada (' . $primeros3 . ' NO RECONOCIO)';
+    } elseif ((int)$valor === 1 && str_contains($foto, 'NO RESPONDIO')) {
+        $primeros3 = substr($foto, 0, 3);
+        $alertas[] = 'Foto fallida error IA (' . $primeros3 . ' NO RESPONDIO)';
     }
 }
 
