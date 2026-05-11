@@ -62,7 +62,8 @@ try {
     echo json_encode([
         "ok" => true,
         "msg" => "Procesamiento completado (alertas y correctas, sin duplicados)",
-        "total" => count($registros)
+        "total" => count($registros),
+         "debug" => $registros
     ]);
 
 } catch (Exception $e) {
