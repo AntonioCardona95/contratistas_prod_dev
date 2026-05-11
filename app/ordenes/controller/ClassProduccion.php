@@ -1073,14 +1073,24 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
 
     private function alertaOrdenRevision30Dias($tacOrdenHist, &$alertas)
 {
+    // 🔎 Depuración: imprimir lo que trae $tacOrdenHist
+    echo "<pre>";
+    var_dump($tacOrdenHist);
+    var_dump($alertas);
+    echo "</pre>";
+
     if (!empty($tacOrdenHist)) {
+
         foreach ($tacOrdenHist as $registro) {
-            $fecha     = $registro['Fecha_Liq'] ?? null;
-            $ultima    = $registro['Ultima_Fecha'] ?? null;
-            $tipo      = $registro['Tipo'] ?? '';
+
+            $fecha  = $registro['Fecha_Liq'] ?? null;
+            $ultima = $registro['Ultima_Fecha'] ?? null;
+            $tipo   = $registro['Tipo'] ?? '';
 
             if ($tipo === 'ORDEN' && $fecha && $ultima) {
-                $diff = abs(strtotime($fecha) - strtotime($ultima)) / 86400; // diferencia en días
+
+                $diff = abs(strtotime($fecha) - strtotime($ultima)) / 86400;
+
                 if ($diff <= 30) {
                     $alertas[] = "ORDEN A REVISION POR 30 DIAS";
                     break; // con uno basta
