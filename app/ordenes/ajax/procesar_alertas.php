@@ -1,7 +1,14 @@
 <?php
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
+
+// Mostrar todos los errores excepto Deprecated y Notices
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
+
+// No mostrar nada en pantalla (solo log)
+ini_set('display_errors', 0);
+
 
 require_once("../controller/ClassProduccion.php");
 
