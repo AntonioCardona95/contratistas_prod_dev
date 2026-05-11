@@ -1075,6 +1075,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
 
 
 
+
   /*  private function alertaOrdenRevision30Dias($data, &$alertas)
 {
     $fechas = $data['tacOrdenHist'] ?? null;
