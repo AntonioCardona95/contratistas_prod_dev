@@ -415,11 +415,15 @@ foreach ($conexion->query($sql) as $row) {
         $tel = trim($row['TELEFONO']);
         $tacOrdenData[$tel][] = [
     'Fecha_Liq' => $row['Fecha_Liq'],
-    'Tipo'      => $row['TIPO'],
-    'Telefono'   => $row['TELEFONO']
+    'Ultima_Fecha' => $row['ultima_fecha'],
+    'Tipo'      => $row['TIPO']
+
+    
 ];
         //$tacOrdenData[$tel][] = $row['Fecha_Liq'];
-        
+        echo "<pre>";
+    var_dump($tel);
+    echo "</pre>";
         
     }
 
@@ -538,10 +542,10 @@ WHERE Folio_Pisa = ?
         $esci  = $esciData[$telefono] ?? null;
 
         $tacOrdenHist = $tacOrdenData[$telefono] ?? null;
-        echo "<pre>";
-        var_dump($tacOrdenHist);
+        //echo "<pre>";
+        //var_dump($data);
         //var_dump($fechas);
-        echo "</pre>";
+        //echo "</pre>";
 
         $serieTac   = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
