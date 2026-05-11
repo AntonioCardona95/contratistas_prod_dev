@@ -393,7 +393,6 @@ foreach ($conexion->query($sql) as $row) {
     // HISTORIAL ORDEN (30 días)
     // =========================
     $tacOrdenData = [];
-    $debugRows = [];
     $sqlOrden = "
         WITH ultimas AS (
             SELECT TELEFONO, MAX(DATE(FECHA_LIQ)) AS ultima_fecha
@@ -416,11 +415,7 @@ foreach ($conexion->query($sql) as $row) {
         $tel = trim($row['TELEFONO']);
         $tacOrdenData[$tel][] = $row['Fecha_Liq'];
         
-        // Capturar el contenido del var_dump
-    ob_start();
-    var_dump($row);
-    $debugRows[] = ob_get_clean();
-    
+        
     }
 
   // =========================
