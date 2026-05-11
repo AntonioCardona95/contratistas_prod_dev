@@ -1022,7 +1022,8 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
 
         // 🔎 Depuración: imprimir lo que trae $data en texto plano
         echo "<pre>";
-        var_dump($data);
+        //var_dump($data);
+        var_dump($fechas);
         echo "</pre>";
     }
 }
