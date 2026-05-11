@@ -998,7 +998,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     }
 } */
 
-    private function alertaOrdenRevision30Dias($data, &$alertas)
+private function alertaOrdenRevision30Dias($data, &$alertas)
 {
     $fechas = $data['tacOrdenHist'] ?? null;
 
@@ -1173,8 +1173,48 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     }
 } */
 
+    private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
+{
+    $esci = $data['esci'] ?? null;
+    if (!$esci) {
+        return; // no hay datos de esci para este teléfono
+    }
 
-private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
+    $mSerie     = strtoupper(trim($esci['M_SERIE'] ?? ''));
+    $didActivo  = isset($esci['DID_ACTIVO']) ? intval($esci['DID_ACTIVO']) : null;
+    $fConsulta  = $esci['F_CONSULTA'] ?? null;
+
+    // Caso: servicio inactivo (DID_ACTIVO = -1) → siempre SIN SERVICIO
+    if ($didActivo === -1) {
+        $alertas[] = 'SIN SERVICIO';
+        if ($fConsulta) {
+            $detalleEsci = "última vez que navegó: $fConsulta";
+        } else {
+            $detalleEsci = "Servicio inactivo";
+        }
+        return;
+    }
+
+    // Caso: número de serie desconocido (solo aplica si no es -1)
+    if ($mSerie === 'DESCONOCIDO') {
+        $alertas[] = 'SIN NAVEGACION';
+        $detalleEsci = "Número de serie desconocido en Esci";
+        return;
+    }
+
+    // Caso: servicio sin navegación (DID_ACTIVO = 0)
+    if ($didActivo === 0) {
+        $alertas[] = 'SIN NAVEGACION';
+        if ($fConsulta) {
+            $detalleEsci = "última revisión: $fConsulta";
+        }
+        return;
+    }
+}
+
+
+
+/*private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
 {
     $esci = $data['esci'] ?? null;
     var_dump($esci);
@@ -1216,7 +1256,7 @@ private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
         }
         return;
     }
-}
+} */
 
 
 
