@@ -423,19 +423,17 @@ $esciData = [];
 $esciSeriesMap = [];
 $series = [];
 
-// Obtenemos todas las series de los teléfonos en la lista (incluyendo DESCONOCIDO, vacías o null)
+// Primero obtenemos las series válidas de los teléfonos en la lista
 $sqlSeries = "
     SELECT DISTINCT M_SERIE
     FROM seg_ns_eci
     WHERE TELEFONO IN ($inTelefonos)
 ";
 foreach ($conexion_analisis->query($sqlSeries) as $row) {
-    $serie = strtoupper(trim($row['M_SERIE'] ?? ''));
-    // Si viene null o vacío, lo tratamos como cadena vacía
-    if ($serie === null) {
-        $serie = '';
+    $serie = strtoupper(trim($row['M_SERIE']));
+    if (!empty($serie) && $serie !== 'DESCONOCIDO') {
+        $series[] = "'$serie'";
     }
-    $series[] = "'$serie'";
 }
 $inSeries = !empty($series) ? implode(',', array_unique($series)) : "''";
 
@@ -447,26 +445,9 @@ $sql = "
     ORDER BY TELEFONO, F_CONSULTA DESC, FECHA_ULTIMO_EVENTO DESC
 ";
 
-foreach ($conexion_analisis->query($sql) as $row) {
-    $tel   = preg_replace('/\D/', '', $row['TELEFONO']);
-    $serie = strtoupper(trim($row['M_SERIE'] ?? ''));
-
-    // Guardar siempre el primer registro por teléfono
-    if (!isset($esciData[$tel])) {
-        $esciData[$tel] = $row;
-        $esciData[$tel]['M_SERIE'] = $serie;
-    }
-
-    // Guardar en el mapa incluso si la serie es DESCONOCIDO o vacía
-    if (!empty($tel)) {
-        $serieKey = ($serie === null || $serie === '') ? 'VACIO' : $serie;
-        $esciSeriesMap[$serieKey][$tel] = true;
-    }
-}
-
 // En el foreach, nos quedamos con el primer registro de cada teléfono
 // Nota: esto equivale a hacer LIMIT 1 por teléfono
-/*foreach ($conexion_analisis->query($sql) as $row) {
+foreach ($conexion_analisis->query($sql) as $row) {
     $tel = preg_replace('/\D/', '', $row['TELEFONO']);
     $serie = strtoupper(trim($row['M_SERIE']));
 
@@ -478,10 +459,7 @@ foreach ($conexion_analisis->query($sql) as $row) {
     if (!empty($serie) && $serie !== 'DESCONOCIDO' && !empty($tel)) {
         $esciSeriesMap[$serie][$tel] = true;
     }
-} */
-
-
-
+}
 
 
    /* foreach ($conexion_analisis->query($sql) as $row) {
@@ -1020,7 +998,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     }
 } */
 
-private function alertaOrdenRevision30Dias($data, &$alertas)
+    private function alertaOrdenRevision30Dias($data, &$alertas)
 {
     $fechas = $data['tacOrdenHist'] ?? null;
 
@@ -1195,7 +1173,8 @@ private function alertaOrdenRevision30Dias($data, &$alertas)
     }
 } */
 
-    /*private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
+
+private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
 {
     $esci = $data['esci'] ?? null;
     var_dump($esci);
@@ -1234,269 +1213,10 @@ private function alertaOrdenRevision30Dias($data, &$alertas)
         $alertas[] = 'SERVICIO INACTIVO';
         if ($fConsulta) {
             $detalleEsci = "ultima vez que navego: $fConsulta";
-        }
-        return;
-    }
-} */
-
-    /*private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
-{
-    $esci = $data['esci'] ?? null;
-    if (!$esci) {
-        return; // no hay datos de esci para este teléfono
-    }
-
-    $mSerie     = strtoupper(trim($esci['M_SERIE'] ?? ''));
-    $didActivo  = isset($esci['DID_ACTIVO']) ? intval($esci['DID_ACTIVO']) : null;
-    $fConsulta  = $esci['F_CONSULTA'] ?? null;
-
-    // Caso: servicio inactivo (DID_ACTIVO = -1) → prioridad absoluta
-    if ($didActivo === -1) {
-        $alertas[] = 'SERVICIO INACTIVO';
-        if ($fConsulta) {
-            $detalleEsci = "última vez que navegó: $fConsulta";
-        } else {
-            $detalleEsci = "Servicio inactivo en Esci";
-        }
-        return;
-    }
-
-    // Caso: número de serie desconocido (solo si no es -1)
-    if ($mSerie === 'DESCONOCIDO') {
-        $alertas[] = 'SIN NAVEGACION';
-        $detalleEsci = "Número de serie desconocido en Esci";
-        return;
-    }
-
-    // Caso: servicio sin navegación (DID_ACTIVO = 0)
-    if ($didActivo === 0) {
-        $alertas[] = 'SIN NAVEGACION';
-        if ($fConsulta) {
-            $detalleEsci = "última revisión: $fConsulta";
-        }
-        return;
-    }
-} */
-
-    private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
-{
-    $esci = $data['esci'] ?? null;
-    if (!$esci) {
-        return; // no hay datos de esci para este teléfono
-    }
-
-    $mSerie     = strtoupper(trim($esci['M_SERIE'] ?? ''));
-    $didActivo  = isset($esci['DID_ACTIVO']) ? intval($esci['DID_ACTIVO']) : null;
-    $fConsulta  = $esci['F_CONSULTA'] ?? null;
-
-    // Caso: servicio inactivo (DID_ACTIVO = -1) → prioridad absoluta
-    if ($didActivo === -1) {
-        // Si la serie es DESCONOCIDO, vacía o null, igual se marca como inactivo
-        if ($mSerie === 'DESCONOCIDO' || $mSerie === '') {
-            $alertas[] = 'SERVICIO INACTIVO';
-            $detalleEsci = "Serie desconocida/vacía pero servicio inactivo";
-        } else {
-            $alertas[] = 'SERVICIO INACTIVO';
-            $detalleEsci = $fConsulta
-                ? "última vez que navegó: $fConsulta"
-                : "Servicio inactivo en Esci";
-        }
-        return;
-    }
-
-    // Caso: número de serie desconocido, vacío o null con DID_ACTIVO = 0
-    if (($mSerie === 'DESCONOCIDO' || $mSerie === '') && $didActivo === 0) {
-        $alertas[] = 'SIN NAVEGACION';
-        $detalleEsci = ($mSerie === '')
-            ? "Serie vacía en Esci"
-            : "Número de serie desconocido en Esci";
-        return;
-    }
-
-    // Caso: servicio sin navegación (DID_ACTIVO = 0 con serie válida)
-    if ($didActivo === 0) {
-        $alertas[] = 'SIN NAVEGACION';
-        if ($fConsulta) {
-            $detalleEsci = "última revisión: $fConsulta";
         }
         return;
     }
 }
-
-
-
-
-    // ACTUAL //
-
-   /* private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
-{
-    $esci = $data['esci'] ?? null;
-    if (!$esci) {
-        return; // no hay datos de esci para este teléfono
-    }
-
-    $mSerie     = strtoupper(trim($esci['M_SERIE'] ?? ''));
-    $didActivo  = isset($esci['DID_ACTIVO']) ? intval($esci['DID_ACTIVO']) : null;
-    $fConsulta  = $esci['F_CONSULTA'] ?? null;
-
-    // Caso: servicio inactivo (DID_ACTIVO = -1) → prioridad absoluta
-    if ($didActivo === -1) {
-        $alertas[] = 'SERVICIO INACTIVO';
-        if ($fConsulta) {
-            $detalleEsci = "última vez que navegó: $fConsulta";
-        } else {
-            $detalleEsci = "Servicio inactivo en Esci";
-        }
-        return;
-    }
-
-    // Caso: número de serie desconocido (solo si no es -1)
-    if ($mSerie === 'DESCONOCIDO') {
-        $alertas[] = 'SIN NAVEGACION';
-        $detalleEsci = "Número de serie desconocido en Esci";
-        return;
-    }
-
-    // Caso: servicio sin navegación (DID_ACTIVO = 0)
-    if ($didActivo === 0) {
-        $alertas[] = 'SIN NAVEGACION';
-        if ($fConsulta) {
-            $detalleEsci = "última revisión: $fConsulta";
-        }
-        return;
-    }
-} */
-
-
-/*private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
-{
-    $esci = $data['esci'] ?? null;
-    var_dump($esci);
-    
-    if (!$esci) {
-        return; // no hay datos de esci para este teléfono
-    }
-
-    //tomar el campo M_SERIE del array $esci.
-    $mSerie = strtoupper(trim($esci['M_SERIE'] ?? ''));
-    
-    // tomar el campo DID_ACTIVO del array $esci.
-    $didActivo = isset($esci['DID_ACTIVO']) ? intval($esci['DID_ACTIVO']) : null;
-    
-    //tomas el campo F_CONSULTA del array $esci.
-    $fConsulta = $esci['F_CONSULTA'] ?? null; // ahora usamos F_CONSULTA
-
-    // Caso: número de serie desconocido
-    if ($mSerie === 'DESCONOCIDO') {
-        $alertas[] = 'SIN NAVEGACION';
-        $detalleEsci = "Número de serie desconocido en Esci";
-        return;
-    }
-
-    // Caso: servicio sin navegación (DID_ACTIVO = 0)
-    if ($didActivo === 0) {
-        $alertas[] = 'SIN NAVEGACION';
-        if ($fConsulta) {
-            $detalleEsci = "ultima revision: $fConsulta";
-        }
-        return;
-    }
-
-    // Caso: servicio inactivo (DID_ACTIVO = -1)
-    if ($didActivo === -1) {
-        $alertas[] = 'SERVICIO INACTIVO';
-        if ($fConsulta) {
-            $detalleEsci = "ultima vez que navego: $fConsulta";
-        }
-        return;
-    }
-} */
-
-
-   /*private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
-{
-    $esci = $data['esci'] ?? null;
-    if (!$esci) {
-        return; // no hay datos de esci para este teléfono
-    }
-
-    $mSerie     = strtoupper(trim($esci['M_SERIE'] ?? ''));
-    $didActivo  = isset($esci['DID_ACTIVO']) ? intval($esci['DID_ACTIVO']) : null;
-    $fConsulta  = $esci['F_CONSULTA'] ?? null;
-
-    // Caso: servicio inactivo (DID_ACTIVO = -1) → siempre SIN SERVICIO
-    if ($didActivo === -1) {
-        $alertas[] = 'SIN SERVICIO';
-        if ($fConsulta) {
-            $detalleEsci = "ultima vez que navego: $fConsulta";
-        } else {
-            $detalleEsci = "Servicio inactivo";
-        }
-        return;
-    }
-
-    // Caso: número de serie desconocido (solo aplica si no es -1)
-    if ($mSerie === 'DESCONOCIDO') {
-        $alertas[] = 'SIN NAVEGACION';
-        $detalleEsci = "Numero de serie desconocido en Esci";
-        return;
-    }
-
-    // Caso: servicio sin navegación (DID_ACTIVO = 0)
-    if ($didActivo === 0) {
-        $alertas[] = 'SIN NAVEGACION';
-        if ($fConsulta) {
-            $detalleEsci = "ultima revision: $fConsulta";
-        }
-        return;
-    }
-} */
-
-
-
-/*private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
-{
-    $esci = $data['esci'] ?? null;
-    var_dump($esci);
-    
-    if (!$esci) {
-        return; // no hay datos de esci para este teléfono
-    }
-
-    //tomar el campo M_SERIE del array $esci.
-    $mSerie = strtoupper(trim($esci['M_SERIE'] ?? ''));
-    
-    // tomar el campo DID_ACTIVO del array $esci.
-    $didActivo = isset($esci['DID_ACTIVO']) ? intval($esci['DID_ACTIVO']) : null;
-    
-    //tomas el campo F_CONSULTA del array $esci.
-    $fConsulta = $esci['F_CONSULTA'] ?? null; // ahora usamos F_CONSULTA
-
-    // Caso: número de serie desconocido
-    if ($mSerie === 'DESCONOCIDO') {
-        $alertas[] = 'SIN NAVEGACION';
-        $detalleEsci = "Número de serie desconocido en Esci";
-        return;
-    }
-
-    // Caso: servicio sin navegación (DID_ACTIVO = 0)
-    if ($didActivo === 0) {
-        $alertas[] = 'SIN NAVEGACION';
-        if ($fConsulta) {
-            $detalleEsci = "ultima revision: $fConsulta";
-        }
-        return;
-    }
-
-    // Caso: servicio inactivo (DID_ACTIVO = -1)
-    if ($didActivo === -1) {
-        $alertas[] = 'SERVICIO INACTIVO';
-        if ($fConsulta) {
-            $detalleEsci = "ultima vez que navego: $fConsulta";
-        }
-        return;
-    }
-} */
 
 
 
@@ -1710,7 +1430,7 @@ private function alertaLedsOntFallida($data, &$alertas)
     }
 } */
  
-/*private function alertaFotoDomicilioFallida($data, &$alertas)
+private function alertaFotoDomicilioFallida($data, &$alertas)
 {
     $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
     $foto = $data['coord']['validacion_foto_fachada_intento'];
@@ -1725,28 +1445,7 @@ private function alertaLedsOntFallida($data, &$alertas)
         $primeros3 = substr($foto, 0, 3);
         $alertas[] = 'FOTO DOMICILIO FALLIDA ERROR IA (' . $primeros3 . ' NO RESPONDIO)';
     }
-} */
-
-    private function alertaFotoDomicilioFallida($data, &$alertas)
-{
-    $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
-    $foto  = $data['coord']['validacion_foto_fachada_intento'] ?? '';
-
-    // Convertir siempre a string para evitar warnings
-    $fotoStr = (string)$foto;
-
-    if ((int)$valor === 1 && str_contains($fotoStr, 'NO RECONOCIO')) {
-        $primeros3 = substr($fotoStr, 0, 3);
-        $alertas[] = 'FOTO DOMICILIO FALLIDA MAL TOMADA (' . $primeros3 . ' NO RECONOCIO)';
-    } elseif ((int)$valor === 1 && str_contains($fotoStr, 'NO RESPONDIO 422')) {
-        $primeros3 = substr($fotoStr, 0, 3);
-        $alertas[] = 'FOTO DOMICILIO FALLIDA MAL TOMADA (' . $primeros3 . ' NO RECONOCIO)';
-    } elseif ((int)$valor === 1 && str_contains($fotoStr, 'NO RESPONDIO 500')) {
-        $primeros3 = substr($fotoStr, 0, 3);
-        $alertas[] = 'FOTO DOMICILIO FALLIDA ERROR IA (' . $primeros3 . ' NO RESPONDIO)';
-    }
 }
-
 
 
 //  FOTO DOMICILIO IA 
@@ -1777,30 +1476,7 @@ private function alertaLedsOntFallida($data, &$alertas)
 // FOTO TERMINAL IA
 
 // FOTO TERMINAL IA
-
 private function alertaTerminalFallidaIA($data, &$alertas)
-{
-    $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
-    $foto  = $data['coord']['validacion_foto_terminal_intento'] ?? '';
-
-    // Convertir siempre a string para evitar warnings
-    $fotoStr = (string)$foto;
-
-    if ((int)$valor === 1 && str_contains($fotoStr, 'NO RECONOCIO')) {
-        $primeros3 = substr($fotoStr, 0, 3);
-        $alertas[] = 'FOTO TERMINAL FALLIDA MAL TOMADA (' . $primeros3 . ' NO RECONOCIO)';
-    } elseif ((int)$valor === 1 && str_contains($fotoStr, 'NO RESPONDIO 422')) {
-        $primeros3 = substr($fotoStr, 0, 3);
-        $alertas[] = 'FOTO TERMINAL FALLIDA MAL TOMADA (' . $primeros3 . ' NO RECONOCIO)';
-    } elseif ((int)$valor === 1 && str_contains($fotoStr, 'NO RESPONDIO 500')) {
-        $primeros3 = substr($fotoStr, 0, 3);
-        $alertas[] = 'FOTO TERMINAL FALLIDA ERROR IA (' . $primeros3 . ' NO RESPONDIO)';
-    }
-}
-
-
-
-/*private function alertaTerminalFallidaIA($data, &$alertas)
 {
     $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
     $foto = $data['coord']['validacion_foto_terminal_intento'];
@@ -1815,7 +1491,7 @@ private function alertaTerminalFallidaIA($data, &$alertas)
         $primeros3 = substr($foto, 0, 3);
         $alertas[] = 'FOTO TERMINAL FALLIDA ERROR IA (' . $primeros3 . ' NO RESPONDIO)';
     }
-} */
+}
 
 
 /*private function alertaTerminalFallidaIA($data, &$alertas)
