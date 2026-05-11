@@ -63,8 +63,8 @@ try {
     echo json_encode([
         "ok" => true,
         "msg" => "Procesamiento completado (alertas y correctas, sin duplicados)",
-        "total" => count($registros),
-        "debug" => $debugRows
+        "total" => count($registros)
+       // "debug" => $debugRows
          //"debug" => $registros
     ]);
 
