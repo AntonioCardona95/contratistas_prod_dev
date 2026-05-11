@@ -420,9 +420,9 @@ foreach ($conexion->query($sql) as $row) {
 
     
 ];
-echo "<pre>";
-    var_dump($row);
-    echo "</pre>";
+//echo "<pre>";
+  //  var_dump($row);
+   // echo "</pre>";
         //$tacOrdenData[$tel][] = $row['Fecha_Liq'];
       //  echo "<pre>";
     //var_dump($tel);
@@ -1029,7 +1029,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     }
 } */
 
-    private function alertaOrdenRevision30Dias($data, &$alertas)
+   /* private function alertaOrdenRevision30Dias($data, &$alertas)
 {
     $fechas = $data['tacOrdenHist'] ?? null;
 
@@ -1042,7 +1042,22 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
         //var_dump($fechas);
         //echo "</pre>";
     }
-} 
+} */
+
+    private function alertaOrdenRevision30Dias($data, &$alertas)
+{
+    $historial = $data['tacOrdenHist'] ?? null;
+
+    if (!empty($historial)) {
+        foreach ($historial as $registro) {
+            if (($registro['Tipo'] ?? '') === 'ORDEN') {
+                $alertas[] = "ORDEN A REVISION POR 30 DIAS";
+                break; // con uno basta
+            }
+        }
+    }
+}
+
 
 
 
