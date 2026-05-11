@@ -1059,7 +1059,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     }
 } */
 
-  /*  private function alertaOrdenRevision30Dias($tacOrdenHist, &$alertas)
+  private function alertaOrdenRevision30Dias($tacOrdenHist, &$alertas)
 {
     if (!empty($tacOrdenHist)) {
         foreach ($tacOrdenHist as $registro) {
@@ -1069,46 +1069,9 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
             }
         }
     }
-} */
+} 
 
-private function alertaOrdenRevision30Dias($tacOrdenHist, &$alertas)
-{
-    // 🔎 Depuración TAC ORDEN HIST
-    //echo "<pre>";
-    //echo "===== TAC ORDEN HIST =====\n";
-    //var_dump($tacOrdenHist);
 
-    //echo "\n===== ALERTAS ANTES =====\n";
-    //var_dump($alertas);
-   // echo "</pre>";
-
-    if (!empty($tacOrdenHist)) {
-
-        foreach ($tacOrdenHist as $registro) {
-
-            $fecha  = $registro['Fecha_Liq'] ?? null;
-            $ultima = $registro['Ultima_Fecha'] ?? null;
-            $tipo   = $registro['Tipo'] ?? '';
-
-            if ($tipo === 'ORDEN' && $fecha && $ultima) {
-
-                $diff = abs(strtotime($fecha) - strtotime($ultima)) / 86400;
-
-                if ($diff <= 30) {
-                    $alertas[] = "ORDEN A REVISION POR 30 DIAS";
-
-                    // 🔎 Depuración después de agregar alerta
-                    echo "<pre>";
-                    echo "===== ALERTAS DESPUÉS =====\n";
-                    var_dump($alertas);
-                    echo "</pre>";
-
-                    break;
-                }
-            }
-        }
-    }
-}
 
 
 
