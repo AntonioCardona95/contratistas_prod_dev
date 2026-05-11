@@ -1188,7 +1188,7 @@ private function alertaOrdenRevision30Dias($data, &$alertas)
     if ($didActivo === -1) {
         $alertas[] = 'SIN SERVICIO';
         if ($fConsulta) {
-            $detalleEsci = "última vez que navegó: $fConsulta";
+            $detalleEsci = "ultima vez que navego: $fConsulta";
         } else {
             $detalleEsci = "Servicio inactivo";
         }
@@ -1198,7 +1198,7 @@ private function alertaOrdenRevision30Dias($data, &$alertas)
     // Caso: número de serie desconocido (solo aplica si no es -1)
     if ($mSerie === 'DESCONOCIDO') {
         $alertas[] = 'SIN NAVEGACION';
-        $detalleEsci = "Número de serie desconocido en Esci";
+        $detalleEsci = "Numero de serie desconocido en Esci";
         return;
     }
 
@@ -1206,7 +1206,7 @@ private function alertaOrdenRevision30Dias($data, &$alertas)
     if ($didActivo === 0) {
         $alertas[] = 'SIN NAVEGACION';
         if ($fConsulta) {
-            $detalleEsci = "última revisión: $fConsulta";
+            $detalleEsci = "ultima revision: $fConsulta";
         }
         return;
     }
