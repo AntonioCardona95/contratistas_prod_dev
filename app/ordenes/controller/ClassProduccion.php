@@ -1051,21 +1051,20 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     }
 } */
 
-    private function alertaOrdenRevision30Dias($data, &$alertas)
+private function alertaOrdenRevision30Dias($data, &$alertas)
 {
     $fechas = $data['tacOrdenHist'] ?? null;
 
     if (!empty($fechas)) {
-        $alertas[] = "ORDEN A REVISION POR 30 DIAS";
-
-        // 🔎 Depuración: imprimir lo que trae $data en texto plano
-        echo "<pre>";
-        //var_dump($data);
-        var_dump($fechas);
-        echo "</pre>";
+        foreach ($fechas as $f) {
+            if (($f['Tipo'] ?? '') === 'ORDEN') {
+                $alertas[] = "ORDEN A REVISION POR 30 DIAS";
+                echo "<pre>"; var_dump($f); echo "</pre>"; // depuración
+                break;
+            }
+        }
     }
 }
-
 
 
   /*  private function alertaOrdenRevision30Dias($data, &$alertas)
