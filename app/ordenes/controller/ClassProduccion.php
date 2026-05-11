@@ -401,7 +401,7 @@ foreach ($conexion->query($sql) as $row) {
               AND TIPO = 'ORDEN'
             GROUP BY TELEFONO
         )
-        SELECT u.TELEFONO, t.Folio_Pisa, DATE(t.FECHA_LIQ) AS Fecha_Liq, u.ultima_fecha
+        SELECT u.TELEFONO, t.Folio_Pisa, DATE(t.FECHA_LIQ) AS Fecha_Liq, u.ultima_fecha,t.TIPO
         FROM ultimas u
         JOIN qm_tac t ON t.TELEFONO = u.TELEFONO
         WHERE t.Calificador_Edo = 'COMPLETADA'
@@ -413,7 +413,11 @@ foreach ($conexion->query($sql) as $row) {
     ";
     foreach ($conexion_analisis->query($sqlOrden) as $row) {
         $tel = trim($row['TELEFONO']);
-        $tacOrdenData[$tel][] = $row['Fecha_Liq'];
+        $tacOrdenData[$tel][] = [
+    'Fecha_Liq' => $row['Fecha_Liq'],
+    'Tipo'      => $row['TIPO']
+];
+        //$tacOrdenData[$tel][] = $row['Fecha_Liq'];
         
         
     }
