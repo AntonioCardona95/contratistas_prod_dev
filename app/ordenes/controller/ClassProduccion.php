@@ -1009,7 +1009,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
 } */
 
 
-    private function alertaOrdenRevision30Dias($data, &$alertas)
+  /*  private function alertaOrdenRevision30Dias($data, &$alertas)
 {
     $fechas = $data['tacOrdenHist'] ?? null;
 
@@ -1022,7 +1022,30 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     if (!empty($fechas)) {
         $alertas[] = "ORDEN A REVISION POR 30 DIAS";
     }
+} */
+
+    private function alertaOrdenRevision30Dias($data, &$alertas)
+{
+    $fechas = $data['tacOrdenHist'] ?? null;
+
+    // Debug: imprimir todo en pantalla
+    echo "<pre>";
+    echo "=== DATA COMPLETO ===\n";
+    var_dump($data);
+
+    echo "\n=== ALERTAS ===\n";
+    var_dump($alertas);
+
+    echo "\n=== FECHAS (tacOrdenHist) ===\n";
+    var_dump($fechas);
+    echo "</pre>";
+
+    // Lógica normal
+    if (!empty($fechas)) {
+        $alertas[] = "ORDEN A REVISION POR 30 DIAS";
+    }
 }
+
 
 
 
