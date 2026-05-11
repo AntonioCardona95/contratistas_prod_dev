@@ -578,10 +578,10 @@ $telefono_a_buscar = "6144207269";
 } */
 
 
-        echo "<pre>";
-        var_dump($tacOrdenHist);
+        //echo "<pre>";
+        //var_dump($tacOrdenHist);
         //var_dump($fechas);
-        echo "</pre>";
+        //echo "</pre>";
 
         $serieTac   = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
@@ -720,10 +720,31 @@ private function evaluarAlertas($data)
     $detalleSeries = null;
 
     // =========================
+    // Verificar si es una QUEJA
+    // =========================
+    $tipoTarea = $data['tipoTarea'] ?? '';
+    $quejas = ['Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597', 'F841'];
+
+    $esQueja = false;
+    foreach ($quejas as $queja) {
+        if (strpos($tipoTarea, $queja) === 0) {  // Verificar si el tipoTarea empieza con alguna de las secuencias
+            $esQueja = true;
+            break;
+        }
+    }
+
+    // =========================
+    // ALERTA ORDEN 30 DÍAS - SOLO SI NO ES UNA QUEJA
+    // =========================
+    if (!$esQueja) {
+        $this->alertaOrdenRevision30Dias($data['tacOrdenHist'] ?? null, $alertas);
+    }
+
+    // =========================
     // ALERTA ORDEN 30 DÍAS
     // =========================
     //$this->alertaOrdenRevision30Dias($data, $alertas);
-    $this->alertaOrdenRevision30Dias($data['tacOrdenHist'] ?? null, $alertas);
+    //$this->alertaOrdenRevision30Dias($data['tacOrdenHist'] ?? null, $alertas);
 
     // =========================
     // CASO: NO EXISTE COORDIAPP
@@ -1092,7 +1113,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     }
 } */
 
-  private function alertaOrdenRevision30Dias($tacOrdenHist, &$alertas)
+ private function alertaOrdenRevision30Dias($tacOrdenHist, &$alertas)
 {
     if (!empty($tacOrdenHist)) {
         foreach ($tacOrdenHist as $registro) {
@@ -1102,8 +1123,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
             }
         }
     }
-} 
-
+}
 
 
 
