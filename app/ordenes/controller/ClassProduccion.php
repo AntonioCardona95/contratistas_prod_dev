@@ -427,6 +427,13 @@ foreach ($conexion->query($sql) as $row) {
       //  echo "<pre>";
     //var_dump($tel);
     //echo "</pre>";
+
+    echo "<pre>";
+    echo "Clave usada en tacOrdenData: ";
+    var_dump($tel);
+    echo "Contenido guardado para esta clave: ";
+    var_dump($tacOrdenData[$tel]);
+    echo "</pre>";
         
     }
 
