@@ -1470,7 +1470,7 @@ private function alertaLedsOntFallida($data, &$alertas)
     }
 } */
  
-private function alertaFotoDomicilioFallida($data, &$alertas)
+/*private function alertaFotoDomicilioFallida($data, &$alertas)
 {
     $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
     $foto = $data['coord']['validacion_foto_fachada_intento'];
@@ -1485,7 +1485,28 @@ private function alertaFotoDomicilioFallida($data, &$alertas)
         $primeros3 = substr($foto, 0, 3);
         $alertas[] = 'FOTO DOMICILIO FALLIDA ERROR IA (' . $primeros3 . ' NO RESPONDIO)';
     }
+} */
+
+    private function alertaFotoDomicilioFallida($data, &$alertas)
+{
+    $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
+    $foto  = $data['coord']['validacion_foto_fachada_intento'] ?? '';
+
+    // Convertir siempre a string para evitar warnings
+    $fotoStr = (string)$foto;
+
+    if ((int)$valor === 1 && str_contains($fotoStr, 'NO RECONOCIO')) {
+        $primeros3 = substr($fotoStr, 0, 3);
+        $alertas[] = 'FOTO DOMICILIO FALLIDA MAL TOMADA (' . $primeros3 . ' NO RECONOCIO)';
+    } elseif ((int)$valor === 1 && str_contains($fotoStr, 'NO RESPONDIO 422')) {
+        $primeros3 = substr($fotoStr, 0, 3);
+        $alertas[] = 'FOTO DOMICILIO FALLIDA MAL TOMADA (' . $primeros3 . ' NO RECONOCIO)';
+    } elseif ((int)$valor === 1 && str_contains($fotoStr, 'NO RESPONDIO 500')) {
+        $primeros3 = substr($fotoStr, 0, 3);
+        $alertas[] = 'FOTO DOMICILIO FALLIDA ERROR IA (' . $primeros3 . ' NO RESPONDIO)';
+    }
 }
+
 
 
 //  FOTO DOMICILIO IA 
@@ -1516,7 +1537,30 @@ private function alertaFotoDomicilioFallida($data, &$alertas)
 // FOTO TERMINAL IA
 
 // FOTO TERMINAL IA
+
 private function alertaTerminalFallidaIA($data, &$alertas)
+{
+    $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
+    $foto  = $data['coord']['validacion_foto_terminal_intento'] ?? '';
+
+    // Convertir siempre a string para evitar warnings
+    $fotoStr = (string)$foto;
+
+    if ((int)$valor === 1 && str_contains($fotoStr, 'NO RECONOCIO')) {
+        $primeros3 = substr($fotoStr, 0, 3);
+        $alertas[] = 'FOTO TERMINAL FALLIDA MAL TOMADA (' . $primeros3 . ' NO RECONOCIO)';
+    } elseif ((int)$valor === 1 && str_contains($fotoStr, 'NO RESPONDIO 422')) {
+        $primeros3 = substr($fotoStr, 0, 3);
+        $alertas[] = 'FOTO TERMINAL FALLIDA MAL TOMADA (' . $primeros3 . ' NO RECONOCIO)';
+    } elseif ((int)$valor === 1 && str_contains($fotoStr, 'NO RESPONDIO 500')) {
+        $primeros3 = substr($fotoStr, 0, 3);
+        $alertas[] = 'FOTO TERMINAL FALLIDA ERROR IA (' . $primeros3 . ' NO RESPONDIO)';
+    }
+}
+
+
+
+/*private function alertaTerminalFallidaIA($data, &$alertas)
 {
     $valor = $data['coord']['validacion_foto_fallida'] ?? 0;
     $foto = $data['coord']['validacion_foto_terminal_intento'];
@@ -1531,7 +1575,7 @@ private function alertaTerminalFallidaIA($data, &$alertas)
         $primeros3 = substr($foto, 0, 3);
         $alertas[] = 'FOTO TERMINAL FALLIDA ERROR IA (' . $primeros3 . ' NO RESPONDIO)';
     }
-}
+} */
 
 
 /*private function alertaTerminalFallidaIA($data, &$alertas)
