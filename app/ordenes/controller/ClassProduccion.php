@@ -415,7 +415,8 @@ foreach ($conexion->query($sql) as $row) {
         $tel = trim($row['TELEFONO']);
         $tacOrdenData[$tel][] = [
     'Fecha_Liq' => $row['Fecha_Liq'],
-    'Tipo'      => $row['TIPO']
+    'Tipo'      => $row['TIPO'],
+    'Telefono'   => $row['TELEFONO']
 ];
         //$tacOrdenData[$tel][] = $row['Fecha_Liq'];
         
