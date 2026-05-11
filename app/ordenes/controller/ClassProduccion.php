@@ -420,10 +420,13 @@ foreach ($conexion->query($sql) as $row) {
 
     
 ];
-        //$tacOrdenData[$tel][] = $row['Fecha_Liq'];
-        echo "<pre>";
-    var_dump($tel);
+echo "<pre>";
+    var_dump($row);
     echo "</pre>";
+        //$tacOrdenData[$tel][] = $row['Fecha_Liq'];
+      //  echo "<pre>";
+    //var_dump($tel);
+    //echo "</pre>";
         
     }
 
