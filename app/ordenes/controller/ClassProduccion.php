@@ -392,45 +392,7 @@ foreach ($conexion->query($sql) as $row) {
     // =========================
     // HISTORIAL ORDEN (30 días)
     // =========================
-    // =========================
-// HISTORIAL ORDEN (30 días)
-// =========================
-$tacOrdenData = [];
-$sqlOrden = "
-    WITH ultimas AS (
-        SELECT TELEFONO, MAX(DATE(FECHA_LIQ)) AS ultima_fecha
-        FROM qm_tac
-        WHERE Calificador_Edo = 'COMPLETADA'
-          AND TIPO = 'ORDEN'
-        GROUP BY TELEFONO
-    )
-    SELECT u.TELEFONO,
-           t.Folio_Pisa,
-           DATE(t.FECHA_LIQ) AS Fecha_Liq,
-           u.ultima_fecha,
-           t.TIPO
-    FROM ultimas u
-    JOIN qm_tac t ON t.TELEFONO = u.TELEFONO
-    WHERE t.Calificador_Edo = 'COMPLETADA'
-      AND t.TIPO = 'ORDEN'
-      AND DATE(t.FECHA_LIQ) BETWEEN u.ultima_fecha - INTERVAL 30 DAY
-                               AND u.ultima_fecha + INTERVAL 30 DAY
-      AND DATE(t.FECHA_LIQ) <> u.ultima_fecha
-    ORDER BY u.TELEFONO, t.FECHA_LIQ
-";
-
-foreach ($conexion_analisis->query($sqlOrden) as $row) {
-    $tel = trim($row['TELEFONO']);
-    $tacOrdenData[$tel][] = [
-        'Telefono'     => $row['TELEFONO'],
-        'Folio_Pisa'   => $row['Folio_Pisa'],
-        'Fecha_Liq'    => $row['Fecha_Liq'],
-        'Ultima_Fecha' => $row['ultima_fecha'],
-        'Tipo'         => $row['TIPO']
-    ];
-}
-
-    /*$tacOrdenData = [];
+    $tacOrdenData = [];
     $sqlOrden = "
         WITH ultimas AS (
             SELECT TELEFONO, MAX(DATE(FECHA_LIQ)) AS ultima_fecha
@@ -454,7 +416,7 @@ foreach ($conexion_analisis->query($sqlOrden) as $row) {
         $tacOrdenData[$tel][] = $row['Fecha_Liq'];
         
         
-    } */
+    }
 
   // =========================
 // ESCI
@@ -1051,20 +1013,21 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     }
 } */
 
-private function alertaOrdenRevision30Dias($data, &$alertas)
+    private function alertaOrdenRevision30Dias($data, &$alertas)
 {
     $fechas = $data['tacOrdenHist'] ?? null;
 
     if (!empty($fechas)) {
-        foreach ($fechas as $f) {
-            if (($f['Tipo'] ?? '') === 'ORDEN') {
-                $alertas[] = "ORDEN A REVISION POR 30 DIAS";
-                echo "<pre>"; var_dump($f); echo "</pre>"; // depuración
-                break;
-            }
-        }
+        $alertas[] = "ORDEN A REVISION POR 30 DIAS";
+
+        // 🔎 Depuración: imprimir lo que trae $data en texto plano
+        echo "<pre>";
+        //var_dump($data);
+        var_dump($fechas);
+        echo "</pre>";
     }
 }
+
 
 
   /*  private function alertaOrdenRevision30Dias($data, &$alertas)
