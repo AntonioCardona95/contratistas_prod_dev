@@ -537,6 +537,10 @@ WHERE Folio_Pisa = ?
         $esci  = $esciData[$telefono] ?? null;
 
         $tacOrdenHist = $tacOrdenData[$telefono] ?? null;
+        echo "<pre>";
+        var_dump($tacOrdenHist);
+        //var_dump($fechas);
+        echo "</pre>";
 
         $serieTac   = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
@@ -1025,10 +1029,10 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
         $alertas[] = "ORDEN A REVISION POR 30 DIAS";
 
         // 🔎 Depuración: imprimir lo que trae $data en texto plano
-        echo "<pre>";
+        //echo "<pre>";
         //var_dump($data);
-        var_dump($fechas);
-        echo "</pre>";
+        //var_dump($fechas);
+        //echo "</pre>";
     }
 } 
 
