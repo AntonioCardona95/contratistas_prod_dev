@@ -998,7 +998,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     }
 } */
 
-  /*  private function alertaOrdenRevision30Dias($data, &$alertas)
+    private function alertaOrdenRevision30Dias($data, &$alertas)
 {
     $fechas = $data['tacOrdenHist'] ?? null;
 
@@ -1006,42 +1006,9 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     if (!empty($fechas)) {
         $alertas[] = "ORDEN A REVISION POR 30 DIAS";
     }
-} */
-
-/*private function alertaOrdenRevision30Dias($data, &$alertas)
-{
-    $fechas = $data['tacOrdenHist'] ?? null;
-
-    // Debug directo en salida AJAX
-    var_dump("=== DATA ===", $data);
-    var_dump("=== ALERTAS ===", $alertas);
-    var_dump("=== FECHAS ===", $fechas);
-
-    if (!empty($fechas)) {
-        $alertas[] = "ORDEN A REVISION POR 30 DIAS";
-    }
-} */
-
-    private function alertaOrdenRevision30Dias($data, &$alertas)
-{
-    $fechas = $data['tacOrdenHist'] ?? null;
-
-    // Debug directo en salida AJAX
-    //var_dump("=== DATA ===", $data);
-    //var_dump("=== ALERTAS ===", $alertas);
-    //var_dump("=== TIPO ===", $data['TIPO'] ?? null);
-    //var_dump("=== FECHAS ===", $fechas);
-
-    // Solo aplicar a registros tipo ORDEN
-    if (($data['TIPO'] ?? '') !== 'ORDEN') {
-        return;
-    }
-
-    // Si tiene historial de órdenes dentro de 30 días
-    if (!empty($fechas)) {
-        $alertas[] = "ORDEN A REVISION POR 30 DIAS";
-    }
 }
+
+
 
 
 
