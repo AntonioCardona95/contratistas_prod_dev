@@ -1000,7 +1000,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
 
    private function alertaOrdenRevision30Dias($data, &$alertas)
 {
-    var_dump($data);
+    //var_dump($data);
     $fechas = $data['tacOrdenHist'] ?? null;
 
     // Si el SQL ya filtró, basta con verificar si hay registros
