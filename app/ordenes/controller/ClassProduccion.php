@@ -1002,11 +1002,34 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
 {
     $fechas = $data['tacOrdenHist'] ?? null;
 
+    // Debug: imprimir lo que llega
+    echo "<pre>";
+    echo "=== DATA ===\n";
+    var_dump($data);
+
+    echo "\n=== ALERTAS ===\n";
+    var_dump($alertas);
+
+    echo "\n=== FECHAS (tacOrdenHist) ===\n";
+    var_dump($fechas);
+    echo "</pre>";
+
     // Si el SQL ya filtró, basta con verificar si hay registros
     if (!empty($fechas)) {
         $alertas[] = "ORDEN A REVISION POR 30 DIAS";
     }
 }
+
+
+/*    private function alertaOrdenRevision30Dias($data, &$alertas)
+{
+    $fechas = $data['tacOrdenHist'] ?? null;
+
+    // Si el SQL ya filtró, basta con verificar si hay registros
+    if (!empty($fechas)) {
+        $alertas[] = "ORDEN A REVISION POR 30 DIAS";
+    }
+} */
 
 
 
@@ -1177,7 +1200,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
 private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
 {
     $esci = $data['esci'] ?? null;
-    var_dump($esci);
+    //var_dump($esci);
     
     if (!$esci) {
         return; // no hay datos de esci para este teléfono
