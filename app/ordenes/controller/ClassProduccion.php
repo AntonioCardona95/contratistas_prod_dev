@@ -536,16 +536,6 @@ WHERE Folio_Pisa = ?
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
         $serieEsci  = $esci['M_SERIE'] ?? null;
 
-        echo "<pre>";
-echo " ANTES DE evaluarAlertas - FOLIO: $folio\n";
-var_dump([
-    'folio' => $folio,
-    'telefono' => $telefono,
-    'coord' => $coord,
-    'tacOrdenHist' => $tacOrdenHist
-]);
-echo "</pre>";
-
         $resultadoAlertas = $this->evaluarAlertas([
             'folio' => $folio,
             'telefono' => $telefono,
@@ -1008,28 +998,16 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     }
 } */
 
-    private function alertaOrdenRevision30Dias($data, &$alertas)
+   private function alertaOrdenRevision30Dias($data, &$alertas)
 {
-    echo "<pre>🔥 ENTRO A ALERTA 30 DIAS</pre>";
-    var_dump($data);
-
-    $fechas = $data['tacOrdenHist'] ?? null;
-
-    if (!empty($fechas)) {
-        $alertas[] = "ORDEN A REVISION POR 30 DIAS";
-    }
-}
-
-  /* private function alertaOrdenRevision30Dias($data, &$alertas)
-{
-    var_dump($data);
+    //var_dump($data);
     $fechas = $data['tacOrdenHist'] ?? null;
 
     // Si el SQL ya filtró, basta con verificar si hay registros
     if (!empty($fechas)) {
         $alertas[] = "ORDEN A REVISION POR 30 DIAS";
     }
-}  */
+} 
 
 
   /*  private function alertaOrdenRevision30Dias($data, &$alertas)
