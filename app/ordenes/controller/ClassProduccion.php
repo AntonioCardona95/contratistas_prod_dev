@@ -998,7 +998,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     }
 } */
 
- /*   private function alertaOrdenRevision30Dias($data, &$alertas)
+   private function alertaOrdenRevision30Dias($data, &$alertas)
 {
     $fechas = $data['tacOrdenHist'] ?? null;
 
@@ -1006,7 +1006,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     if (!empty($fechas)) {
         $alertas[] = "ORDEN A REVISION POR 30 DIAS";
     }
-} */
+} 
 
 
   /*  private function alertaOrdenRevision30Dias($data, &$alertas)
@@ -1024,7 +1024,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     }
 } */
 
-    private function alertaOrdenRevision30Dias($data, &$alertas)
+   /* private function alertaOrdenRevision30Dias($data, &$alertas)
 {
     $fechas = $data['tacOrdenHist'] ?? null;
 
@@ -1044,7 +1044,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     if (!empty($fechas)) {
         $alertas[] = "ORDEN A REVISION POR 30 DIAS";
     }
-}
+} */
 
 
 
