@@ -1007,7 +1007,9 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
 
     // Si el SQL ya filtró, basta con verificar si hay registros
     if (!empty($fechas)) {
+        echo "<script>console.log('Entró al IF de ORDEN A REVISION POR 30 DIAS');</script>";
         $alertas[] = "ORDEN A REVISION POR 30 DIAS";
+        echo "<script>console.log('Entró al IF de ORDEN A REVISION POR 30 DIAS');</script>";
     }
 } 
 
