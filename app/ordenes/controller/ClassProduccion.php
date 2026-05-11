@@ -536,6 +536,16 @@ WHERE Folio_Pisa = ?
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
         $serieEsci  = $esci['M_SERIE'] ?? null;
 
+        echo "<pre>";
+echo " ANTES DE evaluarAlertas - FOLIO: $folio\n";
+var_dump([
+    'folio' => $folio,
+    'telefono' => $telefono,
+    'coord' => $coord,
+    'tacOrdenHist' => $tacOrdenHist
+]);
+echo "</pre>";
+
         $resultadoAlertas = $this->evaluarAlertas([
             'folio' => $folio,
             'telefono' => $telefono,
