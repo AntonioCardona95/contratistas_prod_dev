@@ -411,7 +411,16 @@ foreach ($conexion->query($sql) as $row) {
           AND DATE(t.FECHA_LIQ) <> u.ultima_fecha
         ORDER BY u.TELEFONO, t.FECHA_LIQ
     ";
+
     foreach ($conexion_analisis->query($sqlOrden) as $row) {
+    $tel = (string) trim($row['TELEFONO']); // 🔹 convertir a string
+    $tacOrdenData[$tel][] = [
+        'Fecha_Liq'    => $row['Fecha_Liq'],
+        'Ultima_Fecha' => $row['ultima_fecha'],
+        'Tipo'         => $row['TIPO']
+    ];
+    
+  /*  foreach ($conexion_analisis->query($sqlOrden) as $row) {
         $tel = trim($row['TELEFONO']);
         $tacOrdenData[$tel][] = [
     'Fecha_Liq' => $row['Fecha_Liq'],
@@ -419,7 +428,9 @@ foreach ($conexion->query($sql) as $row) {
     'Tipo'      => $row['TIPO']
 
     
-];
+]; */
+
+
 //echo "<pre>";
   //  var_dump($row);
    // echo "</pre>";
@@ -558,19 +569,19 @@ WHERE Folio_Pisa = ?
         // Depuración solo para el teléfono que te interesa
 $telefono_a_buscar = "6144207269";
 
-if ($telefono === $telefono_a_buscar) {
+/*if ($telefono === $telefono_a_buscar) {
     echo "<pre>";
     var_dump("Tel a buscar: ", $telefono);
     var_dump("Claves disponibles en tacOrdenData: ", array_keys($tacOrdenData));
     var_dump("Contenido guardado para esta clave: ", $tacOrdenHist);
     echo "</pre>";
-}
+} */
 
 
-        //echo "<pre>";
-        //var_dump($tacOrdenHist);
+        echo "<pre>";
+        var_dump($tacOrdenHist);
         //var_dump($fechas);
-        //echo "</pre>";
+        echo "</pre>";
 
         $serieTac   = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
