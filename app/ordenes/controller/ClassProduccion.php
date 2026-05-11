@@ -1030,7 +1030,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
         var_dump($fechas);
         echo "</pre>";
     }
-}
+} 
 
 
 
