@@ -1074,13 +1074,13 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
 private function alertaOrdenRevision30Dias($tacOrdenHist, &$alertas)
 {
     // 🔎 Depuración TAC ORDEN HIST
-    echo "<pre>";
-    echo "===== TAC ORDEN HIST =====\n";
-    var_dump($tacOrdenHist);
+    //echo "<pre>";
+    //echo "===== TAC ORDEN HIST =====\n";
+    //var_dump($tacOrdenHist);
 
-    echo "\n===== ALERTAS ANTES =====\n";
-    var_dump($alertas);
-    echo "</pre>";
+    //echo "\n===== ALERTAS ANTES =====\n";
+    //var_dump($alertas);
+   // echo "</pre>";
 
     if (!empty($tacOrdenHist)) {
 
