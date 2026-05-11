@@ -428,12 +428,12 @@ foreach ($conexion->query($sql) as $row) {
     //var_dump($tel);
     //echo "</pre>";
 
-    echo "<pre>";
-    echo "Clave usada en tacOrdenData: ";
-    var_dump($tel);
-    echo "Contenido guardado para esta clave: ";
-    var_dump($tacOrdenData[$tel]);
-    echo "</pre>";
+    //echo "<pre>";
+    //echo "Clave usada en tacOrdenData: ";
+    //var_dump($tel);
+    //echo "Contenido guardado para esta clave: ";
+    //var_dump($tacOrdenData[$tel]);
+    //echo "</pre>";
         
     }
 
@@ -552,6 +552,12 @@ WHERE Folio_Pisa = ?
         $esci  = $esciData[$telefono] ?? null;
 
         $tacOrdenHist = $tacOrdenData[$telefono] ?? null;
+        // Depuración para ver por qué no encuentra la clave
+echo "<pre>";
+var_dump("Tel a buscar: ", $telefono);
+var_dump("Claves disponibles en tacOrdenData: ", array_keys($tacOrdenData));
+var_dump("Resultado de la búsqueda: ", $tacOrdenHist);
+echo "</pre>";
         //echo "<pre>";
         //var_dump($tacOrdenHist);
         //var_dump($fechas);
