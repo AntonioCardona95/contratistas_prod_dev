@@ -414,6 +414,11 @@ foreach ($conexion->query($sql) as $row) {
     foreach ($conexion_analisis->query($sqlOrden) as $row) {
         $tel = trim($row['TELEFONO']);
         $tacOrdenData[$tel][] = $row['Fecha_Liq'];
+
+        // DEBUG: ver qué trae cada fila
+    echo "<pre>";
+    var_dump($row);
+    echo "</pre>";
     }
 
   // =========================
