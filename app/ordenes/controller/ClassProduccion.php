@@ -1071,11 +1071,14 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     }
 } */
 
-    private function alertaOrdenRevision30Dias($tacOrdenHist, &$alertas)
+private function alertaOrdenRevision30Dias($tacOrdenHist, &$alertas)
 {
-    // 🔎 Depuración: imprimir lo que trae $tacOrdenHist
+    // 🔎 Depuración TAC ORDEN HIST
     echo "<pre>";
+    echo "===== TAC ORDEN HIST =====\n";
     var_dump($tacOrdenHist);
+
+    echo "\n===== ALERTAS ANTES =====\n";
     var_dump($alertas);
     echo "</pre>";
 
@@ -1093,7 +1096,14 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
 
                 if ($diff <= 30) {
                     $alertas[] = "ORDEN A REVISION POR 30 DIAS";
-                    break; // con uno basta
+
+                    // 🔎 Depuración después de agregar alerta
+                    echo "<pre>";
+                    echo "===== ALERTAS DESPUÉS =====\n";
+                    var_dump($alertas);
+                    echo "</pre>";
+
+                    break;
                 }
             }
         }
