@@ -1027,6 +1027,8 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     $fechas = $data['tacOrdenHist'] ?? null;
 
     // Debug directo en salida AJAX
+    var_dump("=== DATA ===", $data);
+    var_dump("=== ALERTAS ===", $alertas);
     var_dump("=== TIPO ===", $data['TIPO'] ?? null);
     var_dump("=== FECHAS ===", $fechas);
 
