@@ -689,7 +689,8 @@ private function evaluarAlertas($data)
     // =========================
     // ALERTA ORDEN 30 DÍAS
     // =========================
-    $this->alertaOrdenRevision30Dias($data, $alertas);
+    //$this->alertaOrdenRevision30Dias($data, $alertas);
+    $this->alertaOrdenRevision30Dias($data['tacOrdenHist'] ?? null, $alertas);
 
     // =========================
     // CASO: NO EXISTE COORDIAPP
