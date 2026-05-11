@@ -423,17 +423,19 @@ $esciData = [];
 $esciSeriesMap = [];
 $series = [];
 
-// Primero obtenemos las series válidas de los teléfonos en la lista
+// Obtenemos todas las series de los teléfonos en la lista (incluyendo DESCONOCIDO, vacías o null)
 $sqlSeries = "
     SELECT DISTINCT M_SERIE
     FROM seg_ns_eci
     WHERE TELEFONO IN ($inTelefonos)
 ";
 foreach ($conexion_analisis->query($sqlSeries) as $row) {
-    $serie = strtoupper(trim($row['M_SERIE']));
-    if (!empty($serie) && $serie !== 'DESCONOCIDO') {
-        $series[] = "'$serie'";
+    $serie = strtoupper(trim($row['M_SERIE'] ?? ''));
+    // Si viene null o vacío, lo tratamos como cadena vacía
+    if ($serie === null) {
+        $serie = '';
     }
+    $series[] = "'$serie'";
 }
 $inSeries = !empty($series) ? implode(',', array_unique($series)) : "''";
 
@@ -444,6 +446,23 @@ $sql = "
     WHERE M_SERIE IN ($inSeries)
     ORDER BY TELEFONO, F_CONSULTA DESC, FECHA_ULTIMO_EVENTO DESC
 ";
+
+foreach ($conexion_analisis->query($sql) as $row) {
+    $tel   = preg_replace('/\D/', '', $row['TELEFONO']);
+    $serie = strtoupper(trim($row['M_SERIE'] ?? ''));
+
+    // Guardar siempre el primer registro por teléfono
+    if (!isset($esciData[$tel])) {
+        $esciData[$tel] = $row;
+        $esciData[$tel]['M_SERIE'] = $serie;
+    }
+
+    // Guardar en el mapa incluso si la serie es DESCONOCIDO o vacía
+    if (!empty($tel)) {
+        $serieKey = ($serie === null || $serie === '') ? 'VACIO' : $serie;
+        $esciSeriesMap[$serieKey][$tel] = true;
+    }
+}
 
 // En el foreach, nos quedamos con el primer registro de cada teléfono
 // Nota: esto equivale a hacer LIMIT 1 por teléfono
@@ -461,21 +480,7 @@ $sql = "
     }
 } */
 
-foreach ($conexion_analisis->query($sql) as $row) {
-    $tel   = preg_replace('/\D/', '', $row['TELEFONO']);
-    $serie = strtoupper(trim($row['M_SERIE']));
 
-    // Guardar siempre el primer registro por teléfono
-    if (!isset($esciData[$tel])) {
-        $esciData[$tel] = $row;
-        $esciData[$tel]['M_SERIE'] = $serie;
-    }
-
-    // Guardar en el mapa incluso si la serie es DESCONOCIDO
-    if (!empty($serie) && !empty($tel)) {
-        $esciSeriesMap[$serie][$tel] = true;
-    }
-}
 
 
 
