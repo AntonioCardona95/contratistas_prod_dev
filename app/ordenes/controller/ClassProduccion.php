@@ -1286,6 +1286,56 @@ private function alertaOrdenRevision30Dias($data, &$alertas)
 
     // Caso: servicio inactivo (DID_ACTIVO = -1) → prioridad absoluta
     if ($didActivo === -1) {
+        // Si la serie es DESCONOCIDO, vacía o null, igual se marca como inactivo
+        if ($mSerie === 'DESCONOCIDO' || $mSerie === '') {
+            $alertas[] = 'SERVICIO INACTIVO';
+            $detalleEsci = "Serie desconocida/vacía pero servicio inactivo";
+        } else {
+            $alertas[] = 'SERVICIO INACTIVO';
+            $detalleEsci = $fConsulta
+                ? "última vez que navegó: $fConsulta"
+                : "Servicio inactivo en Esci";
+        }
+        return;
+    }
+
+    // Caso: número de serie desconocido, vacío o null con DID_ACTIVO = 0
+    if (($mSerie === 'DESCONOCIDO' || $mSerie === '') && $didActivo === 0) {
+        $alertas[] = 'SIN NAVEGACION';
+        $detalleEsci = ($mSerie === '')
+            ? "Serie vacía en Esci"
+            : "Número de serie desconocido en Esci";
+        return;
+    }
+
+    // Caso: servicio sin navegación (DID_ACTIVO = 0 con serie válida)
+    if ($didActivo === 0) {
+        $alertas[] = 'SIN NAVEGACION';
+        if ($fConsulta) {
+            $detalleEsci = "última revisión: $fConsulta";
+        }
+        return;
+    }
+}
+
+
+
+
+    // ACTUAL //
+
+   /* private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
+{
+    $esci = $data['esci'] ?? null;
+    if (!$esci) {
+        return; // no hay datos de esci para este teléfono
+    }
+
+    $mSerie     = strtoupper(trim($esci['M_SERIE'] ?? ''));
+    $didActivo  = isset($esci['DID_ACTIVO']) ? intval($esci['DID_ACTIVO']) : null;
+    $fConsulta  = $esci['F_CONSULTA'] ?? null;
+
+    // Caso: servicio inactivo (DID_ACTIVO = -1) → prioridad absoluta
+    if ($didActivo === -1) {
         $alertas[] = 'SERVICIO INACTIVO';
         if ($fConsulta) {
             $detalleEsci = "última vez que navegó: $fConsulta";
@@ -1310,7 +1360,7 @@ private function alertaOrdenRevision30Dias($data, &$alertas)
         }
         return;
     }
-}
+} */
 
 
 /*private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
