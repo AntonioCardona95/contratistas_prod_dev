@@ -447,7 +447,7 @@ $sql = "
 
 // En el foreach, nos quedamos con el primer registro de cada teléfono
 // Nota: esto equivale a hacer LIMIT 1 por teléfono
-foreach ($conexion_analisis->query($sql) as $row) {
+/*foreach ($conexion_analisis->query($sql) as $row) {
     $tel = preg_replace('/\D/', '', $row['TELEFONO']);
     $serie = strtoupper(trim($row['M_SERIE']));
 
@@ -459,7 +459,24 @@ foreach ($conexion_analisis->query($sql) as $row) {
     if (!empty($serie) && $serie !== 'DESCONOCIDO' && !empty($tel)) {
         $esciSeriesMap[$serie][$tel] = true;
     }
+} */
+
+foreach ($conexion_analisis->query($sql) as $row) {
+    $tel   = preg_replace('/\D/', '', $row['TELEFONO']);
+    $serie = strtoupper(trim($row['M_SERIE']));
+
+    // Guardar siempre el primer registro por teléfono
+    if (!isset($esciData[$tel])) {
+        $esciData[$tel] = $row;
+        $esciData[$tel]['M_SERIE'] = $serie;
+    }
+
+    // Guardar en el mapa incluso si la serie es DESCONOCIDO
+    if (!empty($serie) && !empty($tel)) {
+        $esciSeriesMap[$serie][$tel] = true;
+    }
 }
+
 
 
    /* foreach ($conexion_analisis->query($sql) as $row) {
