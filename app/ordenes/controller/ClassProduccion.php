@@ -552,12 +552,21 @@ WHERE Folio_Pisa = ?
         $esci  = $esciData[$telefono] ?? null;
 
         $tacOrdenHist = $tacOrdenData[$telefono] ?? null;
+        
         // Depuración para ver por qué no encuentra la clave
-echo "<pre>";
-var_dump("Tel a buscar: ", $telefono);
-var_dump("Claves disponibles en tacOrdenData: ", array_keys($tacOrdenData));
-var_dump("Resultado de la búsqueda: ", $tacOrdenHist);
-echo "</pre>";
+
+        // Depuración solo para el teléfono que te interesa
+$telefono_a_buscar = "6144207269";
+
+if ($telefono === $telefono_a_buscar) {
+    echo "<pre>";
+    var_dump("Tel a buscar: ", $telefono);
+    var_dump("Claves disponibles en tacOrdenData: ", array_keys($tacOrdenData));
+    var_dump("Contenido guardado para esta clave: ", $tacOrdenHist);
+    echo "</pre>";
+}
+
+
         //echo "<pre>";
         //var_dump($tacOrdenHist);
         //var_dump($fechas);
