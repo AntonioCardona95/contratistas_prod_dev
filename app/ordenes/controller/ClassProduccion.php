@@ -1000,18 +1000,33 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     }
 } */
 
-   private function alertaOrdenRevision30Dias($data, &$alertas)
+   /*private function alertaOrdenRevision30Dias($data, &$alertas)
 {
     //var_dump($data);
     $fechas = $data['tacOrdenHist'] ?? null;
 
     // Si el SQL ya filtró, basta con verificar si hay registros
     if (!empty($fechas)) {
-        echo "<script>console.log('Entró al IF de ORDEN A REVISION POR 30 DIAS');</script>";
+        //echo "<script>console.log('Entró al IF de ORDEN A REVISION POR 30 DIAS');</script>";
         $alertas[] = "ORDEN A REVISION POR 30 DIAS";
-        echo "<script>console.log('Entró al IF de ORDEN A REVISION POR 30 DIAS');</script>";
+        //echo "<script>console.log('Entró al IF de ORDEN A REVISION POR 30 DIAS');</script>";
     }
-} 
+} */
+
+    private function alertaOrdenRevision30Dias($data, &$alertas)
+{
+    $fechas = $data['tacOrdenHist'] ?? null;
+
+    if (!empty($fechas)) {
+        $alertas[] = "ORDEN A REVISION POR 30 DIAS";
+
+        // 🔎 Depuración: imprimir lo que trae $data en texto plano
+        echo "<pre>";
+        var_dump($data);
+        echo "</pre>";
+    }
+}
+
 
 
   /*  private function alertaOrdenRevision30Dias($data, &$alertas)
