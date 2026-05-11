@@ -998,30 +998,7 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
     }
 } */
 
-    private function alertaOrdenRevision30Dias($data, &$alertas)
-{
-    $fechas = $data['tacOrdenHist'] ?? null;
-
-    // Debug: imprimir lo que llega
-    echo "<pre>";
-    echo "=== DATA ===\n";
-    var_dump($data);
-
-    echo "\n=== ALERTAS ===\n";
-    var_dump($alertas);
-
-    echo "\n=== FECHAS (tacOrdenHist) ===\n";
-    var_dump($fechas);
-    echo "</pre>";
-
-    // Si el SQL ya filtró, basta con verificar si hay registros
-    if (!empty($fechas)) {
-        $alertas[] = "ORDEN A REVISION POR 30 DIAS";
-    }
-}
-
-
-/*    private function alertaOrdenRevision30Dias($data, &$alertas)
+  /*  private function alertaOrdenRevision30Dias($data, &$alertas)
 {
     $fechas = $data['tacOrdenHist'] ?? null;
 
@@ -1030,6 +1007,21 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
         $alertas[] = "ORDEN A REVISION POR 30 DIAS";
     }
 } */
+
+private function alertaOrdenRevision30Dias($data, &$alertas)
+{
+    $fechas = $data['tacOrdenHist'] ?? null;
+
+    // Debug directo en salida AJAX
+    var_dump("=== DATA ===", $data);
+    var_dump("=== ALERTAS ===", $alertas);
+    var_dump("=== FECHAS ===", $fechas);
+
+    if (!empty($fechas)) {
+        $alertas[] = "ORDEN A REVISION POR 30 DIAS";
+    }
+}
+
 
 
 
