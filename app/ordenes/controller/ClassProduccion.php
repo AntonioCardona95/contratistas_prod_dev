@@ -392,7 +392,45 @@ foreach ($conexion->query($sql) as $row) {
     // =========================
     // HISTORIAL ORDEN (30 días)
     // =========================
-    $tacOrdenData = [];
+    // =========================
+// HISTORIAL ORDEN (30 días)
+// =========================
+$tacOrdenData = [];
+$sqlOrden = "
+    WITH ultimas AS (
+        SELECT TELEFONO, MAX(DATE(FECHA_LIQ)) AS ultima_fecha
+        FROM qm_tac
+        WHERE Calificador_Edo = 'COMPLETADA'
+          AND TIPO = 'ORDEN'
+        GROUP BY TELEFONO
+    )
+    SELECT u.TELEFONO,
+           t.Folio_Pisa,
+           DATE(t.FECHA_LIQ) AS Fecha_Liq,
+           u.ultima_fecha,
+           t.TIPO
+    FROM ultimas u
+    JOIN qm_tac t ON t.TELEFONO = u.TELEFONO
+    WHERE t.Calificador_Edo = 'COMPLETADA'
+      AND t.TIPO = 'ORDEN'
+      AND DATE(t.FECHA_LIQ) BETWEEN u.ultima_fecha - INTERVAL 30 DAY
+                               AND u.ultima_fecha + INTERVAL 30 DAY
+      AND DATE(t.FECHA_LIQ) <> u.ultima_fecha
+    ORDER BY u.TELEFONO, t.FECHA_LIQ
+";
+
+foreach ($conexion_analisis->query($sqlOrden) as $row) {
+    $tel = trim($row['TELEFONO']);
+    $tacOrdenData[$tel][] = [
+        'Telefono'     => $row['TELEFONO'],
+        'Folio_Pisa'   => $row['Folio_Pisa'],
+        'Fecha_Liq'    => $row['Fecha_Liq'],
+        'Ultima_Fecha' => $row['ultima_fecha'],
+        'Tipo'         => $row['TIPO']
+    ];
+}
+
+    /*$tacOrdenData = [];
     $sqlOrden = "
         WITH ultimas AS (
             SELECT TELEFONO, MAX(DATE(FECHA_LIQ)) AS ultima_fecha
@@ -416,7 +454,7 @@ foreach ($conexion->query($sql) as $row) {
         $tacOrdenData[$tel][] = $row['Fecha_Liq'];
         
         
-    }
+    } */
 
   // =========================
 // ESCI
