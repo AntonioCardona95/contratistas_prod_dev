@@ -545,10 +545,10 @@ WHERE Folio_Pisa = ?
         $esci  = $esciData[$telefono] ?? null;
 
         $tacOrdenHist = $tacOrdenData[$telefono] ?? null;
-        echo "<pre>";
-        var_dump($tacOrdenHist);
+        //echo "<pre>";
+        //var_dump($tacOrdenHist);
         //var_dump($fechas);
-        echo "</pre>";
+        //echo "</pre>";
 
         $serieTac   = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
         $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
