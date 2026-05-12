@@ -525,6 +525,7 @@ foreach ($conexion_analisis->query($sql) as $row) {
     if (!isset($esciData[$tel])) {
         $esciData[$tel] = $row;
         $esciData[$tel]['M_SERIE'] = $serie;
+        $esciData[$tel]['TECNOLOGIA'] = $row['TECNOLOGIA']; 
     }
 
     if (!empty($serie) && $serie !== 'DESCONOCIDO' && !empty($tel)) {
