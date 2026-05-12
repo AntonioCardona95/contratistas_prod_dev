@@ -1877,42 +1877,30 @@ private function alertaSeriesDiferentes($data, &$alertas)
 {
     $tecTacRaw   = $data['tac']['TECNOLOGIA']   ?? '';
     $tecCoordRaw = $data['coord']['Tecnologia'] ?? '';
-    $tecEsciRaw  = $data['esci']['TECNOLOGIA']   ?? ''; // Se obtiene el valor de ESCI
+    $tecEsciRaw  = $data['esci']['TECNOLOGIA']  ?? '';
 
     $tecTac   = $this->normalizarTecnologiaAlertas($tecTacRaw);
     $tecCoord = $this->normalizarTecnologiaAlertas($tecCoordRaw);
-    $tecEsci  = $this->normalizarTecnologiaAlertas($tecEsciRaw); // Normalización de ESCI
+    $tecEsci  = $this->normalizarTecnologiaAlertas($tecEsciRaw);
 
-    // Caso 1: TAC tiene valor y Coordiapp no
-    if ($tecTac && !$tecCoord) {
-        $alertas[] = 'TECNOLOGIA_DIFERENTE';
-        $detalleTecnologia = "TECNOLOGIA COORDIAPP: " . ($tecCoordRaw ?: 'SIN DATO') . 
-                             " | TECNOLOGIA TAC: " . ($tecTacRaw ?: 'SIN DATO');
-    }
-    // Caso 2: Ambos tienen valor y son diferentes
-    elseif ($tecTac && $tecCoord && $tecTac !== $tecCoord) {
-        $alertas[] = 'TECNOLOGIA_DIFERENTE';
-        $detalleTecnologia = "TECNOLOGIA COORDIAPP: " . ($tecCoordRaw ?: 'SIN DATO') . 
-                             " | TECNOLOGIA TAC: " . ($tecTacRaw ?: 'SIN DATO');
-    }
+    // Si al menos uno tiene valor, comparamos
+    if ($tecTac || $tecCoord || $tecEsci) {
+        // Si alguno difiere después de normalizar
+        if (($tecTac && $tecCoord && $tecTac !== $tecCoord) ||
+            ($tecTac && $tecEsci && $tecTac !== $tecEsci) ||
+            ($tecCoord && $tecEsci && $tecCoord !== $tecEsci) ||
+            (!$tecCoord && $tecTac) || (!$tecEsci && $tecTac) ) {
 
-    // Caso 3: ESCI es vacío, null o "DESCONOCIDO" y se compara con TAC y COORDIAPP
-    if (empty($tecEsci) || $tecEsci === 'DESCONOCIDO') {
-        // Se compara ESCI con TAC y COORDIAPP solo si alguno de estos tiene valor
-        $alertas[] = 'TECNOLOGIA_DIFERENTE';
-        $detalleTecnologia = "TECNOLOGIA ESCI: " . ($tecEsciRaw ?: 'VACIO o DESCONOCIDO') . 
-                             " | TECNOLOGIA TAC: " . ($tecTacRaw ?: 'SIN DATO') . 
-                             " | TECNOLOGIA COORDIAPP: " . ($tecCoordRaw ?: 'SIN DATO');
-    }
+            $alertas[] = 'TECNOLOGIA_DIFERENTE';
 
-    // Caso 4: Las tres tecnologías son diferentes
-    if (($tecTac !== $tecCoord) || ($tecTac !== $tecEsci) || ($tecCoord !== $tecEsci)) {
-        $alertas[] = 'TECNOLOGIA_DIFERENTE';
-        $detalleTecnologia .= " | TECNOLOGIA TAC: " . ($tecTacRaw ?: 'SIN DATO') . 
-                             " | TECNOLOGIA COORDIAPP: " . ($tecCoordRaw ?: 'SIN DATO') . 
-                             " | TECNOLOGIA ESCI: " . ($tecEsciRaw ?: 'SIN DATO');
+            $detalleTecnologia = 
+                "TECNOLOGIA COORDIAPP: " . ($tecCoordRaw ?: 'SIN DATO') .
+                " | TECNOLOGIA TAC: " . ($tecTacRaw ?: 'SIN DATO') .
+                " | TECNOLOGIA ESCI: " . ($tecEsciRaw ?: 'SIN DATO');
+        }
     }
 }
+
 
 
 
