@@ -1222,46 +1222,36 @@ private function alertaFotosPorTipoQueja($data, &$alertas)
 private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
 {
     $esci = $data['esci'] ?? null;
-    //var_dump($esci);
-    
     if (!$esci) {
         return; // no hay datos de esci para este teléfono
     }
 
-    //tomar el campo M_SERIE del array $esci.
-    $mSerie = strtoupper(trim($esci['M_SERIE'] ?? ''));
-    
-    // tomar el campo DID_ACTIVO del array $esci.
+    $mSerie    = strtoupper(trim($esci['M_SERIE'] ?? ''));
     $didActivo = isset($esci['DID_ACTIVO']) ? intval($esci['DID_ACTIVO']) : null;
-    
-    //tomas el campo F_CONSULTA del array $esci.
-    $fConsulta = $esci['F_CONSULTA'] ?? null; // ahora usamos F_CONSULTA
+    $fConsulta = $esci['F_CONSULTA'] ?? null;
 
-    // Caso: número de serie desconocido
-    if ($mSerie === 'DESCONOCIDO') {
-        $alertas[] = 'SIN NAVEGACION';
-        $detalleEsci = "Número de serie desconocido en Esci";
+    // Caso: servicio inactivo (DID_ACTIVO = -1)
+    if ($didActivo === -1) {
+        $alertas[] = 'SERVICIO INACTIVO';
+        $detalleEsci = "Servicio inactivo en Esci" . ($fConsulta ? " | última vez que navegó: $fConsulta" : "");
         return;
     }
 
     // Caso: servicio sin navegación (DID_ACTIVO = 0)
     if ($didActivo === 0) {
         $alertas[] = 'SIN NAVEGACION';
-        if ($fConsulta) {
-            $detalleEsci = "ultima revision: $fConsulta";
-        }
+        $detalleEsci = "Servicio sin navegación en Esci" . ($fConsulta ? " | última revisión: $fConsulta" : "");
         return;
     }
 
-    // Caso: servicio inactivo (DID_ACTIVO = -1)
-    if ($didActivo === -1) {
-        $alertas[] = 'SERVICIO INACTIVO';
-        if ($fConsulta) {
-            $detalleEsci = "ultima vez que navego: $fConsulta";
-        }
+    // Caso: número de serie desconocido
+    if ($mSerie === 'DESCONOCIDO' || empty($mSerie)) {
+        $alertas[] = 'SIN NAVEGACION';
+        $detalleEsci = "Número de serie desconocido en Esci";
         return;
     }
 }
+
 
 
 
