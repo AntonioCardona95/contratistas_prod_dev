@@ -510,7 +510,7 @@ $inSeries = !empty($series) ? implode(',', array_unique($series)) : "''";
 
 // Consulta principal: ordenamos por F_CONSULTA y FECHA_ULTIMO_EVENTO descendente
 $sql = "
-    SELECT TELEFONO, M_SERIE, FECHA_ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO
+    SELECT TELEFONO, M_SERIE, FECHA_ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO, TECNOLOGIA
     FROM seg_ns_eci
     WHERE M_SERIE IN ($inSeries)
     ORDER BY TELEFONO, F_CONSULTA DESC, FECHA_ULTIMO_EVENTO DESC
@@ -606,7 +606,7 @@ WHERE Folio_Pisa = ?
         // Depuración para ver por qué no encuentra la clave
 
         // Depuración solo para el teléfono que te interesa
-$telefono_a_buscar = "6144207269";
+//$telefono_a_buscar = "6144207269";
 
 /*if ($telefono === $telefono_a_buscar) {
     echo "<pre>";
