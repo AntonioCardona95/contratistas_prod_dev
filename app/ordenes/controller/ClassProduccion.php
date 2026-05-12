@@ -387,24 +387,7 @@ public function InsertarAlertasMasivo($registros)
     $series = [];
 
     // Primero obtenemos las series válidas de los teléfonos en la lista
-
-    // Primero obtenemos las series de los teléfonos en la lista
-$sqlSeries = "
-    SELECT DISTINCT M_SERIE
-    FROM seg_ns_eci
-    WHERE TELEFONO IN ($inTelefonos)
-";
-foreach ($conexion_analisis->query($sqlSeries) as $row) {
-    $serie = strtoupper(trim($row['M_SERIE']));
-    // Incluimos todas las series, incluso DESCONOCIDO
-    if (!empty($serie)) {
-        $series[] = "'$serie'";
-    }
-}
-$inSeries = !empty($series) ? implode(',', array_unique($series)) : "''";
-
-
-    /*$sqlSeries = "
+    $sqlSeries = "
         SELECT DISTINCT M_SERIE
         FROM seg_ns_eci
         WHERE TELEFONO IN ($inTelefonos)
@@ -415,7 +398,7 @@ $inSeries = !empty($series) ? implode(',', array_unique($series)) : "''";
             $series[] = "'$serie'";
         }
     }
-    $inSeries = !empty($series) ? implode(',', array_unique($series)) : "''"; */
+    $inSeries = !empty($series) ? implode(',', array_unique($series)) : "''";
 
     // Consulta principal: ordenamos por F_CONSULTA y FECHA_ULTIMO_EVENTO descendente
     $sql = "
