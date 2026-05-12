@@ -1286,21 +1286,21 @@ private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
     // Caso: servicio inactivo (DID_ACTIVO = -1)
     if ($didActivo === -1) {
         $alertas[] = 'SERVICIO INACTIVO';
-        $detalleEsci = "Servicio inactivo en Esci" . ($fConsulta ? " | última vez que navegó: $fConsulta" : "");
+        $detalleEsci = "Servicio inactivo en Esci" . ($fConsulta ? " | última vez que navego: $fConsulta" : "");
         return;
     }
 
     // Caso: servicio sin navegación (DID_ACTIVO = 0)
     if ($didActivo === 0) {
         $alertas[] = 'SIN NAVEGACION';
-        $detalleEsci = "Servicio sin navegación en Esci" . ($fConsulta ? " | última revisión: $fConsulta" : "");
+        $detalleEsci = "Servicio sin navegacion en Esci" . ($fConsulta ? " | última revision: $fConsulta" : "");
         return;
     }
 
     // Caso: número de serie desconocido
     if ($mSerie === 'DESCONOCIDO' || empty($mSerie)) {
         $alertas[] = 'SIN NAVEGACION';
-        $detalleEsci = "Número de serie desconocido en Esci";
+        $detalleEsci = "Numero de serie desconocido en Esci";
         return;
     }
 }
