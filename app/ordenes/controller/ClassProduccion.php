@@ -1885,7 +1885,7 @@ private function alertaSeriesDiferentes($data, &$alertas)
 
     // Caso especial: todas vacías/null
     if (!$tecTac && !$tecCoord && !$tecEsci) {
-        $alertas[] = 'TECNOLOGIA_DIFERENTE';
+        $alertas[] = 'TECNOLOGIAS VACIAS';
         $detalleTecnologia = "CAMPOS VACÍOS EN TODOS LOS ESCENARIOS";
         return;
     }
