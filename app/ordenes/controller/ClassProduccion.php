@@ -1883,23 +1883,26 @@ private function alertaSeriesDiferentes($data, &$alertas)
     $tecCoord = $this->normalizarTecnologiaAlertas($tecCoordRaw);
     $tecEsci  = $this->normalizarTecnologiaAlertas($tecEsciRaw);
 
-    // Si al menos uno tiene valor, comparamos
-    if ($tecTac || $tecCoord || $tecEsci) {
-        // Si alguno difiere después de normalizar
-        if (($tecTac && $tecCoord && $tecTac !== $tecCoord) ||
-            ($tecTac && $tecEsci && $tecTac !== $tecEsci) ||
-            ($tecCoord && $tecEsci && $tecCoord !== $tecEsci) ||
-            (!$tecCoord && $tecTac) || (!$tecEsci && $tecTac) ) {
-
-            $alertas[] = 'TECNOLOGIA_DIFERENTE';
-
-            $detalleTecnologia = 
-                "TECNOLOGIA COORDIAPP: " . ($tecCoordRaw ?: 'SIN DATO') .
-                " | TECNOLOGIA TAC: " . ($tecTacRaw ?: 'SIN DATO') .
-                " | TECNOLOGIA ESCI: " . ($tecEsciRaw ?: 'SIN DATO');
-        }
+    // Caso especial: todas vacías/null
+    if (!$tecTac && !$tecCoord && !$tecEsci) {
+        $alertas[] = 'TECNOLOGIA_DIFERENTE';
+        $detalleTecnologia = "CAMPOS VACÍOS EN TODOS LOS ESCENARIOS";
+        return;
     }
+
+    // Si las tres coinciden (ej. FIBRA–FIBRA–FIBRA), no hay alerta
+    if ($tecTac === $tecCoord && $tecTac === $tecEsci) {
+        return;
+    }
+
+    // En cualquier otro caso, hay alerta
+    $alertas[] = 'TECNOLOGIA_DIFERENTE';
+    $detalleTecnologia =
+        "TECNOLOGIA COORDIAPP: " . ($tecCoordRaw ?: 'SIN DATO') .
+        " | TECNOLOGIA TAC: " . ($tecTacRaw ?: 'SIN DATO') .
+        " | TECNOLOGIA ESCI: " . ($tecEsciRaw ?: 'SIN DATO');
 }
+
 
 
 
