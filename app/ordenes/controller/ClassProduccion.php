@@ -382,7 +382,62 @@ public function InsertarAlertasMasivo($registros)
     // =========================
     // ESCI
     // =========================
-    $esciData = [];
+
+    // NUEVA FUNCION ACEPTADA N SERIE DESCONOCIDO 
+
+    // =========================
+// ESCI
+// =========================
+$esciData = [];
+$esciSeriesMap = [];
+$series = [];
+
+// Primero obtenemos las series de los teléfonos en la lista
+$sqlSeries = "
+    SELECT DISTINCT M_SERIE
+    FROM seg_ns_eci
+    WHERE TELEFONO IN ($inTelefonos)
+";
+foreach ($conexion_analisis->query($sqlSeries) as $row) {
+    $serie = strtoupper(trim($row['M_SERIE']));
+    // Ahora incluimos también DESCONOCIDO
+    if (!empty($serie)) {
+        $series[] = "'$serie'";
+    }
+}
+$inSeries = !empty($series) ? implode(',', array_unique($series)) : "''";
+
+// Consulta principal: ordenamos por F_CONSULTA y FECHA_ULTIMO_EVENTO descendente
+$sql = "
+    SELECT TELEFONO, M_SERIE, FECHA_ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO, TECNOLOGIA
+    FROM seg_ns_eci
+    WHERE M_SERIE IN ($inSeries)
+    ORDER BY TELEFONO, F_CONSULTA DESC, FECHA_ULTIMO_EVENTO DESC
+";
+
+// En el foreach, nos quedamos con el primer registro de cada teléfono
+// Nota: esto equivale a hacer LIMIT 1 por teléfono
+foreach ($conexion_analisis->query($sql) as $row) {
+    $tel   = preg_replace('/\D/', '', $row['TELEFONO']);
+    $serie = strtoupper(trim($row['M_SERIE']));
+
+    if (!isset($esciData[$tel])) {
+        $esciData[$tel] = $row;
+        $esciData[$tel]['M_SERIE']    = $serie;
+        $esciData[$tel]['TECNOLOGIA'] = $row['TECNOLOGIA']; 
+    }
+
+    // Ahora también guardamos DESCONOCIDO en el mapa
+    if (!empty($serie) && !empty($tel)) {
+        $esciSeriesMap[$serie][$tel] = true;
+    }
+}
+
+
+
+
+// VIEJA FUNCION NO ACEPTA DESCONOCIDO //
+    /*$esciData = [];
     $esciSeriesMap = [];
     $series = [];
 
@@ -423,7 +478,7 @@ public function InsertarAlertasMasivo($registros)
         if (!empty($serie) && $serie !== 'DESCONOCIDO' && !empty($tel)) {
             $esciSeriesMap[$serie][$tel] = true;
         }
-    }
+    }  */
 
     // =========================
     // PREPARES
