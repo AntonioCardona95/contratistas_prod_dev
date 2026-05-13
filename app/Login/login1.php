@@ -84,7 +84,7 @@ if (!empty($_POST['User_Contratista']) && !empty($_POST['Pass_Contratista'])) {
             $_SESSION['Contratista'] = $row['Contratista'];
             $_SESSION['idContratistas'] = $row['idContratistas'];
 
-            //  Nueva condición: si el usuario es USERP, redirige a indexp.php
+            // 🚩 Nueva condición: si el usuario es USERP, redirige a indexp.php
             if ($row['User_Contratista'] === 'USERP') {
                 header("Location: ../ordenes/indexp.php");
             } else {
