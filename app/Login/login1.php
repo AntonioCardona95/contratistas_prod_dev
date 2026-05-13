@@ -83,7 +83,13 @@ if (!empty($_POST['User_Contratista']) && !empty($_POST['Pass_Contratista'])) {
             $_SESSION['User_Contratista'] = $row['User_Contratista'];
             $_SESSION['Contratista'] = $row['Contratista'];
             $_SESSION['idContratistas'] = $row['idContratistas'];
-            header("Location: ../ordenes/index.php");
+
+            //  Nueva condición: si el usuario es USERP, redirige a indexp.php
+            if ($row['User_Contratista'] === 'USERP') {
+                header("Location: ../ordenes/indexp.php");
+            } else {
+                header("Location: ../ordenes/index.php");
+            }
             exit;
         } else {
             mostrarMensaje("¡CONTRASEÑA NO COINCIDE!");
