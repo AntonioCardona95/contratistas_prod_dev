@@ -90,9 +90,9 @@ if (empty($Contratista)) {
 
             
              <li class="nav-item">
-                <a class="nav-link" href="Produccion.php">
+                <a class="nav-link" href="indexp.php">
                     <i class="fas fa-fw fa-table"></i>
-                    <span>PRODUCCION CARGADA</span>
+                    <span>INICIO</span>
                 </a>
             </li>
 
