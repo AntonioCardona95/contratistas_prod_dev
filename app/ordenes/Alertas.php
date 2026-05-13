@@ -59,107 +59,30 @@ $fecha_fin = $_GET['fecha_fin'] ?? date('Y-m-d');
 
         <!-- Nav Item - Dashboard -->
         <li class="nav-item active">
-            <a class="nav-link" href="index.php">
+            <a class="nav-link" href="indexp.php">
                 <i class="fas fa-fw fa-tachometer-alt"></i>
                 <span>TABLERO DE INDICADORES</span>
             </a>
         </li>
 
-        <hr class="sidebar-divider">
-
-        <div class="sidebar-heading">ACCION</div>
-
-        <!-- Nav Item - Modules -->
-        <li class="nav-item">
-            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
-                aria-expanded="true" aria-controls="collapsePages">
-                <i class="fas fa-fw fa-folder"></i>
-                <span>MODULOS</span>
-            </a>
-            <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
-                <div class="bg-white py-2 collapse-inner rounded">
-                    <h6 class="collapse-header">MODULOS</h6>
-                    <a class='collapse-item' href='../almacen/index.php'><i class="fa-solid fa-box-open"></i> ALMACEN</a>
-                    <a class='collapse-item' href='index.php'><i class="fa-solid fa-school-circle-check"></i> OPERACIONES</a>
-                    <!-- Módulo solo visible si el contratista es USER -->
-            <?php if ($Contratista == 'USER'): ?>
-                <a class='collapse-item' href='../ordenes/CargaExcel.php'>
-                    <i class="fa-solid fa-microchip"></i> EMULADORES
-                </a>
-            <?php endif; ?>
-                </div>
-            </div>
-        </li>
-
-        <!-- Nav Item - Tables -->
-        <li class="nav-item">
-            <a class="nav-link" href="OrdenesCoordiapp.php">
-                <i class="fas fa-fw fa-table"></i>
-                <span>LIQUIDACION COORDIAPP COMPLETAS</span>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a class="nav-link" href="OrdenesIncompletas.php">
-                <i class="fas fa-fw fa-table"></i>
-                <span>LIQUIDACION COORDIAPP INCOMPLETAS</span>
-            </a>
-        </li>
-
-                 <li class="nav-item">
-                <a class="nav-link" href="CargaExcel.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>CARGAR MASIVA PRODUCCION</span>
-                </a>
-            </li>
-
-             <li class="nav-item">
-                <a class="nav-link" href="Prenomina.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>PRENOMINA</span>
-                </a>
-            </li>
-
             <li class="nav-item">
-                <a class="nav-link" href="NominaContratista2.php">
+                <a class="nav-link" href="AlertasGenerales.php">
                     <i class="fas fa-fw fa-table"></i>
-                    <span>PRODUCCION ACEPTADA</span>
+                    <span>ALERTAS GENERALES</span>
                 </a>
             </li>
 
                     <li class="nav-item">
-                <a class="nav-link" href="OrdenesNoCargadasCoordiapp.php">
+                <a class="nav-link" href="indexp.php">
                     <i class="fas fa-fw fa-table"></i>
-                    <span>ORDENES NO CARGADAS COORDIAPP</span>
-                </a>
-            </li>
-
-                    <li class="nav-item">
-                <a class="nav-link" href="Produccion.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>PRODUCCION CARGADA</span>
+                    <span>INICIO</span>
                 </a>
             </li>
 
 
 
 
-        <?php if ($Contratista == 'USER'): ?>
-    <!-- Nav Item - Tables -->
-    <li class="nav-item">
-        <a class="nav-link" href="Prenomina.php">
-            <i class="fas fa-fw fa-table"></i>
-            <span>PRENOMINA</span>
-        </a>
-    </li>
 
-    <li class="nav-item">
-        <a class="nav-link" href="NominaContratista.php">
-            <i class="fas fa-fw fa-table"></i>
-            <span>NOMINA CONTRATISTA</span>
-        </a>
-    </li>
-<?php endif; ?>
 
         <hr class="sidebar-divider d-none d-md-block">
         <div class="text-center d-none d-md-inline">
