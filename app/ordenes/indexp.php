@@ -83,7 +83,19 @@ if (empty($Contratista)) {
                 ACCION
             </div>
 
+            <!-- Nav Item - Pages Collapse Menu -->
+            <li class="nav-item">
+                
+            </li>
+
             
+             <li class="nav-item">
+                <a class="nav-link" href="Produccion.php">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>PRODUCCION CARGADA</span>
+                </a>
+            </li>
+
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
