@@ -580,24 +580,27 @@ foreach ($conexion_analisis->query($sql) as $row) {
                 ]);
             }
         } else {
-            $stmtUpdate->execute([
-                $telefono,
-                $r['tipoTarea'] ?? null,
-                $r['cope'] ?? null,
-                $r['fechaLiquidacion'] ?? null,
-                date('Y-m-d H:i:s'),
-                $r['idContratista'] ?? 0,
-                $r['semana'] ?? 0,
-                $r['anio'] ?? 0,
-                $r['metraje'] ?? 0,
-                $alertasTexto,
-                $resultadoAlertas['detalleEsci'] ?? null,
-                $resultadoAlertas['detalleTipoTarea'] ?? null, 
-                $resultadoAlertas['detalleTecnologia'] ?? null,
-                $resultadoAlertas['detalleSeries'] ?? null,
-                $folio
-            ]);
-        }
+    if (!empty($alertasActuales)) {
+        $stmtUpdate->execute([
+            $telefono,
+            $r['tipoTarea'] ?? null,
+            $r['cope'] ?? null,
+            $r['fechaLiquidacion'] ?? null,
+            date('Y-m-d H:i:s'),
+            $r['idContratista'] ?? 0,
+            $r['semana'] ?? 0,
+            $r['anio'] ?? 0,
+            $r['metraje'] ?? 0,
+            $alertasTexto,
+            $resultadoAlertas['detalleEsci'] ?? null,
+            $resultadoAlertas['detalleTipoTarea'] ?? null, 
+            $resultadoAlertas['detalleTecnologia'] ?? null,
+            $resultadoAlertas['detalleSeries'] ?? null,
+            $folio
+        ]);
+    }
+}
+
 
         // =========================
         // MANEJO DE DETALLE (SIN DELETE)
