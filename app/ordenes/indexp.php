@@ -96,6 +96,13 @@ if (empty($Contratista)) {
                 </a>
             </li>
 
+            <li class="nav-item">
+                <a class="nav-link" href="AlertasGenerales.php">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>ALERTAS GENERALES</span>
+                </a>
+            </li>
+
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
