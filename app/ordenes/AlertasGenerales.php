@@ -73,12 +73,7 @@ $fecha_fin = $_GET['fecha_fin'] ?? date('Y-m-d');
                 </a>
             </li>
 
-                    <li class="nav-item">
-                <a class="nav-link" href="AlertasGenerales.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>PRODUCCION CARGADA</span>
-                </a>
-            </li>
+                    
 
 
 
