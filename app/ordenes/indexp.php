@@ -422,7 +422,7 @@ $(document).on('click', '#btnConfirmarProcesar', function() {
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    const ctx = document.getElementById('graficaCumplimiento').getContext('2d');
+    const ctx = document.getElementById('graficaAlertas').getContext('2d');
 
     const data = {
         labels: ['CHILPANCINGO', 'MIXCOAC', 'CANCUN', 'CUAUTITLAN-MORE...', 'Sin Área', 'TEXCOCO-ZARAGOZ...', 'TORREON', 'CUERNAVACA', 'MERIDA', 'ERMITA-TLAHUAC'],
