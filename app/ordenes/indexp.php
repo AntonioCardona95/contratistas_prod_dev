@@ -268,13 +268,23 @@ if (empty($Contratista)) {
 <div class="row mt-2">
   <div class="col-xl-12">
     <div class="card shadow mb-4">
+
       <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Cumplimiento (%)</h6>
+        <h6 class="m-0 font-weight-bold text-primary">
+          Cumplimiento (%)
+        </h6>
       </div>
+
       <div class="card-body">
-        <div class="chart-bar" style="height: 300px;">
+
+        <!-- CAMBIO -->
+        <div class="chart-bar position-relative"
+             style="height:400px; width:100%; overflow:hidden;">
+
           <canvas id="graficaAlertas"></canvas>
+
         </div>
+
       </div>
     </div>
   </div>
@@ -420,31 +430,81 @@ $(document).on('click', '#btnConfirmarProcesar', function() {
 </script>    <!-- Page level custom scripts -->
    
 <!-- GRAFICA -->
- <script>
+<script>
 document.addEventListener("DOMContentLoaded", function() {
+
     const canvas = document.getElementById('graficaAlertas');
-    console.log(canvas); // 👈 prueba en consola
+    console.log(canvas);
 
     if (canvas) {
+
         const ctx = canvas.getContext('2d');
 
         const data = {
-            labels: ['CHILPANCINGO','MIXCOAC','CANCUN','CUAUTITLAN-MORE...','Sin Área','TEXCOCO-ZARAGOZ...','TORREON','CUERNAVACA','MERIDA','ERMITA-TLAHUAC'],
+            labels: [
+                'CHILPANCINGO',
+                'MIXCOAC',
+                'CANCUN',
+                'CUAUTITLAN-MORE...',
+                'Sin Área',
+                'TEXCOCO-ZARAGOZ...',
+                'TORREON',
+                'CUERNAVACA',
+                'MERIDA',
+                'ERMITA-TLAHUAC'
+            ],
+
             datasets: [{
                 label: 'Cumplimiento (%)',
+
                 data: [98,97,96,95,94,93,92,91,80,65],
-                backgroundColor: ['green','green','green','green','green','green','green','green','yellow','red']
+
+                backgroundColor: [
+                    'green',
+                    'green',
+                    'green',
+                    'green',
+                    'green',
+                    'green',
+                    'green',
+                    'green',
+                    'yellow',
+                    'red'
+                ]
             }]
         };
 
         const config = {
+
             type: 'bar',
+
             data: data,
+
             options: {
+
+                // =========================
+                // CAMBIO
+                // =========================
+                responsive: true,
+                maintainAspectRatio: false,
+                // =========================
+
+                plugins: {
+                    legend: {
+                        display: true
+                    }
+                },
+
                 scales: {
+
                     y: {
-                        beginAtZero: true,
+
+                        beginAtZero: false,
+
+                        min: 65,
+
                         max: 100,
+
                         ticks: {
                             callback: value => value + '%'
                         }
@@ -454,7 +514,9 @@ document.addEventListener("DOMContentLoaded", function() {
         };
 
         new Chart(ctx, config);
+
     } else {
+
         console.error("Canvas con id 'graficaAlertas' no encontrado en el DOM.");
     }
 });
