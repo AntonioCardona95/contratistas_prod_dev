@@ -49,12 +49,6 @@ if (empty($Contratista)) {
         .periodo-consulta .periodo-label { color: #6c757d; font-weight:600; margin-right: .8rem; }
     </style>
 
-<style>
-  #graficaAlertas {
-    max-height: 150px;
-    width: 100%;
-  }
-</style>
 
 
 </head>
@@ -273,20 +267,27 @@ if (empty($Contratista)) {
 </div>
 <!-- End of Cards -->
 
-<div class="row mt-2">
-  <div class="col-xl-12">
-    <div class="card shadow mb-4">
-      <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Cumplimiento (%)</h6>
+
+<!-- Pastel Chart -->
+  <div class="col-xl-6 col-lg-6">
+      <div class="card shadow mb-4">
+          <!-- Card Header - Dropdown -->
+          <div
+              class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <h6 class="m-0 font-weight-bold text-primary">CONTROL DE ASIGNACIÓN DE ONTs</h6>
+              <div class="dropdown no-arrow">
+                  <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                  </a>
+              </div>
+          </div>
+          <!-- Card Body -->
+          <div class="card-body">
+            <div id="container" style="width:100%; height:400px;"></div>
+          </div>
       </div>
-      <div class="card-body">
-        <div class="chart-bar">
-          <canvas id="graficaAlertas"></canvas>
-        </div>
-      </div>
-    </div>
   </div>
-</div>
 
 
 </div>
