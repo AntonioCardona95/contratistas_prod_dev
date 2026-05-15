@@ -278,7 +278,21 @@ if (empty($Contratista)) {
     </div>
 </div>
                     
-<canvas id="graficaAlertas"></canvas>
+<div class="col-xl-6 col-lg-6">
+  <div class="card shadow mb-4">
+    <!-- Encabezado del card -->
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">Cumplimiento (%)</h6>
+    </div>
+    <!-- Cuerpo del card -->
+    <div class="card-body">
+      <div class="chart-bar">
+        <canvas id="graficaAlertas" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
                      
                 </div>
                 <!-- End of Cards -->
