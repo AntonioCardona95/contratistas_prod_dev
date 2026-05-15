@@ -428,46 +428,7 @@ $(document).on('click', '#btnConfirmarProcesar', function() {
 }
 </script>    <!-- Page level custom scripts -->
    
-<!-- GRAFICA -->
- <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const canvas = document.getElementById('graficaAlertas');
-    console.log(canvas); // 👈 prueba en consola
 
-    if (canvas) {
-        const ctx = canvas.getContext('2d');
-
-        const data = {
-            labels: ['CHILPANCINGO','MIXCOAC','CANCUN','CUAUTITLAN-MORE...','Sin Área','TEXCOCO-ZARAGOZ...','TORREON','CUERNAVACA','MERIDA','ERMITA-TLAHUAC'],
-            datasets: [{
-                label: 'Cumplimiento (%)',
-                data: [98,97,96,95,94,93,92,91,80,65],
-                backgroundColor: ['green','green','green','green','green','green','green','green','yellow','red']
-            }]
-        };
-
-        const config = {
-            type: 'bar',
-            data: data,
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100,
-                        ticks: {
-                            callback: value => value + '%'
-                        }
-                    }
-                }
-            }
-        };
-
-        new Chart(ctx, config);
-    } else {
-        console.error("Canvas con id 'graficaAlertas' no encontrado en el DOM.");
-    }
-});
-</script>
 
 </body>
 
