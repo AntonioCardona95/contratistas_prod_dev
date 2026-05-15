@@ -278,6 +278,7 @@ if (empty($Contratista)) {
     </div>
 </div>
                     
+<canvas id="graficaAlertas"></canvas>
                      
                 </div>
                 <!-- End of Cards -->
