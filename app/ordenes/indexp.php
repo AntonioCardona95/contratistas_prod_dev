@@ -272,7 +272,7 @@ if (empty($Contratista)) {
         <h6 class="m-0 font-weight-bold text-primary">Cumplimiento (%)</h6>
       </div>
       <div class="card-body">
-        <div class="chart-bar" style="height: 80px;">
+        <div class="chart-bar" style="height: 110px;">
           <canvas id="graficaAlertas"></canvas>
         </div>
       </div>
