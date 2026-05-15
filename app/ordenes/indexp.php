@@ -440,9 +440,9 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         xAxis: {
             categories: [
-                'CHILPANCINGO', 'MIXCOAC', 'CANCUN', 'CUAUTITLAN-MORE...',
-                'Sin Área', 'TEXCOCO-ZARAGOZ...', 'TORREON', 'CUERNAVACA',
-                'MERIDA', 'ERMITA-TLAHUAC'
+               'NO COORDIAPP', 'SIN NAVEGACION', 'ONT DUPLICADA TAC', 'ONT DUPLICADA ESCI', 'TECNOLOGIA DIFERENTE',
+                'TIPO TAREA DIFERENTE', 'NUMERO DE SERIE DIFERENTE', 'ONT NO EN ALMACEN', 'ONT ASIGNADA A OTRO CONTRATISTA',
+                'ONT SIN ASIGNAR', 'ORDEN A REVISION POR 30 DIAS'
             ],
             crosshair: true
         },
