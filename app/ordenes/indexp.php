@@ -433,10 +433,10 @@ $(document).on('click', '#btnConfirmarProcesar', function() {
 document.addEventListener("DOMContentLoaded", function () {
     Highcharts.chart('container', {
         chart: {
-            type: 'column'   // barras verticales
+            type: 'column'
         },
         title: {
-            text: 'Cumplimiento (%)'
+            text: 'Cantidad de Resultados'
         },
         xAxis: {
             categories: [
@@ -453,36 +453,41 @@ document.addEventListener("DOMContentLoaded", function () {
                 'ORDEN A REVISION POR 30 DIAS'
             ],
             labels: {
-                rotation: -45,   // 👈 gira las etiquetas para que se lean completas
-                style: {
-                    fontSize: '11px'
-                }
+                rotation: -45,
+                style: { fontSize: '11px' }
             },
             crosshair: true
         },
         yAxis: {
             min: 0,
-            max: 100,
             title: {
-                text: 'Porcentaje (%)'
+                text: 'Cantidad'
             }
         },
         tooltip: {
-            valueSuffix: '%'
+            pointFormat: 'Cantidad: <b>{point.y}</b>'
+        },
+        plotOptions: {
+            column: {
+                dataLabels: {
+                    enabled: true,          // 👈 muestra la cantidad en cada barra
+                    inside: true,           // 👈 dentro de la barra
+                    style: {
+                        fontSize: '12px',
+                        fontWeight: 'bold',
+                        color: 'white'      // 👈 texto blanco para contraste
+                    }
+                },
+                color: '#007bff'           // 👈 color azul uniforme para todas las barras
+            }
         },
         series: [{
-            name: 'Cumplimiento',
-            data: [98, 97, 96, 95, 94, 93, 92, 91, 80, 65, 70],
-            colorByPoint: true,
-            colors: [
-                'green','green','green','green','green','green','green','green',
-                'yellow','red','orange'
-            ]
+            name: 'Resultados',
+            data: [15, 25, 10, 8, 12, 20, 18, 5, 7, 3, 2] // 👈 aquí van tus cantidades reales
         }]
     });
 });
 </script>
-
 
 </body>
 
