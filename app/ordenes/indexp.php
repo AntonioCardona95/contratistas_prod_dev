@@ -197,93 +197,79 @@ if (empty($Contratista)) {
                 <!-- End of Topbar -->
 
                 <!-- TOTAL TAC -->
-                <div class="row">
-                    <!-- Card -->
-                    <div class="col-xl-3 col-md-6 mb-4">
-                        <div class="card border-left-primary shadow h-100 py-2">
-                            <div class="card-body">
-                                <div class="row no-gutters align-items-center">
-                                    <div class="col mr-2">
-                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                            TOTAL TAC
-                                        </div>
-                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="total_tac">
-                                            0
-                                        </div>
-                                        <div class="text-xs text-muted">
-                                            Promedio: <span id="promedio_tac">0</span>/día
-                                        </div>
-                                    </div>
+<div class="row">
 
-                                    <div class="col-auto">
-                                        <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-                                    </div>
+  <!-- Card 1 -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-primary shadow h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+              TOTAL TAC
+            </div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800" id="total_tac">0</div>
+            <div class="text-xs text-muted">
+              Promedio: <span id="promedio_tac">0</span>/día
+            </div>
+          </div>
+          <div class="col-auto">
+            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Card -->
-
-                    <!-- Card -->
-<!-- Tarjeta con redirección -->
-<!-- Tarjeta de en medio -->
-<div class="col-xl-3 col-md-6 mb-4">
+  <!-- Card 2 (Tarjeta de en medio) -->
+  <div class="col-xl-3 col-md-6 mb-4">
     <div id="cardAlertas" class="card border-left-success shadow h-100 py-2" 
          style="cursor: not-allowed; opacity: 0.6;">
-        <div class="card-body">
-            <div class="row no-gutters align-items-center">
-                <div class="col mr-2">
-                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                        ORDENES CON ALERTA POR RANGO DE FECHAS
-                    </div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="alertas">
-                        0
-                    </div>
-                    <div class="text-xs text-muted">
-                        Promedio: <span id="promedio_alertas">0</span>/día
-                    </div>
-                </div>
-                <div class="col-auto">
-                    <i class="fas fa-check-circle fa-2x text-gray-300"></i>
-                </div>
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+              ORDENES CON ALERTA POR RANGO DE FECHAS
             </div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800" id="alertas">0</div>
+            <div class="text-xs text-muted">
+              Promedio: <span id="promedio_alertas">0</span>/día
+            </div>
+          </div>
+          <div class="col-auto">
+            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+          </div>
         </div>
+      </div>
     </div>
-</div>
+  </div>
 
-
-
-                
-                    <!-- Card -->
-<!-- Tarjeta con redirección -->
-<div class="col-xl-3 col-md-6 mb-4" onclick="redirectToAlertasGenerales();">
+  <!-- Card 3 (Tarjeta con redirección) -->
+  <div class="col-xl-3 col-md-6 mb-4" onclick="redirectToAlertasGenerales();">
     <div class="card border-left-success shadow h-100 py-2" style="cursor: pointer;">
-        <div class="card-body">
-            <div class="row no-gutters align-items-center">
-                <div class="col mr-2">
-                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                       REVISAR ALERTAS GENERALES
-                    </div>
-                  
-                   
-                </div>
-
-                <div class="col-auto">
-                    <i class="fas fa-check-circle fa-2x text-gray-300"></i>
-                </div>
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+              REVISAR ALERTAS GENERALES
             </div>
+          </div>
+          <div class="col-auto">
+            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+          </div>
         </div>
+      </div>
     </div>
-</div>
-                    
-                     
-                </div>
-                <!-- End of Cardsddd -->
+  </div>
 
-            </div>
-            <!-- End of Main Content -->
+</div>
+<!-- End of Cards -->
+
+</div>
+<!-- End of Main Content -->
+
+
+       
 
             <!-- Footer -->
             <footer class="sticky-footer bg-white">
