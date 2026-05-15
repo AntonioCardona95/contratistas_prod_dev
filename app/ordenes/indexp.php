@@ -49,9 +49,9 @@ if (empty($Contratista)) {
         .periodo-consulta .periodo-label { color: #6c757d; font-weight:600; margin-right: .8rem; }
     </style>
 
-    <style>
+<style>
   #graficaAlertas {
-    max-height: 80px;
+    max-height: 150px;
     width: 100%;
   }
 </style>
@@ -280,7 +280,7 @@ if (empty($Contratista)) {
         <h6 class="m-0 font-weight-bold text-primary">Cumplimiento (%)</h6>
       </div>
       <div class="card-body">
-        <div class="chart-bar" style="height: 100px;">
+        <div class="chart-bar">
           <canvas id="graficaAlertas"></canvas>
         </div>
       </div>
