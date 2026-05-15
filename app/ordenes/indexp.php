@@ -470,20 +470,20 @@ document.addEventListener("DOMContentLoaded", function () {
         plotOptions: {
             column: {
                 dataLabels: {
-                    enabled: true,          // 👈 muestra la cantidad en cada barra
-                    inside: true,           // 👈 dentro de la barra
+                    enabled: true,          //  muestra la cantidad en cada barra
+                    inside: true,           //  dentro de la barra
                     style: {
                         fontSize: '12px',
                         fontWeight: 'bold',
-                        color: 'white'      // 👈 texto blanco para contraste
+                        color: 'white'      //  texto blanco para contraste
                     }
                 },
-                color: '#007bff'           // 👈 color azul uniforme para todas las barras
+                color: '#007bff'           //  color azul uniforme para todas las barras
             }
         },
         series: [{
             name: 'Resultados',
-            data: [15, 25, 10, 8, 12, 20, 18, 5, 7, 3, 2] // 👈 aquí van tus cantidades reales
+            data: [15, 25, 10, 8, 12, 20, 18, 5, 7, 3, 2] //  aquí van tus cantidades reales
         }]
     });
 });
