@@ -52,7 +52,7 @@ if (empty($Contratista)) {
     <style>
   #graficaAlertas {
     max-height: 80px;
-    width: 50%;
+    width: 100%;
   }
 </style>
 
