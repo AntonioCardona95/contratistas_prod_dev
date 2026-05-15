@@ -427,7 +427,48 @@ $(document).on('click', '#btnConfirmarProcesar', function() {
     window.location.href = 'AlertasGenerales.php';
 }
 </script>    <!-- Page level custom scripts -->
-   
+
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    Highcharts.chart('container', {
+        chart: {
+            type: 'column'   // 👈 tipo de gráfica: barras verticales
+        },
+        title: {
+            text: 'Cumplimiento (%)'
+        },
+        xAxis: {
+            categories: [
+                'CHILPANCINGO', 'MIXCOAC', 'CANCUN', 'CUAUTITLAN-MORE...',
+                'Sin Área', 'TEXCOCO-ZARAGOZ...', 'TORREON', 'CUERNAVACA',
+                'MERIDA', 'ERMITA-TLAHUAC'
+            ],
+            crosshair: true
+        },
+        yAxis: {
+            min: 0,
+            max: 100,
+            title: {
+                text: 'Porcentaje (%)'
+            }
+        },
+        tooltip: {
+            valueSuffix: '%'
+        },
+        series: [{
+            name: 'Cumplimiento',
+            data: [98, 97, 96, 95, 94, 93, 92, 91, 80, 65],
+            colorByPoint: true,
+            colors: [
+                'green','green','green','green','green','green','green','green',
+                'yellow','red'
+            ]
+        }]
+    });
+});
+</script>
+
 
 
 </body>
