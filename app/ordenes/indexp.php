@@ -422,6 +422,7 @@ $(document).on('click', '#btnConfirmarProcesar', function() {
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
+    // Aquí debe coincidir con el id del canvas
     const ctx = document.getElementById('graficaAlertas').getContext('2d');
 
     const data = {
@@ -437,27 +438,22 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     const config = {
-        type: 'bar',   //  barras verticales
+        type: 'bar',
         data: data,
         options: {
-            indexAxis: 'x', //  eje X → vertical
             scales: {
                 y: {
                     beginAtZero: true,
                     max: 100,
                     ticks: {
-                        callback: function(value) {
-                            return value + '%';
-                        }
+                        callback: value => value + '%'
                     }
                 }
             },
             plugins: {
                 tooltip: {
                     callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': ' + context.parsed.y + '%';
-                        }
+                        label: context => context.dataset.label + ': ' + context.parsed.y + '%'
                     }
                 }
             }
