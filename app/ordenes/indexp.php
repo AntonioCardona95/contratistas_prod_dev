@@ -417,7 +417,56 @@ $(document).on('click', '#btnConfirmarProcesar', function() {
     window.location.href = 'AlertasGenerales.php';
 }
 </script>    <!-- Page level custom scripts -->
-   
+
+<!-- GRAFICA DE LAS ALERTAS -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const ctx = document.getElementById('graficaCumplimiento').getContext('2d');
+
+    const data = {
+        labels: ['CHILPANCINGO', 'MIXCOAC', 'CANCUN', 'CUAUTITLAN-MORE...', 'Sin Área', 'TEXCOCO-ZARAGOZ...', 'TORREON', 'CUERNAVACA', 'MERIDA', 'ERMITA-TLAHUAC'],
+        datasets: [{
+            label: 'Cumplimiento (%)',
+            data: [98, 97, 96, 95, 94, 93, 92, 91, 80, 65],
+            backgroundColor: [
+                'green','green','green','green','green','green','green','green',
+                'yellow','red'
+            ]
+        }]
+    };
+
+    const config = {
+        type: 'bar',   //  barras verticales
+        data: data,
+        options: {
+            indexAxis: 'x', //  eje X → vertical
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%';
+                        }
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.dataset.label + ': ' + context.parsed.y + '%';
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    new Chart(ctx, config);
+});
+</script>
 
 
 </body>
