@@ -49,112 +49,6 @@ if (empty($Contratista)) {
         .periodo-consulta .periodo-label { color: #6c757d; font-weight:600; margin-right: .8rem; }
     </style>
 
-    <style>
-         body{
-        background: #f4f6f9;
-    }
-
-    /* ========================= */
-    /* CARDS */
-    /* ========================= */
-    .card{
-        border: none !important;
-        border-radius: 16px !important;
-        overflow: hidden;
-        transition: all .25s ease;
-        box-shadow: 0 2px 10px rgba(0,0,0,.05) !important;
-    }
-
-    .card:hover{
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0,0,0,.10) !important;
-    }
-
-    .card-body{
-        padding: 1.3rem !important;
-    }
-
-    .card-header{
-        background: #fff !important;
-        border-bottom: 1px solid #edf1f5 !important;
-        padding: 1rem 1.5rem !important;
-    }
-
-    .border-left-primary{
-        border-left: 5px solid #0d6efd !important;
-    }
-
-    .border-left-success{
-        border-left: 5px solid #198754 !important;
-    }
-
-    .border-left-info{
-        border-left: 5px solid #0dcaf0 !important;
-    }
-
-    .text-xs{
-        font-size: .75rem !important;
-        letter-spacing: .5px;
-    }
-
-    .text-gray-800{
-        color: #2c3e50 !important;
-    }
-
-    .text-muted{
-        color: #8b949e !important;
-    }
-
-    .h5{
-        font-size: 2rem !important;
-        margin-top: 5px;
-    }
-
-    /* ========================= */
-    /* ICONOS */
-    /* ========================= */
-    .fa-clipboard-list,
-    .fa-check-circle,
-    .fa-chart-bar{
-        opacity: .18;
-    }
-
-    /* ========================= */
-    /* CONTENEDOR GRAFICA */
-    /* ========================= */
-    .chart-container{
-        position: relative;
-        height: 420px;
-        width: 100%;
-    }
-
-    /* ========================= */
-    /* TITULO GRAFICA */
-    /* ========================= */
-    .titulo-grafica{
-        font-size: 1rem;
-        font-weight: 700;
-        color: #0d6efd;
-        margin: 0;
-    }
-
-    /* ========================= */
-    /* FOOTER */
-    /* ========================= */
-    .sticky-footer{
-        background: #fff !important;
-        border-top: 1px solid #ececec;
-    }
-
-    /* ========================= */
-    /* MODAL */
-    /* ========================= */
-    .modal-content{
-        border: none !important;
-        border-radius: 15px !important;
-    }
-    </style>
-
 </head>
 
 <body id="page-top">
@@ -302,204 +196,104 @@ if (empty($Contratista)) {
                 </nav>
                 <!-- End of Topbar -->
 
-<div class="row">
+                <!-- TOTAL TAC -->
+                <div class="row">
+                    <!-- Card -->
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card border-left-primary shadow h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            TOTAL TAC
+                                        </div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800" id="total_tac">
+                                            0
+                                        </div>
+                                        <div class="text-xs text-muted">
+                                            Promedio: <span id="promedio_tac">0</span>/día
+                                        </div>
+                                    </div>
 
-    <!-- CARD 1 -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-primary h-100">
+                                    <div class="col-auto">
+                                        <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                                    </div>
 
-            <div class="card-body">
-
-                <div class="row align-items-center">
-
-                    <div class="col">
-
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-2">
-                            TOTAL TAC
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="h5 mb-1 font-weight-bold text-gray-800" id="total_tac">
-                            0
-                        </div>
-
-                        <div class="text-xs text-muted">
-                            Promedio:
-                            <span id="promedio_tac">0</span>/día
-                        </div>
-
                     </div>
 
-                    <div class="col-auto">
-                        <i class="fas fa-clipboard-list fa-3x text-primary"></i>
-                    </div>
+                    <!-- Card -->
 
+                    <!-- Card -->
+<!-- Tarjeta con redirección -->
+<!-- Tarjeta de en medio -->
+<div class="col-xl-3 col-md-6 mb-4">
+    <div id="cardAlertas" class="card border-left-success shadow h-100 py-2" 
+         style="cursor: not-allowed; opacity: 0.6;">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                        ORDENES CON ALERTA POR RANGO DE FECHAS
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="alertas">
+                        0
+                    </div>
+                    <div class="text-xs text-muted">
+                        Promedio: <span id="promedio_alertas">0</span>/día
+                    </div>
                 </div>
-
+                <div class="col-auto">
+                    <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                </div>
             </div>
-
         </div>
     </div>
-
-    <!-- CARD 2 -->
-    <div class="col-xl-3 col-md-6 mb-4">
-
-        <div id="cardAlertas"
-             class="card border-left-success h-100"
-             style="cursor:not-allowed; opacity:.75;">
-
-            <div class="card-body">
-
-                <div class="row align-items-center">
-
-                    <div class="col">
-
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-2">
-                            ORDENES CON ALERTA POR RANGO DE FECHAS
-                        </div>
-
-                        <div class="h5 mb-1 font-weight-bold text-gray-800" id="alertas">
-                            0
-                        </div>
-
-                        <div class="text-xs text-muted">
-                            Promedio:
-                            <span id="promedio_alertas">0</span>/día
-                        </div>
-
-                    </div>
-
-                    <div class="col-auto">
-                        <i class="fas fa-check-circle fa-3x text-success"></i>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- CARD 3 -->
-    <div class="col-xl-3 col-md-6 mb-4">
-
-        <div class="card border-left-success h-100"
-             style="cursor:pointer;"
-             onclick="redirectToAlertasGenerales();">
-
-            <div class="card-body">
-
-                <div class="row align-items-center">
-
-                    <div class="col">
-
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-2">
-                            REVISAR ALERTAS GENERALES
-                        </div>
-
-                    </div>
-
-                    <div class="col-auto">
-                        <i class="fas fa-check-circle fa-3x text-success"></i>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- CARD 4 -->
-    <div class="col-xl-3 col-md-6 mb-4">
-
-        <div class="card border-left-info h-100">
-
-            <div class="card-body">
-
-                <div class="row align-items-center">
-
-                    <div class="col">
-
-                        <div class="text-xs font-weight-bold text-info text-uppercase mb-2">
-                            NUEVA MÉTRICA
-                        </div>
-
-                        <div class="h5 mb-1 font-weight-bold text-gray-800">
-                            0
-                        </div>
-
-                        <div class="text-xs text-muted">
-                            Promedio: 0/día
-                        </div>
-
-                    </div>
-
-                    <div class="col-auto">
-                        <i class="fas fa-chart-bar fa-3x text-info"></i>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
 </div>
-<!-- END CARDS -->
 
-<!-- ========================= -->
-<!-- GRAFICA -->
-<!-- ========================= -->
-<div class="row">
 
-    <div class="col-xl-12">
 
-        <div class="card mb-4">
-
-            <div class="card-header d-flex align-items-center justify-content-between">
-
-                <h6 class="titulo-grafica">
-                    Cumplimiento (%)
-                </h6>
-
-            </div>
-
-            <div class="card-body">
-
-                <!-- IMPORTANTE -->
-                <!-- YA NO USAR chart-bar -->
-                <!-- YA NO USAR height en canvas -->
-
-                <div class="chart-container">
-                    <canvas id="graficaAlertas"></canvas>
+                
+                    <!-- Card -->
+<!-- Tarjeta con redirección -->
+<div class="col-xl-3 col-md-6 mb-4" onclick="redirectToAlertasGenerales();">
+    <div class="card border-left-success shadow h-100 py-2" style="cursor: pointer;">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                       REVISAR ALERTAS GENERALES
+                    </div>
+                  
+                   
                 </div>
 
+                <div class="col-auto">
+                    <i class="fas fa-check-circle fa-2x text-gray-300"></i>
+                </div>
             </div>
-
         </div>
-
     </div>
-
 </div>
-<!-- END GRAFICA -->
-<!-- End of Gráfica -->
+                    
+                     
+                </div>
+                <!-- End of Cards -->
 
-<!-- Footer -->
-<footer class="sticky-footer bg-white">
-  <div class="container my-auto">
-    <div class="copyright text-center my-auto">
-      <span>Copyright &copy; ENLACE DIGITAL 2025</span>
-    </div>
-  </div>
-</footer>
-<!-- End of Footer -->
+            </div>
+            <!-- End of Main Content -->
 
-
-               
+            <!-- Footer -->
+            <footer class="sticky-footer bg-white">
+                <div class="container my-auto">
+                    <div class="copyright text-center my-auto">
+                        <span>Copyright &copy; ENLACE DIGITAL 2025</span>
+                    </div>
+                </div>
+            </footer>
+            <!-- End of Footer -->
 
         </div>
         <!-- End of Content Wrapper -->
@@ -622,52 +416,7 @@ $(document).on('click', '#btnConfirmarProcesar', function() {
     window.location.href = 'AlertasGenerales.php';
 }
 </script>    <!-- Page level custom scripts -->
-
-<!-- GRAFICA DE LAS ALERTAS -->
-
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Aquí debe coincidir con el id del canvas
-    const ctx = document.getElementById('graficaAlertas').getContext('2d');
-
-    const data = {
-        labels: ['CHILPANCINGO', 'MIXCOAC', 'CANCUN', 'CUAUTITLAN-MORE...', 'Sin Área', 'TEXCOCO-ZARAGOZ...', 'TORREON', 'CUERNAVACA', 'MERIDA', 'ERMITA-TLAHUAC'],
-        datasets: [{
-            label: 'Cumplimiento (%)',
-            data: [98, 97, 96, 95, 94, 93, 92, 91, 80, 65],
-            backgroundColor: [
-                'green','green','green','green','green','green','green','green',
-                'yellow','red'
-            ]
-        }]
-    };
-
-    const config = {
-        type: 'bar',
-        data: data,
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    ticks: {
-                        callback: value => value + '%'
-                    }
-                }
-            },
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: context => context.dataset.label + ': ' + context.parsed.y + '%'
-                    }
-                }
-            }
-        }
-    };
-
-    new Chart(ctx, config);
-});
-</script>
+   
 
 
 </body>
