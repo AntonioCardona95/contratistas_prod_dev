@@ -277,15 +277,17 @@ if (empty($Contratista)) {
         </div>
     </div>
 </div>
-                    
 
+</div>
+                <!-- End of Cards -->
+
+                <!-- Gráfica abajo -->
+<div class="row">
   <div class="col-xl-12">
     <div class="card shadow mb-4">
-      <!-- Encabezado del card -->
       <div class="card-header py-3">
         <h6 class="m-0 font-weight-bold text-primary">Cumplimiento (%)</h6>
       </div>
-      <!-- Cuerpo del card -->
       <div class="card-body">
         <div class="chart-bar">
           <canvas id="graficaAlertas" height="120"></canvas>
@@ -293,10 +295,7 @@ if (empty($Contratista)) {
       </div>
     </div>
   </div>
-
-                     
-                </div>
-                <!-- End of Cards -->
+</div>
 
             </div>
             <!-- End of Main Content -->
