@@ -433,17 +433,31 @@ $(document).on('click', '#btnConfirmarProcesar', function() {
 document.addEventListener("DOMContentLoaded", function () {
     Highcharts.chart('container', {
         chart: {
-            type: 'column'   // 👈 tipo de gráfica: barras verticales
+            type: 'column'   // barras verticales
         },
         title: {
             text: 'Cumplimiento (%)'
         },
         xAxis: {
             categories: [
-               'NO COORDIAPP', 'SIN NAVEGACION', 'ONT DUPLICADA TAC', 'ONT DUPLICADA ESCI', 'TECNOLOGIA DIFERENTE',
-                'TIPO TAREA DIFERENTE', 'NUMERO DE SERIE DIFERENTE', 'ONT NO EN ALMACEN', 'ONT ASIGNADA A OTRO CONTRATISTA',
-                'ONT SIN ASIGNAR', 'ORDEN A REVISION POR 30 DIAS'
+                'NO COORDIAPP',
+                'SIN NAVEGACION',
+                'ONT DUPLICADA TAC',
+                'ONT DUPLICADA ESCI',
+                'TECNOLOGIA DIFERENTE',
+                'TIPO TAREA DIFERENTE',
+                'NUMERO DE SERIE DIFERENTE',
+                'ONT NO EN ALMACEN',
+                'ONT ASIGNADA A OTRO CONTRATISTA',
+                'ONT SIN ASIGNAR',
+                'ORDEN A REVISION POR 30 DIAS'
             ],
+            labels: {
+                rotation: -45,   // 👈 gira las etiquetas para que se lean completas
+                style: {
+                    fontSize: '11px'
+                }
+            },
             crosshair: true
         },
         yAxis: {
@@ -458,17 +472,16 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         series: [{
             name: 'Cumplimiento',
-            data: [98, 97, 96, 95, 94, 93, 92, 91, 80, 65],
+            data: [98, 97, 96, 95, 94, 93, 92, 91, 80, 65, 70],
             colorByPoint: true,
             colors: [
                 'green','green','green','green','green','green','green','green',
-                'yellow','red'
+                'yellow','red','orange'
             ]
         }]
     });
 });
 </script>
-
 
 
 </body>
