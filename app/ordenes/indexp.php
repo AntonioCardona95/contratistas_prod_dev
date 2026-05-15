@@ -49,6 +49,14 @@ if (empty($Contratista)) {
         .periodo-consulta .periodo-label { color: #6c757d; font-weight:600; margin-right: .8rem; }
     </style>
 
+    <style>
+  #graficaAlertas {
+    max-height: 150px;
+    width: 100%;
+  }
+</style>
+
+
 </head>
 
 <body id="page-top">
