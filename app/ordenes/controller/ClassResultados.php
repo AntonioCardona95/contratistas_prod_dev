@@ -98,15 +98,17 @@ public function getConteoAlertasPorTipo()
         'ONT SIN ASIGNAR'=>0,'ORDEN A REVISION POR 30 DIAS'=>0,'SERVICIO INACTIVO'=>0,'ONT_NO_ASIGNADA_AL_CONTRATISTA'=>0
     ];
 
-    // Rellenar con los resultados reales
+    // Rellenar con los resultados reales (normalizando el texto)
     foreach ($result as $fila) {
-        if (isset($categorias[$fila['Tipo_Alerta']])) {
-            $categorias[$fila['Tipo_Alerta']] = (int)$fila['total'];
+        $clave = strtoupper(trim($fila['Tipo_Alerta'])); // quita espacios y pone mayúsculas
+        if (isset($categorias[$clave])) {
+            $categorias[$clave] = (int)$fila['total'];
         }
     }
 
     return $categorias; // Devuelve array asociativo con todos los conteos
 }
+
 
 
 }
