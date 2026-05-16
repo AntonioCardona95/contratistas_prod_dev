@@ -16,7 +16,28 @@ $(document).ready(function() {
                     ],
                     labels: { rotation: -45, style: { fontSize: '11px' } }
                 },
-                yAxis: { min: 0, title: { text: 'Cantidad' } },
+               yAxis: {
+    min: 0,
+    title: { text: 'Cantidad' },
+    labels: {
+        formatter: function () {
+            // muestra números completos con separador de miles
+            return Highcharts.numberFormat(this.value, 0, '', ',');
+        }
+    },
+    plotLines: [{
+        value: 1000, // ejemplo de umbral
+        color: 'red',
+        width: 2,
+        dashStyle: 'ShortDash',
+        label: {
+            text: 'Umbral 1000',
+            align: 'right',
+            style: { color: 'red', fontWeight: 'bold' }
+        }
+    }]
+},
+
                 tooltip: { pointFormat: 'Cantidad: <b>{point.y}</b>' },
                 plotOptions: {
                     column: {
