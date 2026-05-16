@@ -109,6 +109,32 @@ public function getConteoAlertasPorTipo()
     return $categorias; // Devuelve array asociativo con todos los conteos
 }
 
+public function getConteoAlertasFotos()
+{
+    $sql = "SELECT Tipo_Alerta, COUNT(*) AS total
+            FROM Produccion_alertas_detalle
+            GROUP BY Tipo_Alerta";
+
+    $result = $this->runQuery($sql);
+
+    // Inicializar todas las categorías en 0
+    $categorias = [
+        'FOTO_ONT_FRONTAL_FALLIDA'=>0,'FOTO ONT TRASERA FALLIDA'=>0,'FOTO_CASA_CLIENTE_FALLIDA'=>0,
+        'FOTO OS FALLIDA'=>0,'FOTO TERMINAL FALLIDA'=>0,'FALTA_EVIDENCIA_FOTO_PUERTO'=>0
+        
+    ];
+
+    // Rellenar con los resultados reales (normalizando el texto)
+    foreach ($result as $fila) {
+        $clave = strtoupper(trim($fila['Tipo_Alerta'])); // quita espacios y pone mayúsculas
+        if (isset($categorias[$clave])) {
+            $categorias[$clave] = (int)$fila['total'];
+        }
+    }
+
+    return $categorias; // Devuelve array asociativo con todos los conteos
+}
+
 
 
 }

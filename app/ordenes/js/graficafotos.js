@@ -12,10 +12,9 @@ $(document).ready(function() {
                 title: { text: 'Cantidad de Resultados' },
                 xAxis: {
                     categories: [
-                        'NO EN COORDIAPP','SIN NAVEGACION','ONT_DUPLICADA_EN_TAC','ONT_DUPLICADA_EN_ESCI',
-                        'TECNOLOGIA_DIFERENTE','TIPO_TAREA_DIFERENTE','NUMERO_SERIE_DIFERENTE',
-                        'ONT_NO_ENCONTRADA_EN_ALMACEN','ONT_ASIGNADA_A_OTRO_CONTRATISTA',
-                        'ONT SIN ASIGNAR','ORDEN A REVISION POR 30 DIAS','SERVICIO INACTIVO','ONT_NO_ASIGNADA_AL_CONTRATISTA'
+                        'FOTO_ONT_FRONTAL_FALLIDA','FOTO ONT TRASERA FALLIDA','FOTO_CASA_CLIENTE_FALLIDA',
+                        'FOTO OS FALLIDA','FOTO TERMINAL FALLIDA','FALTA_EVIDENCIA_FOTO_PUERTO'
+                        
                     ],
                     labels: { rotation: -45, style: { fontSize: '12px' } }
                 },
