@@ -113,27 +113,39 @@ public function getConteoAlertasFotos()
 {
     $sql = "SELECT Tipo_Alerta, COUNT(*) AS total
             FROM Produccion_alertas_detalle
+            WHERE Tipo_Alerta IN (
+                'FOTO_ONT_FRONTAL_FALLIDA',
+                'FOTO ONT TRASERA FALLIDA',
+                'FOTO_CASA_CLIENTE_FALLIDA',
+                'FOTO OS FALLIDA',
+                'FOTO TERMINAL FALLIDA',
+                'FALTA_EVIDENCIA_FOTO_PUERTO'
+            )
             GROUP BY Tipo_Alerta";
 
     $result = $this->runQuery($sql);
 
     // Inicializar todas las categorías en 0
     $categorias = [
-        'FOTO_ONT_FRONTAL_FALLIDA'=>0,'FOTO ONT TRASERA FALLIDA'=>0,'FOTO_CASA_CLIENTE_FALLIDA'=>0,
-        'FOTO OS FALLIDA'=>0,'FOTO TERMINAL FALLIDA'=>0,'FALTA_EVIDENCIA_FOTO_PUERTO'=>0
-        
+        'FOTO_ONT_FRONTAL_FALLIDA'=>0,
+        'FOTO ONT TRASERA FALLIDA'=>0,
+        'FOTO_CASA_CLIENTE_FALLIDA'=>0,
+        'FOTO OS FALLIDA'=>0,
+        'FOTO TERMINAL FALLIDA'=>0,
+        'FALTA_EVIDENCIA_FOTO_PUERTO'=>0
     ];
 
-    // Rellenar con los resultados reales (normalizando el texto)
+    // Rellenar con los resultados reales
     foreach ($result as $fila) {
-        $clave = strtoupper(trim($fila['Tipo_Alerta'])); // quita espacios y pone mayúsculas
+        $clave = strtoupper(trim($fila['Tipo_Alerta']));
         if (isset($categorias[$clave])) {
             $categorias[$clave] = (int)$fila['total'];
         }
     }
 
-    return $categorias; // Devuelve array asociativo con todos los conteos
+    return $categorias;
 }
+
 
 
 
