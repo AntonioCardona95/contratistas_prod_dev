@@ -88,7 +88,7 @@ public function getConteoAlertasPorTipo()
             FROM Produccion_alertas_detalle
             GROUP BY Tipo_Alerta";
 
-    $result = $this->runQueryAnalisis($sql);
+    $result = $this->runQuery($sql);
 
     // Inicializar todas las categorías en 0
     $categorias = [
