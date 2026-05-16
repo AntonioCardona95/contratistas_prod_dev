@@ -5,10 +5,7 @@ $(document).ready(function() {
         dataType: 'json',
         success: function(valores) {
             Highcharts.chart('container', {
-                chart: { 
-                    type: 'column',
-                    height: 600 // 👈 aumenta la altura del gráfico
-                },
+                chart: { type: 'column' },
                 title: { text: 'Cantidad de Resultados' },
                 xAxis: {
                     categories: [
@@ -17,38 +14,37 @@ $(document).ready(function() {
                         'ONT_NO_ENCONTRADA_EN_ALMACEN','ONT_ASIGNADA_A_OTRO_CONTRATISTA',
                         'ONT SIN ASIGNAR','ORDEN A REVISION POR 30 DIAS','SERVICIO INACTIVO','ONT_NO_ASIGNADA_AL_CONTRATISTA'
                     ],
-                    labels: { rotation: -45, style: { fontSize: '12px' } } // 👈 texto un poco más grande
+                    labels: { rotation: -45, style: { fontSize: '11px' } }
                 },
-                yAxis: {
-                    min: 0,
-                    title: { text: 'Cantidad' },
-                    labels: {
-                        formatter: function () {
-                            // muestra números completos con separador de miles
-                            return Highcharts.numberFormat(this.value, 0, '', ',');
-                        },
-                        style: { fontSize: '12px' } // 👈 etiquetas más legibles
-                    },
-                    plotLines: [{
-                        value: 1000, // ejemplo de umbral
-                        color: 'red',
-                        width: 2,
-                        dashStyle: 'ShortDash',
-                        label: {
-                            text: 'Umbral 1000',
-                            align: 'right',
-                            style: { color: 'red', fontWeight: 'bold' }
-                        }
-                    }]
-                },
+               yAxis: {
+    min: 0,
+    title: { text: 'Cantidad' },
+    labels: {
+        formatter: function () {
+            // muestra números completos con separador de miles
+            return Highcharts.numberFormat(this.value, 0, '', ',');
+        }
+    },
+    plotLines: [{
+        value: 1000, // ejemplo de umbral
+        color: 'red',
+        width: 2,
+        dashStyle: 'ShortDash',
+        label: {
+            text: 'Umbral 1000',
+            align: 'right',
+            style: { color: 'red', fontWeight: 'bold' }
+        }
+    }]
+},
+
                 tooltip: { pointFormat: 'Cantidad: <b>{point.y}</b>' },
                 plotOptions: {
                     column: {
-                        minPointLength: 5, // 👈 asegura que barras pequeñas se vean
                         dataLabels: {
                             enabled: true,
                             inside: true,
-                            style: { fontSize: '13px', fontWeight: 'bold', color: 'white' }
+                            style: { fontSize: '12px', fontWeight: 'bold', color: 'white' }
                         },
                         color: '#007bff'
                     }
