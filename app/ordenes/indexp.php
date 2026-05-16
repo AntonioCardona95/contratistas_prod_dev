@@ -268,12 +268,11 @@ if (empty($Contratista)) {
 <!-- End of Cards -->
 
 
-<!-- Pastel Chart -->
+<div class="row">
+  <!-- Primera gráfica -->
   <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
-          <!-- Card Header - Dropdown -->
-          <div
-              class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
               <h6 class="m-0 font-weight-bold text-primary">CONTROL DE ASIGNACIÓN DE ONTs</h6>
               <div class="dropdown no-arrow">
                   <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
@@ -282,21 +281,16 @@ if (empty($Contratista)) {
                   </a>
               </div>
           </div>
-          <!-- Card Body -->
           <div class="card-body">
-            <!-- <div id="container" style="width:100%; height:400px;"></div> -->
-             <div id="container" style="width:100%; height:700px;"></div>
-
+              <div id="container" style="width:100%; height:700px;"></div>
           </div>
       </div>
   </div>
 
-  <!-- Pastel Chart -->
+  <!-- Segunda gráfica -->
   <div class="col-xl-6 col-lg-6">
       <div class="card shadow mb-4">
-          <!-- Card Header - Dropdown -->
-          <div
-              class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
               <h6 class="m-0 font-weight-bold text-primary">GRAFICA EVIDENCIAS FOTOGRAFICAS</h6>
               <div class="dropdown no-arrow">
                   <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
@@ -305,18 +299,14 @@ if (empty($Contratista)) {
                   </a>
               </div>
           </div>
-          <!-- Card Body -->
           <div class="card-body">
-            <!-- <div id="container" style="width:100%; height:400px;"></div> -->
-             <div id="containerf" style="width:100%; height:700px;"></div>
-
+              <div id="containerf" style="width:100%; height:700px;"></div>
           </div>
       </div>
   </div>
-
-
 </div>
 <!-- End of Main Content -->
+
 
 
        
