@@ -1,5 +1,6 @@
 <?php
-require_once("ClassResultados.php");
+//require_once("ClassResultados.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/ordenes/controller/ClassResultados.php");
 
 $resultados = new Resultados();
 $conteos = $resultados->getConteoAlertasPorTipo();

@@ -82,4 +82,31 @@ class Resultados extends Conexion
     return is_array($rows) ? $rows : array();
 }
 
+public function getConteoAlertasPorTipo()
+{
+    $sql = "SELECT Tipo_Alerta, COUNT(*) AS total
+            FROM Produccion_alertas_detalle
+            GROUP BY Tipo_Alerta";
+
+    $result = $this->runQueryAnalisis($sql);
+
+    // Inicializar todas las categorías en 0
+    $categorias = [
+        'NO COORDIAPP'=>0,'SIN NAVEGACION'=>0,'ONT DUPLICADA TAC'=>0,'ONT DUPLICADA ESCI'=>0,
+        'TECNOLOGIA DIFERENTE'=>0,'TIPO TAREA DIFERENTE'=>0,'NUMERO DE SERIE DIFERENTE'=>0,
+        'ONT NO EN ALMACEN'=>0,'ONT ASIGNADA A OTRO CONTRATISTA'=>0,
+        'ONT SIN ASIGNAR'=>0,'ORDEN A REVISION POR 30 DIAS'=>0
+    ];
+
+    // Rellenar con los resultados reales
+    foreach ($result as $fila) {
+        if (isset($categorias[$fila['Tipo_Alerta']])) {
+            $categorias[$fila['Tipo_Alerta']] = (int)$fila['total'];
+        }
+    }
+
+    return $categorias; // Devuelve array asociativo con todos los conteos
+}
+
+
 }
