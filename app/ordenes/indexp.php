@@ -284,7 +284,9 @@ if (empty($Contratista)) {
           </div>
           <!-- Card Body -->
           <div class="card-body">
-            <div id="container" style="width:100%; height:400px;"></div>
+            <!-- <div id="container" style="width:100%; height:400px;"></div> -->
+             <div id="container" style="width:100%; height:700px;"></div>
+
           </div>
       </div>
   </div>
