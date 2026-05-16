@@ -1,6 +1,6 @@
 $(document).ready(function() {
     $.ajax({
-        url: 'getAlertas.php',
+        url: 'alertasgrafica.php',
         method: 'GET',
         dataType: 'json',
         success: function(valores) {
