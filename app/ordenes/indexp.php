@@ -429,7 +429,9 @@ $(document).on('click', '#btnConfirmarProcesar', function() {
 </script>    <!-- Page level custom scripts -->
 
 <script src="https://code.highcharts.com/highcharts.js"></script>
-<script>
+ <script src="js/grafica.js"></script>
+
+<!-- <script>
 document.addEventListener("DOMContentLoaded", function () {
     Highcharts.chart('container', {
         chart: {
@@ -487,7 +489,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }]
     });
 });
-</script>
+</script> -->
 
 </body>
 
