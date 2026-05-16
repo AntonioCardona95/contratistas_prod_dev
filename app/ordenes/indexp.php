@@ -445,6 +445,7 @@ $(document).on('click', '#btnConfirmarProcesar', function() {
 
 <script src="https://code.highcharts.com/highcharts.js"></script>
  <script src="js/grafica.js"></script>
+ <script src="js/graficafotos.js"></script>
 
 <!-- <script>
 document.addEventListener("DOMContentLoaded", function () {
