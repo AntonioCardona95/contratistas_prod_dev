@@ -9,7 +9,7 @@ $(document).ready(function() {
                 title: { text: 'Cantidad de Resultados' },
                 xAxis: {
                     categories: [
-                        'NO COORDIAPP','SIN NAVEGACION','ONT DUPLICADA TAC','ONT DUPLICADA ESCI',
+                        'NO EN COORDIAPP','SIN NAVEGACION','ONT DUPLICADA TAC','ONT DUPLICADA ESCI',
                         'TECNOLOGIA DIFERENTE','TIPO TAREA DIFERENTE','NUMERO DE SERIE DIFERENTE',
                         'ONT NO EN ALMACEN','ONT ASIGNADA A OTRO CONTRATISTA',
                         'ONT SIN ASIGNAR','ORDEN A REVISION POR 30 DIAS'
