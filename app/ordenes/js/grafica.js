@@ -9,10 +9,10 @@ $(document).ready(function() {
                 title: { text: 'Cantidad de Resultados' },
                 xAxis: {
                     categories: [
-                        'NO EN COORDIAPP','SIN NAVEGACION','ONT DUPLICADA TAC','ONT_DUPLICADA_EN_ESCI',
-                        'TECNOLOGIA DIFERENTE','TIPO TAREA DIFERENTE','NUMERO DE SERIE DIFERENTE',
-                        'ONT NO EN ALMACEN','ONT ASIGNADA A OTRO CONTRATISTA',
-                        'ONT SIN ASIGNAR','ORDEN A REVISION POR 30 DIAS'
+                        'NO EN COORDIAPP','SIN NAVEGACION','ONT_DUPLICADA_EN_TAC','ONT_DUPLICADA_EN_ESCI',
+                        'TECNOLOGIA_DIFERENTE','TIPO_TAREA_DIFERENTE','NUMERO_SERIE_DIFERENTE',
+                        'ONT_NO_ENCONTRADA_EN_ALMACEN','ONT_ASIGNADA_A_OTRO_CONTRATISTA',
+                        'ONT SIN ASIGNAR','ORDEN A REVISION POR 30 DIAS','SERVICIO INACTIVO','ONT_NO_ASIGNADA_AL_CONTRATISTA'
                     ],
                     labels: { rotation: -45, style: { fontSize: '11px' } }
                 },
