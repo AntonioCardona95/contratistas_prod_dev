@@ -55,7 +55,7 @@ if ($categoria !== '') {
         </tr>
             </thead>
             <tbody>
-                <?php foreach ($alertas as $row): ?>
+                <?php foreach ($detalle as $row): ?>
         <tr>
 
             <td><?= htmlspecialchars($row['Folio_Pisa'] ?? '') ?></td>
