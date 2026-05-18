@@ -146,6 +146,16 @@ public function getConteoAlertasFotos()
     return $categorias;
 }
 
+public function getDetalleAlertasPorTipo($categoria)
+{
+    $sql = "SELECT *
+            FROM Produccion_alertas_detalle
+            WHERE Tipo_Alerta = :categoria";
+
+    return $this->runQuery($sql, [':categoria' => $categoria]);
+}
+
+
 
 
 
