@@ -5,27 +5,23 @@ require_once("../controller/ClassProduccion.php");
 
 session_start();
 
-$Contratista   = $_SESSION['Contratista'] ?? null;
+$Contratista    = $_SESSION['Contratista'] ?? null;
 $idContratistas = $_SESSION['idContratistas'] ?? null;
 
 // =========================
 // PARAMETROS RECIBIDOS
 // =========================
-$fecha_inicio = $_POST['fecha_inicio'] ?? null;
-$fecha_fin    = $_POST['fecha_fin'] ?? null;
+$fecha_inicio = $_POST['fecha_inicio'] ?? "";
+$fecha_fin    = $_POST['fecha_fin'] ?? "";
 
-//  NUEVOS PARAMETROS
-$categoria    = $_POST['categoria'] ?? null;
-$cantidad     = $_POST['cantidad'] ?? null;
+// NUEVOS PARAMETROS
+$categoria    = $_POST['categoria'] ?? "";
+$cantidad     = $_POST['cantidad'] ?? "";
 
 // =========================
 // VALIDACIONES
 // =========================
-if (
-    empty($fecha_inicio) || 
-    empty($fecha_fin) || 
-    empty($categoria)
-) {
+if (empty($categoria)) {
     echo "<p>No se recibieron parámetros válidos.</p>";
     exit;
 }
@@ -40,9 +36,9 @@ $resultados = new Resultados();
 
 $alertas = [];
 
-if (!empty($categoria)) {
-    $alertas = $resultados->getDetalleAlertasPorTipo($categoria);
-}
+// Si solo depende de categoría (como lo tienes ahora)
+$alertas = $resultados->getDetalleAlertasPorTipo($categoria);
+
 $alertas = is_array($alertas) ? $alertas : [];
 
 if (empty($alertas)) {
