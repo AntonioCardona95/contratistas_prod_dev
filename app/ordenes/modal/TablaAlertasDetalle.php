@@ -43,12 +43,6 @@ $alertas = [];
 if (!empty($categoria)) {
     $alertas = $resultados->getDetalleAlertasPorTipo($categoria);
 }
-
-// $detalle = [];
-/*if ($categoria !== '') {
-    $detalle = $resultados->getDetalleAlertasPorTipo($categoria);
-} */
-
 $alertas = is_array($alertas) ? $alertas : [];
 
 if (empty($alertas)) {
@@ -56,8 +50,6 @@ if (empty($alertas)) {
     exit;
 }
 ?>
-
-
 
 <!-- Bootstrap CSS--> 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
