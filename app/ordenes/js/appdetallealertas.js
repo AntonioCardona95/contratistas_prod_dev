@@ -1,29 +1,24 @@
 $(document).ready(function () {
 
-    // Obtener parámetros de la URL
     var urlParams = new URLSearchParams(window.location.search);
 
     var fecha_inicio = urlParams.get('fecha_inicio');
     var fecha_fin    = urlParams.get('fecha_fin');
+    var categoria    = urlParams.get('categoria');
+    var cantidad     = urlParams.get('cantidad');
 
-    //  Nuevos parámetros
-    var categoria = urlParams.get('categoria');
-    var cantidad  = urlParams.get('cantidad');
+    // Asegurar valores vacíos en lugar de null (opcional pero recomendable)
+    fecha_inicio = fecha_inicio || "";
+    fecha_fin    = fecha_fin || "";
+    cantidad     = cantidad || "";
 
-    //console.log("Fecha inicio:", fecha_inicio);
-    //console.log("Fecha fin:", fecha_fin);
-    //console.log("Categoría:", categoria);
-    //console.log("Cantidad:", cantidad);
-
-    // Ejecutar AJAX si existen los parámetros necesarios
-    if (fecha_inicio && fecha_fin && categoria) {
+    // SOLO validas categoría
+    if (categoria) {
         LoadDetalleAlertas(fecha_inicio, fecha_fin, categoria, cantidad);
     }
 
 });
 
-
-// Función AJAX
 function LoadDetalleAlertas(fecha_inicio, fecha_fin, categoria, cantidad) {
 
     $.ajax({
