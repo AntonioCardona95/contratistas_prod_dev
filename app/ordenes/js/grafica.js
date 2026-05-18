@@ -57,7 +57,7 @@ $(document).ready(function() {
                             events: {
                                 click: function () {
                                     // Redirige al archivo PHP con parámetewros GET
-                                    window.location.href = 'DetalleAlertas.php?categoria=' 
+                                    window.location.href = 'DetalleNuevoAlertas.php?categoria=' 
                                         + encodeURIComponent(this.category) 
                                         + '&cantidad=' + this.y;
                                 }
