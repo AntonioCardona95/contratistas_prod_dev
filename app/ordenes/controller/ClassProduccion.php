@@ -1409,7 +1409,7 @@ private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
     // Caso: servicio inactivo (DID_ACTIVO = -1)
     if ($didActivo === -1) {
         $alertas[] = 'SERVICIO INACTIVO';
-        $detalleEsci = "Servicio inactivo en Esci" . ($fConsulta ? " | última vez que navego: $fConsulta" : "");
+        $detalleEsci = "Servicio inactivo en Esci" . ($fConsulta ? " | ultima vez que navego: $fConsulta" : "");
         return;
     }
 
