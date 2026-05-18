@@ -478,192 +478,280 @@ foreach ($conexion_analisis->query($sql) as $row) {
         }
     }  */
 
-    // =========================
-    // PREPARES
-    // =========================
-    $stmtAlerta = $conexion->prepare("
-    INSERT INTO Produccion_alertas
-    (Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga,
-     FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci, Bandera_Revision, Detalle_Tipo_Tarea, Detalle_Tecnologia, Detalle_Series)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-    ");
-
-    $stmtUpdate = $conexion->prepare("
-    UPDATE Produccion_alertas SET
-        Telefono = ?, Tipo_Tarea = ?, Cope = ?, Fecha_Liquidacion = ?,
-        Fecha_Carga = ?, FK_Contratista = ?, Semana = ?, anio = ?, metraje = ?,
-        Alerta = ?, Detalle_Esci = ?, Bandera_Revision = 0,
-        Detalle_Tipo_Tarea = ?, Detalle_Tecnologia = ?, Detalle_Series = ?
-    WHERE Folio_Pisa = ?
-    ");
-
-    $stmtDetalle = $conexion->prepare("
-    INSERT INTO Produccion_alertas_detalle
-    (Folio_Pisa, FK_Contratista, Tipo_Alerta, Activa, Fecha_Creacion, Detalle_Esci, Detalle_Tac)
-    VALUES (?,?,?,?,?,?,?)
+   // =========================
+// PREPARES
+// =========================
+$stmtAlerta = $conexion->prepare("
+INSERT INTO Produccion_alertas
+(Folio_Pisa, Telefono, Tipo_Tarea, Cope, Fecha_Liquidacion, Fecha_Carga,
+ FK_Contratista, Semana, anio, metraje, Alerta, Detalle_Esci, Bandera_Revision, Detalle_Tipo_Tarea, Detalle_Tecnologia, Detalle_Series)
+VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 ");
 
-    /*$stmtDetalle = $conexion->prepare("
-        INSERT INTO Produccion_alertas_detalle
-        (Folio_Pisa, Tipo_Alerta, Activa, Fecha_Creacion, Detalle_Esci, Detalle_Tac)
-        VALUES (?,?,?,?,?,?)
-    "); */
+$stmtUpdate = $conexion->prepare("
+UPDATE Produccion_alertas SET
+    Telefono = ?, Tipo_Tarea = ?, Cope = ?, Fecha_Liquidacion = ?,
+    Fecha_Carga = ?, FK_Contratista = ?, Semana = ?, anio = ?, metraje = ?,
+    Alerta = ?, Detalle_Esci = ?, Bandera_Revision = 0,
+    Detalle_Tipo_Tarea = ?, Detalle_Tecnologia = ?, Detalle_Series = ?
+WHERE Folio_Pisa = ?
+");
 
-    $stmtDesactivar = $conexion->prepare("
-        UPDATE Produccion_alertas_detalle
-        SET Activa = 0
-        WHERE Folio_Pisa = ? AND Tipo_Alerta = ?
-    ");
+// =========================
+// INSERT DETALLE
+// =========================
+$stmtDetalle = $conexion->prepare("
+INSERT INTO Produccion_alertas_detalle
+(
+    Folio_Pisa,
+    Telefono,
+    Tipo_Tarea,
+    Cope,
+    Fecha_Liquidacion,
+    FK_Contratista,
+    Tipo_Alerta,
+    Activa,
+    Fecha_Creacion,
+    Detalle_Esci,
+    Detalle_Tac
+)
+VALUES (?,?,?,?,?,?,?,?,?,?,?)
+");
 
-    $stmtActivar = $conexion->prepare("
+// =========================
+// DESACTIVAR ALERTA
+// =========================
+$stmtDesactivar = $conexion->prepare("
     UPDATE Produccion_alertas_detalle
-    SET 
-        Activa = 1,
-        Fecha_Creacion = ?,
-        Detalle_Esci = ?,
-        Detalle_Tac = ?,
-        FK_Contratista = ?
-    WHERE Folio_Pisa = ? 
-      AND Tipo_Alerta = ?
+    SET Activa = 0
+    WHERE Folio_Pisa = ? AND Tipo_Alerta = ?
 ");
 
-  /*  $stmtActivar = $conexion->prepare("
-        UPDATE Produccion_alertas_detalle
-        SET Activa = 1, Fecha_Creacion = ?, Detalle_Esci = ?, Detalle_Tac = ?
-        WHERE Folio_Pisa = ? AND Tipo_Alerta = ?
-    "); */
+// =========================
+// REACTIVAR ALERTA
+// =========================
+$stmtActivar = $conexion->prepare("
+UPDATE Produccion_alertas_detalle
+SET 
+    Activa = 1,
+    Fecha_Creacion = ?,
+    Telefono = ?,
+    Tipo_Tarea = ?,
+    Cope = ?,
+    Fecha_Liquidacion = ?,
+    Detalle_Esci = ?,
+    Detalle_Tac = ?,
+    FK_Contratista = ?
+WHERE Folio_Pisa = ? 
+  AND Tipo_Alerta = ?
+");
+
+// =========================
+// UPDATE DETALLE ACTIVO
+// =========================
+$stmtUpdateDetalle = $conexion->prepare("
+UPDATE Produccion_alertas_detalle
+SET
+    Telefono = ?,
+    Tipo_Tarea = ?,
+    Cope = ?,
+    Fecha_Liquidacion = ?,
+    FK_Contratista = ?,
+    Detalle_Esci = ?,
+    Detalle_Tac = ?
+WHERE Folio_Pisa = ?
+  AND Tipo_Alerta = ?
+");
+
+// =========================
+// LOOP PRINCIPAL
+// =========================
+foreach ($registros as $r) {
+
+    $folio = $r['folio'];
+    $telefono = trim($r['telefono']);
+
+    $keyCoord = $folio . '_' . $telefono;
+    $coord = $coordData[$keyCoord] ?? null;
+
+    $tac   = $tacData[$folio] ?? null;
+    $esci  = $esciData[$telefono] ?? null;
+
+    $tacOrdenHist = $tacOrdenData[$telefono] ?? null;
+
+    $serieTac   = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
+    $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
+    $serieEsci  = $esci['M_SERIE'] ?? null;
+
+    $resultadoAlertas = $this->evaluarAlertas([
+        'folio' => $folio,
+        'telefono' => $telefono,
+        'coord' => $coord,
+        'tac' => $tac,
+        'esci' => $esci,
+        'serieTac' => $serieTac,
+        'serieCoord' => $serieCoord,
+        'serieEsci' => $serieEsci,
+        'tacOrdenHist' => $tacOrdenHist,
+        'idContratista' => $r['idContratista'] ?? 0,
+        'tipoTarea' => $coord['Tipo_Tarea'] ?? ($r['tipoTarea'] ?? ''),
+        'ontDuplicadasTac' => $ontDuplicadasTac,
+        'esciSeriesMap' => $esciSeriesMap
+    ]);
+
+    $alertasActuales = $resultadoAlertas['alertas'] ?? [];
+
+    $alertasTexto = !empty($alertasActuales)
+        ? implode(' | ', array_unique($alertasActuales))
+        : null;
 
     // =========================
-    // LOOP PRINCIPAL
+    // INSERT o UPDATE (cabecera)
     // =========================
-    foreach ($registros as $r) {
-        $folio = $r['folio'];
-        $telefono = trim($r['telefono']);
+    if (!isset($existentes[$folio])) {
 
-        $keyCoord = $folio . '_' . $telefono;
-        $coord = $coordData[$keyCoord] ?? null;
+        if (!empty($alertasActuales)) {
 
-        $tac   = $tacData[$folio] ?? null;
-        $esci  = $esciData[$telefono] ?? null;
+            $stmtAlerta->execute([
+                $folio,
+                $telefono,
+                $r['tipoTarea'] ?? null,
+                $r['cope'] ?? null,
+                $r['fechaLiquidacion'] ?? null,
+                date('Y-m-d H:i:s'),
+                $r['idContratista'] ?? 0,
+                $r['semana'] ?? 0,
+                $r['anio'] ?? 0,
+                $r['metraje'] ?? 0,
+                $alertasTexto,
+                $resultadoAlertas['detalleEsci'] ?? null,
+                0,
+                $resultadoAlertas['detalleTipoTarea'] ?? null,
+                $resultadoAlertas['detalleTecnologia'] ?? null,
+                $resultadoAlertas['detalleSeries'] ?? null
+            ]);
+        }
 
-        $tacOrdenHist = $tacOrdenData[$telefono] ?? null;
+    } else {
 
-        $serieTac   = isset($tac['Num__Serie']) ? strtoupper(trim($tac['Num__Serie'])) : null;
-        $serieCoord = isset($coord['Ont']) ? strtoupper(trim($coord['Ont'])) : null;
-        $serieEsci  = $esci['M_SERIE'] ?? null;
+        if (!empty($alertasActuales)) {
 
-        $resultadoAlertas = $this->evaluarAlertas([
-            'folio' => $folio,
-            'telefono' => $telefono,
-            'coord' => $coord,
-            'tac' => $tac,
-            'esci' => $esci,
-            'serieTac' => $serieTac,
-            'serieCoord' => $serieCoord,
-            'serieEsci' => $serieEsci,
-            'tacOrdenHist' => $tacOrdenHist,
-            'idContratista' => $r['idContratista'] ?? 0,
-            'tipoTarea' => $coord['Tipo_Tarea'] ?? ($r['tipoTarea'] ?? ''),
-            'ontDuplicadasTac' => $ontDuplicadasTac,
-            'esciSeriesMap' => $esciSeriesMap
-        ]);
+            $stmtUpdate->execute([
+                $telefono,
+                $r['tipoTarea'] ?? null,
+                $r['cope'] ?? null,
+                $r['fechaLiquidacion'] ?? null,
+                date('Y-m-d H:i:s'),
+                $r['idContratista'] ?? 0,
+                $r['semana'] ?? 0,
+                $r['anio'] ?? 0,
+                $r['metraje'] ?? 0,
+                $alertasTexto,
+                $resultadoAlertas['detalleEsci'] ?? null,
+                $resultadoAlertas['detalleTipoTarea'] ?? null,
+                $resultadoAlertas['detalleTecnologia'] ?? null,
+                $resultadoAlertas['detalleSeries'] ?? null,
+                $folio
+            ]);
+        }
+    }
 
-        $alertasActuales = $resultadoAlertas['alertas'] ?? [];
-        $alertasTexto = !empty($alertasActuales)
-            ? implode(' | ', array_unique($alertasActuales))
-            : null;
+    // =========================
+    // MANEJO DE DETALLE (SIN DELETE)
+    // =========================
 
-        // =========================
-        // INSERT o UPDATE (cabecera)
-        // =========================
-        if (!isset($existentes[$folio])) {
-            if (!empty($alertasActuales)) {
-                $stmtAlerta->execute([
+    // 1) Desactivar las que ya no aplican
+    if (isset($detalleExistente[$folio])) {
+
+        foreach ($detalleExistente[$folio] as $tipoAnterior => $info) {
+
+            if (
+                !in_array($tipoAnterior, $alertasActuales, true)
+                && $info['activa'] === 1
+            ) {
+
+                $stmtDesactivar->execute([
                     $folio,
+                    $tipoAnterior
+                ]);
+
+                $detalleExistente[$folio][$tipoAnterior]['activa'] = 0;
+            }
+        }
+    }
+
+    // =========================
+    // 2) Insertar / Reactivar / Actualizar
+    // =========================
+    foreach ($alertasActuales as $tipoAlerta) {
+
+        // =========================
+        // INSERT NUEVO
+        // =========================
+        if (!isset($detalleExistente[$folio][$tipoAlerta])) {
+
+            $stmtDetalle->execute([
+                $folio,
+                $telefono,
+                $r['tipoTarea'] ?? null,
+                $r['cope'] ?? null,
+                $r['fechaLiquidacion'] ?? null,
+                $r['idContratista'] ?? 0,
+                $tipoAlerta,
+                1,
+                date('Y-m-d H:i:s'),
+                $resultadoAlertas['detalleEsci'] ?? null,
+                $resultadoAlertas['detalleTac'] ?? null
+            ]);
+
+            $detalleExistente[$folio][$tipoAlerta] = [
+                'activa' => 1
+            ];
+
+        } else {
+
+            // =========================
+            // REACTIVAR SI ESTABA EN 0
+            // =========================
+            if ($detalleExistente[$folio][$tipoAlerta]['activa'] === 0) {
+
+                $stmtActivar->execute([
+                    date('Y-m-d H:i:s'),
                     $telefono,
                     $r['tipoTarea'] ?? null,
                     $r['cope'] ?? null,
                     $r['fechaLiquidacion'] ?? null,
-                    date('Y-m-d H:i:s'),
-                    $r['idContratista'] ?? 0,
-                    $r['semana'] ?? 0,
-                    $r['anio'] ?? 0,
-                    $r['metraje'] ?? 0,
-                    $alertasTexto,
                     $resultadoAlertas['detalleEsci'] ?? null,
-                    0,
-                    $resultadoAlertas['detalleTipoTarea'] ?? null,
-                    $resultadoAlertas['detalleTecnologia'] ?? null,
-                    $resultadoAlertas['detalleSeries'] ?? null
+                    $resultadoAlertas['detalleTac'] ?? null,
+                    $r['idContratista'] ?? 0,
+                    $folio,
+                    $tipoAlerta
+                ]);
+
+                $detalleExistente[$folio][$tipoAlerta]['activa'] = 1;
+
+            } else {
+
+                // =========================
+                // UPDATE SI YA EXISTE ACTIVA
+                // =========================
+                $stmtUpdateDetalle->execute([
+                    $telefono,
+                    $r['tipoTarea'] ?? null,
+                    $r['cope'] ?? null,
+                    $r['fechaLiquidacion'] ?? null,
+                    $r['idContratista'] ?? 0,
+                    $resultadoAlertas['detalleEsci'] ?? null,
+                    $resultadoAlertas['detalleTac'] ?? null,
+                    $folio,
+                    $tipoAlerta
                 ]);
             }
-        } else {
-    if (!empty($alertasActuales)) {
-        $stmtUpdate->execute([
-            $telefono,
-            $r['tipoTarea'] ?? null,
-            $r['cope'] ?? null,
-            $r['fechaLiquidacion'] ?? null,
-            date('Y-m-d H:i:s'),
-            $r['idContratista'] ?? 0,
-            $r['semana'] ?? 0,
-            $r['anio'] ?? 0,
-            $r['metraje'] ?? 0,
-            $alertasTexto,
-            $resultadoAlertas['detalleEsci'] ?? null,
-            $resultadoAlertas['detalleTipoTarea'] ?? null, 
-            $resultadoAlertas['detalleTecnologia'] ?? null,
-            $resultadoAlertas['detalleSeries'] ?? null,
-            $folio
-        ]);
-    }
-}
-
-
-        // =========================
-        // MANEJO DE DETALLE (SIN DELETE)
-        // =========================
-        // 1) Desactivar las que ya no aplican
-        if (isset($detalleExistente[$folio])) {
-            foreach ($detalleExistente[$folio] as $tipoAnterior => $info) {
-                if (!in_array($tipoAnterior, $alertasActuales, true) && $info['activa'] === 1) {
-                    $stmtDesactivar->execute([$folio, $tipoAnterior]);
-                    $detalleExistente[$folio][$tipoAnterior]['activa'] = 0;
-                }
-            }
-        }
-
-        // 2) Insertar nuevas o reactivar existentes
-        foreach ($alertasActuales as $tipoAlerta) {
-            if (!isset($detalleExistente[$folio][$tipoAlerta])) {
-                $stmtDetalle->execute([
-    $folio,
-    $r['idContratista'] ?? 0, // <-- NUEVO
-    $tipoAlerta,
-    1,
-    date('Y-m-d H:i:s'),
-    $resultadoAlertas['detalleEsci'] ?? null,
-    $resultadoAlertas['detalleTac'] ?? null
-]);
-
-                $detalleExistente[$folio][$tipoAlerta] = ['activa' => 1];
-            } else {
-                if ($detalleExistente[$folio][$tipoAlerta]['activa'] === 0) {
-                    $stmtActivar->execute([
-    date('Y-m-d H:i:s'),
-    $resultadoAlertas['detalleEsci'] ?? null,
-    $resultadoAlertas['detalleTac'] ?? null,
-    $r['idContratista'] ?? 0, // <-- NUEVO
-    $folio,
-    $tipoAlerta
-]);
-                    $detalleExistente[$folio][$tipoAlerta]['activa'] = 1;
-                }
-            }
         }
     }
 }
 
+}
 
 
 private function evaluarAlertas($data)
