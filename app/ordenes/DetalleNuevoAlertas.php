@@ -23,6 +23,13 @@ $fecha_fin = $_GET['fecha_fin'] ?? date('Y-m-d');
 $categoria = $_GET['categoria'] ?? '';
 $cantidad  = $_GET['cantidad'] ?? '';
 
+
+/*window.location.href = 'DetalleNuevoAlertas.php?categoria=' 
+    + encodeURIComponent(this.category)
+    + '&cantidad=' + this.y
+    + '&fecha_inicio=' + encodeURIComponent(fecha_inicio)
+    + '&fecha_fin=' + encodeURIComponent(fecha_fin); */
+
 ?>
 
 <!DOCTYPE html>
