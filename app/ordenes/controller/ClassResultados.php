@@ -119,7 +119,10 @@ public function getConteoAlertasFotos()
                 'FOTO_CASA_CLIENTE_FALLIDA',
                 'FOTO OS FALLIDA',
                 'FOTO TERMINAL FALLIDA',
-                'FALTA_EVIDENCIA_FOTO_PUERTO'
+                'FALTA_EVIDENCIA_FOTO_PUERTO',
+                'FOTO DOMICILIO FALLIDA MAL TOMADA',
+                'FOTO TERMINAL FALLIDA MAL TOMADA',
+                'FOTO LEDS FALLIDA MAL TOMADA'
             )
             GROUP BY Tipo_Alerta";
 
@@ -127,12 +130,15 @@ public function getConteoAlertasFotos()
 
     // Inicializar todas las categorías en 0
     $categorias = [
-        'FOTO_ONT_FRONTAL_FALLIDA'=>0,
-        'FOTO ONT TRASERA FALLIDA'=>0,
-        'FOTO_CASA_CLIENTE_FALLIDA'=>0,
-        'FOTO OS FALLIDA'=>0,
-        'FOTO TERMINAL FALLIDA'=>0,
-        'FALTA_EVIDENCIA_FOTO_PUERTO'=>0
+        'FOTO_ONT_FRONTAL_FALLIDA' => 0,
+        'FOTO ONT TRASERA FALLIDA' => 0,
+        'FOTO_CASA_CLIENTE_FALLIDA' => 0,
+        'FOTO OS FALLIDA' => 0,
+        'FOTO TERMINAL FALLIDA' => 0,
+        'FALTA_EVIDENCIA_FOTO_PUERTO' => 0,
+        'FOTO DOMICILIO FALLIDA MAL TOMADA' => 0,
+        'FOTO TERMINAL FALLIDA MAL TOMADA' => 0,
+        'FOTO LEDS FALLIDA MAL TOMADA' => 0
     ];
 
     // Rellenar con los resultados reales
@@ -145,6 +151,7 @@ public function getConteoAlertasFotos()
 
     return $categorias;
 }
+
 
 public function getDetalleAlertasPorTipo(string $categoria): array
 {
