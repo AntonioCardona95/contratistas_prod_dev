@@ -35,24 +35,77 @@ if ($categoria !== '') {
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Orden</th>
-                    <th>Teléfono</th>
-                    <th>Serie</th>
-                    <th>Fecha</th>
-                    <!-- agrega las columnas que tengas en tu tabla -->
-                </tr>
+            <th>Folio Pisa</th>
+            <th>Telefono</th>
+            <th>Tipo Tarea</th>
+            <th>Cope</th>
+            <th>Fecha Liquidación</th>
+            <th>Fecha Carga</th>
+            <th>Semana</th>
+            <th>Año</th>
+            <th>Metraje</th>
+            <th>Alerta</th>
+            <th>Detalle Esci</th>
+            <th>Revisión</th>
+            <th>Contratista</th>
+            <th>Comparativa Tip Tarea</th>
+            <th>Comparativa Tecnologia</th>
+            <th>Comparativa Numeros de serie</th>
+            <th>Galería</th>
+        </tr>
             </thead>
             <tbody>
-                <?php foreach ($detalle as $row): ?>
-                    <tr>
-                        <td><?= htmlspecialchars($row['id']) ?></td>
-                        <td><?= htmlspecialchars($row['orden']) ?></td>
-                        <td><?= htmlspecialchars($row['telefono']) ?></td>
-                        <td><?= htmlspecialchars($row['serie']) ?></td>
-                        <td><?= htmlspecialchars($row['fecha']) ?></td>
-                    </tr>
-                <?php endforeach; ?>
+                <?php foreach ($alertas as $row): ?>
+        <tr>
+
+            <td><?= htmlspecialchars($row['Folio_Pisa'] ?? '') ?></td>
+            <td><?= htmlspecialchars($row['Telefono'] ?? '') ?></td>
+            <td><?= htmlspecialchars($row['Tipo_Tarea'] ?? '') ?></td>
+            <td><?= htmlspecialchars($row['Cope'] ?? '') ?></td>
+            <td><?= htmlspecialchars($row['Fecha_Liquidacion'] ?? '') ?></td>
+            <td><?= htmlspecialchars($row['Fecha_Carga'] ?? '') ?></td>
+            <td><?= htmlspecialchars($row['Semana'] ?? '') ?></td>
+            <td><?= htmlspecialchars($row['anio'] ?? '') ?></td>
+            <td><?= htmlspecialchars($row['metraje'] ?? '') ?></td>
+
+            <td style="color:red; font-weight:bold;">
+                <?= htmlspecialchars($row['Alerta'] ?? '') ?>
+            </td>
+
+            <td>
+                <?= htmlspecialchars($row['Detalle_Esci'] ?? '') ?>
+            </td>
+
+            <td style="text-align:center;">
+                <?= !empty($row['Bandera_Revision']) ? '✔' : '✖' ?>
+            </td>
+            <td><?= htmlspecialchars($row['nombre_completo'] ?? '') ?></td>
+            <td><?= htmlspecialchars($row['Detalle_Tipo_Tarea'] ?? '') ?></td>
+            
+            <td>
+    <?= nl2br(htmlspecialchars($row['Detalle_Tecnologia'] ?? '')) ?>
+</td>
+
+<td>
+    <?= nl2br(htmlspecialchars($row['Detalle_Series'] ?? '')) ?>
+</td>
+
+
+            <td>
+                <button 
+                    type="button"
+                    class="btn btn-primary btn-sm btn-galeria"
+                    data-folio="<?= htmlspecialchars($row['Folio_Pisa'] ?? '') ?>"
+                    data-idcontratista="<?= htmlspecialchars($idContratistas ?? '') ?>"
+                    data-nombrecontratista="<?= htmlspecialchars($Contratista ?? '') ?>"
+                >
+                    <i class="fas fa-images"></i>
+                </button>
+            </td>
+
+        </tr>
+    <?php endforeach; ?>
+
             </tbody>
         </table>
     <?php endif; ?>
