@@ -115,9 +115,9 @@ if (empty($alertas)) {
             <td><?= htmlspecialchars($row['Fecha_Liquidacion'] ?? '') ?></td>
             
 
-            <td style="color:red; font-weight:bold;">
-                <?= htmlspecialchars($row['Alerta'] ?? '') ?>
-            </td>
+          <td style="color:red; font-weight:bold;">
+    <?= htmlspecialchars($row['Tipo_Alerta'] ?? '') ?>
+</td>
 
             <td>
                 <?= htmlspecialchars($row['Detalle_Esci'] ?? '') ?>
