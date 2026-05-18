@@ -513,9 +513,12 @@ INSERT INTO Produccion_alertas_detalle
     Activa,
     Fecha_Creacion,
     Detalle_Esci,
-    Detalle_Tac
+    Detalle_Tac,
+    Detalle_Tipo_Tarea,
+    Detalle_Tecnologia,
+    Detalle_Series
 )
-VALUES (?,?,?,?,?,?,?,?,?,?,?)
+VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
 ");
 
 // =========================
@@ -558,7 +561,10 @@ SET
     Fecha_Liquidacion = ?,
     FK_Contratista = ?,
     Detalle_Esci = ?,
-    Detalle_Tac = ?
+    Detalle_Tac = ?,
+    Detalle_Tipo_Tarea = ?,
+    Detalle_Tecnologia = ?,
+    Detalle_Series = ?
 WHERE Folio_Pisa = ?
   AND Tipo_Alerta = ?
 ");
@@ -691,18 +697,21 @@ foreach ($registros as $r) {
         if (!isset($detalleExistente[$folio][$tipoAlerta])) {
 
             $stmtDetalle->execute([
-                $folio,
-                $telefono,
-                $r['tipoTarea'] ?? null,
-                $r['cope'] ?? null,
-                $r['fechaLiquidacion'] ?? null,
-                $r['idContratista'] ?? 0,
-                $tipoAlerta,
-                1,
-                date('Y-m-d H:i:s'),
-                $resultadoAlertas['detalleEsci'] ?? null,
-                $resultadoAlertas['detalleTac'] ?? null
-            ]);
+    $folio,
+    $telefono,
+    $r['tipoTarea'] ?? null,
+    $r['cope'] ?? null,
+    $r['fechaLiquidacion'] ?? null,
+    $r['idContratista'] ?? 0,
+    $tipoAlerta,
+    1,
+    date('Y-m-d H:i:s'),
+    $resultadoAlertas['detalleEsci'] ?? null,
+    $resultadoAlertas['detalleTac'] ?? null,
+    $resultadoAlertas['detalleTipoTarea'] ?? null,
+    $resultadoAlertas['detalleTecnologia'] ?? null,
+    $resultadoAlertas['detalleSeries'] ?? null
+]);
 
             $detalleExistente[$folio][$tipoAlerta] = [
                 'activa' => 1
@@ -735,17 +744,20 @@ foreach ($registros as $r) {
                 // =========================
                 // UPDATE SI YA EXISTE ACTIVA
                 // =========================
-                $stmtUpdateDetalle->execute([
-                    $telefono,
-                    $r['tipoTarea'] ?? null,
-                    $r['cope'] ?? null,
-                    $r['fechaLiquidacion'] ?? null,
-                    $r['idContratista'] ?? 0,
-                    $resultadoAlertas['detalleEsci'] ?? null,
-                    $resultadoAlertas['detalleTac'] ?? null,
-                    $folio,
-                    $tipoAlerta
-                ]);
+$stmtUpdateDetalle->execute([
+    $telefono,
+    $r['tipoTarea'] ?? null,
+    $r['cope'] ?? null,
+    $r['fechaLiquidacion'] ?? null,
+    $r['idContratista'] ?? 0,
+    $resultadoAlertas['detalleEsci'] ?? null,
+    $resultadoAlertas['detalleTac'] ?? null,
+    $resultadoAlertas['detalleTipoTarea'] ?? null,
+    $resultadoAlertas['detalleTecnologia'] ?? null,
+    $resultadoAlertas['detalleSeries'] ?? null,
+    $folio,
+    $tipoAlerta
+]);
             }
         }
     }
