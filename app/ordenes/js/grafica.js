@@ -7,7 +7,7 @@ $(document).ready(function() {
             Highcharts.chart('container', {
                 chart: { 
                     type: 'column',
-                    height: 700 // 👈 altura más grande
+                    height: 700 // altura más grande
                 },
                 title: { text: 'Cantidad de Resultados' },
                 xAxis: {
@@ -43,7 +43,7 @@ $(document).ready(function() {
                 tooltip: { pointFormat: 'Cantidad: <b>{point.y}</b>' },
                 plotOptions: {
                     column: {
-                        minPointLength: 10, // 👈 barras pequeñas siempre visibles
+                        minPointLength: 10, // barras pequeñas siempre visibles
                         dataLabels: {
                             enabled: true,
                             inside: true,
@@ -52,12 +52,14 @@ $(document).ready(function() {
                         color: '#007bff'
                     },
                     series: {
-                        cursor: 'pointer', // 👈 cursor tipo mano
+                        cursor: 'pointer', // cursor tipo mano
                         point: {
                             events: {
                                 click: function () {
-                                    alert('Categoría: ' + this.category + '\nCantidad: ' + this.y);
-                                    // aquí puedes redirigir o cargar detalle según la categoría
+                                    // Redirige al archivo PHP con parámetros GET
+                                    window.location.href = 'detalleAlertas.php?categoria=' 
+                                        + encodeURIComponent(this.category) 
+                                        + '&cantidad=' + this.y;
                                 }
                             }
                         }
@@ -74,3 +76,4 @@ $(document).ready(function() {
         }
     });
 });
+
