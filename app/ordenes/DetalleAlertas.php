@@ -78,7 +78,7 @@ if ($categoria !== '') {
             <td><?= htmlspecialchars($row['anio'] ?? '') ?></td>
             <td><?= htmlspecialchars($row['metraje'] ?? '') ?></td>
 
-       <td style="color:red; font-weight:bold;">
+      <td style="color:red; font-weight:bold;">
     <?= htmlspecialchars($row['Tipo_Alerta'] ?? '') ?>
 </td>
 
