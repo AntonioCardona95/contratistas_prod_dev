@@ -143,14 +143,16 @@ public function getConteoAlertasFotos()
 
     // Rellenar con los resultados reales
     foreach ($result as $fila) {
-        $clave = strtoupper(trim($fila['Tipo_Alerta']));
+        $clave = trim($fila['Tipo_Alerta']); // 👈 sin strtoupper
         if (isset($categorias[$clave])) {
             $categorias[$clave] = (int)$fila['total'];
         }
     }
 
-    return $categorias;
+    // Devuelve en el mismo orden que el JS espera
+    return array_values($categorias);
 }
+
 
 
 public function getDetalleAlertasPorTipo(string $categoria): array
