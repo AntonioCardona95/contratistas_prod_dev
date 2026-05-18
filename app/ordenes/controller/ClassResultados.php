@@ -146,11 +146,13 @@ public function getConteoAlertasFotos()
     return $categorias;
 }
 
-public function getDetalleAlertasPorTipo($categoria)
+public function getDetalleAlertasPorTipo(string $categoria): array
 {
-    $sql = "SELECT *
-            FROM Produccion_alertas_detalle
-            WHERE Tipo_Alerta = :categoria";
+    $sql = "SELECT pad.*, 
+                   CONCAT(c.Contratista, ' ', c.apellido_paterno, ' ', c.apellido_materno) AS nombre_completo
+            FROM Produccion_alertas_detalle pad
+            LEFT JOIN contratistas c ON pad.FK_Contratista = c.idContratistas
+            WHERE pad.Tipo_Alerta = :categoria";
 
     return $this->runQuery($sql, [':categoria' => $categoria]);
 }
