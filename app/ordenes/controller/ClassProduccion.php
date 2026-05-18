@@ -498,10 +498,16 @@ foreach ($conexion_analisis->query($sql) as $row) {
     ");
 
     $stmtDetalle = $conexion->prepare("
+    INSERT INTO Produccion_alertas_detalle
+    (Folio_Pisa, FK_Contratista, Tipo_Alerta, Activa, Fecha_Creacion, Detalle_Esci, Detalle_Tac)
+    VALUES (?,?,?,?,?,?,?)
+");
+
+    /*$stmtDetalle = $conexion->prepare("
         INSERT INTO Produccion_alertas_detalle
         (Folio_Pisa, Tipo_Alerta, Activa, Fecha_Creacion, Detalle_Esci, Detalle_Tac)
         VALUES (?,?,?,?,?,?)
-    ");
+    "); */
 
     $stmtDesactivar = $conexion->prepare("
         UPDATE Produccion_alertas_detalle
@@ -510,10 +516,22 @@ foreach ($conexion_analisis->query($sql) as $row) {
     ");
 
     $stmtActivar = $conexion->prepare("
+    UPDATE Produccion_alertas_detalle
+    SET 
+        Activa = 1,
+        Fecha_Creacion = ?,
+        Detalle_Esci = ?,
+        Detalle_Tac = ?,
+        FK_Contratista = ?
+    WHERE Folio_Pisa = ? 
+      AND Tipo_Alerta = ?
+");
+
+  /*  $stmtActivar = $conexion->prepare("
         UPDATE Produccion_alertas_detalle
         SET Activa = 1, Fecha_Creacion = ?, Detalle_Esci = ?, Detalle_Tac = ?
         WHERE Folio_Pisa = ? AND Tipo_Alerta = ?
-    ");
+    "); */
 
     // =========================
     // LOOP PRINCIPAL
@@ -619,24 +637,26 @@ foreach ($conexion_analisis->query($sql) as $row) {
         foreach ($alertasActuales as $tipoAlerta) {
             if (!isset($detalleExistente[$folio][$tipoAlerta])) {
                 $stmtDetalle->execute([
-                    $folio,
-                    $tipoAlerta,
-                    1,
-                    date('Y-m-d H:i:s'),
-                    $resultadoAlertas['detalleEsci'] ?? null,
-                    $resultadoAlertas['detalleTac'] ?? null
-                ]);
+    $folio,
+    $r['idContratista'] ?? 0, // <-- NUEVO
+    $tipoAlerta,
+    1,
+    date('Y-m-d H:i:s'),
+    $resultadoAlertas['detalleEsci'] ?? null,
+    $resultadoAlertas['detalleTac'] ?? null
+]);
 
                 $detalleExistente[$folio][$tipoAlerta] = ['activa' => 1];
             } else {
                 if ($detalleExistente[$folio][$tipoAlerta]['activa'] === 0) {
                     $stmtActivar->execute([
-                        date('Y-m-d H:i:s'),
-                        $resultadoAlertas['detalleEsci'] ?? null,
-                        $resultadoAlertas['detalleTac'] ?? null,
-                        $folio,
-                        $tipoAlerta
-                    ]);
+    date('Y-m-d H:i:s'),
+    $resultadoAlertas['detalleEsci'] ?? null,
+    $resultadoAlertas['detalleTac'] ?? null,
+    $r['idContratista'] ?? 0, // <-- NUEVO
+    $folio,
+    $tipoAlerta
+]);
                     $detalleExistente[$folio][$tipoAlerta]['activa'] = 1;
                 }
             }
