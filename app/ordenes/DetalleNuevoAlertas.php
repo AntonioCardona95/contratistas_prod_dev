@@ -234,6 +234,6 @@ $cantidad  = $_GET['cantidad'] ?? '';
 <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.html5.min.js"></script>
 
 <!-- <script src="js/appsinprocesoapago.js"></script> -->
-<script src="js/appalertas.js"></script>
+<script src="js/appdetallealertas.js"></script>
 </body>
 </html>
