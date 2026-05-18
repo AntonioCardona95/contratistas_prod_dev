@@ -1,5 +1,7 @@
 <?php
 require_once("../controller/ClassOps.php");
+require_once("../controller/ClassResultados.php");
+require_once("../controller/ClassProduccion.php");
 
 session_start();
 
@@ -38,12 +40,6 @@ if (empty($Contratista) || empty($idContratistas)) {
 // =========================
 $modal = new Ops();
 
-// 👇 AQUI DEBES CREAR ESTE METODO
-// ObtenerAlertasDetalle(
-//      $fecha_inicio,
-//      $fecha_fin,
-//      $categoria
-// );
 $alertas = $modal->ObtenerAlertasDetalle(
     $fecha_inicio,
     $fecha_fin,
