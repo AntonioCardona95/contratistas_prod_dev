@@ -113,10 +113,7 @@ if (empty($alertas)) {
             <td><?= htmlspecialchars($row['Tipo_Tarea'] ?? '') ?></td>
             <td><?= htmlspecialchars($row['Cope'] ?? '') ?></td>
             <td><?= htmlspecialchars($row['Fecha_Liquidacion'] ?? '') ?></td>
-            <td><?= htmlspecialchars($row['Fecha_Carga'] ?? '') ?></td>
-            <td><?= htmlspecialchars($row['Semana'] ?? '') ?></td>
-            <td><?= htmlspecialchars($row['anio'] ?? '') ?></td>
-            <td><?= htmlspecialchars($row['metraje'] ?? '') ?></td>
+            
 
             <td style="color:red; font-weight:bold;">
                 <?= htmlspecialchars($row['Alerta'] ?? '') ?>
