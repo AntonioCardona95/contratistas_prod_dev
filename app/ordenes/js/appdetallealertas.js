@@ -28,7 +28,7 @@ function LoadDetalleAlertas(fecha_inicio, fecha_fin, categoria, cantidad) {
 
     $.ajax({
         type: 'POST',
-        url: 'modal/TablaAlertas.php',
+        url: 'modal/TablaAlertasDetalle.php',
 
         data: {
             fecha_inicio: fecha_inicio,
