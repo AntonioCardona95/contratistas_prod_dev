@@ -94,7 +94,6 @@ if (empty($alertas)) {
             <th>Fecha Liquidación</th>
             <th>Alerta</th>
             <th>Detalle Esci</th>
-            <th>Revisión</th>
             <th>Contratista</th>
             <th>Comparativa Tip Tarea</th>
             <th>Comparativa Tecnologia</th>
@@ -123,9 +122,7 @@ if (empty($alertas)) {
                 <?= htmlspecialchars($row['Detalle_Esci'] ?? '') ?>
             </td>
 
-            <td style="text-align:center;">
-                <?= !empty($row['Bandera_Revision']) ? '✔' : '✖' ?>
-            </td>
+          
 
             <td>
                 <?= htmlspecialchars($row['nombre_completo'] ?? '') ?>
