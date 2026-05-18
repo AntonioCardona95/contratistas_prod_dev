@@ -111,31 +111,18 @@ public function getConteoAlertasPorTipo()
 
 public function getConteoAlertasFotos()
 {
-    $sql = "SELECT 
-                CASE
-                    WHEN Tipo_Alerta LIKE 'FOTO DOMICILIO FALLIDA MAL TOMADA%' 
-                        THEN 'FOTO DOMICILIO FALLIDA MAL TOMADA'
-                    WHEN Tipo_Alerta LIKE 'FOTO TERMINAL FALLIDA MAL TOMADA%' 
-                        THEN 'FOTO TERMINAL FALLIDA MAL TOMADA'
-                    WHEN Tipo_Alerta LIKE 'FOTO LEDS FALLIDA MAL TOMADA%' 
-                        THEN 'FOTO LEDS FALLIDA MAL TOMADA'
-                    ELSE Tipo_Alerta
-                END AS Tipo_Alerta,
-                COUNT(*) AS total
+    $sql = "SELECT Tipo_Alerta
             FROM Produccion_alertas_detalle
-            WHERE Tipo_Alerta IN (
-                'FOTO_ONT_FRONTAL_FALLIDA',
-                'FOTO ONT TRASERA FALLIDA',
-                'FOTO_CASA_CLIENTE_FALLIDA',
-                'FOTO OS FALLIDA',
-                'FOTO TERMINAL FALLIDA',
-                'FALTA_EVIDENCIA_FOTO_PUERTO'
-            )
-            OR Tipo_Alerta LIKE 'FOTO DOMICILIO FALLIDA MAL TOMADA%'
-            OR Tipo_Alerta LIKE 'FOTO TERMINAL FALLIDA MAL TOMADA%'
-            OR Tipo_Alerta LIKE 'FOTO LEDS FALLIDA MAL TOMADA%'
-            GROUP BY Tipo_Alerta";
-
+            WHERE Tipo_Alerta LIKE 'FOTO_ONT_FRONTAL_FALLIDA%'
+               OR Tipo_Alerta LIKE 'FOTO ONT TRASERA FALLIDA%'
+               OR Tipo_Alerta LIKE 'FOTO_CASA_CLIENTE_FALLIDA%'
+               OR Tipo_Alerta LIKE 'FOTO OS FALLIDA%'
+               OR Tipo_Alerta LIKE 'FOTO TERMINAL FALLIDA%'
+               OR Tipo_Alerta LIKE 'FALTA_EVIDENCIA_FOTO_PUERTO%'
+               OR Tipo_Alerta LIKE 'FOTO DOMICILIO FALLIDA MAL TOMADA%'
+               OR Tipo_Alerta LIKE 'FOTO TERMINAL FALLIDA MAL TOMADA%'
+               OR Tipo_Alerta LIKE 'FOTO LEDS FALLIDA MAL TOMADA%'";
+    
     $result = $this->runQuery($sql);
 
     $categorias = [
@@ -151,9 +138,16 @@ public function getConteoAlertasFotos()
     ];
 
     foreach ($result as $fila) {
-        $clave = trim($fila['Tipo_Alerta']);
-        if (isset($categorias[$clave])) {
-            $categorias[$clave] = (int)$fila['total'];
+        $alerta = trim($fila['Tipo_Alerta']);
+
+        if (str_starts_with($alerta, 'FOTO DOMICILIO FALLIDA MAL TOMADA')) {
+            $categorias['FOTO DOMICILIO FALLIDA MAL TOMADA']++;
+        } elseif (str_starts_with($alerta, 'FOTO TERMINAL FALLIDA MAL TOMADA')) {
+            $categorias['FOTO TERMINAL FALLIDA MAL TOMADA']++;
+        } elseif (str_starts_with($alerta, 'FOTO LEDS FALLIDA MAL TOMADA')) {
+            $categorias['FOTO LEDS FALLIDA MAL TOMADA']++;
+        } elseif (isset($categorias[$alerta])) {
+            $categorias[$alerta]++;
         }
     }
 
