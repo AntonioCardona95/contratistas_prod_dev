@@ -6,6 +6,8 @@ error_reporting(E_ALL);
 date_default_timezone_set('America/Monterrey');
 session_start();
 
+
+
 $Contratista = $_SESSION['Contratista'] ?? null;
 $idContratistas = $_SESSION['idContratistas'] ?? null;
 

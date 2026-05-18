@@ -1,6 +1,11 @@
 <?php
 require_once($_SERVER['DOCUMENT_ROOT']."/ordenes/controller/ClassResultados.php");
 
+session_start();
+
+$Contratista = $_SESSION['Contratista'] ?? null;
+$idContratistas = $_SESSION['idContratistas'] ?? null;
+
 $resultados = new Resultados();
 
 // Recibe la categoría desde el GET
