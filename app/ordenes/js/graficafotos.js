@@ -62,7 +62,7 @@ $(document).ready(function() {
                             events: {
                                 click: function () {
                                     // Redirige al detalle con parámetros GET
-                                    window.location.href = 'detalleAlertas.php?categoria=' 
+                                    window.location.href = 'DetalleNuevoAlertasFotos.php?categoria=' 
                                         + encodeURIComponent(this.category) 
                                         + '&cantidad=' + this.y;
                                 }
