@@ -18,6 +18,11 @@ if ($categoria !== '') {
     $detalle = $resultados->getDetalleAlertasPorTipo($categoria);
 }
 ?>
+<!-- Bootstrap CSS--> 
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="css/EstilosTablaSinProcesoPago.css">
+<link rel="stylesheet" type="text/css" href="css/modalprenomina.css">
+<table class="table table-bordered display nowrap" style="width:100%" id="ventas">
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -114,5 +119,107 @@ if ($categoria !== '') {
             </tbody>
         </table>
     <?php endif; ?>
+    <!-- ============================
+     MODAL GALERÍA
+============================ -->
+<div class="modal fade" 
+     id="modalGaleria" 
+     tabindex="-1" 
+     aria-hidden="true">
+
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-galeria-custom">
+    <div class="modal-content">
+
+      <div class="modal-header header-galeria">
+        <h5 class="modal-title fw-bold">Galería</h5>
+        <button type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="info-galeria">
+          <p><strong>Nombre Contratista:</strong> <span id="modalNombreContratista"></span></p>
+          <p><strong>ID Contratista:</strong> <span id="modalIdContratista"></span></p>
+          <p><strong>Folio:</strong> <span id="modalFolio"></span></p>
+        </div>
+
+        <div class="fila-superior">
+
+          <div class="foto-item">
+            <p>Foto Casa Cliente</p>
+            <a href="#" id="fotoGrande" target="_blank">
+              <img id="miniaturaFoto" src="">
+            </a>
+          </div>
+
+          <div class="foto-item">
+            <p>Foto Modem</p>
+            <a href="#" id="fotoGrandemodem" target="_blank">
+              <img id="miniaturaFotomodem" src="">
+            </a>
+          </div>
+
+          <div class="foto-item">
+            <p>Foto Trasera ONT</p>
+            <a href="#" id="fotoGrandemodemtrasera" target="_blank">
+              <img id="miniaturaFotomodemtrasera" src="">
+            </a>
+          </div>
+
+          <div class="foto-item">
+            <p>Foto OS</p>
+            <a href="#" id="fotoGrandeos" target="_blank">
+              <img id="miniaturaFotoos" src="">
+            </a>
+          </div>
+
+        </div>
+
+        <div class="fila-inferior">
+          <div class="foto-item">
+            <p>Foto Terminal</p>
+            <a href="#" id="fotopuerto" target="_blank">
+              <img id="miniaturafotopuerto" src="">
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- Bootstrap JS  cierre del modal) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/galeria_fotos.js"></script>
+<!-- Script para inicializar DataTable con estilos y botones -->
+<script>
+$(document).ready(function () {
+    new DataTable('#ventas', {
+        fixedColumns: { start: 1, end: 1 },
+        responsive:true,
+        language: { URL:'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
+        ordering: false,
+        searching: true,
+        scrollY: true,
+        scrollX: true,
+        dom: 'Bfrtip',
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                text: '<i class="fas fa-file-excel"></i> Excel',
+                className: 'btn btn-success'
+            },
+            {
+                extend: 'pdfHtml5',
+                text: '<i class="fas fa-file-pdf"></i> PDF',
+                className: 'btn btn-danger'
+            }
+        ]
+    });
+});
+</script>
 </body>
 </html>
