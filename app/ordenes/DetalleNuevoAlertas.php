@@ -20,6 +20,9 @@ require_once($_SERVER['DOCUMENT_ROOT']."/ordenes/controller/ClassOps.php");
 $fecha_inicio = $_GET['fecha_inicio'] ?? date('Y-m-d');
 $fecha_fin = $_GET['fecha_fin'] ?? date('Y-m-d');
 
+$categoria = $_GET['categoria'] ?? '';
+$cantidad  = $_GET['cantidad'] ?? '';
+
 ?>
 
 <!DOCTYPE html>
