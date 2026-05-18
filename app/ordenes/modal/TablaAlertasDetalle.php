@@ -92,10 +92,6 @@ if (empty($alertas)) {
             <th>Tipo Tarea</th>
             <th>Cope</th>
             <th>Fecha Liquidación</th>
-            <th>Fecha Carga</th>
-            <th>Semana</th>
-            <th>Año</th>
-            <th>Metraje</th>
             <th>Alerta</th>
             <th>Detalle Esci</th>
             <th>Revisión</th>
