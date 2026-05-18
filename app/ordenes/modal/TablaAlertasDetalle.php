@@ -14,7 +14,7 @@ $idContratistas = $_SESSION['idContratistas'] ?? null;
 $fecha_inicio = $_POST['fecha_inicio'] ?? null;
 $fecha_fin    = $_POST['fecha_fin'] ?? null;
 
-// 👇 NUEVOS PARAMETROS
+//  NUEVOS PARAMETROS
 $categoria    = $_POST['categoria'] ?? null;
 $cantidad     = $_POST['cantidad'] ?? null;
 
@@ -35,16 +35,19 @@ if (empty($Contratista) || empty($idContratistas)) {
     exit;
 }
 
-// =========================
-// INSTANCIA
-// =========================
 $modal = new Ops();
+$resultados = new Resultados();
 
-$alertas = $modal->ObtenerAlertasDetalle(
-    $fecha_inicio,
-    $fecha_fin,
-    $categoria
-);
+$alertas = [];
+
+if (!empty($categoria)) {
+    $alertas = $resultados->getDetalleAlertasPorTipo($categoria);
+}
+
+// $detalle = [];
+/*if ($categoria !== '') {
+    $detalle = $resultados->getDetalleAlertasPorTipo($categoria);
+} */
 
 $alertas = is_array($alertas) ? $alertas : [];
 
