@@ -111,7 +111,17 @@ public function getConteoAlertasPorTipo()
 
 public function getConteoAlertasFotos()
 {
-    $sql = "SELECT Tipo_Alerta, COUNT(*) AS total
+    $sql = "SELECT 
+                CASE
+                    WHEN Tipo_Alerta LIKE 'FOTO DOMICILIO FALLIDA MAL TOMADA%' 
+                        THEN 'FOTO DOMICILIO FALLIDA MAL TOMADA'
+                    WHEN Tipo_Alerta LIKE 'FOTO TERMINAL FALLIDA MAL TOMADA%' 
+                        THEN 'FOTO TERMINAL FALLIDA MAL TOMADA'
+                    WHEN Tipo_Alerta LIKE 'FOTO LEDS FALLIDA MAL TOMADA%' 
+                        THEN 'FOTO LEDS FALLIDA MAL TOMADA'
+                    ELSE Tipo_Alerta
+                END AS Tipo_Alerta,
+                COUNT(*) AS total
             FROM Produccion_alertas_detalle
             WHERE Tipo_Alerta IN (
                 'FOTO_ONT_FRONTAL_FALLIDA',
@@ -119,16 +129,15 @@ public function getConteoAlertasFotos()
                 'FOTO_CASA_CLIENTE_FALLIDA',
                 'FOTO OS FALLIDA',
                 'FOTO TERMINAL FALLIDA',
-                'FALTA_EVIDENCIA_FOTO_PUERTO',
-                'FOTO DOMICILIO FALLIDA MAL TOMADA',
-                'FOTO TERMINAL FALLIDA MAL TOMADA',
-                'FOTO LEDS FALLIDA MAL TOMADA'
+                'FALTA_EVIDENCIA_FOTO_PUERTO'
             )
+            OR Tipo_Alerta LIKE 'FOTO DOMICILIO FALLIDA MAL TOMADA%'
+            OR Tipo_Alerta LIKE 'FOTO TERMINAL FALLIDA MAL TOMADA%'
+            OR Tipo_Alerta LIKE 'FOTO LEDS FALLIDA MAL TOMADA%'
             GROUP BY Tipo_Alerta";
 
     $result = $this->runQuery($sql);
 
-    // Inicializar todas las categorías en 0
     $categorias = [
         'FOTO_ONT_FRONTAL_FALLIDA' => 0,
         'FOTO ONT TRASERA FALLIDA' => 0,
@@ -141,15 +150,13 @@ public function getConteoAlertasFotos()
         'FOTO LEDS FALLIDA MAL TOMADA' => 0
     ];
 
-    // Rellenar con los resultados reales
     foreach ($result as $fila) {
-        $clave = trim($fila['Tipo_Alerta']); // 👈 sin strtoupper
+        $clave = trim($fila['Tipo_Alerta']);
         if (isset($categorias[$clave])) {
             $categorias[$clave] = (int)$fila['total'];
         }
     }
 
-    // Devuelve en el mismo orden que el JS espera
     return array_values($categorias);
 }
 
