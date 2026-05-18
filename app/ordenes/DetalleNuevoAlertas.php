@@ -168,7 +168,7 @@ $cantidad  = $_GET['cantidad'] ?? '';
     <!-- <h1 class="h3 mb-2 text-gray-800">DETALLE ORDENES SIN REGISTRO EN COORDIAPP</h1> -->
     <h1 class="h3 mb-2 text-gray-800">DETALLE ORDENES SIN PROCESO A PAGO</h1>
     <!-- DataTales Example -->
-    <div id="LoadAlertas">
+    <div id="LoadDetalleAlertas">
         
     </div>
 </div>
