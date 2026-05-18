@@ -17,14 +17,14 @@ $(document).ready(function () {
 
     // Ejecutar AJAX si existen los parámetros necesarios
     if (fecha_inicio && fecha_fin && categoria) {
-        LoadAlertas(fecha_inicio, fecha_fin, categoria, cantidad);
+        LoadDetalleAlertas(fecha_inicio, fecha_fin, categoria, cantidad);
     }
 
 });
 
 
 // Función AJAX
-function LoadAlertas(fecha_inicio, fecha_fin, categoria, cantidad) {
+function LoadDetalleAlertas(fecha_inicio, fecha_fin, categoria, cantidad) {
 
     $.ajax({
         type: 'POST',
@@ -38,13 +38,13 @@ function LoadAlertas(fecha_inicio, fecha_fin, categoria, cantidad) {
         },
 
         beforeSend: function () {
-            $("#LoadAlertas").html(
+            $("#LoadDetalleAlertas").html(
                 "<center><img src='../image/loading-46.gif'></center>"
             );
         },
 
         success: function (data) {
-            $("#LoadAlertas").html(data);
+            $("#LoadDetalleAlertas").html(data);
         },
 
         error: function (err) {
