@@ -232,60 +232,8 @@ $cantidad  = $_GET['cantidad'] ?? '';
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/pdfmake.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
 <script src="https://cdn.datatables.net/buttons/1.7.1/js/buttons.html5.min.js"></script>
-<!-- Script para actualizar contadores -->
-<!-- <script>
-$(document).ready(function() {
 
-    $('#semana').on('change', function() {
-        const semana = $(this).val();
-
-        // Prenómina
-        if (semana === '') {
-            $('#prenomina-count').text('0');
-        } else {
-            $.ajax({
-                url: 'get_conteo_prenomina.php',
-                type: 'POST',
-                data: { semana: semana },
-                success: function(response) {
-                    $('#prenomina-count').text(response);
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error al obtener conteo prenómina:', error);
-                    $('#prenomina-count').text('0');
-                }
-            });
-        }
-
-        // Alertas
-        if (semana === '') {
-            $('#alertas-count').text('0');
-        } else {
-            $.ajax({
-                url: 'get_conteo_alertas.php',
-                type: 'POST',
-                data: { semana: semana },
-                success: function(response) {
-                    $('#alertas-count').text(response);
-                },
-                error: function(xhr, status, error) {
-                    console.error('Error al obtener conteo de alertas:', error);
-                    $('#alertas-count').text('0');
-                }
-            });
-        }
-
-    });
-
-});
-</script> -->
 <!-- <script src="js/appsinprocesoapago.js"></script> -->
 <script src="js/appalertas.js"></script>
-
-<!--<script>
-    $(document).ready(function(){
-        LoadSinProcesoaPago();
-    });
-</script> -->
 </body>
 </html>
