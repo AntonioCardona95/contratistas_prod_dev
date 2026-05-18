@@ -1416,7 +1416,7 @@ private function alertaEstadoEsci($data, &$alertas, &$detalleEsci)
     // Caso: servicio sin navegación (DID_ACTIVO = 0)
     if ($didActivo === 0) {
         $alertas[] = 'SIN NAVEGACION';
-        $detalleEsci = "Servicio sin navegacion en Esci" . ($fConsulta ? " | última revision: $fConsulta" : "");
+        $detalleEsci = "Servicio sin navegacion en Esci" . ($fConsulta ? " | ultima revision: $fConsulta" : "");
         return;
     }
 
