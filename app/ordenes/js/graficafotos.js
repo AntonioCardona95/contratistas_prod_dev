@@ -1,4 +1,87 @@
-$(document).ready(function() {
+function actualizarFotos() {
+    const fecha1 = $('#Fecha1').val();
+    const fecha2 = $('#Fecha2').val();
+
+    if (!fecha1 || !fecha2) {
+        alert('Selecciona ambas fechas.');
+        return;
+    }
+
+    $.ajax({
+        url: 'alertasgraficafotos.php',
+        method: 'GET',
+        dataType: 'json',
+        data: { Fecha1: fecha1, Fecha2: fecha2 },
+        success: function(valores) {
+            Highcharts.chart('containerf', {
+                chart: { type: 'column', height: 700 },
+                title: { text: 'Cantidad de Resultados' },
+                xAxis: {
+                    categories: [
+                        'FOTO_ONT_FRONTAL_FALLIDA',
+                        'FOTO ONT TRASERA FALLIDA',
+                        'FOTO_CASA_CLIENTE_FALLIDA',
+                        'FOTO OS FALLIDA',
+                        'FOTO TERMINAL FALLIDA',
+                        'FALTA_EVIDENCIA_FOTO_PUERTO',
+                        'FOTO DOMICILIO FALLIDA MAL TOMADA',
+                        'FOTO TERMINAL FALLIDA MAL TOMADA',
+                        'FOTO LEDS FALLIDA MAL TOMADA'
+                    ],
+                    labels: { rotation: -45, style: { fontSize: '12px' } }
+                },
+                yAxis: { min: 0, title: { text: 'Cantidad' } },
+                tooltip: { pointFormat: 'Cantidad: <b>{point.y}</b>' },
+                plotOptions: {
+                    column: { 
+                        minPointLength: 10,
+                        dataLabels: { enabled: true, style: { fontSize: '13px', fontWeight: 'bold', color: 'white' } },
+                        color: '#007bff'
+                    },
+                    series: {
+                        cursor: 'pointer',
+                        point: {
+                            events: {
+                                click: function() {
+                                    window.location.href = 'DetalleAlertasFotos.php?categoria=' + encodeURIComponent(this.category) + '&cantidad=' + this.y;
+                                }
+                            }
+                        }
+                    }
+                },
+                series: [{ name: 'Resultados', data: valores }]
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error("Error al cargar datos:", error);
+        }
+    });
+}
+
+// Inicializamos vacía
+Highcharts.chart('containerf', {
+    chart: { type: 'column', height: 700 },
+    title: { text: 'Cantidad de Resultados' },
+    xAxis: {
+        categories: [
+            'FOTO_ONT_FRONTAL_FALLIDA',
+            'FOTO ONT TRASERA FALLIDA',
+            'FOTO_CASA_CLIENTE_FALLIDA',
+            'FOTO OS FALLIDA',
+            'FOTO TERMINAL FALLIDA',
+            'FALTA_EVIDENCIA_FOTO_PUERTO',
+            'FOTO DOMICILIO FALLIDA MAL TOMADA',
+            'FOTO TERMINAL FALLIDA MAL TOMADA',
+            'FOTO LEDS FALLIDA MAL TOMADA'
+        ],
+        labels: { rotation: -45, style: { fontSize: '12px' } }
+    },
+    yAxis: { min: 0, title: { text: 'Cantidad' } },
+    series: [{ name: 'Resultados', data: [] }] // vacía al inicio
+});
+
+
+/*$(document).ready(function() {
     $.ajax({
         url: 'alertasgraficafotos.php',
         method: 'GET',
@@ -80,7 +163,7 @@ $(document).ready(function() {
             console.error("Error al cargar datos:", error);
         }
     });
-});
+}); */
 
 
 /*$(document).ready(function() {
