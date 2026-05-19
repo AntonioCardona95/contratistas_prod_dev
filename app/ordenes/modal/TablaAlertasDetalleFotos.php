@@ -46,7 +46,7 @@ $resultados = new Resultados();
 $alertas = [];
 
 // Si solo depende de categoría (como lo tienes ahora)
-$alertas = $resultados->getDetalleAlertasPorTipo($categoria);
+$alertas = $resultados->getDetalleAlertasFoto($categoria);
 
 $alertas = is_array($alertas) ? $alertas : [];
 
