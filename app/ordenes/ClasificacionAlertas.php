@@ -155,7 +155,7 @@ if (empty($Contratista)) {
 
                             <!-- Botón lupa: solo buscar -->
 <div class="input-group-append mr-2">
-    <button id="btnBuscar" class="btn btn-primary" type="button" onclick="actualizarCards();">
+    <button id="btnBuscar" class="btn btn-primary" type="button" onclick="actualizarCards(); actualizarFotos();">
         <i class="fas fa-search fa-sm"></i> Buscar
     </button>
 </div>
