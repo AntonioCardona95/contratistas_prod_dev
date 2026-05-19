@@ -1,80 +1,4 @@
-function actualizarCards() {
-    const fecha1 = $('#Fecha1').val();
-    const fecha2 = $('#Fecha2').val();
-
-    if (!fecha1 || !fecha2) {
-        alert('Selecciona ambas fechas.');
-        return;
-    }
-
-    $.ajax({
-        url: 'alertasgrafica.php',
-        method: 'GET',
-        dataType: 'json',
-        data: { Fecha1: fecha1, Fecha2: fecha2 }, // enviamos fechas al PHP
-        success: function(valores) {
-            Highcharts.chart('container', {
-                chart: { type: 'column', height: 700 },
-                title: { text: 'Cantidad de Resultados' },
-                xAxis: {
-                    categories: [
-                        'NO EN COORDIAPP','SIN NAVEGACION','ONT_DUPLICADA_EN_TAC','ONT_DUPLICADA_EN_ESCI',
-                        'TECNOLOGIA_DIFERENTE','TIPO_TAREA_DIFERENTE','NUMERO_SERIE_DIFERENTE',
-                        'ONT_NO_ENCONTRADA_EN_ALMACEN','ONT_ASIGNADA_A_OTRO_CONTRATISTA',
-                        'ONT SIN ASIGNAR','ORDEN A REVISION POR 30 DIAS','SERVICIO INACTIVO','ONT_NO_ASIGNADA_AL_CONTRATISTA'
-                    ],
-                    labels: { rotation: -45, style: { fontSize: '12px' } }
-                },
-                yAxis: {
-                    min: 0,
-                    title: { text: 'Cantidad' },
-                    labels: { style: { fontSize: '12px' } }
-                },
-                tooltip: { pointFormat: 'Cantidad: <b>{point.y}</b>' },
-                plotOptions: {
-                    column: { 
-                        minPointLength: 10,
-                        dataLabels: { enabled: true, style: { fontSize: '13px', fontWeight: 'bold', color: 'white' } },
-                        color: '#007bff'
-                    },
-                    series: {
-                        cursor: 'pointer',
-                        point: {
-                            events: {
-                                click: function() {
-                                    window.location.href = 'DetalleNuevoAlertas.php?categoria=' + encodeURIComponent(this.category) + '&cantidad=' + this.y;
-                                }
-                            }
-                        }
-                    }
-                },
-                series: [{ name: 'Resultados', data: valores }]
-            });
-        },
-        error: function(xhr, status, error) {
-            console.error("Error al cargar datos:", error);
-        }
-    });
-}
-
-// Opcional: inicializamos la gráfica vacía
-Highcharts.chart('container', {
-    chart: { type: 'column', height: 700 },
-    title: { text: 'Cantidad de Resultados' },
-    xAxis: {
-        categories: [
-            'NO EN COORDIAPP','SIN NAVEGACION','ONT_DUPLICADA_EN_TAC','ONT_DUPLICADA_EN_ESCI',
-            'TECNOLOGIA_DIFERENTE','TIPO_TAREA_DIFERENTE','NUMERO_SERIE_DIFERENTE',
-            'ONT_NO_ENCONTRADA_EN_ALMACEN','ONT_ASIGNADA_A_OTRO_CONTRATISTA',
-            'ONT SIN ASIGNAR','ORDEN A REVISION POR 30 DIAS','SERVICIO INACTIVO','ONT_NO_ASIGNADA_AL_CONTRATISTA'
-        ],
-        labels: { rotation: -45, style: { fontSize: '12px' } }
-    },
-    yAxis: { min: 0, title: { text: 'Cantidad' } },
-    series: [{ name: 'Resultados', data: [] }] // vacía al inicio
-});
-
-/*$(document).ready(function() {
+$(document).ready(function() {
     $.ajax({
         url: 'alertasgrafica.php',
         method: 'GET',
@@ -151,5 +75,5 @@ Highcharts.chart('container', {
             console.error("Error al cargar datos:", error);
         }
     });
-}); */
+});
 
