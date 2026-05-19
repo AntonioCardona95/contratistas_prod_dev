@@ -315,8 +315,7 @@ if (empty($Contratista)) {
     <script src="vendor/chart.js/Chart.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="js/funcion.js"></script>
- <script src="js/grafica.js"></script>
- <script src="js/graficafotos.js"></script>
+ <script src="js/graficas.js"></script>
 
 
 
