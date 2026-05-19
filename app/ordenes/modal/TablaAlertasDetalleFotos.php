@@ -16,6 +16,15 @@ $fecha_fin    = $_POST['fecha_fin'] ?? "";
 
 // NUEVOS PARAMETROS
 $categoria    = $_POST['categoria'] ?? "";
+
+// Debug: imprimir lo que llega
+echo "<pre>";
+var_dump($categoria);
+echo "</pre>";
+
+
+
+
 $cantidad     = $_POST['cantidad'] ?? "";
 
 // =========================
