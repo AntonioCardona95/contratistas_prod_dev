@@ -173,10 +173,14 @@ public function getDetalleAlertasFoto(string $categoria): array
                    CONCAT(c.Contratista, ' ', c.apellido_paterno, ' ', c.apellido_materno) AS nombre_completo
             FROM Produccion_alertas_detalle pad
             LEFT JOIN contratistas c ON pad.FK_Contratista = c.idContratistas
-            WHERE pad.Tipo_Alerta = :categoria";
+            WHERE pad.Tipo_Alerta LIKE :categoria";
 
-    return $this->runQuery($sql, [':categoria' => $categoria]);
+    // Agregar comodín al final para aceptar variantes largas
+    $param = $categoria . '%';
+
+    return $this->runQuery($sql, [':categoria' => $param]);
 }
+
 
 
 
