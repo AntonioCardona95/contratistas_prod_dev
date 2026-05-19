@@ -167,6 +167,18 @@ public function getDetalleAlertasPorTipo(string $categoria): array
     return $this->runQuery($sql, [':categoria' => $categoria]);
 }
 
+public function getDetalleAlertasFoto(string $categoria): array
+{
+    $sql = "SELECT pad.*, 
+                   CONCAT(c.Contratista, ' ', c.apellido_paterno, ' ', c.apellido_materno) AS nombre_completo
+            FROM Produccion_alertas_detalle pad
+            LEFT JOIN contratistas c ON pad.FK_Contratista = c.idContratistas
+            WHERE pad.Tipo_Alerta = :categoria";
+
+    return $this->runQuery($sql, [':categoria' => $categoria]);
+}
+
+
 
 
 
