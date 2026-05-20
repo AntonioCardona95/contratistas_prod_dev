@@ -273,45 +273,6 @@ if (empty($Contratista)) {
 
 </div>
 <!-- End of Cards -->
-
-
-<div class="row">
-  <!-- Primera gráfica -->
-  <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
-          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-              <h6 class="m-0 font-weight-bold text-primary">CONTROL DE ASIGNACIÓN DE ONTs</h6>
-              <div class="dropdown no-arrow">
-                  <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                  </a>
-              </div>
-          </div>
-          <div class="card-body">
-              <div id="container" style="width:100%; height:700px;"></div>
-          </div>
-      </div>
-  </div>
-
-  <!-- Segunda gráfica -->
-  <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
-          <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-              <h6 class="m-0 font-weight-bold text-primary">GRAFICA EVIDENCIAS FOTOGRAFICAS</h6>
-              <div class="dropdown no-arrow">
-                  <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                  </a>
-              </div>
-          </div>
-          <div class="card-body">
-              <div id="containerf" style="width:100%; height:700px;"></div>
-          </div>
-      </div>
-  </div>
-</div>
 <!-- End of Main Content -->
 
 
@@ -449,71 +410,5 @@ $(document).on('click', '#btnConfirmarProcesar', function() {
     window.location.href = 'AlertasGenerales.php';
 }
 </script>    <!-- Page level custom scripts -->
-
-
- <script src="js/grafica.js"></script>
- <script src="js/graficafotos.js"></script>
-
-<!-- <script>
-document.addEventListener("DOMContentLoaded", function () {
-    Highcharts.chart('container', {
-        chart: {
-            type: 'column'
-        },
-        title: {
-            text: 'Cantidad de Resultados'
-        },
-        xAxis: {
-            categories: [
-                'NO COORDIAPP',
-                'SIN NAVEGACION',
-                'ONT DUPLICADA TAC',
-                'ONT DUPLICADA ESCI',
-                'TECNOLOGIA DIFERENTE',
-                'TIPO TAREA DIFERENTE',
-                'NUMERO DE SERIE DIFERENTE',
-                'ONT NO EN ALMACEN',
-                'ONT ASIGNADA A OTRO CONTRATISTA',
-                'ONT SIN ASIGNAR',
-                'ORDEN A REVISION POR 30 DIAS'
-            ],
-            labels: {
-                rotation: -45,
-                style: { fontSize: '11px' }
-            },
-            crosshair: true
-        },
-        yAxis: {
-            min: 0,
-            title: {
-                text: 'Cantidad'
-            }
-        },
-        tooltip: {
-            pointFormat: 'Cantidad: <b>{point.y}</b>'
-        },
-        plotOptions: {
-            column: {
-                dataLabels: {
-                    enabled: true,          //  muestra la cantidad en cada barra
-                    inside: true,           //  dentro de la barra
-                    style: {
-                        fontSize: '12px',
-                        fontWeight: 'bold',
-                        color: 'white'      //  texto blanco para contraste
-                    }
-                },
-                color: '#007bff'           //  color azul uniforme para todas las barras
-            }
-        },
-        series: [{
-            name: 'Resultados',
-            data: [15, 25, 10, 8, 12, 20, 18, 5, 7, 3, 2] //  aquí van tus cantidades reales
-        }]
-    });
-});
-</script> -->
-
 </body>
-
 </html>
