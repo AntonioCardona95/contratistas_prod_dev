@@ -230,6 +230,29 @@ if (empty($Contratista)) {
     </div>
   </div>
 
+
+  <!-- Card 1 -->
+  <div class="col-xl-3 col-md-6 mb-4">
+    <div class="card border-left-primary shadow h-100 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+              ORDENES CORRECTAS
+            </div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800" id="correctas">0</div>
+            <div class="text-xs text-muted">
+              Promedio: <span id="correctas">0</span>/día
+            </div>
+          </div>
+          <div class="col-auto">
+            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Card 2 (Tarjeta de en medio) -->
   <div class="col-xl-3 col-md-6 mb-4">
     <div id="cardAlertas" class="card border-left-success shadow h-100 py-2" 
