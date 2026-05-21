@@ -611,6 +611,19 @@ foreach ($registros as $r) {
         ? implode(' | ', array_unique($alertasActuales))
         : null;
 
+        // =========================
+// GUARDAR ORDEN CORRECTA
+// =========================
+if (empty($alertasActuales)) {
+
+    $this->guardarOrdenCorrecta(
+        $conexion,
+        $folio,
+        $telefono,
+        $r
+    );
+}
+
     // =========================
     // INSERT o UPDATE (cabecera)
     // =========================
@@ -763,6 +776,94 @@ $stmtUpdateDetalle->execute([
     }
 }
 
+}
+
+
+private function guardarOrdenCorrecta($conexion, $folio, $telefono, $r)
+{
+    // =========================
+    // VERIFICAR SI YA EXISTE
+    // =========================
+    $sqlExiste = "
+        SELECT id
+        FROM Ordenes_Correctas
+        WHERE Folio_Pisa = ?
+        LIMIT 1
+    ";
+
+    $stmtExiste = $conexion->prepare($sqlExiste);
+    $stmtExiste->execute([$folio]);
+
+    $existe = $stmtExiste->fetch(PDO::FETCH_ASSOC);
+
+    // =========================
+    // INSERT
+    // =========================
+    if (!$existe) {
+
+        $stmtInsert = $conexion->prepare("
+            INSERT INTO Ordenes_Correctas
+            (
+                Folio_Pisa,
+                Telefono,
+                Tipo_Tarea,
+                Cope,
+                Fecha_Liquidacion,
+                Fecha_Carga,
+                FK_Contratista,
+                Semana,
+                anio,
+                metraje
+            )
+            VALUES
+            (?,?,?,?,?,?,?,?,?,?)
+        ");
+
+        $stmtInsert->execute([
+            $folio,
+            $telefono,
+            $r['tipoTarea'] ?? null,
+            $r['cope'] ?? null,
+            $r['fechaLiquidacion'] ?? null,
+            date('Y-m-d H:i:s'),
+            $r['idContratista'] ?? 0,
+            $r['semana'] ?? 0,
+            $r['anio'] ?? 0,
+            $r['metraje'] ?? 0
+        ]);
+
+    } else {
+
+        // =========================
+        // UPDATE
+        // =========================
+        $stmtUpdate = $conexion->prepare("
+            UPDATE Ordenes_Correctas SET
+                Telefono = ?,
+                Tipo_Tarea = ?,
+                Cope = ?,
+                Fecha_Liquidacion = ?,
+                Fecha_Carga = ?,
+                FK_Contratista = ?,
+                Semana = ?,
+                anio = ?,
+                metraje = ?
+            WHERE Folio_Pisa = ?
+        ");
+
+        $stmtUpdate->execute([
+            $telefono,
+            $r['tipoTarea'] ?? null,
+            $r['cope'] ?? null,
+            $r['fechaLiquidacion'] ?? null,
+            date('Y-m-d H:i:s'),
+            $r['idContratista'] ?? 0,
+            $r['semana'] ?? 0,
+            $r['anio'] ?? 0,
+            $r['metraje'] ?? 0,
+            $folio
+        ]);
+    }
 }
 
 
