@@ -9,12 +9,14 @@ $fechaFin    = $_GET['fecha_fin'] ?? null;
 
 $totalTac     = $prod->getTotalTac($fechaInicio, $fechaFin);
 $totalAlertas = $prod->getTotalAlertas($fechaInicio, $fechaFin);
+$totalCorrectas = $prod->getTotalCorrectas($fechaInicio, $fechaFin);
 
 // Asegúrate de que SOLO se imprima JSON
 header('Content-Type: application/json; charset=utf-8');
 echo json_encode([
     "total_tac" => $totalTac,
-    "alertas"   => $totalAlertas
+    "alertas"   => $totalAlertas,
+    "correctas" => $totalCorrectas
 ]);
 
 
