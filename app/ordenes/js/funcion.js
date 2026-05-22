@@ -51,6 +51,8 @@ function actualizarCards() {
 
             $('#total_tac').text(res.total_tac);
             $('#alertas').text(res.alertas);
+            $('#correctas').text(res.correctas);
+
         },
         error: function(xhr, status, error) {
             console.error("❌ ERROR AJAX:", error);
