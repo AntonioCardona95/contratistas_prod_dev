@@ -75,6 +75,13 @@ $fecha_fin = $_GET['fecha_fin'] ?? date('Y-m-d');
                 </a>
             </li>
 
+            <li class="nav-item">
+                <a class="nav-link" href="ClasificacionAlertas.php">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>CLASIFICACION DE ALERTAS</span>
+                </a>
+            </li>
+
                     
 
 
