@@ -2,7 +2,7 @@ function procesarAlertas() {
     console.log('Procesando alertas...');
 
     $('#btnLoadKPIS').prop('disabled', true);
-    $('#estadoProceso').text('⏳ Procesando alertas, espera...');
+    $('#estadoProceso').text(' Procesando alertas, espera...');
 
     $.ajax({
         url: 'ajax/procesar_alertas.php',
@@ -14,7 +14,7 @@ function procesarAlertas() {
         success: function(res) {
             console.log('Proceso terminado:', res);
 
-            $('#estadoProceso').text('✅ Alertas procesadas correctamente');
+            $('#estadoProceso').text(' Alertas procesadas correctamente');
             $('#btnLoadKPIS').prop('disabled', false);
 
             // Ahora refrescamos las cards
@@ -35,8 +35,8 @@ function actualizarCards() {
     var fechaInicio = $('#Fecha1').val();
     var fechaFin = $('#Fecha2').val();
 
-    console.log('📅 Valor en #Fecha1:', fechaInicio);
-    console.log('📅 Valor en #Fecha2:', fechaFin);
+    console.log(' Valor en #Fecha1:', fechaInicio);
+    console.log(' Valor en #Fecha2:', fechaFin);
 
     $.ajax({
         url: 'ajax/get_dashboard.php',
@@ -47,7 +47,7 @@ function actualizarCards() {
             fecha_fin: fechaFin
         },
         success: function(res) {
-            console.log('✅ RESPUESTA AJAX:', res);
+            console.log(' RESPUESTA AJAX:', res);
 
             $('#total_tac').text(res.total_tac);
             $('#alertas').text(res.alertas);
@@ -76,7 +76,7 @@ function actualizarCards() {
             fecha_fin: $('#Fecha2').val()
         },
         success: function(res) {
-            console.log('✅ RESPUESTA AJAX:', res);
+            console.log(' RESPUESTA AJAX:', res);
 
             $('#total_tac').text(res.total_tac);
             $('#alertas').text(res.alertas);
