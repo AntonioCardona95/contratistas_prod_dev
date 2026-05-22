@@ -150,6 +150,33 @@ public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
 }
 
 
+public function getTotalCorrectas($fechaInicio = null, $fechaFin = null)
+{
+    $where = "";
+
+    if (!empty($fechaInicio) && !empty($fechaFin)) {
+        $where = "WHERE Fecha_Liquidacion BETWEEN '$fechaInicio 00:00:00' AND '$fechaFin 23:59:59'";
+    }
+
+    $sql = "SELECT COUNT(*) AS total_correctas
+            FROM Ordenes_Correctas
+            $where";
+
+    // Usa la conexión principal
+    $result = $this->runQuery($sql);
+
+    if (!empty($result)) {
+        if (isset($result[0]['total_correctas'])) {
+            return (int)$result[0]['total_correctas'];
+        } elseif (isset($result[0]['COUNT(*)'])) {
+            return (int)$result[0]['COUNT(*)'];
+        }
+    }
+
+    return 0;
+}
+
+
 
 /*public function getTotalAlertas($fechaInicio = null, $fechaFin = null)
 {
