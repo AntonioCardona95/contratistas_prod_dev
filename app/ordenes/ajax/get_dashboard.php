@@ -19,7 +19,7 @@ try {
 
     // Conexión
     try {
-        $conexion = $prod->get_conexion_analisis_erp();
+        $conexion = $prod->get_conexion_analisis();
         $info = $conexion->query("SELECT DATABASE() as db, USER() as usuario")->fetch();
         $debug["conexion_ok"] = true;
         $debug["conexion_info"] = $info;
