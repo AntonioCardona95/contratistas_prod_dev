@@ -82,41 +82,7 @@ class Resultados extends Conexion
     return is_array($rows) ? $rows : array();
 }
 
-public function getConteoAlertasPorTipo($fecha1 = null, $fecha2 = null)
-{
-    $sql = "SELECT Tipo_Alerta, COUNT(*) AS total
-            FROM Produccion_alertas_detalle";
-
-    // Si vienen fechas, agregamos el filtro
-    if ($fecha1 && $fecha2) {
-        $sql .= " WHERE FECHA_LIQD BETWEEN '{$fecha1} 00:00:00' AND '{$fecha2} 23:59:59'";
-    }
-
-    $sql .= " GROUP BY Tipo_Alerta";
-
-    $result = $this->runQuery($sql);
-
-    // Inicializar todas las categorías en 0
-    $categorias = [
-        'NO EN COORDIAPP'=>0,'SIN NAVEGACION'=>0,'ONT_DUPLICADA_EN_TAC'=>0,'ONT_DUPLICADA_EN_ESCI'=>0,
-        'TECNOLOGIA_DIFERENTE'=>0,'TIPO_TAREA_DIFERENTE'=>0,'NUMERO_SERIE_DIFERENTE'=>0,
-        'ONT_NO_ENCONTRADA_EN_ALMACEN'=>0,'ONT_ASIGNADA_A_OTRO_CONTRATISTA'=>0,
-        'ONT SIN ASIGNAR'=>0,'ORDEN A REVISION POR 30 DIAS'=>0,'SERVICIO INACTIVO'=>0,'ONT_NO_ASIGNADA_AL_CONTRATISTA'=>0
-    ];
-
-    // Rellenar con los resultados reales (normalizando el texto)
-    foreach ($result as $fila) {
-        $clave = strtoupper(trim($fila['Tipo_Alerta'])); // quita espacios y pone mayúsculas
-        if (isset($categorias[$clave])) {
-            $categorias[$clave] = (int)$fila['total'];
-        }
-    }
-
-    return $categorias; // Devuelve array asociativo con todos los conteos
-}
-
-
-/*public function getConteoAlertasPorTipo()
+public function getConteoAlertasPorTipo()
 {
     $sql = "SELECT Tipo_Alerta, COUNT(*) AS total
             FROM Produccion_alertas_detalle
@@ -141,7 +107,7 @@ public function getConteoAlertasPorTipo($fecha1 = null, $fecha2 = null)
     }
 
     return $categorias; // Devuelve array asociativo con todos los conteos
-} */
+}
 
 public function getConteoAlertasFotos()
 {
