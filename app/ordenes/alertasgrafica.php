@@ -1,7 +1,7 @@
 <?php
 
 
-require_once($_SERVER['DOCUMENT_ROOT']."/ordenes/controller/ClassResultados.php");
+/*require_once($_SERVER['DOCUMENT_ROOT']."/ordenes/controller/ClassResultados.php");
 
 $resultados = new Resultados();
 
@@ -16,11 +16,11 @@ var_dump($_GET);
 $conteos = $resultados->getConteoAlertasPorTipo($fecha1, $fecha2);
 var_dump($conteos);
 
-exit; // Detenemos aquí para ver solo la depuración
+// Detenemos aquí para ver solo la depuración
+exit;  */
 
 
-
-/*require_once($_SERVER['DOCUMENT_ROOT']."/ordenes/controller/ClassResultados.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/ordenes/controller/ClassResultados.php");
 
 $resultados = new Resultados();
 
@@ -31,7 +31,7 @@ $fecha2 = $_GET['Fecha2'] ?? null;
 $conteos = $resultados->getConteoAlertasPorTipo($fecha1, $fecha2);
 
 header('Content-Type: application/json; charset=utf-8');
-echo json_encode(array_values($conteos), JSON_UNESCAPED_UNICODE); */
+echo json_encode(array_values($conteos), JSON_UNESCAPED_UNICODE);
 
 
 
