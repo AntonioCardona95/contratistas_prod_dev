@@ -4,9 +4,9 @@ function actualizarCards() {
     const fecha2 = $('#Fecha2').val();
 
     //  Depuración: imprime las fechas seleccionadas
-    console.log('fechas grafica');
-    console.log('📅 Fecha1:', fecha1);
-    console.log('📅 Fecha2:', fecha2);
+    //console.log('fechas grafica');
+    //console.log('📅 Fecha1:', fecha1);
+    //console.log('📅 Fecha2:', fecha2);
 
     if (!fecha1 || !fecha2) {
         alert('Selecciona ambas fechas.');
@@ -67,9 +67,9 @@ function actualizarFotos() {
     const fecha1 = $('#Fecha1').val();
     const fecha2 = $('#Fecha2').val();
 
-    console.log('fechas grafica fotos');
-    console.log('📅 Fecha1:', fecha1);
-    console.log('📅 Fecha2:', fecha2);
+    //console.log('fechas grafica fotos');
+    //console.log('📅 Fecha1:', fecha1);
+    //console.log('📅 Fecha2:', fecha2);
 
     if (!fecha1 || !fecha2) return;
 
