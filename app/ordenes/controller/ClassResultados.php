@@ -271,7 +271,7 @@ public function getConteoAlertasFotos($fecha1 = null, $fecha2 = null)
 
     $params = [':categoria' => $categoria];
 
-    // 🔎 Filtro por fechas usando Fecha_Liquidacion
+    //  Filtro por fechas usando Fecha_Liquidacion
     if (!empty($fecha_inicio) && !empty($fecha_fin)) {
         $sql .= " AND pad.Fecha_Liquidacion BETWEEN :fecha_inicio AND :fecha_fin";
         $params[':fecha_inicio'] = $fecha_inicio . " 00:00:00";
