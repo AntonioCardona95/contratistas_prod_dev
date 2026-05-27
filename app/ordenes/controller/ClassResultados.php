@@ -89,23 +89,12 @@ public function getConteoAlertasPorTipo($fecha1 = null, $fecha2 = null)
 
     // Si vienen fechas, agregamos el filtro
     if ($fecha1 && $fecha2) {
-        $sql .= " WHERE FECHA_LIQD BETWEEN :fecha1 AND :fecha2";
+        $sql .= " WHERE FECHA_LIQD BETWEEN '{$fecha1} 00:00:00' AND '{$fecha2} 23:59:59'";
     }
 
     $sql .= " GROUP BY Tipo_Alerta";
 
-    $stmt = $this->db->prepare($sql);
-
-    if ($fecha1 && $fecha2) {
-        // Aseguramos que cubra todo el día
-        $fecha1 = $fecha1 . " 00:00:00";
-        $fecha2 = $fecha2 . " 23:59:59";
-        $stmt->bindParam(':fecha1', $fecha1);
-        $stmt->bindParam(':fecha2', $fecha2);
-    }
-
-    $stmt->execute();
-    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $result = $this->runQuery($sql);
 
     // Inicializar todas las categorías en 0
     $categorias = [
