@@ -37,12 +37,12 @@ $resultados = new Resultados();
 $alertas = [];
 
 // Si solo depende de categoría (como lo tienes ahora)
-//$alertas = $resultados->getDetalleAlertasPorTipo($categoria);
-$alertas = $resultados->getDetalleAlertasPorTipo(
+$alertas = $resultados->getDetalleAlertasPorTipo($categoria);
+/*$alertas = $resultados->getDetalleAlertasPorTipo(
     $categoria,
     $fecha_inicio,
     $fecha_fin
-);
+); */
 
 
 $alertas = is_array($alertas) ? $alertas : [];
