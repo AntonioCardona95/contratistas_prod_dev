@@ -3,11 +3,6 @@ function actualizarCards() {
     const fecha1 = $('#Fecha1').val();
     const fecha2 = $('#Fecha2').val();
 
-    //  Depuración: imprime las fechas seleccionadas
-    //console.log('fechas grafica');
-    //console.log('📅 Fecha1:', fecha1);
-    //console.log('📅 Fecha2:', fecha2);
-
     if (!fecha1 || !fecha2) {
         alert('Selecciona ambas fechas.');
         return;
@@ -31,10 +26,7 @@ function actualizarCards() {
                     ],
                     labels: { rotation: -45, style: { fontSize: '12px' } }
                 },
-                yAxis: {
-                    min: 0,
-                    title: { text: 'Cantidad' }
-                },
+                yAxis: { min: 0, title: { text: 'Cantidad' } },
                 tooltip: { pointFormat: 'Cantidad: <b>{point.y}</b>' },
                 plotOptions: {
                     column: { 
@@ -47,7 +39,13 @@ function actualizarCards() {
                         point: {
                             events: {
                                 click: function() {
-                                    window.location.href = 'DetalleNuevoAlertas.php?categoria=' + encodeURIComponent(this.category) + '&cantidad=' + this.y;
+                                    const fecha1 = $('#Fecha1').val();
+                                    const fecha2 = $('#Fecha2').val();
+                                    window.location.href = 'DetalleNuevoAlertas.php?categoria=' 
+                                        + encodeURIComponent(this.category) 
+                                        + '&cantidad=' + this.y
+                                        + '&Fecha1=' + encodeURIComponent(fecha1)
+                                        + '&Fecha2=' + encodeURIComponent(fecha2);
                                 }
                             }
                         }
@@ -66,10 +64,6 @@ function actualizarCards() {
 function actualizarFotos() {
     const fecha1 = $('#Fecha1').val();
     const fecha2 = $('#Fecha2').val();
-
-    //console.log('fechas grafica fotos');
-    //console.log('📅 Fecha1:', fecha1);
-    //console.log('📅 Fecha2:', fecha2);
 
     if (!fecha1 || !fecha2) return;
 
@@ -109,7 +103,13 @@ function actualizarFotos() {
                         point: {
                             events: {
                                 click: function() {
-                                    window.location.href = 'DetalleAlertasFotos.php?categoria=' + encodeURIComponent(this.category) + '&cantidad=' + this.y;
+                                    const fecha1 = $('#Fecha1').val();
+                                    const fecha2 = $('#Fecha2').val();
+                                    window.location.href = 'DetalleAlertasFotos.php?categoria=' 
+                                        + encodeURIComponent(this.category) 
+                                        + '&cantidad=' + this.y
+                                        + '&Fecha1=' + encodeURIComponent(fecha1)
+                                        + '&Fecha2=' + encodeURIComponent(fecha2);
                                 }
                             }
                         }
