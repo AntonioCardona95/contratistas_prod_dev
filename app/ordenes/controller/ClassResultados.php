@@ -109,23 +109,21 @@ class Resultados extends Conexion
     return $categorias; // Devuelve array asociativo con todos los conteos
 } */
 
-    public function getConteoAlertasPorTipo($fecha1 = null, $fecha2 = null)
+   public function getConteoAlertasPorTipo($fecha1 = null, $fecha2 = null)
 {
     $sql = "SELECT Tipo_Alerta, COUNT(*) AS total
             FROM Produccion_alertas_detalle";
 
-    // Si hay fechas, agregamos filtro
-    if ($fecha1 && $fecha2) {
-        $sql .= " WHERE Fecha BETWEEN :fecha1 AND :fecha2";
-    }
-
-    $sql .= " GROUP BY Tipo_Alerta";
-
     $params = [];
+
+    // Usamos el campo correcto: Fecha_Liquidacion
     if ($fecha1 && $fecha2) {
+        $sql .= " WHERE Fecha_Liquidacion BETWEEN :fecha1 AND :fecha2";
         $params[':fecha1'] = $fecha1;
         $params[':fecha2'] = $fecha2;
     }
+
+    $sql .= " GROUP BY Tipo_Alerta";
 
     $result = $this->runQuery($sql, $params);
 
