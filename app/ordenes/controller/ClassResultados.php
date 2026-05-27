@@ -145,8 +145,65 @@ class Resultados extends Conexion
     return $categorias;
 }
 
+public function getConteoAlertasFotos($fecha1 = null, $fecha2 = null)
+{
+    $sql = "SELECT Tipo_Alerta
+            FROM Produccion_alertas_detalle
+            WHERE (
+                Tipo_Alerta LIKE 'FOTO_ONT_FRONTAL_FALLIDA%'
+                OR Tipo_Alerta LIKE 'FOTO ONT TRASERA FALLIDA%'
+                OR Tipo_Alerta LIKE 'FOTO_CASA_CLIENTE_FALLIDA%'
+                OR Tipo_Alerta LIKE 'FOTO OS FALLIDA%'
+                OR Tipo_Alerta LIKE 'FOTO TERMINAL FALLIDA%'
+                OR Tipo_Alerta LIKE 'FALTA_EVIDENCIA_FOTO_PUERTO%'
+                OR Tipo_Alerta LIKE 'FOTO DOMICILIO FALLIDA MAL TOMADA%'
+                OR Tipo_Alerta LIKE 'FOTO TERMINAL FALLIDA MAL TOMADA%'
+                OR Tipo_Alerta LIKE 'FOTO LEDS FALLIDA MAL TOMADA%'
+            )";
 
-public function getConteoAlertasFotos()
+    $params = [];
+
+    // 🔎 Filtro por fechas usando Fecha_Liquidacion
+    if ($fecha1 && $fecha2) {
+        $sql .= " AND Fecha_Liquidacion BETWEEN :fecha1 AND :fecha2";
+        $params[':fecha1'] = $fecha1;
+        $params[':fecha2'] = $fecha2;
+    }
+
+    $result = $this->runQuery($sql, $params);
+
+    $categorias = [
+        'FOTO_ONT_FRONTAL_FALLIDA' => 0,
+        'FOTO ONT TRASERA FALLIDA' => 0,
+        'FOTO_CASA_CLIENTE_FALLIDA' => 0,
+        'FOTO OS FALLIDA' => 0,
+        'FOTO TERMINAL FALLIDA' => 0,
+        'FALTA_EVIDENCIA_FOTO_PUERTO' => 0,
+        'FOTO DOMICILIO FALLIDA MAL TOMADA' => 0,
+        'FOTO TERMINAL FALLIDA MAL TOMADA' => 0,
+        'FOTO LEDS FALLIDA MAL TOMADA' => 0
+    ];
+
+    foreach ($result as $fila) {
+        $alerta = trim($fila['Tipo_Alerta']);
+
+        if (str_starts_with($alerta, 'FOTO DOMICILIO FALLIDA MAL TOMADA')) {
+            $categorias['FOTO DOMICILIO FALLIDA MAL TOMADA']++;
+        } elseif (str_starts_with($alerta, 'FOTO TERMINAL FALLIDA MAL TOMADA')) {
+            $categorias['FOTO TERMINAL FALLIDA MAL TOMADA']++;
+        } elseif (str_starts_with($alerta, 'FOTO LEDS FALLIDA MAL TOMADA')) {
+            $categorias['FOTO LEDS FALLIDA MAL TOMADA']++;
+        } elseif (isset($categorias[$alerta])) {
+            $categorias[$alerta]++;
+        }
+    }
+
+    return array_values($categorias);
+}
+
+
+
+/*public function getConteoAlertasFotos()
 {
     $sql = "SELECT Tipo_Alerta
             FROM Produccion_alertas_detalle
@@ -189,7 +246,7 @@ public function getConteoAlertasFotos()
     }
 
     return array_values($categorias);
-}
+} */
 
 
 
