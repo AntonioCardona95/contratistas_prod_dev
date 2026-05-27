@@ -47,11 +47,7 @@ function actualizarCards() {
                         point: {
                             events: {
                                 click: function() {
-                                    indow.location.href = 'DetalleNuevoAlertas.php?categoria=' 
-                + encodeURIComponent(this.category) 
-                + '&cantidad=' + this.y
-                + '&Fecha1=' + encodeURIComponent(fecha1)
-                + '&Fecha2=' + encodeURIComponent(fecha2);
+                                    window.location.href = 'DetalleNuevoAlertas.php?categoria=' + encodeURIComponent(this.category) + '&cantidad=' + this.y;
                                 }
                             }
                         }
@@ -113,11 +109,7 @@ function actualizarFotos() {
                         point: {
                             events: {
                                 click: function() {
-                                    window.location.href = 'DetalleAlertasFotos.php?categoria=' 
-                + encodeURIComponent(this.category) 
-                + '&cantidad=' + this.y
-                + '&Fecha1=' + encodeURIComponent(fecha1)
-                + '&Fecha2=' + encodeURIComponent(fecha2);
+                                    window.location.href = 'DetalleAlertasFotos.php?categoria=' + encodeURIComponent(this.category) + '&cantidad=' + this.y;
                                 }
                             }
                         }
