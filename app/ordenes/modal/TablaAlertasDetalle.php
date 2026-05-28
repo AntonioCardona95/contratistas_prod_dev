@@ -36,15 +36,8 @@ $resultados = new Resultados();
 
 $alertas = [];
 
-$alertas = $resultados->getDetalleAlertasPorTipo(
-    $categoria,
-    $fecha_inicio,
-    $fecha_fin
-);
-
-
 // Si solo depende de categoría (como lo tienes ahora)
-//$alertas = $resultados->getDetalleAlertasPorTipo($categoria);
+$alertas = $resultados->getDetalleAlertasPorTipo($categoria);
 
 
 /*$alertas = $resultados->getDetalleAlertasPorTipo(
