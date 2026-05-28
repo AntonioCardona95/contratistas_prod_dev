@@ -250,7 +250,7 @@ public function getConteoAlertasFotos($fecha1 = null, $fecha2 = null)
 
 
 
-/*public function getDetalleAlertasPorTipo(string $categoria): array
+public function getDetalleAlertasPorTipo(string $categoria): array
 {
     $sql = "SELECT pad.*, 
                    CONCAT(c.Contratista, ' ', c.apellido_paterno, ' ', c.apellido_materno) AS nombre_completo
@@ -259,28 +259,7 @@ public function getConteoAlertasFotos($fecha1 = null, $fecha2 = null)
             WHERE pad.Tipo_Alerta = :categoria";
 
     return $this->runQuery($sql, [':categoria' => $categoria]);
-} */
-
-    public function getDetalleAlertasPorTipo(string $categoria, string $fecha_inicio = "", string $fecha_fin = ""): array
-{
-    $sql = "SELECT pad.*, 
-                   CONCAT(c.Contratista, ' ', c.apellido_paterno, ' ', c.apellido_materno) AS nombre_completo
-            FROM Produccion_alertas_detalle pad
-            LEFT JOIN contratistas c ON pad.FK_Contratista = c.idContratistas
-            WHERE pad.Tipo_Alerta = :categoria";
-
-    $params = [':categoria' => $categoria];
-
-    // Si se recibieron fechas válidas, agregamos el filtro
-    if (!empty($fecha_inicio) && !empty($fecha_fin)) {
-        $sql .= " AND DATE(pad.Fecha_Liquidacion) BETWEEN :fecha_inicio AND :fecha_fin";
-        $params[':fecha_inicio'] = $fecha_inicio;
-        $params[':fecha_fin']    = $fecha_fin;
-    }
-
-    return $this->runQuery($sql, $params);
 }
-
 
 public function getDetalleAlertasFoto(string $categoria): array
 {
