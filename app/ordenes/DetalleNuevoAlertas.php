@@ -17,8 +17,13 @@ if (empty($Contratista)) {
 require_once($_SERVER['DOCUMENT_ROOT']."/ordenes/controller/ClassOps.php");
 
 // Obtener las fechas de la URL
-$fecha_inicio = $_GET['fecha_inicio'] ?? date('Y-m-d');
-$fecha_fin = $_GET['fecha_fin'] ?? date('Y-m-d');
+//$fecha_inicio = $_GET['fecha_inicio'] ?? date('Y-m-d');
+//$fecha_fin = $_GET['fecha_fin'] ?? date('Y-m-d');
+
+
+$fecha_inicio = $_GET['Fecha1'] ?? date('Y-m-d');
+$fecha_fin    = $_GET['Fecha2'] ?? date('Y-m-d');
+
 
 $categoria = $_GET['categoria'] ?? '';
 $cantidad  = $_GET['cantidad'] ?? '';
