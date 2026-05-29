@@ -24,11 +24,11 @@ $categoria = $_GET['categoria'] ?? '';
 $cantidad  = $_GET['cantidad'] ?? '';
 
 // Mostrar en pantalla los valores recibidos
-echo "<p>Fecha inicio: " . htmlspecialchars($fecha_inicio) . "</p>";
-echo "<p>Fecha fin: " . htmlspecialchars($fecha_fin) . "</p>";
+//echo "<p>Fecha inicio: " . htmlspecialchars($fecha_inicio) . "</p>";
+//echo "<p>Fecha fin: " . htmlspecialchars($fecha_fin) . "</p>";
 
 // Si quieres ver más detalle del contenido:
-var_dump($fecha_inicio, $fecha_fin);
+//var_dump($fecha_inicio, $fecha_fin);
 
 
 /*window.location.href = 'DetalleNuevoAlertas.php?categoria=' 
