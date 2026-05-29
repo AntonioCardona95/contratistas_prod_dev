@@ -1,13 +1,10 @@
-console.log('estamos en detalle js alertas');
 $(document).ready(function () {
 
     var urlParams = new URLSearchParams(window.location.search);
 
     var fecha_inicio = urlParams.get('fecha_inicio');
-    console.log(fecha_inicio);
     var fecha_fin    = urlParams.get('fecha_fin');
-    console.log(fecha_fin);
-    var categoria    = urlParamsget('categoria');
+    var categoria    = urlParams.get('categoria');
     var cantidad     = urlParams.get('cantidad');
 
     // Asegurar valores vacíos en lugar de null (opcional pero recomendable)
