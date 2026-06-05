@@ -75,22 +75,22 @@ class Conexion
         }
     }
 
-    public function get_conexioncoo()
-    {
-        try {
-            $user = "erpintr1";     
-            $pass = "$7nM7g9d5";   
-            $host = "192.168.1.11";
-            $db = "erpintr1_erp";
-            $conexion = new PDO("mysql:host=$host;dbname=$db",$user,$pass);               
-            $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            
-            if(!$conexion) throw new Exception('Error de conexion MSSQL: ');
+    public function get_conexioncoordiapp()
+        {
+            try {
+                $user = "erpintr1";     
+                $pass = "$7nM7g9d5";   
+                $host = "localhost";
+                $db = "erpintr1_erp";
+                $conexion = new PDO("mysql:host=$host;dbname=$db",$user,$pass);               
+                $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                
+                if(!$conexion) throw new Exception('Error de conexion MSSQL: ');
 
-            return $conexion;
+                return $conexion;
 
-        } catch(PDOException $e) {
-            return $e->getMessage();
+            } catch(PDOException $e) {
+                return $e->getMessage();
+            }
         }
-    }
 }
