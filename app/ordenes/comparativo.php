@@ -4,11 +4,14 @@ require_once __DIR__ . '/../cnx/cnx.php';  // Ajuste relativo: desde /ordenes ha
 
 try {
     $cnx = new Conexion();
-    $dbRemoto = $cnx->get_conexion();           // Conexión a 192.168.1.11
+    $dbRemoto = $cnx->get_conexion();             // Conexión a 192.168.1.11
     $dbCoordiapp = $cnx->get_conexioncoordiapp(); // Conexión a localhost
 
-    // Traemos todos los registros indexados por Folio_Pisa
-    $sql = "SELECT * FROM tecnico_instalaciones_coordiapp";
+    // Traemos solo los registros del año 2026 indexados por Folio_Pisa
+    $sql = "SELECT * 
+            FROM tecnico_instalaciones_coordiapp
+            WHERE YEAR(Fecha_Coordiapp) = 2026";
+
     $stmt1 = $dbRemoto->query($sql);
     $stmt2 = $dbCoordiapp->query($sql);
 
@@ -26,14 +29,22 @@ try {
     $diferencias = [];
     foreach ($data1 as $folio => $registro1) {
         if (!isset($data2[$folio])) {
-            $diferencias[$folio][] = ["Campo" => "Folio_Pisa", "Remoto" => $folio, "Local" => "NO EXISTE"];
+            $diferencias[$folio][] = [
+                "Campo" => "Folio_Pisa",
+                "Remoto" => $folio,
+                "Local" => "NO EXISTE"
+            ];
             continue;
         }
         $registro2 = $data2[$folio];
         foreach ($registro1 as $campo => $valor1) {
             $valor2 = $registro2[$campo];
             if ($valor1 != $valor2) {
-                $diferencias[$folio][] = ["Campo" => $campo, "Remoto" => $valor1, "Local" => $valor2];
+                $diferencias[$folio][] = [
+                    "Campo" => $campo,
+                    "Remoto" => $valor1,
+                    "Local" => $valor2
+                ];
             }
         }
     }
@@ -48,7 +59,7 @@ try {
           </style></head><body>";
 
     if (empty($diferencias)) {
-        echo "<h2>No se encontraron diferencias</h2>";
+        echo "<h2>No se encontraron diferencias en registros de 2026</h2>";
     } else {
         foreach ($diferencias as $folio => $diffs) {
             echo "<h2>Folio: $folio (".count($diffs)." diferencias)</h2>";
@@ -70,3 +81,4 @@ try {
     echo "Error: ".$e->getMessage();
 }
 ?>
+
