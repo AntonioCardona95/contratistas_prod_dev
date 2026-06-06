@@ -80,7 +80,9 @@ class Conexion
             try {
                 $user = "erpintr1";     
                 $pass = "$7nM7g9d5";   
-                $host = "localhost";
+                $host = "74.208.237.139";
+
+                //$host = "localhost";
                 $db = "erpintr1_erp";
                 $conexion = new PDO("mysql:host=$host;dbname=$db",$user,$pass);               
                 $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
