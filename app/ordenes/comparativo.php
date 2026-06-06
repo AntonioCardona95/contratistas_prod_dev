@@ -1,13 +1,20 @@
 <?php
-// Incluimos tu clase de conexión desde la ruta cnx.php
-require_once __DIR__ . '/../cnx/cnx.php';  // Ajuste relativo: desde /ordenes hacia /cnx
+require_once __DIR__ . '/../cnx/cnx.php';
 
 try {
     $cnx = new Conexion();
-    $dbRemoto = $cnx->get_conexion();             // Conexión a 192.168.1.11
-    $dbCoordiapp = $cnx->get_conexioncoordiapp(); // Conexión a localhost
+    $dbRemoto = $cnx->get_conexion();             // puede ser PDO o string
+    $dbCoordiapp = $cnx->get_conexioncoordiapp(); // puede ser PDO o string
 
-    // Traemos solo los registros del año 2026 indexados por Folio_Pisa
+    // Validar que sean objetos PDO
+    if (!($dbRemoto instanceof PDO)) {
+        throw new Exception("Error en conexión remota: $dbRemoto");
+    }
+    if (!($dbCoordiapp instanceof PDO)) {
+        throw new Exception("Error en conexión local: $dbCoordiapp");
+    }
+
+    // Solo registros de 2026
     $sql = "SELECT * 
             FROM tecnico_instalaciones_coordiapp
             WHERE YEAR(Fecha_Coordiapp) = 2026";
@@ -81,4 +88,3 @@ try {
     echo "Error: ".$e->getMessage();
 }
 ?>
-
