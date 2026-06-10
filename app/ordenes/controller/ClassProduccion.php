@@ -265,6 +265,15 @@ public function InsertarAlertasMasivo($registros)
 {
     if (empty($registros)) return;
 
+    // 🔎 Depuración específica para folio 25530766
+    foreach ($registros as $r) {
+        if ($r['folio'] == '25530766') {
+            echo "DEBUG REGISTROS FOLIO 25530766\n";
+            echo "Telefono en registros: " . $r['telefono'] . "\n";
+            var_dump($r);
+        }
+    }
+
     $conexion = $this->get_conexion();
     $conexion_analisis = $this->get_conexiondos();
 
