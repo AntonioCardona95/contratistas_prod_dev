@@ -355,6 +355,13 @@ public function InsertarAlertasMasivo($registros)
         // llave compuesta
         $key = $folio . '_' . $telefono;
 
+        if ($folio == '25530766') {
+        echo "DEBUG COORDIAPP FOLIO 25530766\n";
+        echo "Telefono en Coordiapp: $telefono\n";
+        echo "Key generado: $key\n";
+        var_dump($row);
+    }
+
         // nos quedamos con el más reciente
         if (!isset($coordData[$key])) {
             $coordData[$key] = $row;
