@@ -623,7 +623,7 @@ foreach ($registros as $r) {
     $keyCoord = $folio . '_' . $telefono;
     $coord = $coordData[$keyCoord] ?? null;
 
-     /*  if ($folio == '25530766') {
+       if ($folio == '25530766') {
         echo "DEBUG FOLIO 25530766\n";
         echo "Key usado: $keyCoord\n";
         echo "Telefono: $telefono\n";
@@ -633,7 +633,7 @@ foreach ($registros as $r) {
             var_dump($coord);
         }
 
-         } */
+         }
 
     $tac   = $tacData[$folio] ?? null;
     $esci  = $esciData[$telefono] ?? null;
