@@ -265,15 +265,6 @@ public function InsertarAlertasMasivo($registros)
 {
     if (empty($registros)) return;
 
-    // 🔎 Depuración específica para folio 25530766
-    foreach ($registros as $r) {
-        if ($r['folio'] == '25530766') {
-            echo "DEBUG REGISTROS FOLIO 25530766\n";
-            echo "Telefono en registros: " . $r['telefono'] . "\n";
-            var_dump($r);
-        }
-    }
-
     $conexion = $this->get_conexion();
     $conexion_analisis = $this->get_conexiondos();
 
@@ -354,13 +345,6 @@ public function InsertarAlertasMasivo($registros)
 
         // llave compuesta
         $key = $folio . '_' . $telefono;
-
-       if ($folio == '25530766') {
-        echo "DEBUG COORDIAPP FOLIO 25530766\n";
-        echo "Telefono en Coordiapp: $telefono\n";
-        echo "Key generado: $key\n";
-        var_dump($row);
-    }
 
         // nos quedamos con el más reciente
         if (!isset($coordData[$key])) {
@@ -622,18 +606,6 @@ foreach ($registros as $r) {
 
     $keyCoord = $folio . '_' . $telefono;
     $coord = $coordData[$keyCoord] ?? null;
-
-       if ($folio == '25530766') {
-        echo "DEBUG FOLIO 25530766\n";
-        echo "Key usado: $keyCoord\n";
-        echo "Telefono: $telefono\n";
-        if ($coord === null) {
-            echo "Coordiapp NO encontrado\n";
-        } else {
-            var_dump($coord);
-        }
-
-         }
 
     $tac   = $tacData[$folio] ?? null;
     $esci  = $esciData[$telefono] ?? null;
