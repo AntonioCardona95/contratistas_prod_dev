@@ -22,20 +22,10 @@ if (empty($Contratista) || empty($idContratistas)) {
 $modal = new Ops();
 
 // Lógica correcta
-/*if ($fecha_inicio && $fecha_fin) {
-    $alertas = $modal->ObtenerAlertasConFechas($fecha_inicio, $fecha_fin);
-} else {
-    $alertas = $modal->ObtenerAlertasSinFechas();
-} */
-
-
 if ($fecha_inicio && $fecha_fin) {
     $alertas = $modal->ObtenerAlertasConFechas($fecha_inicio, $fecha_fin);
 } else {
-    echo "<div class='alert alert-info'>
-            Selecciona una fecha inicial y una fecha final para consultar las alertas.
-          </div>";
-    exit;
+    $alertas = $modal->ObtenerAlertasSinFechas();
 }
 
 $alertas = is_array($alertas) ? $alertas : [];
