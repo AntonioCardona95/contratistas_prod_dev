@@ -65,7 +65,7 @@ $css = ['../css/Bienvenida.css']
                         <div class="card shadow welcome-card">
                             <div class="welcome-body">
                                 <div class="welcome-logo">
-                                    <img src="img/enlace.png" alt="Enlace Digital">
+                                    <img src="../img/enlace.png" alt="Enlace Digital">
                                 </div>
                                 <div>
                                     <h1 class="welcome-title">¡BIENVENIDO AL PORTAL DE CONTRATISTAS!</h1>
