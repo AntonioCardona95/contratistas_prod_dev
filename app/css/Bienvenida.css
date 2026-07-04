@@ -1,0 +1,70 @@
+html, body {
+        overscroll-behavior: none;
+        min-height: 100%;
+    }
+
+    body {
+        background-color: #edf2fb;
+    }
+
+    .welcome-card {
+        border-radius: 1.8rem;
+        border: 0;
+        background: #ffffff;
+        box-shadow: 0 1.5rem 3rem rgba(55, 65, 104, 0.08);
+        overflow: hidden;
+    }
+
+    .welcome-body {
+        position: relative;
+        padding: 5rem 3rem;
+        text-align: center;
+    }
+
+    .welcome-logo {
+        max-width: 220px;
+        margin-bottom: 2rem;
+        justify-self: center;
+    }
+
+    .welcome-title {
+        font-size: 2.6rem;
+        font-weight: 700;
+        color: #224abe;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .welcome-text {
+        color: #2e3a59;
+        font-size: 1rem;
+        margin: 0;
+        line-height: 1.85;
+        text-align: center;
+    }
+
+    .welcome-card-container {
+        min-height: calc(100vh - 120px);
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 2rem 3rem 4rem;
+        background-image: url('img/Almacen.webp');
+        background-position: right center;
+        background-size: cover;
+        background-repeat: no-repeat;
+    }
+
+    .welcome-card {
+        max-width: 640px;
+        margin-left: 0;
+        background: rgba(255, 255, 255, 0.96);
+    }
+
+    .welcome-body {
+        text-align: left;
+    }
+
+    .modal-header-gradient {
+        background: linear-gradient(90deg, #007BFF 0%, #003d99 100%) !important;
+    }
