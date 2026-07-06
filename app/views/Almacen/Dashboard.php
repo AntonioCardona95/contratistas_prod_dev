@@ -13,7 +13,8 @@
     $idContratistas = $_SESSION['idContratistas'];
 
     if (empty($idContratistas)) {
-        header("location: ../Login/modal/poweroff.php");
+        header("location: ../../Login/modal/poweroff.php");
+        exit;
     }
     
     $Fecha1 = $_POST['Fecha1'] ?? '';
@@ -26,7 +27,7 @@
 
 <?php
     $css = ['../css/Almacen.css'];
-    include '../components/HeadContratistas.php';
+    include __DIR__ . '/../../components/HeadContratistas.php';
 ?>
 
 <body id="page-top">
@@ -35,7 +36,7 @@
     <div id="wrapper">
 
         <!-- SIDEBAR -->
-        <?php include_once("../components/SidebarContratistas.php"); ?>
+        <?php include_once __DIR__ . '/../../components/SidebarContratistas.php'; ?>
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
@@ -153,7 +154,7 @@
             <!-- End of Main Content -->
 
             <!-- FOOTER -->
-            <?php include_once("../components/FooterContratistas.php"); ?>
+            <?php include_once __DIR__ . '/../../components/FooterContratistas.php'; ?>
 
         </div>
         <!-- End of Content Wrapper -->
