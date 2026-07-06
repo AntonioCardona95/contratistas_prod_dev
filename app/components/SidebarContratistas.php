@@ -44,35 +44,35 @@
     </div>
 
         <li class="nav-item">
-            <a class="nav-link" href="views/Almacen/Dashboard.php">
+            <a class="nav-link" href="Almacen/Dashboard.php">
                 <i class="fa-solid fa-chart-column"></i>
                 <span>DASHBOARD ALMACÉN</span>
             </a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" href="views/Almacen/MaterialRecibido.php">
+            <a class="nav-link" href="Almacen/Entradas.php">
                <i class="fa-solid fa-clipboard-check"></i>
                 <span>MATERIAL RECIBIDO</span>
             </a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" href="views/Almacen/AceptarMaterial.php">
+            <a class="nav-link" href="Almacen/AceptarMaterial.php">
                 <i class="fa-solid fa-feather-pointed"></i>
                 <span>ACEPTAR MATERIAL</span>
             </a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" href="views/Almacen/MaterialRechazado.php">
+            <a class="nav-link" href="Almacen/MaterialRechazado.php">
                 <i class="fa-solid fa-circle-xmark"></i>
                 <span>MATERIAL RECHAZADO</span>
             </a>
         </li>
 
         <li class="nav-item">
-            <a class="nav-link" href="views/Almacen/Salidas.php">
+            <a class="nav-link" href="Almacen/Salidas.php">
                 <i class="fa-solid fa-circle-plus"></i>
                 <span>ASIGNAR MATERIAL</span>
             </a>
@@ -80,7 +80,7 @@
 
 
         <li class="nav-item">
-            <a class="nav-link" href="views/Almacen/Tecnicos.php">
+            <a class="nav-link" href="Almacen/Tecnicos.php">
                 <i class="fa-solid fa-clipboard-user"></i>
                 <span>TECNICOS</span>
             </a>
