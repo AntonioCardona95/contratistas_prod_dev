@@ -6,7 +6,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>ERP - OPERACIONES</title>
+    <title>PORTAL CONTRATISTA</title>
 
     <!-- IMPORTAR EL CSS DE FORMA DINAMICA -->
     <?php if(!empty($css)) : ?>

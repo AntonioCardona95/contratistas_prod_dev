@@ -56,13 +56,13 @@ html, body {
     }
 
     .welcome-card {
-        max-width: 640px;
         margin-left: 0;
         background: rgba(255, 255, 255, 0.96);
     }
 
     .welcome-body {
         text-align: left;
+        max-width: 640px;
     }
 
     .modal-header-gradient {
