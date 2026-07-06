@@ -13,6 +13,8 @@ html, body {
         background: #ffffff;
         box-shadow: 0 1.5rem 3rem rgba(55, 65, 104, 0.08);
         overflow: hidden;
+        margin-left: 0;
+        background: rgba(255, 255, 255, 0.96);
     }
 
     .welcome-body {
@@ -55,14 +57,9 @@ html, body {
         background-repeat: no-repeat;
     }
 
-    .welcome-card {
-        margin-left: 0;
-        background: rgba(255, 255, 255, 0.96);
-    }
-
     .welcome-body {
         text-align: left;
-        max-width: 640px;
+        max-width: 650px;
     }
 
     .modal-header-gradient {

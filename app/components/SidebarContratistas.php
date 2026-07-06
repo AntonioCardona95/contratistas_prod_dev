@@ -17,21 +17,21 @@
         <li class="nav-item">
             <a class="nav-link" href="views/Operaciones/Dashboard.php">
                 <i class="fa-solid fa-chart-column"></i>
-                <span>Dashboard Coordiapp/Tac</span>
+                <span>DASHBOARD COORDIAPP/TAC</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link" href="views/Operaciones/OrdenesCoordiapp.php">
                 <i class="fa-solid fa-check-double"></i>
-                <span>Liq. Coordiapp Completas</span>
+                <span>LIQ. COORDIAPP COMPLETAS</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link" href="views/Operaciones/OrdenesIncompletas.php">
-                <i class="fa-solid fa-check-double"></i>
-                <span>Liq. Coordiapp Pendientes</span>
+               <i class="fa-solid fa-bullhorn"></i>
+                <span>LIQ. COORDIAPP PENDIENTES</span>
             </a>
         </li>
 
@@ -46,43 +46,43 @@
         <li class="nav-item">
             <a class="nav-link" href="views/Almacen/Dashboard.php">
                 <i class="fa-solid fa-chart-column"></i>
-                <span>Dashboard Almacén</span>
+                <span>DASHBOARD ALMACÉN</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link" href="views/Almacen/MaterialRecibido.php">
-                <i class="fa-solid fa-chart-column"></i>
-                <span>Material Recibido</span>
+               <i class="fa-solid fa-clipboard-check"></i>
+                <span>MATERIAL RECIBIDO</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link" href="views/Almacen/AceptarMaterial.php">
-                <i class="fa-solid fa-chart-column"></i>
-                <span>Aceptar Material</span>
+                <i class="fa-solid fa-feather-pointed"></i>
+                <span>ACEPTAR MATERIAL</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link" href="views/Almacen/MaterialRechazado.php">
-                <i class="fa-solid fa-chart-column"></i>
-                <span>Material Rechazado</span>
+                <i class="fa-solid fa-circle-xmark"></i>
+                <span>MATERIAL RECHAZADO</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link" href="views/Almacen/Salidas.php">
-                <i class="fa-solid fa-chart-column"></i>
-                <span>Asignar Material</span>
+                <i class="fa-solid fa-circle-plus"></i>
+                <span>ASIGNAR MATERIAL</span>
             </a>
         </li>
 
 
         <li class="nav-item">
             <a class="nav-link" href="views/Almacen/Tecnicos.php">
-                <i class="fa-solid fa-chart-column"></i>
-                <span>Tecnicos</span>
+                <i class="fa-solid fa-clipboard-user"></i>
+                <span>TECNICOS</span>
             </a>
         </li>
 
