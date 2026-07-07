@@ -1,7 +1,7 @@
     <!-- Scripts optimizados cargados de forma asíncrona -->
-    <script src="/vendor/jquery/jquery.min.js"></script>
-    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="/js/jquery-3.2.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js" integrity="sha512-0f5XQm3R3t1kq0H0g+Qe1jR3VZl5XQ0j2q5YfGQj1Y5s6ZP0x1v0q1Z1J2Y1f3T" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="/js/sb-admin-2.min.js"></script>
 
     <!-- DataTables y plugins de forma asíncrona -->

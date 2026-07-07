@@ -22,13 +22,13 @@ $css = ['../css/Bienvenida.css']
 ?>
 
 <!-- IMPORTAR EL HEAD -->
-<?php include '../components/HeadContratistas.php'; ?>
+<?php include __DIR__ . '/../components/HeadContratistas.php'; ?>
 
 <body>
 
     <div id="wrapper">
 
-        <?php include_once("../components/SidebarContratistas.php"); ?>
+        <?php include_once __DIR__ . '/../components/SidebarContratistas.php'; ?>
 
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
@@ -78,7 +78,7 @@ $css = ['../css/Bienvenida.css']
 
             </div>
 
-            <?php include_once("../components/FooterContratistas.php"); ?>
+            <?php include_once __DIR__ . '/../components/FooterContratistas.php'; ?>
 
         </div>
     </div>
@@ -106,7 +106,7 @@ $css = ['../css/Bienvenida.css']
         </div>
     </div>
 
-    <?php include_once("../components/ScriptContratistas.php"); ?>
+    <?php include_once __DIR__ . '/../components/ScriptContratistas.php'; ?>
     
 </body>
 </html>
