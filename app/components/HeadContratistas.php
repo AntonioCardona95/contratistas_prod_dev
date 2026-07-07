@@ -1,3 +1,12 @@
+<?php
+
+$scriptDir = trim(dirname($_SERVER['SCRIPT_NAME']), '/');
+$relativePath = '/';
+if (strpos($scriptDir, 'views') === 0) {
+    $levels = substr_count(trim($scriptDir, '/'), '/') + 1;
+    $relativePath = str_repeat('../', $levels);
+}
+?>
 <head>
 
     <meta charset="utf-8">
@@ -21,10 +30,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="/css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="<?= htmlspecialchars($relativePath) ?>css/sb-admin-2.min.css" rel="stylesheet">
 
     <!-- LINK DE LA SIDEBAR ACTIVA -->
-    <link rel="stylesheet" href="/css/sidebar-active.css">
+    <link rel="stylesheet" href="<?= htmlspecialchars($relativePath) ?>css/sidebar-active.css">
 
     <!-- Custom styles for this page -->
     <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">

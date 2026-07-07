@@ -25,51 +25,51 @@
 <!DOCTYPE html>
 <html lang="en">    
 
+<!-- INSERTAR EL CSS -->
+<?php  $css = ['../css/DashboardAlmacen.css'] ?>
 
 <!-- IMPORTAR EL HEAD -->
 <?php include __DIR__ . '/../../components/HeadContratistas.php'; ?>
 
 <body id="page-top">
 
-    <!-- Page Wrapper -->
+    <!-- CONTENEDOR PRINCIPAL -->
     <div id="wrapper">
 
         <!-- SIDEBAR -->
         <?php include_once __DIR__ . '/../../components/SidebarContratistas.php'; ?>
 
-        <!-- Content Wrapper -->
+        <!-- CONTENEDOR DE CONTENIDO -->
         <div id="content-wrapper" class="d-flex flex-column">
 
-            <!-- Main Content -->
+            <!-- CONTENIDO PRINCIPAL -->
             <div id="content">
 
-                <!-- Topbar -->
+                <!-- TOPBAR -->
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-12 static-top shadow">
 
-                    <!-- Sidebar Toggle (Topbar) -->
-                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-                        <i class="fa fa-bars"></i>
-                    </button>
-
-                    <!-- Topbar Search -->
-                    <form class="col-xl-10 col-md-10 mb-10" id="FormQueryUnidades">
-                        
+                    <!-- FILTROS DE BUSQUEDA DEL TOPBAR -->
+                    <form id="FormQueryUnidades" style="display: contents;">
                         <div class="input-group">
 
                             <?php
-                                // Valores por defecto: primer día del mes anterior y fecha actual
-                                $defaultFecha1 = $_POST['Fecha1'] ?? date('Y-m-d', strtotime('-1 month'));
-                                $defaultFecha2 = $_POST['Fecha2'] ?? date('Y-m-d');
+                                $fechaDefault = $_POST['fecha'] ?? date('Y-m-d', strtotime('-1 month'));
+                                $fechaDefaultFinal = $_POST['fechaFinal'] ?? date('Y-m-d');
+                                $hoy = date('Y-m-d');
+                                $maximo = "2022-08-01";
                             ?>
-                            <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($defaultFecha1) ?>" class="form-control bg-light border-0 small" onchange="LoadKPIS();" 
+                            <!-- FILTRO DE FECHA INICIO DE BUSQUEDA -->
+                            <input type="date" name="fecha" id="fecha" value="<?= htmlspecialchars($fechaDefault) ?>" style="max-width: 400px; min-width: 150px;"
+                                class="form-control bg-light border-0 small mr-2" min="<?= htmlspecialchars($maximo) ?>" max="<?= htmlspecialchars($hoy) ?>" onchange="LoadKPIS();" 
                                 aria-label="AL" aria-describedby="basic-addon2">
-
-                            <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($defaultFecha2) ?>" class="form-control bg-light border-0 small" onchange="LoadKPIS();" 
+                            <!-- FILTRO DE FECHA FINAL DE BUSQUEDA -->
+                            <input type="date" name="fechaFinal" id="fechaFinal" value="<?= htmlspecialchars($fechaDefaultFinal) ?>" style="max-width: 400px; min-width: 150px;"
+                                class="form-control bg-light border-0 small mr-2" min="<?= htmlspecialchars($maximo) ?>" max="<?= htmlspecialchars($hoy) ?>" onchange="LoadKPIS();" 
                                 aria-label="AL" aria-describedby="basic-addon2">
-
+                            <!-- BOTON DE LIMPIAR FILTROS -->
                             <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
-                                    <i class="fas fa-search fa-sm"></i>
+                                <button type="button" class="btn btn-sm btn-danger mr-2" onclick="limpiarFiltros()" title="Limpiar filtros">
+                                    <i class="fas fa-times"></i>
                                 </button>
                             </div>
                         
@@ -77,16 +77,15 @@
 
                     </form>
 
-                    <!-- Topbar Navbar -->
+                    
                     <ul class="navbar-nav ml-auto">
 
-                        <!-- Nav Item - Search Dropdown (Visible Only XS) -->
                         <li class="nav-item dropdown no-arrow d-sm-none">
                             <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-search fa-fw"></i>
                             </a>
-                            <!-- Dropdown - Messages -->
+
                             <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
                                 aria-labelledby="searchDropdown">
                                 <form class="form-inline mr-auto w-100 navbar-search">
@@ -112,7 +111,7 @@
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?php echo $Contratista;?></span>
                                 <img class="img-profile rounded-circle"
-                                    src="img/undraw_profile.svg">
+                                    src="../../img/undraw_profile.svg">
                             </a>
                             <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
@@ -132,14 +131,14 @@
                     </ul>
 
                 </nav>
-                <!-- End of Topbar -->
+                <!-- FIN DEL TOPBAR -->
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">GESTIÓN OPERATIVA DE EQUIPO Y SERVICIOS (ONT)</h1>
+                        <h1 class="h3 mb-0 text-gray-800 mt-2">GESTIÓN OPERATIVA DE EQUIPO Y SERVICIOS (ONT)</h1>
                     </div>
                     
                     <div id="LoadKPIS">
@@ -150,31 +149,31 @@
                 <!-- /.container-fluid -->
 
             </div>
-            <!-- End of Main Content -->
+            <!-- FIN DEL CONTENIDO PRINCIPAL -->
 
             <!-- FOOTER -->
             <?php include_once __DIR__ . '/../../components/FooterContratistas.php'; ?>
 
         </div>
-        <!-- End of Content Wrapper -->
+        <!-- FIN DEL CONTENEDOR DE CONTENIDO -->
 
     </div>
-    <!-- End of Page Wrapper -->
+    <!-- FIN DEL CONTENEDOR PRINCIPAL -->
 
-    <!-- Scroll to Top Button-->
+    <!-- BOTON DE SCROLL HACIA ARRIBA -->
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
     
-    <!-- Logout Modal-->
+     <!-- MODAL DE CIERRE DE SESION -->
     <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
+        data-backdrop="static" data-keyboard="false">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">CERRAR SESION</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
+                <div class="modal-header modal-header-gradient text-white border-0 align-items-center">
+                    <h5 class="modal-title" id="exampleModalLabel"><i class="fas fa-sign-out-alt"></i> CERRAR SESION</h5>
+                    <button class="btn btn-light" type="button" data-dismiss="modal" aria-label="Close">
+                        <span>&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">PRESIONA SALIR, PARA CERRAR LA SESSION.</div>
@@ -186,13 +185,18 @@
         </div>
     </div>
 
-    <!-- Bootstrap core JavaScript-->
+    <!-- IMPORTAR SCRIPTS -->
     <?php include_once __DIR__ . '/../../components/ScriptContratistas.php'; ?>
-    <script src="../../js/app.js"></script>
+    <!-- CARGAR CHART.JS v2 para compatibilidad con el código existente -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- CARGAR HIGCHARTS LOCAL -->
+    <script src="/charts/code/highcharts.js"></script>
+    <script src="../../js/almacen.js"></script>
     <script>
         $(document).ready(function(){
             LoadKPIS();
         });
     </script>
+
 </body>
 </html>
