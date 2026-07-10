@@ -69,7 +69,7 @@
                             <!-- BOTON DE LIMPIAR FILTROS -->
                             <div class="input-group-append">
                                 <button type="button" class="btn btn-sm btn-danger mr-2" onclick="limpiarFiltros()" title="Limpiar filtros">
-                                    <i class="fas fa-times"></i>
+                                    <i class="fas fa-eraser"></i>
                                 </button>
                             </div>
                         
@@ -140,6 +140,24 @@
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800 mt-2">GESTIÓN OPERATIVA DE EQUIPO Y SERVICIOS (ONT)</h1>
                     </div>
+
+                    <div class="prod-hero mb-4">
+                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+                        <div>
+                            <h1 class="h3 mb-1 font-weight-bold">Control de consumos de material</h1>
+                            <p class="mb-0 text-white-50" id="subtitulo-hero-produccion">Seguimiento mensual de series asignadas versus series liquidadas en TAC.</p>
+                        </div>
+                        <div class="mt-3 mt-md-0 d-flex align-items-center flex-wrap justify-content-md-end">
+                            <div class="btn-group btn-group-sm mr-2 mb-2 mb-md-0" role="group" aria-label="Fuente de liquidaciones">
+                                <button type="button" class="btn btn-light" id="btn-fuente-tac" onclick="cambiarFuenteLiquidaciones('tac')">TAC</button>
+                                <button type="button" class="btn btn-light" id="btn-fuente-coordiapp" onclick="cambiarFuenteLiquidaciones('coordiapp')">Coordiapp</button>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-light" onclick="quitarSeleccionProduccion()">
+                                <i class="fas fa-layer-group mr-1"></i> Ver global
+                            </button>
+                        </div>
+                    </div>
+                </div>
                     
                     <div id="LoadKPIS">
 
