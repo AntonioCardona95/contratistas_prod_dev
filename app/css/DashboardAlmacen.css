@@ -1,8 +1,19 @@
+/* CSS GENERAL*/
 html, body {
         overscroll-behavior: none;
         min-height: 100%;
     }
 
+/* MODAL HEADER GRADIENT */
 .modal-header-gradient {
         background: linear-gradient(90deg, #007BFF 0%, #003d99 100%) !important;
+    }
+
+/* HERO PRODUCCION */
+    .prod-hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #0f766e 100%);
+        color: #fff;
+        border-radius: 18px;
+        padding: 1.25rem 1.5rem;
+        box-shadow: 0 16px 35px rgba(15, 23, 42, .18);
     }
