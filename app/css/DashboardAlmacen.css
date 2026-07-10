@@ -16,4 +16,5 @@ html, body {
         border-radius: 18px;
         padding: 1.25rem 1.5rem;
         box-shadow: 0 16px 35px rgba(15, 23, 42, .18);
+        margin: 15px 0px 15px 0px;
     }
