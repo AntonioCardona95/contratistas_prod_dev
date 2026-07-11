@@ -151,7 +151,7 @@
     <!-- ONTs Total Sin Asignar -->
     <div class="col-xl col-md-6">
         <a href="detalle_ont_disponibles.php" style="text-decoration: none; color: inherit;">
-            <div class="card stat-card danger h-100 mb-4">
+            <div class="card stat-card danger h-100 mb-2">
                 <div class="card-body">
                     <div class="stat-icon">
                         <i class="fas fa-ban"></i>
@@ -166,7 +166,7 @@
     <!-- ONTs Sin Asignar (En Fecha) -->
     <div class="col-xl col-md-6">
         <a href="detalle_ont_disponibles.php" style="text-decoration: none; color: inherit;">
-            <div class="card stat-card warning h-100 mb-4">
+            <div class="card stat-card warning h-100 mb-2">
                 <div class="card-body">
                     <div class="stat-icon">
                         <i class="fas fa-clock"></i>
@@ -181,7 +181,7 @@
     <!-- ONTs Asignadas -->
     <div class="col-xl col-md-6">
         <a href="detalle_ont_asignados.php" style="text-decoration: none; color: inherit;">
-            <div class="card stat-card primary h-100 mb-4">
+            <div class="card stat-card primary h-100 mb-2">
                 <div class="card-body">
                     <div class="stat-icon">
                         <i class="fas fa-check-circle"></i>
@@ -196,7 +196,7 @@
     <!-- ONTs Sin Liquidar -->
     <div class="col-xl col-md-6">
         <a href="ont_sin_instalar_det.php" style="text-decoration: none; color: inherit;">
-            <div class="card stat-card primary h-100 mb-4">
+            <div class="card stat-card primary h-100 mb-2">
                 <div class="card-body">
                     <div class="stat-icon">
                         <i class="fas fa-hourglass-half"></i>
@@ -211,7 +211,7 @@
     <!-- ONTs Liquidadas -->
     <div class="col-xl col-md-6">
         <a href="ont_instaladas_det.php" style="text-decoration: none; color: inherit;">
-            <div class="card stat-card success h-100 mb-4">
+            <div class="card stat-card success h-100 mb-2">
                 <div class="card-body">
                     <div class="stat-icon">
                         <i class="fas fa-check-double"></i>

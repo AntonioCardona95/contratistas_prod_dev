@@ -36,7 +36,7 @@ html, body {
     height: 100%;
 }
 
-/* Línea de color superior en tarjetas */
+/* LINEA DE COLOR SUPERIOR DE LAS TARJETAS */
 .stat-card::before {
     content: '';
     position: absolute;
@@ -53,14 +53,9 @@ html, body {
     border-color: var(--card-color, #004a9e);
 }
 
-.stat-card .card-body {
-    padding: 1.5rem;
-    position: relative;
-}
-
 .stat-icon {
     font-size: 2rem;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -101,7 +96,7 @@ html, body {
     font-size: 2.2rem;
     font-weight: 700;
     color: #1a1a1a;
-    margin: 0.5rem 0;
+    margin: 0.3rem 0;
 }
 
 .stat-label {
@@ -110,11 +105,7 @@ html, body {
     color: #666;
     font-weight: 600;
     letter-spacing: 0.5px;
-}
-
-.stat-card small {
-    color: #999;
-    font-size: 0.85rem;
+    margin-bottom: 0.3rem;
 }
 
 /* ========== VARIANTES DE COLORES TARJETAS ========== */
