@@ -145,153 +145,149 @@
     }
   }
 ?>
-<!-- Content Row -->
-<div class="row">
+<!-- Content Row - Tarjetas de Estadísticas -->
+<div class="row mb-4">
 
-    <div class="col-xl col-md-6 mb-4">
-        <a href="detalle_ont_disponibles.php" style="text-decoration: none;">
-            <div class="card border-left-danger shadow h-100 py-2">
+    <!-- ONTs Total Sin Asignar -->
+    <div class="col-md-6 col-lg-3">
+        <a href="detalle_ont_disponibles.php" style="text-decoration: none; color: inherit;">
+            <div class="card stat-card danger h-100">
                 <div class="card-body">
-                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">Onts Total Sin Asignar</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($TTotalDisponible); ?></div>
+                    <div class="stat-icon">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <div class="stat-label">ONTs Total Sin Asignar</div>
+                    <div class="stat-number"><?php echo number_format($TTotalDisponible); ?></div>
+                    <small class="text-muted">Total disponible</small>
                 </div>
             </div>
         </a>
     </div>
 
-    <div class="col-xl col-md-6 mb-4">
-        <a href="detalle_ont_disponibles.php" style="text-decoration: none;">
-            <div class="card border-left-warning shadow h-100 py-2">
+    <!-- ONTs Sin Asignar (En Fecha) -->
+    <div class="col-md-6 col-lg-3">
+        <a href="detalle_ont_disponibles.php" style="text-decoration: none; color: inherit;">
+            <div class="card stat-card warning h-100">
                 <div class="card-body">
-                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Onts Sin Asignar (En Fecha)</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($TotalDisponible); ?></div>
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-label">Sin Asignar (En Fecha)</div>
+                    <div class="stat-number"><?php echo number_format($TotalDisponible); ?></div>
+                    <small class="text-muted">Periodo seleccionado</small>
                 </div>
             </div>
         </a>
     </div>
 
-    <div class="col-xl col-md-6 mb-4">
-        <a href="detalle_ont_asignados.php" style="text-decoration: none;">
-            <div class="card border-left-info shadow h-100 py-2">
+    <!-- ONTs Asignadas -->
+    <div class="col-md-6 col-lg-3">
+        <a href="detalle_ont_asignados.php" style="text-decoration: none; color: inherit;">
+            <div class="card stat-card primary h-100">
                 <div class="card-body">
-                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">ONTs Asignadas</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($TotalAsignados); ?></div>
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-label">ONTs Asignadas</div>
+                    <div class="stat-number"><?php echo number_format($TotalAsignados); ?></div>
+                    <small class="text-muted">Técnicos activos</small>
                 </div>
             </div>
         </a>
     </div>
 
-    <div class="col-xl col-md-6 mb-4">
-        <a href="ont_sin_instalar_det.php" style="text-decoration: none;">
-            <div class="card border-left-primary shadow h-100 py-2">
+    <!-- ONTs Sin Liquidar -->
+    <div class="col-md-6 col-lg-3">
+        <a href="ont_sin_instalar_det.php" style="text-decoration: none; color: inherit;">
+            <div class="card stat-card primary h-100">
                 <div class="card-body">
-                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Onts Sin Liquidar</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($TotalSinInstalar); ?></div>
-                </div>
-            </div>
-        </a>
-    </div>
-
-    <div class="col-xl col-md-6 mb-4">
-        <a href="ont_instaladas_det.php" style="text-decoration: none;">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Onts Liquidadas</div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800"><?php echo number_format($TotalInstalados); ?></div>
+                    <div class="stat-icon">
+                        <i class="fas fa-hourglass-half"></i>
+                    </div>
+                    <div class="stat-label">ONTs Sin Liquidar</div>
+                    <div class="stat-number"><?php echo number_format($TotalSinInstalar); ?></div>
+                    <small class="text-muted">En proceso</small>
                 </div>
             </div>
         </a>
     </div>
 
 </div>
-<!-- Content Row -->
+
+<!-- Content Row - Segunda fila de tarjetas -->
+<div class="row mb-4">
+
+    <!-- ONTs Liquidadas -->
+    <div class="col-md-12">
+        <a href="ont_instaladas_det.php" style="text-decoration: none; color: inherit;">
+            <div class="card stat-card success h-100">
+                <div class="card-body">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-double"></i>
+                    </div>
+                    <div class="stat-label">ONTs Liquidadas / Instaladas</div>
+                    <div class="stat-number"><?php echo number_format($TotalInstalados); ?></div>
+                    <small class="text-muted">Completadas exitosamente</small>
+                </div>
+            </div>
+        </a>
+    </div>
+
+</div>
+
+<!-- Content Row - Gráficas -->
 <div class="row">
 
-  <!-- Pastel Chart -->
+  <!-- Gráfica 1: Control de Asignación -->
   <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
-          <!-- Card Header - Dropdown -->
-          <div
-              class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-              <h6 class="m-0 font-weight-bold text-primary">CONTROL DE ASIGNACIÓN DE ONTs</h6>
-              <div class="dropdown no-arrow">
-                  <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                  </a>
-              </div>
+      <div class="card chart-card">
+          <div class="card-header">
+              <h6><i class="fas fa-chart-pie"></i> Control de Asignación de ONTs</h6>
           </div>
-          <!-- Card Body -->
           <div class="card-body">
-            <div id="container" style="width:100%; height:400px;"></div>
+            <div id="container" style="width:100%; height:350px;"></div>
           </div>
       </div>
   </div>
 
+  <!-- Gráfica 2: Coherencia de Reporte -->
   <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
-          <!-- Card Header - Dropdown -->
-          <div
-              class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-              <h6 class="m-0 font-weight-bold text-primary">COHERENCIA DE REPORTE DE ONTs (COORDIAPP. VS. TAC)</h6>
-              <div class="dropdown no-arrow">
-                  <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                  </a>
-              </div>
+      <div class="card chart-card">
+          <div class="card-header">
+              <h6><i class="fas fa-sync-alt"></i> Coherencia de Reporte (COORDIAPP vs TAC)</h6>
           </div>
-          <!-- Card Body -->
           <div class="card-body">
-            <div id="container2" style="width:100%; height:400px;"></div>
+            <div id="container2" style="width:100%; height:350px;"></div>
           </div>
       </div>
   </div>
 
 </div>
-<!-- Content Row -->
+<!-- Content Row - Gráficas por Técnico -->
 <div class="row">
 
-    <!-- Pastel Chart -->
+    <!-- Gráfica: ONTs por Técnico (Asignadas) -->
     <div class="col-xl-6 col-lg-6">
-        <div class="card shadow mb-4">
-            <!-- Card Header - Dropdown -->
-            <div
-                class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">ONTs ASIGNADAS (INVENTARIO ACTIVO) POR TÉCNICO</h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                </div>
+        <div class="card chart-card">
+            <div class="card-header">
+                <h6><i class="fas fa-users"></i> ONTs Asignadas por Técnico</h6>
             </div>
-            <!-- Card Body -->
             <div class="card-body">
-                <div class="chart-area">
+                <div class="chart-container">
                     <canvas id="myPieChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Pastel Chart -->
+    <!-- Gráfica: ONTs Instaladas por Técnico -->
     <div class="col-xl-6 col-lg-6">
-        <div class="card shadow mb-4">
-            <!-- Card Header - Dropdown -->
-            <div
-                class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">ONTs INSTALADAS Y CERRADAS POR TÉCNICO</h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                </div>
+        <div class="card chart-card">
+            <div class="card-header">
+                <h6><i class="fas fa-check-circle"></i> ONTs Instaladas por Técnico</h6>
             </div>
-            <!-- Card Body -->
             <div class="card-body">
-                <div class="chart-area">
+                <div class="chart-container">
                     <canvas id="myPieChart2"></canvas>
                 </div>
             </div>

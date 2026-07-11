@@ -1,5 +1,5 @@
 <!-- SIDE BAR DE CONTRATISTAS -->
-<ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style= "background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a  10%, #224abe 100%); background-size: cover;">
+<ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style= "background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a  100%, #224abe 0%); background-size: cover;">
 
     <!-- BARRA LATERAL TITULO -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="Bienvenida.php">

@@ -142,9 +142,10 @@
                             <h1 class="h3 mb-0 font-weight-bold mt-2">GESTIÓN OPERATIVA DE EQUIPO Y SERVICIOS (ONT)</h1>
                         </div>
                     </div>
-                    
-                    <div id="LoadKPIS">
 
+                    <!-- CONTENEDOR DE KPIs Y GRAFICAS -->
+                    <div id="LoadKPIS" class="dashboard-container">
+                        <!-- Cargado dinámicamente vía AJAX -->
                     </div>
 
                 </div>

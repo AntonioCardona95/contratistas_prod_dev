@@ -1,20 +1,298 @@
-/* CSS GENERAL*/
+/* ========== ESTILOS GENERALES ========== */
 html, body {
-        overscroll-behavior: none;
-        min-height: 100%;
-    }
+    overscroll-behavior: none;
+    min-height: 100%;
+}
 
-/* MODAL HEADER GRADIENT */
+.dashboard-container {
+    background: #f8f9fa;
+    padding: 0;
+}
+
+/* ========== MODAL HEADER ========== */
 .modal-header-gradient {
-        background: linear-gradient(90deg, #007BFF 0%, #003d99 100%) !important;
+    background: linear-gradient(90deg, #004a9e 0%, #0066cc 100%) !important;
+}
+
+/* ========== HERO SECTION ========== */
+.prod-hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #0f766e 100%);
+    color: #fff;
+    border-radius: 12px;
+    padding: 1.5rem 1.75rem;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    margin: 20px 0;
+}
+
+/* ========== TARJETAS DE ESTADÍSTICAS ========== */
+.stat-card {
+    background: #ffffff;
+    border: 1px solid #e8eaed;
+    border-radius: 8px;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    height: 100%;
+}
+
+/* Línea de color superior en tarjetas */
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--card-color, #004a9e);
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    border-color: var(--card-color, #004a9e);
+}
+
+.stat-card .card-body {
+    padding: 1.5rem;
+    position: relative;
+}
+
+.stat-icon {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 8px;
+    background: var(--icon-bg, rgba(0, 74, 158, 0.1));
+    color: var(--card-color, #004a9e);
+}
+
+.details {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+
+.detail-button {
+    position: relative;
+    transition: all 0.2s ease;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.85rem;
+}
+
+.detail-button:hover {
+    transform: translateY(-1px);
+}
+
+.detail-button i {
+    transition: transform 0.2s ease;
+    margin-right: 4px;
+}
+
+.detail-button:hover i {
+    transform: scale(1.1);
+}
+
+.stat-number {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0.5rem 0;
+}
+
+.stat-label {
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    color: #666;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.stat-card small {
+    color: #999;
+    font-size: 0.85rem;
+}
+
+/* ========== VARIANTES DE COLORES TARJETAS ========== */
+.stat-card.primary {
+    --card-color: #004a9e;
+    --icon-bg: rgba(0, 74, 158, 0.1);
+}
+
+.stat-card.success {
+    --card-color: #2d7f3d;
+    --icon-bg: rgba(45, 127, 61, 0.1);
+}
+
+.stat-card.warning {
+    --card-color: #d97a05;
+    --icon-bg: rgba(217, 122, 5, 0.1);
+}
+
+.stat-card.danger {
+    --card-color: #c1121f;
+    --icon-bg: rgba(193, 18, 31, 0.1);
+}
+
+/* ========== TARJETAS DE GRÁFICAS ========== */
+.chart-card {
+    background: #ffffff;
+    border: 1px solid #e8eaed;
+    border-radius: 8px;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    margin-bottom: 20px;
+}
+
+.chart-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.chart-card .card-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e8eaed;
+    border-radius: 8px 8px 0 0;
+    padding: 1.25rem 1.5rem;
+}
+
+.chart-card .card-header h6 {
+    color: #1a1a1a;
+    font-weight: 700;
+    margin: 0;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.chart-card .card-header h6 i {
+    color: #004a9e;
+    font-size: 1.1rem;
+}
+
+.chart-card .card-body {
+    padding: 1.5rem;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+    margin-bottom: 20px;
+}
+
+/* ========== CONTROLES Y SELECTS ========== */
+.chart-card .card-header .d-flex {
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.chart-card .card-header label {
+    color: #666;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+.chart-card .card-header select {
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.9rem;
+    background-color: #fff;
+    color: #333;
+}
+
+.chart-card .card-header select:focus {
+    border-color: #004a9e;
+    box-shadow: 0 0 0 0.2rem rgba(0, 74, 158, 0.25);
+}
+
+/* ========== MODAL ========== */
+.modal-content {
+    border: 1px solid #e8eaed;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+    border-bottom: 1px solid #e8eaed;
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-header .modal-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-header .btn-close,
+.modal-header .btn-light {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: #fff;
+    opacity: 0.8;
+}
+
+.modal-header .btn-light:hover {
+    opacity: 1;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+/* ========== ALERTAS ========== */
+.alert {
+    border-radius: 6px;
+    border: none;
+    padding: 1rem 1.25rem;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* ========== ELEMENTOS DE LA PÁGINA ========== */
+.col-md-3,
+.col-md-6,
+.col-md-12 {
+    margin-bottom: 15px;
+}
+
+/* ========== RESPONSIVO ========== */
+@media (max-width: 768px) {
+    .stat-card {
+        margin-bottom: 15px;
     }
 
-/* HERO PRODUCCION */
-    .prod-hero {
-        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #0f766e 100%);
-        color: #fff;
-        border-radius: 18px;
-        padding: 1.25rem 1.5rem;
-        box-shadow: 0 16px 35px rgba(15, 23, 42, .18);
-        margin: 15px 0px 15px 0px;
+    .chart-card .card-header .d-flex {
+        flex-direction: column;
+        gap: 10px;
     }
+
+    .chart-card .card-header label {
+        white-space: normal;
+    }
+
+    .chart-container {
+        height: 250px;
+    }
+
+    .stat-number {
+        font-size: 1.8rem;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+    }
+}
