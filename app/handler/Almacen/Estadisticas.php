@@ -145,78 +145,79 @@
     }
   }
 ?>
-<!-- Content Row - Tarjetas de Estadísticas -->
+
+<!-- CONTENEDOR DE TARJETAS DE ESTADÍSTICAS -->
 <div class="row mb-4">
 
-    <!-- ONTs Total Sin Asignar -->
+    <!-- 1. TOTAL DE ONT DISPONIBLES -->
     <div class="col-xl col-md-6">
-        <a href="detalle_ont_disponibles.php" style="text-decoration: none; color: inherit;">
+        <a href="#" style="text-decoration: none; color: inherit;" onclick="abrirModalDetalle('disponibles', 'TOTAL DE ONTS DISPONIBLES', 'fas fa-ban'); return false;">
             <div class="card stat-card danger h-100 mb-2">
                 <div class="card-body">
                     <div class="stat-icon">
                         <i class="fas fa-ban"></i>
                     </div>
-                    <div class="stat-label">Onts Total Sin Asignar</div>
+                    <div class="stat-label">TOTAL DE ONTS DISPONIBLES</div>
                     <div class="stat-number"><?php echo number_format($TTotalDisponible); ?></div>
                 </div>
             </div>
         </a>
     </div>
 
-    <!-- ONTs Sin Asignar (En Fecha) -->
+    <!-- 2. ONTS RECIENTES SIN ASIGNAR-->
     <div class="col-xl col-md-6">
-        <a href="detalle_ont_disponibles.php" style="text-decoration: none; color: inherit;">
+        <a href="#" style="text-decoration: none; color: inherit;" onclick="abrirModalDetalle('disponibles', 'ONTS RECIENTES SIN ASIGNAR', 'fas fa-clock'); return false;">
             <div class="card stat-card warning h-100 mb-2">
                 <div class="card-body">
                     <div class="stat-icon">
                         <i class="fas fa-clock"></i>
                     </div>
-                    <div class="stat-label">Onts Sin Asignar (En Fecha)</div>
+                    <div class="stat-label">ONTS RECIENTES SIN ASIGNAR</div>
                     <div class="stat-number"><?php echo number_format($TotalDisponible); ?></div>
                 </div>
             </div>
         </a>
     </div>
 
-    <!-- ONTs Asignadas -->
+    <!-- 3. ONTS ASIGNADAS -->
     <div class="col-xl col-md-6">
-        <a href="detalle_ont_asignados.php" style="text-decoration: none; color: inherit;">
+        <a href="#" style="text-decoration: none; color: inherit;" onclick="abrirModalDetalle('asignadas', 'ONTS ASIGNADAS', 'fas fa-check-circle'); return false;">
             <div class="card stat-card primary h-100 mb-2">
                 <div class="card-body">
                     <div class="stat-icon">
                         <i class="fas fa-check-circle"></i>
                     </div>
-                    <div class="stat-label">ONTs Asignadas</div>
+                    <div class="stat-label">ONTS ASIGNADAS</div>
                     <div class="stat-number"><?php echo number_format($TotalAsignados); ?></div>
                 </div>
             </div>
         </a>
     </div>
 
-    <!-- ONTs Sin Liquidar -->
+    <!-- 4. ONTS SIN LIQUIDAR -->
     <div class="col-xl col-md-6">
-        <a href="ont_sin_instalar_det.php" style="text-decoration: none; color: inherit;">
+        <a href="#" style="text-decoration: none; color: inherit;" onclick="abrirModalDetalle('sinliquidar', 'ONTS SIN LIQUIDAR', 'fas fa-hourglass-half'); return false;">
             <div class="card stat-card primary h-100 mb-2">
                 <div class="card-body">
                     <div class="stat-icon">
                         <i class="fas fa-hourglass-half"></i>
                     </div>
-                    <div class="stat-label">Onts Sin Liquidar</div>
+                    <div class="stat-label">ONTS SIN LIQUIDAR</div>
                     <div class="stat-number"><?php echo number_format($TotalSinInstalar); ?></div>
                 </div>
             </div>
         </a>
     </div>
 
-    <!-- ONTs Liquidadas -->
+    <!-- 5. ONTS LIQUIDADAS -->
     <div class="col-xl col-md-6">
-        <a href="ont_instaladas_det.php" style="text-decoration: none; color: inherit;">
+        <a href="#" style="text-decoration: none; color: inherit;" onclick="abrirModalDetalle('liquidadas', 'ONTS LIQUIDADAS', 'fas fa-check-double'); return false;">
             <div class="card stat-card success h-100 mb-2">
                 <div class="card-body">
                     <div class="stat-icon">
                         <i class="fas fa-check-double"></i>
                     </div>
-                    <div class="stat-label">Onts Liquidadas</div>
+                    <div class="stat-label">ONTS LIQUIDADAS</div>
                     <div class="stat-number"><?php echo number_format($TotalInstalados); ?></div>
                 </div>
             </div>
@@ -436,4 +437,77 @@ function buildBarChart(canvasId, labels, data, labelText) {
 // Crear los dos gráficos de barras usando los datos inyectados desde PHP
 buildBarChart('myPieChart', chart_tecnicos_labels, chart_tecnicos_data, 'ONT');
 buildBarChart('myPieChart2', chart_instalados_labels, chart_instalados_data, 'ONT');
+
+// FUNCIÓN PARA ABRIR EL MODAL Y CARGAR EL CONTENIDO CORRESPONDIENTE
+function abrirModalDetalle(tipo, titulo, icono) {
+    // Actualizar el título del modal con icono
+    $('#detallesModalTitle').html('<i class="' + icono + '" style="color: white; margin-right: 8px;"></i> ' + titulo);
+    
+    // Mostrar el modal
+    $('#detallesModal').modal('show');
+    
+    // Cargar los datos correspondientes
+    cargarDetallesPorTipo(tipo);
+}
+
+// FUNCIÓN PARA CARGAR LOS DETALLES SEGÚN EL TIPO
+function cargarDetallesPorTipo(tipo) {
+    var fecha1 = $('#fecha').val();
+    var fecha2 = $('#fechaFinal').val();
+    
+    var urlMap = {
+        'disponibles': 'Estadisticas_TablaOntDisponiblesDet.php',
+        'asignadas': 'Estadisticas_TablaOntAsignadosDet.php',
+        'sinliquidar': 'Estadisticas_TablaOntSinInstalarDet.php',
+        'liquidadas': 'Estadisticas_TablaOntInstaladosDet.php'
+    };
+    
+    var archivo = urlMap[tipo] || 'Estadisticas_TablaOntDisponiblesDet.php';
+    
+    $.ajax({
+        type: 'POST',
+        url: archivo,
+        data: {
+            Fecha1: fecha1,
+            Fecha2: fecha2
+        },
+        beforeSend: function() {
+            $('#detallesContenido').html('<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Cargando datos...</div>');
+        },
+        success: function(data) {
+            $('#detallesContenido').html(data);
+        },
+        error: function() {
+            $('#detallesContenido').html('<div class="alert alert-danger"><i class="fas fa-exclamation-circle"></i> Error al cargar los datos</div>');
+        }
+    });
+}
+
+// LIMPIAR AL CERRAR EL MODAL
+$('#detallesModal').on('hidden.bs.modal', function(e) {
+    if ($.fn.DataTable.isDataTable('#modalTable')) {
+        $('#modalTable').DataTable().destroy();
+    }
+    $('#detallesContenido').empty();
+});
 </script>
+
+<!-- MODAL GENERAL PARA VER DETALLES -->
+<div class="modal fade" id="detallesModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-header-gradient text-white border-0 align-items-center">
+                <h5 class="modal-title" id="detallesModalTitle"><i class="fas fa-table"></i> Detalles</h5>
+                <button type="button" class="btn btn-light" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- TABLA CARGADA VÍA AJAX -->
+                <div id="detallesContenido">
+                    <!-- EL CONTENIDO DE LA TABLA SE CARGA AQUÍ -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

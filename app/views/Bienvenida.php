@@ -37,7 +37,7 @@ $css = ['../css/Bienvenida.css']
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow" style="padding: 0.75rem 1.75rem;">
                     <div class="container-fluid p-0 d-flex align-items-center justify-content-between">
                         <div>
-                            <h6 class="m-0 font-weight-bold" style="color: #224abe;">Portal de Contratistas</h6>
+                            <h6 class="m-0 font-weight-bold" style="color: #0f172a;">Portal de Contratistas</h6>
                         </div>
                         <ul class="navbar-nav ml-auto align-items-center">
                             <li class="nav-item dropdown no-arrow">
