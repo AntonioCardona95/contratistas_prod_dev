@@ -149,85 +149,75 @@
 <div class="row mb-4">
 
     <!-- ONTs Total Sin Asignar -->
-    <div class="col-md-6 col-lg-3">
+    <div class="col-xl col-md-6">
         <a href="detalle_ont_disponibles.php" style="text-decoration: none; color: inherit;">
-            <div class="card stat-card danger h-100">
+            <div class="card stat-card danger h-100 mb-4">
                 <div class="card-body">
                     <div class="stat-icon">
                         <i class="fas fa-ban"></i>
                     </div>
-                    <div class="stat-label">ONTs Total Sin Asignar</div>
+                    <div class="stat-label">Onts Total Sin Asignar</div>
                     <div class="stat-number"><?php echo number_format($TTotalDisponible); ?></div>
-                    <small class="text-muted">Total disponible</small>
                 </div>
             </div>
         </a>
     </div>
 
     <!-- ONTs Sin Asignar (En Fecha) -->
-    <div class="col-md-6 col-lg-3">
+    <div class="col-xl col-md-6">
         <a href="detalle_ont_disponibles.php" style="text-decoration: none; color: inherit;">
-            <div class="card stat-card warning h-100">
+            <div class="card stat-card warning h-100 mb-4">
                 <div class="card-body">
                     <div class="stat-icon">
                         <i class="fas fa-clock"></i>
                     </div>
-                    <div class="stat-label">Sin Asignar (En Fecha)</div>
+                    <div class="stat-label">Onts Sin Asignar (En Fecha)</div>
                     <div class="stat-number"><?php echo number_format($TotalDisponible); ?></div>
-                    <small class="text-muted">Periodo seleccionado</small>
                 </div>
             </div>
         </a>
     </div>
 
     <!-- ONTs Asignadas -->
-    <div class="col-md-6 col-lg-3">
+    <div class="col-xl col-md-6">
         <a href="detalle_ont_asignados.php" style="text-decoration: none; color: inherit;">
-            <div class="card stat-card primary h-100">
+            <div class="card stat-card primary h-100 mb-4">
                 <div class="card-body">
                     <div class="stat-icon">
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="stat-label">ONTs Asignadas</div>
                     <div class="stat-number"><?php echo number_format($TotalAsignados); ?></div>
-                    <small class="text-muted">Técnicos activos</small>
                 </div>
             </div>
         </a>
     </div>
 
     <!-- ONTs Sin Liquidar -->
-    <div class="col-md-6 col-lg-3">
+    <div class="col-xl col-md-6">
         <a href="ont_sin_instalar_det.php" style="text-decoration: none; color: inherit;">
-            <div class="card stat-card primary h-100">
+            <div class="card stat-card primary h-100 mb-4">
                 <div class="card-body">
                     <div class="stat-icon">
                         <i class="fas fa-hourglass-half"></i>
                     </div>
-                    <div class="stat-label">ONTs Sin Liquidar</div>
+                    <div class="stat-label">Onts Sin Liquidar</div>
                     <div class="stat-number"><?php echo number_format($TotalSinInstalar); ?></div>
-                    <small class="text-muted">En proceso</small>
                 </div>
             </div>
         </a>
     </div>
 
-</div>
-
-<!-- Content Row - Segunda fila de tarjetas -->
-<div class="row mb-4">
-
     <!-- ONTs Liquidadas -->
-    <div class="col-md-12">
+    <div class="col-xl col-md-6">
         <a href="ont_instaladas_det.php" style="text-decoration: none; color: inherit;">
-            <div class="card stat-card success h-100">
+            <div class="card stat-card success h-100 mb-4">
                 <div class="card-body">
                     <div class="stat-icon">
                         <i class="fas fa-check-double"></i>
                     </div>
-                    <div class="stat-label">ONTs Liquidadas / Instaladas</div>
+                    <div class="stat-label">Onts Liquidadas</div>
                     <div class="stat-number"><?php echo number_format($TotalInstalados); ?></div>
-                    <small class="text-muted">Completadas exitosamente</small>
                 </div>
             </div>
         </a>
