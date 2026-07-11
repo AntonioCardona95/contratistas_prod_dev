@@ -456,13 +456,13 @@ function cargarDetallesPorTipo(tipo) {
     var fecha2 = $('#fechaFinal').val();
     
     var urlMap = {
-        'disponibles': 'Estadisticas_TablaOntDisponiblesDet.php',
-        'asignadas': 'Estadisticas_TablaOntAsignadosDet.php',
-        'sinliquidar': 'Estadisticas_TablaOntSinInstalarDet.php',
-        'liquidadas': 'Estadisticas_TablaOntInstaladosDet.php'
+        'disponibles': '/handler/Almacen/Estadisticas_TablaOntDisponiblesDet.php',
+        'asignadas': '/handler/Almacen/Estadisticas_TablaOntAsignadosDet.php',
+        'sinliquidar': '/handler/Almacen/Estadisticas_TablaOntSinInstalarDet.php',
+        'liquidadas': '/handler/Almacen/Estadisticas_TablaOntInstaladosDet.php'
     };
     
-    var archivo = urlMap[tipo] || 'Estadisticas_TablaOntDisponiblesDet.php';
+    var archivo = urlMap[tipo] || '/handler/Almacen/Estadisticas_TablaOntDisponiblesDet.php';
     
     $.ajax({
         type: 'POST',
