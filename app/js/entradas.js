@@ -1,3 +1,9 @@
+function limpiarFiltros() {
+    $('#fechaInicio').val('');
+    $('#fechaFin').val('');
+    LoadEntradas();
+}
+
 function LoadEntradas() {
     var parametros = $('#FormQueryUnidades').serialize();
 

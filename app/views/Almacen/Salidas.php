@@ -13,6 +13,11 @@
     $Contratista = $_SESSION['Contratista'];
     $idContratistas = $_SESSION['idContratistas'];
 
+    $fechaDefault = $_POST['fechaInicio'] ?? date('Y-m-d', strtotime('-2 months'));
+    $fechaDefaultFinal = $_POST['fechaFin'] ?? date('Y-m-d');
+    $hoy = date('Y-m-d');
+    $maximo = "2022-08-01";
+
     if (empty($idContratistas)) {
         header("location: ../Login/modal/poweroff.php");
     }
@@ -39,24 +44,23 @@
                 <!-- Topbar -->
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-12 static-top shadow">
 
-                    <!-- Sidebar Toggle (Topbar) -->
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
                         <i class="fa fa-bars"></i>
                     </button>
 
-                    <!-- Topbar Search -->
-                    <form class="col-xl-10 col-md-10 mb-10" id="FormQueryUnidades">
+                    <form id="FormQueryUnidades" style="display: contents;">
                         <div class="input-group">
-
-                            <input type="date" name="Fecha1" id="Fecha1" class="form-control bg-light border-0 small" onchange="LoadSalidas();" 
+                            <input type="date" name="fechaInicio" id="fechaInicio" value="<?= htmlspecialchars($fechaDefault) ?>" style="max-width: 400px; min-width: 150px;"
+                                class="form-control bg-light border-0 small mr-2" min="<?= htmlspecialchars($maximo) ?>" max="<?= htmlspecialchars($hoy) ?>" onchange="LoadSalidas();"
                                 aria-label="AL" aria-describedby="basic-addon2">
 
-                            <input type="date" name="Fecha2" id="Fecha2" class="form-control bg-light border-0 small" onchange="LoadSalidas();" 
+                            <input type="date" name="fechaFin" id="fechaFin" value="<?= htmlspecialchars($fechaDefaultFinal) ?>" style="max-width: 400px; min-width: 150px;"
+                                class="form-control bg-light border-0 small mr-2" min="<?= htmlspecialchars($maximo) ?>" max="<?= htmlspecialchars($hoy) ?>" onchange="LoadSalidas();"
                                 aria-label="AL" aria-describedby="basic-addon2">
-                            
+
                             <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
-                                    <i class="fas fa-search fa-sm"></i>
+                                <button type="button" class="btn btn-sm btn-danger mr-2" onclick="limpiarFiltros()" title="Limpiar filtros">
+                                    <i class="fas fa-eraser"></i>
                                 </button>
                             </div>
 
@@ -70,20 +74,16 @@
                         </div>
                     </form>
 
-                    <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
-
                         <div class="topbar-divider d-none d-sm-block"></div>
 
-                        <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?php echo $Contratista;?></span>
                                 <img class="img-profile rounded-circle"
-                                    src="img/undraw_profile.svg">
+                                    src="../../img/undraw_profile.svg">
                             </a>
-                            <!-- Dropdown - User Information -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="userDropdown">
                                 <a class="dropdown-item" href="#">
@@ -97,9 +97,7 @@
                                 </a>
                             </div>
                         </li>
-
                     </ul>
-
                 </nav>
                 <!-- End of Topbar -->
 

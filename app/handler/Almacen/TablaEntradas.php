@@ -11,19 +11,20 @@
     $Contratista = $_SESSION['Contratista'];
     $idContratistas = $_SESSION['idContratistas'];
 
-    $Fecha1 = $_POST['Fecha1'];
-    $Fecha2 = $_POST['Fecha2'];
+    $fechaInicio = $_POST['fechaInicio'] ?? $_POST['Fecha1'] ?? '';
+    $fechaFin = $_POST['fechaFin'] ?? $_POST['Fecha2'] ?? '';
 
-    $mes_anterior = date('Y-m-d', strtotime('-1 month'));
+    $fechaInicioDefault = date('Y-m-d', strtotime('-2 months'));
+    $fechaFinDefault = date('Y-m-d');
 
-    if(empty($Fecha1)){
-        $Fecha1 = $mes_anterior." 00:00:00";
-        $Fecha2 = date('Y-m-d')." 23:59:59";
-		$filas = $modal->Entradas($idContratistas,$Fecha1,$Fecha2);
-    }elseif(!empty($Fecha1) && !empty($Fecha2)){
-        $Fecha1 = $_POST['Fecha1']." 00:00:00"; 
-        $Fecha2 = $_POST['Fecha2']." 23:59:59";
-		$filas = $modal->Entradas($idContratistas,$Fecha1,$Fecha2);
+    if(empty($fechaInicio)){
+        $fechaInicio = $fechaInicioDefault;
+        $fechaFin = $fechaFinDefault;
+        $filas = $modal->Entradas($idContratistas, $fechaInicio . " 00:00:00", $fechaFin . " 23:59:59");
+    }elseif(!empty($fechaInicio) && !empty($fechaFin)){
+        $fechaInicio = $fechaInicio . " 00:00:00"; 
+        $fechaFin = $fechaFin . " 23:59:59";
+        $filas = $modal->Entradas($idContratistas, $fechaInicio, $fechaFin);
     }
 ?>
 <div class="table-responsive">
