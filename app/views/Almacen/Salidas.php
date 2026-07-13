@@ -25,6 +25,8 @@
 ?>
 <!DOCTYPE html>
 <html lang="en">
+    <!-- INSERTAR EL CSS -->
+<?php  $css = ['/../../css/DashboardAlmacen.css'] ?>
 <?php include __DIR__ . '/../../components/HeadContratistas.php'; ?>
 
 <body id="page-top">

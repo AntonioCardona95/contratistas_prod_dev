@@ -4,6 +4,20 @@ html, body {
     min-height: 100%;
 }
 
+/* PARA QUE EL SEARCH NO SE PEGUE CON LA TABLA	*/
+.dt-search{
+	margin-top: -10px;
+}
+/* PARA QUE LA PAGINACION NO SE PEGUE CON LA TABLA */
+.dt-paging{
+	margin-top: 10px;
+}
+/* PARA QUE LOS BOTONES NO SE PEGUEN CON LA TABLA */
+.dt-buttons {
+    margin-bottom: 10px;
+	margin-top: -5px;
+}
+
 .dashboard-container {
     background: #f8f9fa;
     padding: 0;
