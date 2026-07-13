@@ -65,46 +65,35 @@
 </table>
 <script>
 	$(document).ready(function () {
-        // Destruir DataTable anterior si existe
         if ($.fn.DataTable.isDataTable('#modalTable')) {
             $('#modalTable').DataTable().destroy();
         }
         
-        let table = new DataTable('#modalTable', {
-            fixedColumns: {
-                start: 1,
-                end: 1
-            },
-            responsive:true,
-            'language':{
-                'URL':'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'
-            },
-            "ordering": false,
-            "searching": true,
-			"scrollY": true,
-			"scrollX": true
-        });
-    
-        new DataTable.Buttons(table, {
-                buttons: [
-                    {
-                        extend:    'excelHtml5',
-                        text:      '<i class="fas fa-file-excel"></i> ',
-                        titleAttr: 'Exportar a Excel',
-                        className: 'btn btn-success'
-                    },
-                    {
-                        extend:    'pdfHtml5',
-                        text:      '<i class="fas fa-file-pdf"></i> ',
-                        titleAttr: 'Exportar a PDF',
-                        className: 'btn btn-danger'
-                    }
-                ],
-        });
+        var dtConfig = {
+            responsive: true,
+            language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
+            ordering: true,
+            searching: true,
+            paging: true,
+            pageLength: 10,
+            scrollY: true,
+            dom: '<"d-flex justify-content-between align-items-center" Bf>' +
+                 'rt' +
+                 '<"row"<"col-md-12 text-right"p>>',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
+                    titleAttr: 'Exportar a Excel',
+                    className: 'btn btn-success'
+                }
+            ],
+            initComplete: function() {
+                $('#detallesFilter').append($('.dataTables_filter'));
+                $('#detallesPaginationBottom').append($('.dataTables_paginate'));
+            }
+        };
         
-        table
-            .buttons(0, null)
-            .container()
-            .prependTo(table.table().container());
+        let table = new DataTable('#modalTable', dtConfig);
 	});
 </script>
