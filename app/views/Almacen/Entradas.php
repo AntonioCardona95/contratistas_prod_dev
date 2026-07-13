@@ -98,8 +98,12 @@
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 
-                    <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">ENTRADAS DE MATERIAL</h1>
+                    <!-- TITULO -->
+                    <div class="prod-hero">
+                        <div class="d-sm-flex align-items-center justify-content-between">
+                            <h1 class="h3 mb-0 font-weight-bold mt-2">MATERIAL RECIBIDO</h1>
+                        </div>
+                    </div>
 
                     <!-- CONTENEDOR DE DATOS OPTIMIZADO -->
                     <div class="card shadow mb-4 table-container">
