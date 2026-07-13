@@ -101,9 +101,11 @@
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">ENTRADAS DE MATERIAL</h1>
 
-                    <!-- DataTales Example -->
-                    <div id="LoadEntradas">
-
+                    <div class="card-body p-0">
+                        <!-- CONTENEDOR DE LA TABLA -->
+                        <div id="LoadEntradas" class="p-3">
+                            <!-- AQUI SE CARGAN TODOS LOS DATOS QUE VIENEN DE ENTRADAS.JS -->
+                        </div>
                     </div>
 
                 </div>

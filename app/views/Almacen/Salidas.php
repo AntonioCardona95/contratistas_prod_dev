@@ -26,7 +26,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <!-- INSERTAR EL CSS -->
-<?php  $css = ['/../../css/DashboardAlmacen.css'] ?>
+<?php  $css = ['/../../css/Salidas.css'] ?>
 <?php include __DIR__ . '/../../components/HeadContratistas.php'; ?>
 
 <body id="page-top">
@@ -109,9 +109,11 @@
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">MATERIAL ASIGNADO A MIS TECNICOS</h1>
 
-                    <!-- DataTales Example -->
-                    <div id="LoadSalidas">
-
+                    <div class="card-body p-0">
+                        <!-- CONTENEDOR DE LA TABLA -->
+                        <div id="LoadSalidas" class="p-3">
+                            <!-- AQUI SE CARGAN TODOS LOS DATOS QUE VIENEN DE SALIDAS.JS -->
+                        </div>
                     </div>
 
                 </div>
