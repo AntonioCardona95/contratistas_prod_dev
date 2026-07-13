@@ -26,6 +26,7 @@
         $fechaFin = $fechaFin . " 23:59:59";
         $filas = $modal->Salidas($idContratistas, $fechaInicio, $fechaFin);
     }
+    $filas = $filas ?? [];
 ?>
 <div class="table-responsive">
     <table class="table table-bordered display nowrap" style="width:100%" id="ventas">
@@ -49,27 +50,24 @@
                 <th>Accion</th>
             </tr>
         </tfoot>
-        <?php
-            if(!empty($filas)){
-                foreach($filas as $row){
-                    echo "
-                        <tr>
-                            <td>".$row['Folio_Salida_T']."</td>
-                            <td>".$row['Contratista']."</td>
-                            <td>".$row['Tecnico']."</td>
-                            <td>".$row['Cantidad_T']."</td>
-                            <td>".$row['Fecha_T']."</td>
-                            <td>
-                                <a href='modal/SalidasDet.php?id=".$row['Folio_Salida_T']."'>
-                                    <button type='button' class='btn btn-danger' data-toggle='modal' data-target='#modalForm'>
-                                        <i class='fa-solid fa-file-lines'></i>
-                                    </button>
-                                </a>
-                            </td>
-                        </tr>";
-                }
-            }
-        ?>
+        <tbody>
+            <?php foreach ($filas as $r): ?>
+                <tr>
+                    <td><?= $r['Folio_Salida_T'] ?? '' ?></td>
+                    <td><?= strtoupper($r['Contratista'] ?? '') ?></td>
+                    <td><?= strtoupper($r['Tecnico'] ?? '') ?></td>
+                    <td><?= number_format($r['Cantidad_T'] ?? 0) ?></td>
+                    <td><?= $r['Fecha_T'] ?? '' ?></td>
+                    <td>
+                        <button type="button" class="btn btn-dark open-details" title="VER DETALLES"
+                            data-entrada-folio="<?= $r['Folio_Salida_T'] ?? '' ?>"
+                            data-entrada-id="<?= $r['Folio_Salida_T'] ?? '' ?>">
+                            <i class="fas fa-table"></i>
+                        </button>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
     </table>
 </div>
 <script>

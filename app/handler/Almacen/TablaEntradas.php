@@ -26,6 +26,7 @@
         $fechaFin = $fechaFin . " 23:59:59";
         $filas = $modal->Entradas($idContratistas, $fechaInicio, $fechaFin);
     }
+    $filas = $filas ?? [];
 ?>
 <div class="table-responsive">
     <table class="table table-bordered display nowrap" style="width:100%" id="ventas">
@@ -51,28 +52,27 @@
                 <th>Accion</th>
             </tr>
         </tfoot>
-        <?php
-            if(!empty($filas)){
-                foreach($filas as $row){
-                    echo "
-                    <tr>
-                        <td>".$row['Folio_Salida_ST']."</td>
-                        <td>".$row['Almacen']."</td>
-                        <td>".$row['Contratista']."</td>
-                        <td>".$row['Tipo_MovS_T']."</td>
-                        <td>".$row['Cantidad_ST']."</td>
-                        <td>".$row['Fecha_Salida_ST']."</td>
-                        <td>
-                            <a href='modal/EntradasDet.php?id=".$row['Folio_Salida_ST']."'>
-                                <button type='button' class='btn btn-danger' data-toggle='modal' data-target='#modalForm'>
-                                    <i class='fa-solid fa-file-lines'></i>
-                                </button>
-                            </a>
-                        </td>
-                    </tr>";
-                }
-            }
-        ?>
+        <tbody>
+            <?php foreach ($filas as $r): ?>
+                <tr>
+                    <td>
+                        ED-E-<?= $r['Folio_Salida_ST'] ?? '' ?>
+                    </td>
+                    <td><?= strtoupper($r['Almacen'] ?? '') ?></td>
+                    <td><?= strtoupper($r['Contratista'] ?? '') ?></td>
+                    <td><?= strtoupper($r['Tipo_MovS_T'] ?? '') ?></td>
+                    <td><?= number_format($r['Cantidad_ST'] ?? 0) ?></td>
+                    <td><?= $r['Fecha_Salida_ST'] ?? '' ?></td>
+                    <td>
+                        <button type="button" class="btn btn-dark open-details" title="VER DETALLES"
+                            data-entrada-folio="<?= $r['Folio_Salida_ST'] ?? '' ?>"
+                            data-entrada-id="<?= $r['Folio_Salida_ST'] ?? '' ?>">
+                            <i class="fas fa-table"></i>
+                        </button>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
     </table>
 </div>
 <script>

@@ -4,10 +4,6 @@ html, body {
     min-height: 100%;
 }
 
-/* PARA QUE EL SEARCH NO SE PEGUE CON LA TABLA	*/
-.dt-search{
-	margin-top: -10px;
-}
 /* PARA QUE LA PAGINACION NO SE PEGUE CON LA TABLA */
 .dt-paging{
 	margin-top: 10px;
