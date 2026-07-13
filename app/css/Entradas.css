@@ -22,3 +22,15 @@ html, body {
 .modal-header-gradient {
     background: linear-gradient(90deg, #0f172a 0%, #0066cc 100%) !important;
 }
+
+th{
+    text-align: center;
+}
+
+td{
+    text-align: center;
+}
+
+tr{
+    text-align: center;
+}

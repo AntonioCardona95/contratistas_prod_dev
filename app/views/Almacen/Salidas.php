@@ -109,10 +109,14 @@
                     <!-- Page Heading -->
                     <h1 class="h3 mb-2 text-gray-800">MATERIAL ASIGNADO A MIS TECNICOS</h1>
 
-                    <div class="card-body p-0">
-                        <!-- CONTENEDOR DE LA TABLA -->
-                        <div id="LoadSalidas" class="p-3">
-                            <!-- AQUI SE CARGAN TODOS LOS DATOS QUE VIENEN DE SALIDAS.JS -->
+                    <!-- CONTENEDOR DE DATOS OPTIMIZADO -->
+                    <div class="card shadow mb-4 table-container">
+
+                        <div class="card-body p-0">
+                            <!-- CONTENEDOR DE LA TABLA -->
+                            <div id="LoadSalidas" class="p-3">
+                                <!-- AQUI SE CARGAN TODOS LOS DATOS QUE VIENEN DE SALIDAS.JS -->
+                            </div>
                         </div>
                     </div>
 
