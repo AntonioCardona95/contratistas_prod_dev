@@ -87,11 +87,15 @@
             ordering: true,
             searching: true,
             paging: true,
+            info: true,
             pageLength: 10,
             scrollY: true,
-            dom: '<"d-flex justify-content-between align-items-center" Bf>' +
+            columnDefs: [
+                { className: 'text-center', targets: '_all' }
+            ],
+            dom: '<"row mb-2"<"col-sm-12 col-md-6"B><"col-sm-12 col-md-6 text-right"f>>' +
                  'rt' +
-                 '<"row"<"col-md-12 text-right"p>>',
+                 '<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6 text-right"p>>',
             buttons: [
                 {
                     extend: 'excelHtml5',
@@ -101,8 +105,12 @@
                 }
             ],
             initComplete: function() {
-                $('#detallesFilter').append($('.dataTables_filter'));
-                $('#detallesPaginationBottom').append($('.dataTables_paginate'));
+                if ($('#detallesFilter').length) {
+                    $('#detallesFilter').append($('.dataTables_filter'));
+                }
+                if ($('#detallesPaginationBottom').length) {
+                    $('#detallesPaginationBottom').append($('.dataTables_paginate'));
+                }
             }
         };
 
