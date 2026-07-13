@@ -7,7 +7,7 @@
     date_default_timezone_set('America/Monterrey');
     
     require_once __DIR__ . '/../../controller/ClassOps.php';
-    require_once __DIR__ . '/../../modal/cargar.php';
+    // require_once __DIR__ . '/../../modal/cargar.php';
 
     session_start();
     $Contratista = $_SESSION['Contratista'];
