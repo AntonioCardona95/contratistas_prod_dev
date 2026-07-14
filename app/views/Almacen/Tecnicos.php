@@ -22,8 +22,8 @@
     $totalTecnicos = count($tecnicos);
 
 ?>
-
 <!DOCTYPE html>
+
 <html lang="en">
 
 <!-- INSERTAR EL CSS -->
