@@ -4,6 +4,11 @@ if (!defined('APP_PATH')) {
     define('APP_PATH', dirname(__DIR__));
 }
 
+// DEFINIR BASE_URL PARA ENLACES ABSOLUTOS EN EL FRONTEND
+if (!defined('BASE_URL')) {
+    define('BASE_URL', ''); // Cambiar a '/erp' si tu app está dentro de /erp
+}
+
 class Conexion
 {
     public function get_conexion()
