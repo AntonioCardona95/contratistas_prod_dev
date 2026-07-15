@@ -411,7 +411,7 @@
             $rows = null;
             $conexion = $this->get_conexion();
             $sql="SELECT t.*, c.COPE AS Cope FROM tecnicos t
-            LEFT JOIN copes c ON t.FK_Cope = c.id
+            LEFT JOIN copes c ON t.FK_Cope_Tecnico = c.id
             WHERE t.FK_Contratista_Tecnico = :FK_Contratista_Tecnico AND t.Estatus_Tecnico = 'ACTIVO'
             ORDER BY t.Nombre_T ASC";
             $statement = $conexion->prepare($sql);
