@@ -20,6 +20,12 @@
     $Fecha1 = $_POST['Fecha1'] ?? '';
     $Fecha2 = $_POST['Fecha2'] ?? '';
     $mes_anterior = date('Y-m-d', strtotime('-1 month'));
+
+    require_once(__DIR__ . '/../../controller/ClassSubModulos.php');
+
+    $subModulos = new SubModulos();
+    $submodulos_operaciones = $subModulos->ObtenerOperaciones();
+    $submodulos_almacen = $subModulos->ObtenerAlmacen();
     
 ?>
 <!DOCTYPE html>
