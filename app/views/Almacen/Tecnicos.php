@@ -24,10 +24,10 @@
 ?>
 <!DOCTYPE html>
 
-<html lang="en">
+<html lang="es">
 
 <!-- INSERTAR EL CSS -->
-<?php $css = ['/../../css/DashboardAlmacen.css'] ?>
+<?php $css = ['/../../css/Tecnicos.css'] ?>
 <?php include __DIR__ . '/../../components/HeadContratistas.php'; ?>
 
 <body id="page-top">
@@ -81,21 +81,20 @@
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">TÉCNICOS</h1>
-                        <div class="text-right">
-                            <span class="badge badge-primary">Total: <?php echo $totalTecnicos; ?></span>
+                    <div class="prod-hero">
+                        <div class="page-header-section">
+                            <h1>TÉCNICOS</h1>
+                            <span class="badge-total">Total: <?php echo $totalTecnicos; ?></span>
                         </div>
                     </div>
 
-                    <div class="row">
-                        <?php if ($totalTecnicos === 0) : ?>
-                            <div class="col-12">
-                                <div class="alert alert-info" role="alert">
-                                    No se encontraron técnicos activos para este contratista.
-                                </div>
-                            </div>
-                        <?php else : ?>
+                    <?php if ($totalTecnicos === 0) : ?>
+                        <div class="alert alert-empty" role="alert">
+                            <i class="fas fa-users"></i>
+                            No se encontraron técnicos activos para este contratista.
+                        </div>
+                    <?php else : ?>
+                        <div class="tecnicos-grid">
                             <?php foreach ($tecnicos as $tecnico) : ?>
                                 <?php
                                     $nombreCompleto = trim(($tecnico['Nombre_T'] ?? '') . ' ' . ($tecnico['Apellidos_T'] ?? ''));
@@ -103,19 +102,29 @@
                                     $expediente = $tecnico['NExpediente'] ?? 'N/A';
                                     $cope = $tecnico['Cope'] ?? 'SIN COPE';
                                 ?>
-                                <div class="col-12 col-md-6 col-lg-4 mb-4">
-                                    <div class="card shadow h-100">
-                                        <div class="card-body">
-                                            <h5 class="card-title mb-2"><?php echo htmlspecialchars($nombreCompleto ?: 'Técnico sin nombre'); ?></h5>
-                                            <p class="card-text mb-1"><strong>Expediente:</strong> <?php echo htmlspecialchars($expediente); ?></p>
-                                            <p class="card-text mb-1"><strong>Teléfono:</strong> <?php echo htmlspecialchars($telefono); ?></p>
-                                            <p class="card-text mb-0"><strong>COPE:</strong> <?php echo htmlspecialchars($cope); ?></p>
+                                <div class="tecnico-card">
+                                    <div class="card-body">
+                                        <div class="tecnico-nombre"><?php echo htmlspecialchars($nombreCompleto ?: 'Técnico sin nombre'); ?></div>
+                                        
+                                        <div class="tecnico-info-item info-expediente">
+                                            <span class="tecnico-info-label">Expediente</span>
+                                            <span class="tecnico-info-value"><?php echo htmlspecialchars($expediente); ?></span>
+                                        </div>
+                                        
+                                        <div class="tecnico-info-item info-telefono">
+                                            <span class="tecnico-info-label">Teléfono</span>
+                                            <span class="tecnico-info-value"><?php echo htmlspecialchars($telefono); ?></span>
+                                        </div>
+                                        
+                                        <div class="tecnico-info-item info-cope">
+                                            <span class="tecnico-info-label">COPE</span>
+                                            <span class="tecnico-info-value"><?php echo htmlspecialchars($cope); ?></span>
                                         </div>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
-                        <?php endif; ?>
-                    </div>
+                        </div>
+                    <?php endif; ?>
 
                 </div>
                 <!-- /.container-fluid -->
@@ -159,6 +168,16 @@
 
     <!-- IMPORTAR SCRIPTS -->
     <?php include_once __DIR__ . '/../../components/ScriptContratistas.php'; ?>
+    
+    <script>
+        // Efecto de carga suave
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.tecnico-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = (index * 0.05) + 's';
+            });
+        });
+    </script>
 
 </body>
 
