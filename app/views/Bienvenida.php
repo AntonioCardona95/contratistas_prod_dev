@@ -12,7 +12,8 @@ if (empty($Contratista)) {
     exit;
 }
 
-require_once(__DIR__ . '/../../controller/ClassSubModulos.php');
+require_once(__DIR__ . '/../config/cnx.php');
+require_once(APP_PATH . '/controller/ClassSubModulos.php');
 
     $subModulos = new SubModulos();
     $submodulos_operaciones = $subModulos->ObtenerOperaciones();

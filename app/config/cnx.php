@@ -1,4 +1,9 @@
 <?php
+// DEFINIR RUTA BASE DE LA APLICACIÓN
+if (!defined('APP_PATH')) {
+    define('APP_PATH', dirname(__DIR__));
+}
+
 class Conexion
 {
     public function get_conexion()

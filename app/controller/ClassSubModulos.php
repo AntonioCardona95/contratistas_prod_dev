@@ -1,6 +1,6 @@
 <?php
 
-    require_once(__DIR__ . '/../config/cnx.php');
+    require_once(APP_PATH . '/config/cnx.php');
 
     class SubModulos extends Conexion
     {
