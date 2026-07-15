@@ -1,4 +1,4 @@
-/* ESTILOS PERSONALIZADOS PARA DASHBOARD DE TECNICOS */
+/* ESTILOS PERSONALIZADOS PARA DASHBOARD DE TÉCNICOS */
 
 :root {
     --primary-color: #007BFF;
@@ -9,7 +9,7 @@
     --transition: all 0.3s ease;
 }
 
-/* HERO SECTION */
+/* SECCIÓN HÉROE CON GRADIENTE */
 .prod-hero {
     background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #0f766e 100%);
     color: #fff;
@@ -23,8 +23,30 @@
     margin: 0;
 }
 
-/* CONTENEDOR PRINCIPAL DE CARDS */
-.tecnicos-grid {
+/* ESTILOS PARA DATATABLES */
+.dt-search {
+    margin-bottom: 0px;
+    margin-top: 0px;
+}
+
+.dt-search input {
+    width: 100% !important;
+    max-width: 500px !important;
+    padding-left: 12px !important;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.dt-paging {
+    margin-top: 10px;
+}
+
+.dt-info {
+    padding-top: 0.75rem;
+}
+
+/* GRID DINÁMICO DE TARJETAS */
+#tecnicos-grid-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 25px;
@@ -32,20 +54,20 @@
 }
 
 @media (max-width: 1200px) {
-    .tecnicos-grid {
+    #tecnicos-grid-container {
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
     }
 }
 
 @media (max-width: 768px) {
-    .tecnicos-grid {
+    #tecnicos-grid-container {
         grid-template-columns: 1fr;
         gap: 15px;
     }
 }
 
-/* CARDS DE TECNICOS */
+/* TARJETAS DE TÉCNICOS */
 .tecnico-card {
     background: white;
     border-radius: var(--border-radius);
@@ -65,7 +87,7 @@
     padding: 25px;
 }
 
-/* ENCABEZADO DEL CARD (NOMBRE) */
+/* ENCABEZADO DE LA TARJETA (NOMBRE) */
 .tecnico-nombre {
     font-size: 1.3rem;
     font-weight: 700;
@@ -84,7 +106,7 @@
     margin-right: 5px;
 }
 
-/* ITEMS DE INFORMACIÓN */
+/* ÍTEMS DE INFORMACIÓN EN LA TARJETA */
 .tecnico-info-item {
     display: flex;
     align-items: center;
@@ -120,7 +142,7 @@
     font-size: 0.95rem;
 }
 
-/* ICONOS PARA CADA FIELD */
+/* ICONOS Y ESTILOS PARA CADA CAMPO */
 .info-expediente {
     border-left: 3px solid var(--info-color);
     padding-left: 12px;
@@ -160,7 +182,7 @@
     color: var(--warning-color);
 }
 
-/* BADGE PARA TOTAL */
+/* BADGE MOSTRANDO TOTAL DE TÉCNICOS */
 .badge-total {
     background: linear-gradient(135deg, var(--primary-color), var(--info-color));
     color: white;
@@ -171,7 +193,7 @@
     box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
 }
 
-/* ALERTA SIN DATOS */
+/* ALERTA CUANDO NO HAY TÉCNICOS */
 .alert-empty {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
@@ -183,7 +205,7 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-/* ANIMACIONES */
+/* ANIMACIONES DE ENTRADA */
 @keyframes slideInUp {
     from {
         opacity: 0;
@@ -195,13 +217,19 @@
     }
 }
 
+/* APLICAR ANIMACIÓN A TARJETAS */
 .tecnico-card {
     animation: slideInUp 0.5s ease-out forwards;
 }
 
+/* RETRASOS ESCALONADOS PARA EFECTO VISUAL */
 .tecnico-card:nth-child(1) { animation-delay: 0.05s; }
 .tecnico-card:nth-child(2) { animation-delay: 0.1s; }
 .tecnico-card:nth-child(3) { animation-delay: 0.15s; }
 .tecnico-card:nth-child(4) { animation-delay: 0.2s; }
 .tecnico-card:nth-child(5) { animation-delay: 0.25s; }
-.tecnico-card:nth-child(n+6) { animation-delay: 0.3s; }
+.tecnico-card:nth-child(6) { animation-delay: 0.3s; }
+.tecnico-card:nth-child(7) { animation-delay: 0.35s; }
+.tecnico-card:nth-child(8) { animation-delay: 0.4s; }
+.tecnico-card:nth-child(9) { animation-delay: 0.45s; }
+.tecnico-card:nth-child(n+10) { animation-delay: 0.5s; }
