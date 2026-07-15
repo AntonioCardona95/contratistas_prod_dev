@@ -2,56 +2,43 @@
 
 :root {
     --primary-color: #007BFF;
-    --secondary-color: #6C757D;
     --success-color: #28A745;
-    --danger-color: #DC3545;
     --warning-color: #FFC107;
     --info-color: #17A2B8;
-    --light-color: #F8F9FA;
-    --dark-color: #343A40;
     --border-radius: 12px;
     --transition: all 0.3s ease;
 }
 
-body {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-}
-
-#content {
-    background-color: #f5f7fa;
-}
-
-/* TITULO Y ENCABEZADO */
+/* HERO SECTION */
 .prod-hero {
-    margin-bottom: 30px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #0f766e 100%);
+    color: #fff;
+    border-radius: 12px;
+    padding: 1rem 1.75rem;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    margin: 15px 0;
 }
 
 .prod-hero h1 {
-    color: #2c3e50;
-    font-weight: 700;
-    font-size: 2.2rem;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    margin: 0;
 }
 
 /* CONTENEDOR PRINCIPAL DE CARDS */
 .tecnicos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 25px;
     margin-bottom: 40px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
     .tecnicos-grid {
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
         gap: 20px;
     }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 768px) {
     .tecnicos-grid {
         grid-template-columns: 1fr;
         gap: 15px;
@@ -66,28 +53,12 @@ body {
     overflow: hidden;
     transition: var(--transition);
     border-top: 4px solid var(--primary-color);
-    position: relative;
 }
 
 .tecnico-card:hover {
     transform: translateY(-8px);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
     border-top-color: var(--success-color);
-}
-
-.tecnico-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--primary-color), var(--info-color));
-    transition: var(--transition);
-}
-
-.tecnico-card:hover::before {
-    background: linear-gradient(90deg, var(--success-color), var(--warning-color));
 }
 
 .card-body {
@@ -149,6 +120,7 @@ body {
     font-size: 0.95rem;
 }
 
+/* ICONOS PARA CADA FIELD */
 .info-expediente {
     border-left: 3px solid var(--info-color);
     padding-left: 12px;
@@ -188,7 +160,7 @@ body {
     color: var(--warning-color);
 }
 
-/* BADGE PARA CONTE O TOTAL */
+/* BADGE PARA TOTAL */
 .badge-total {
     background: linear-gradient(135deg, var(--primary-color), var(--info-color));
     color: white;
@@ -209,55 +181,6 @@ body {
     text-align: center;
     font-size: 1.1rem;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.alert-empty i {
-    font-size: 2.5rem;
-    margin-bottom: 15px;
-    display: block;
-}
-
-/* ENCABEZADO CON TITULO Y BADGE */
-.page-header-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 35px;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.page-header-section h1 {
-    margin: 0;
-}
-
-/* BARRA DE FILTROS (si se agrega después) */
-.filter-bar {
-    background: white;
-    padding: 20px;
-    border-radius: var(--border-radius);
-    margin-bottom: 30px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.filter-bar input,
-.filter-bar select {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 0.95rem;
-    transition: var(--transition);
-}
-
-.filter-bar input:focus,
-.filter-bar select:focus {
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-    outline: none;
 }
 
 /* ANIMACIONES */
@@ -282,25 +205,3 @@ body {
 .tecnico-card:nth-child(4) { animation-delay: 0.2s; }
 .tecnico-card:nth-child(5) { animation-delay: 0.25s; }
 .tecnico-card:nth-child(n+6) { animation-delay: 0.3s; }
-
-/* RESPONSIVE AJUSTES */
-@media (max-width: 992px) {
-    .prod-hero h1 {
-        font-size: 1.8rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .page-header-section {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    .card-body {
-        padding: 20px;
-    }
-    
-    .tecnico-nombre {
-        font-size: 1.1rem;
-    }
-}

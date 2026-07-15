@@ -80,10 +80,10 @@
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 
-                    <!-- Page Heading -->
+                    <!-- TITULO -->
                     <div class="prod-hero">
-                        <div class="page-header-section">
-                            <h1>TÉCNICOS</h1>
+                        <div class="d-sm-flex align-items-center justify-content-between">
+                            <h1 class="h3 mb-0 font-weight-bold mt-2">TÉCNICOS</h1>
                             <span class="badge-total">Total: <?php echo $totalTecnicos; ?></span>
                         </div>
                     </div>
