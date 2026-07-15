@@ -102,10 +102,12 @@
                         </div>
                     <?php else : ?>
                         <!-- BÚSQUEDA Y INFORMACIÓN -->
-                        <div class="dt-container" style="margin-bottom: 15px;">
-                            <div class="row align-items-center">
-                                <div class="col-md-6" id="search-container"></div>
-                                <div class="col-md-6 d-flex justify-content-end" id="info-container"></div>
+                        <div class="card shadow mb-4" style="border: none; border-radius: 12px;">
+                            <div class="card-body p-3">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6" id="search-container"></div>
+                                    <div class="col-md-6 d-flex justify-content-end" id="info-container"></div>
+                                </div>
                             </div>
                         </div>
 
@@ -115,10 +117,12 @@
                         </div>
 
                         <!-- CONTROLES DE PAGINACIÓN -->
-                        <div class="dt-container" style="margin-top: 20px;">
-                            <div class="row align-items-center">
-                                <div class="col-md-6" id="pagination-info"></div>
-                                <div class="col-md-6 d-flex justify-content-end" id="pagination-container"></div>
+                        <div class="card shadow mt-4" style="border: none; border-radius: 12px;">
+                            <div class="card-body p-3">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6" id="pagination-info"></div>
+                                    <div class="col-md-6 d-flex justify-content-end" id="pagination-container"></div>
+                                </div>
                             </div>
                         </div>
 
@@ -216,9 +220,21 @@
             // MOVER CONTROLES A SUS CONTENEDORES
             function relocateControls() {
                 const wrapper = $(table.table().container());
-                wrapper.find('.dt-search').appendTo('#search-container');
-                wrapper.find('.dt-info').appendTo('#pagination-info');
-                wrapper.find('.dt-paging').appendTo('#pagination-container');
+                
+                // BUSCAR Y MOVER ELEMENTOS DE DATATABLES
+                const dtSearch = wrapper.find('.dt-search');
+                const dtInfo = wrapper.find('.dt-info');
+                const dtPaging = wrapper.find('.dt-paging');
+                
+                // LIMPIAR CONTENEDORES ANTES DE MOVER
+                $('#search-container').empty();
+                $('#pagination-info').empty();
+                $('#pagination-container').empty();
+                
+                // MOVER ELEMENTOS
+                dtSearch.appendTo('#search-container');
+                dtInfo.appendTo('#pagination-info');
+                dtPaging.appendTo('#pagination-container');
                 
                 // AGREGAR PLACEHOLDER AL BUSCADOR
                 $('.dt-search input').attr('placeholder', 'Buscar por nombre, expediente o teléfono...');
@@ -282,6 +298,9 @@
 
             // RENDERIZAR TARJETAS AL CAMBIAR PÁGINA O BÚSQUEDA
             table.on('search.dt page.dt', function() {
+                // LIMPIAR Y REUBICAR CONTROLES
+                relocateControls();
+                // RENDERIZAR NUEVAS TARJETAS
                 renderCards();
             });
         });
