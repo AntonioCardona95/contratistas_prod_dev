@@ -32,7 +32,7 @@ if($ruta_actual === ''){
                 // CONSTRUYE LA RUTA COMPLETA A PARTIR DE LA RUTA BASE + LA RUTA GUARDADA EN BD
                 $ruta_completa = BASE_URL . '/views/' . ltrim($submod['ruta_submodulo'], '/');
 
-                // NORMALIZA PARA COMPARAR DE FORMA CONSISTENTE
+                // NORMALIZA LA RUTA DEL SUBMÓDULO PARA COMPARAR DE FORMA CONSISTENTE, ELIMINANDO QUERY STRING Y BARRA FINAL
                 $ruta_submodulo = parse_url($ruta_completa, PHP_URL_PATH);
                 $ruta_submodulo = rtrim((string)$ruta_submodulo, '/');
 
@@ -40,10 +40,7 @@ if($ruta_actual === ''){
                     $ruta_submodulo = '/';
                 }
 
-                $archivo_actual = basename($ruta_actual);
-                $archivo_submodulo = basename($ruta_submodulo);
-
-                $es_activo = ($ruta_actual === $ruta_submodulo || $archivo_actual === $archivo_submodulo) ? 'active' : '';
+                $es_activo = ($ruta_actual === $ruta_submodulo) ? 'active' : '';
                 
                 echo "<li class='nav-item'>";
                 echo "  <a class='nav-link {$es_activo}' href='{$ruta_completa}'>";
@@ -68,8 +65,10 @@ if($ruta_actual === ''){
     <?php 
         if(!empty($submodulos_almacen)) {
             foreach($submodulos_almacen as $submod) {
+                // CONSTRUYE LA RUTA COMPLETA A PARTIR DE LA RUTA BASE + LA RUTA GUARDADA EN BD
                 $ruta_completa = BASE_URL . '/views/' . ltrim($submod['ruta_submodulo'], '/');
 
+                // NORMALIZA LA RUTA DEL SUBMÓDULO PARA COMPARAR DE FORMA CONSISTENTE, ELIMINANDO QUERY STRING Y BARRA FINAL
                 $ruta_submodulo = parse_url($ruta_completa, PHP_URL_PATH);
                 $ruta_submodulo = rtrim((string)$ruta_submodulo, '/');
 
@@ -77,10 +76,7 @@ if($ruta_actual === ''){
                     $ruta_submodulo = '/';
                 }
 
-                $archivo_actual = basename($ruta_actual);
-                $archivo_submodulo = basename($ruta_submodulo);
-
-                $es_activo = ($ruta_actual === $ruta_submodulo || $archivo_actual === $archivo_submodulo) ? 'active' : '';
+                $es_activo = ($ruta_actual === $ruta_submodulo) ? 'active' : '';
                 
                 echo "<li class='nav-item'>";
                 echo "  <a class='nav-link {$es_activo}' href='{$ruta_completa}'>";
