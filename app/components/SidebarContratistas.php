@@ -1,5 +1,21 @@
 <!-- SIDE BAR DE CONTRATISTAS -->
-<ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style= "background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a  100%, #224abe 0%); background-size: cover;">
+<?php
+require_once(__DIR__ . '/../controller/ClassSubModulos.php');
+
+// INICIALIZAR CLASE DE SUB-MÓDULOS
+$subModulos = new SubModulos();
+$submodulos_operaciones = $subModulos->ObtenerOperaciones();
+$submodulos_almacen = $subModulos->ObtenerAlmacen();
+
+// OBTENER RUTA ACTUAL PARA COMPARAR
+$ruta_actual = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$ruta_actual = rtrim((string)$ruta_actual, '/');
+if($ruta_actual === '') {
+    $ruta_actual = '/';
+}
+?>
+
+<ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a 100%, #224abe 0%); background-size: cover;">
 
     <!-- BARRA LATERAL TITULO -->
     <a class="sidebar-brand d-flex align-items-center justify-content-center" href="Bienvenida.php">
@@ -14,28 +30,32 @@
         OPERACIONES
     </div>
     
-        <li class="nav-item">
-            <a class="nav-link" href="views/Operaciones/Dashboard.php">
-                <i class="fa-solid fa-chart-column"></i>
-                <span>DASHBOARD COORDIAPP/TAC</span>
-            </a>
-        </li>
+    <?php 
+        if(!empty($submodulos_operaciones)) {
+            foreach($submodulos_operaciones as $submod) {
+                // NORMALIZA LA RUTA DEL SUBMÓDULO
+                $ruta_submodulo = parse_url($submod['ruta_submodulo'], PHP_URL_PATH);
+                $ruta_submodulo = rtrim((string)$ruta_submodulo, '/');
+                
+                // Fallback por nombre de archivo
+                $archivo_actual = basename($ruta_actual);
+                $archivo_submodulo = basename($ruta_submodulo);
+                
+                $es_activo = ($ruta_actual === $ruta_submodulo || $archivo_actual === $archivo_submodulo) ? 'active' : '';
+                
+                echo "<li class='nav-item'>";
+                echo "  <a class='nav-link {$es_activo}' href='{$submod['ruta_submodulo']}'>";
+                echo "    <i class='{$submod['icono_submodulo']}'></i>";
+                echo "    <span>{$submod['nombre_submodulo']}</span>";
+                echo "  </a>";
+                echo "</li>";
+            }
+        } else {
+            echo "<li class='nav-item'><a class='nav-link'>NO TIENE MÓDULOS ASIGNADOS</a></li>";
+        }
+    ?>
 
-        <li class="nav-item">
-            <a class="nav-link" href="views/Operaciones/OrdenesCoordiapp.php">
-                <i class="fa-solid fa-check-double"></i>
-                <span>LIQ. COORDIAPP COMPLETAS</span>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a class="nav-link" href="views/Operaciones/OrdenesIncompletas.php">
-               <i class="fa-solid fa-bullhorn"></i>
-                <span>LIQ. COORDIAPP PENDIENTES</span>
-            </a>
-        </li>
-
-     <!-- DIVISION -->
+    <!-- DIVISION -->
     <hr class="sidebar-divider">
 
     <!-- ALMACEN -->
@@ -43,51 +63,33 @@
         ALMACEN
     </div>
 
-        <li class="nav-item">
-            <a class="nav-link" href="Almacen/Dashboard.php">
-                <i class="fa-solid fa-chart-column"></i>
-                <span>DASHBOARD ALMACÉN</span>
-            </a>
-        </li>
+    <?php 
+        if(!empty($submodulos_almacen)) {
+            foreach($submodulos_almacen as $submod) {
+                // NORMALIZA LA RUTA DEL SUBMÓDULO
+                $ruta_submodulo = parse_url($submod['ruta_submodulo'], PHP_URL_PATH);
+                $ruta_submodulo = rtrim((string)$ruta_submodulo, '/');
+                
+                // Fallback por nombre de archivo
+                $archivo_actual = basename($ruta_actual);
+                $archivo_submodulo = basename($ruta_submodulo);
+                
+                $es_activo = ($ruta_actual === $ruta_submodulo || $archivo_actual === $archivo_submodulo) ? 'active' : '';
+                
+                echo "<li class='nav-item'>";
+                echo "  <a class='nav-link {$es_activo}' href='{$submod['ruta_submodulo']}'>";
+                echo "    <i class='{$submod['icono_submodulo']}'></i>";
+                echo "    <span>{$submod['nombre_submodulo']}</span>";
+                echo "  </a>";
+                echo "</li>";
+            }
+        } else {
+            echo "<li class='nav-item'><a class='nav-link'>NO TIENE MÓDULOS ASIGNADOS</a></li>";
+        }
+    ?>
 
-        <li class="nav-item">
-            <a class="nav-link" href="Almacen/Entradas.php">
-               <i class="fa-solid fa-clipboard-check"></i>
-                <span>MATERIAL RECIBIDO</span>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a class="nav-link" href="Almacen/AceptarMaterial.php">
-                <i class="fa-solid fa-feather-pointed"></i>
-                <span>ACEPTAR MATERIAL</span>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a class="nav-link" href="Almacen/MaterialRechazado.php">
-                <i class="fa-solid fa-circle-xmark"></i>
-                <span>MATERIAL RECHAZADO</span>
-            </a>
-        </li>
-
-        <li class="nav-item">
-            <a class="nav-link" href="Almacen/Salidas.php">
-                <i class="fa-solid fa-circle-plus"></i>
-                <span>ASIGNAR MATERIAL</span>
-            </a>
-        </li>
-
-
-        <li class="nav-item">
-            <a class="nav-link" href="Almacen/Tecnicos.php">
-                <i class="fa-solid fa-clipboard-user"></i>
-                <span>TECNICOS</span>
-            </a>
-        </li>
-
-     <!-- DIVISION -->
-    <hr class="sidebar-divider">
+    <!-- DIVISION -->
+    <hr class="sidebar-divider d-none d-md-block">
 
     <!-- BOTON DE PLIEGUE DE LA BARRA LATERAL -->
     <div class="text-center d-none d-md-inline">

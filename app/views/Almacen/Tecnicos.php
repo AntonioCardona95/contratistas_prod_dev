@@ -28,6 +28,13 @@
     $tecnicos = $operaciones->Tecnicos($idContratistas) ?: [];
     $totalTecnicos = count($tecnicos);
 
+
+    require_once(__DIR__ . '/../../controller/ClassSubModulos.php');
+
+    $subModulos = new SubModulos();
+    $submodulos_operaciones = $subModulos->ObtenerOperaciones();
+    $submodulos_almacen = $subModulos->ObtenerAlmacen();
+
 ?>
 <!DOCTYPE html>
 

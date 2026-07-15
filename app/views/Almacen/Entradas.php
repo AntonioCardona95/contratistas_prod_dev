@@ -21,6 +21,12 @@
     if (empty($idContratistas)) {
         header("location: " . __DIR__ . "/../Login/modal/poweroff.php");
     }
+
+    require_once(__DIR__ . '/../../controller/ClassSubModulos.php');
+
+    $subModulos = new SubModulos();
+    $submodulos_operaciones = $subModulos->ObtenerOperaciones();
+    $submodulos_almacen = $subModulos->ObtenerAlmacen();
 ?>
 <!DOCTYPE html>
 <html lang="en">
