@@ -22,11 +22,8 @@
         header("location: ../Login/modal/poweroff.php");
     }
 
-    require_once(__DIR__ . '/../../controller/ClassSubModulos.php');
-
-    $subModulos = new SubModulos();
-    $submodulos_operaciones = $subModulos->ObtenerOperaciones();
-    $submodulos_almacen = $subModulos->ObtenerAlmacen();
+    require_once(__DIR__ . '/../../config/cnx.php');
+    require_once(APP_PATH . '/controller/ClassSubModulos.php');
 
 ?>
 <!DOCTYPE html>

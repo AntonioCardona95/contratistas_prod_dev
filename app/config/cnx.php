@@ -47,3 +47,10 @@ class Conexion
 
  
 }
+
+// CARGAR SUB-MÓDULOS GLOBALMENTE PARA USO EN TODAS LAS VISTAS
+require_once(APP_PATH . '/controller/ClassSubModulos.php');
+$subModulos = new SubModulos();
+$submodulos_operaciones = $subModulos->ObtenerOperaciones();
+$submodulos_almacen = $subModulos->ObtenerAlmacen();
+?>

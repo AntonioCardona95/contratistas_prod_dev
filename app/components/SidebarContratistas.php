@@ -1,15 +1,14 @@
 <!-- SIDE BAR DE CONTRATISTAS -->
 <?php
-require_once(__DIR__ . '/../controller/ClassSubModulos.php');
+require_once(__DIR__ . '/../config/cnx.php');
+require_once(APP_PATH . '/controller/ClassSubModulos.php');
 
-// INICIALIZAR CLASE DE SUB-MÓDULOS
-$subModulos = new SubModulos();
-$submodulos_operaciones = $subModulos->ObtenerOperaciones();
-$submodulos_almacen = $subModulos->ObtenerAlmacen();
-
-// OBTENER ARCHIVO ACTUAL PARA COMPARAR
-$archivo_actual = basename($_SERVER['PHP_SELF']);
-$pagina_activa = $_SESSION['pagina_activa'] ?? $archivo_actual;
+// OBTIENE LA RUTA ACTUAL SIN QUERY STRING PARA COMPARAR CON LAS RUTAS DE LOS SUBMÓDULOS
+$ruta_actual = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$ruta_actual = rtrim((string)$ruta_actual, '/');
+if($ruta_actual === ''){
+    $ruta_actual = '/';
+}
 ?>
 
 <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a 100%, #224abe 0%); background-size: cover;">
@@ -30,8 +29,19 @@ $pagina_activa = $_SESSION['pagina_activa'] ?? $archivo_actual;
     <?php 
         if(!empty($submodulos_operaciones)) {
             foreach($submodulos_operaciones as $submod) {
-                $archivo_modulo = basename($submod['ruta_submodulo']);
-                $es_activo = ($pagina_activa === $archivo_modulo) ? 'active' : '';
+                // NORMALIZA LA RUTA DEL SUBMÓDULO PARA COMPARAR DE FORMA CONSISTENTE, ELIMINANDO QUERY STRING Y BARRA FINAL
+                $ruta_submodulo = parse_url($submod['ruta_submodulo'], PHP_URL_PATH);
+                $ruta_submodulo = rtrim((string)$ruta_submodulo, '/');
+
+                if($ruta_submodulo === ''){
+                    $ruta_submodulo = '/';
+                }
+
+                // Fallback por nombre de archivo para rutas relativas
+                $archivo_actual = basename($ruta_actual);
+                $archivo_submodulo = basename($ruta_submodulo);
+
+                $es_activo = ($ruta_actual === $ruta_submodulo || $archivo_actual === $archivo_submodulo) ? 'active' : '';
                 
                 echo "<li class='nav-item'>";
                 echo "  <a class='nav-link {$es_activo}' href='{$submod['ruta_submodulo']}'>";
@@ -56,8 +66,19 @@ $pagina_activa = $_SESSION['pagina_activa'] ?? $archivo_actual;
     <?php 
         if(!empty($submodulos_almacen)) {
             foreach($submodulos_almacen as $submod) {
-                $archivo_modulo = basename($submod['ruta_submodulo']);
-                $es_activo = ($pagina_activa === $archivo_modulo) ? 'active' : '';
+                // NORMALIZA LA RUTA DEL SUBMÓDULO PARA COMPARAR DE FORMA CONSISTENTE, ELIMINANDO QUERY STRING Y BARRA FINAL
+                $ruta_submodulo = parse_url($submod['ruta_submodulo'], PHP_URL_PATH);
+                $ruta_submodulo = rtrim((string)$ruta_submodulo, '/');
+
+                if($ruta_submodulo === ''){
+                    $ruta_submodulo = '/';
+                }
+
+                // Fallback por nombre de archivo para rutas relativas
+                $archivo_actual = basename($ruta_actual);
+                $archivo_submodulo = basename($ruta_submodulo);
+
+                $es_activo = ($ruta_actual === $ruta_submodulo || $archivo_actual === $archivo_submodulo) ? 'active' : '';
                 
                 echo "<li class='nav-item'>";
                 echo "  <a class='nav-link {$es_activo}' href='{$submod['ruta_submodulo']}'>";

@@ -21,11 +21,8 @@
     $Fecha2 = $_POST['Fecha2'] ?? '';
     $mes_anterior = date('Y-m-d', strtotime('-1 month'));
 
-    require_once(__DIR__ . '/../../controller/ClassSubModulos.php');
-
-    $subModulos = new SubModulos();
-    $submodulos_operaciones = $subModulos->ObtenerOperaciones();
-    $submodulos_almacen = $subModulos->ObtenerAlmacen();
+    require_once(__DIR__ . '/../../config/cnx.php');
+    require_once(APP_PATH . '/controller/ClassSubModulos.php');
     
 ?>
 <!DOCTYPE html>
