@@ -1,0 +1,10 @@
+/* ========== ESTILOS GENERALES ========== */
+html, body {
+    overscroll-behavior: none;
+    min-height: 100%;
+}
+
+ /* Hacer el indicador de periodo más visible para el usuario */
+    .periodo-consulta { font-size: 1.15rem; }
+    .periodo-consulta .badge { font-size: 1.05rem; padding: .45rem .9rem; }
+    .periodo-consulta .periodo-label { color: #6c757d; font-weight:600; margin-right: .8rem; }

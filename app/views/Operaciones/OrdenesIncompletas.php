@@ -15,107 +15,19 @@
 ?>
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<!-- IMPORTAR EL CSS -->
+<?php  $css = ['/../../css/Entradas.css'] ?>
+<!-- IMPORTAR EL HEAD -->
+<?php include __DIR__ . '/../../components/HeadContratistas.php'; ?>
 
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-
-    <title>ERP - OPERACIONES</title>
-
-    <!-- Custom fonts for this template -->
-    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
-    <script src="https://kit.fontawesome.com/b5137b0dd6.js" crossorigin="anonymous"></script>
-
-    <!-- Custom styles for this template -->
-    <link href="css/sb-admin-2.min.css" rel="stylesheet">
-
-    <!-- Custom styles for this page -->
-    <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
- 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    
-    <script src="https://kit.fontawesome.com/b5137b0dd6.js" crossorigin="anonymous"></script>
-
-</head>
 
 <body id="page-top">
 
     <!-- Page Wrapper -->
     <div id="wrapper">
 
-        <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-
-            <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
-                <div class="sidebar-brand-text mx-3">OPERACIONES</div>
-            </a>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider my-0">
-
-            <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
-                <a class="nav-link" href="index.php">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span></a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                ACCION
-            </div>
-
-            <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
-                    aria-expanded="true" aria-controls="collapsePages">
-                    <i class="fas fa-fw fa-folder"></i>
-                    <span>MODULOS</span>
-                </a>
-                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">MODULOS</h6>
-                        <a class='collapse-item' href='../almacen/index.php'><i class="fa-solid fa-box-open"></i> ALMACEN</a>
-                        <a class='collapse-item' href='index.php'><i class="fa-solid fa-school-circle-check"></i> OPERACIONES</a>
-                    </div>
-                </div>
-            </li>
-
-            <!-- Nav Item - Tables -->
-            <li class="nav-item">
-                <a class="nav-link" href="OrdenesCoordiapp.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>LIQUIDACION COORDIAPP COMPLETAS</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="OrdenesIncompletas.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>LIQUIDACION COORDIAPP INCOMPLETAS</span>
-                </a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
-
-            <!-- Sidebar Toggler (Sidebar) -->
-            <div class="text-center d-none d-md-inline">
-                <button class="rounded-circle border-0" id="sidebarToggle"></button>
-            </div>
-
-        </ul>
-        <!-- End of Sidebar -->
+        <!-- SIDEBAR -->
+        <?php include_once __DIR__ . '/../../components/SidebarContratistas.php'; ?>
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
@@ -185,12 +97,21 @@
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
 
-                    <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">ORDENES INCOMPLETAS COORDIAPP DETALLE</h1>
+                    <!-- TITULO -->
+                    <div class="prod-hero">
+                        <div class="d-sm-flex align-items-center justify-content-between">
+                           <h1 class="h3 mb-2 text-gray-800">ORDENES INCOMPLETAS COORDIAPP DETALLE</h1>
+                        </div>
+                    </div>   
 
-                    <!-- DataTales Example -->
-                    <div id="LoadOrdenesIncompletas">
-
+                    <!-- CONTENEDOR DE DATOS OPTIMIZADO -->
+                    <div class="card shadow mb-4 table-container">
+                        <div class="card-body p-0">
+                            <!-- CONTENEDOR DE LA TABLA -->
+                            <div id="LoadOrdenesIncompletas">
+                             <!-- AQUI SE CARGAN TODOS LOS DATOS QUE VIENEN DE ORDENESINCOMPLETAS.JS -->
+                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -199,15 +120,8 @@
             </div>
             <!-- End of Main Content -->
 
-            <!-- Footer -->
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; ENLACE DIGITAL 2025</span>
-                    </div>
-                </div>
-            </footer>
-            <!-- End of Footer -->
+            <!-- FOOTER -->
+            <?php include_once __DIR__ . '/../../components/FooterContratistas.php'; ?>
 
         </div>
         <!-- End of Content Wrapper -->
@@ -240,29 +154,9 @@
         </div>
     </div>
 
-    <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Core plugin JavaScript-->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-
-    <!-- Custom scripts for all pages-->
-    <script src="js/sb-admin-2.min.js"></script>
-
-    <!-- Page level plugins -->
-    <script src="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.js" integrity="sha384-2Ul6oqy3mEjM7dBJzKOck1Qb/mzlO+k/0BQv3D3C7u+Ri9+7OBINGa24AeOv5rgu" crossorigin="anonymous"></script>
-    <script src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.colVis.min.js"></script>
-    <script src="https://cdn.datatables.net/fixedcolumns/5.0.4/js/fixedColumns.dataTables.js"></script>
-    <script src="https://cdn.datatables.net/fixedcolumns/5.0.4/js/dataTables.fixedColumns.js"></script> 
-    
-    <!-- Page level custom scripts -->
-    <script src="js/demo/datatables-demo.js"></script>
-    <script src="js/app.js"></script>
+      <!-- IMPORTAR SCRIPTS -->
+    <?php include_once __DIR__ . '/../../components/ScriptContratistas.php'; ?>
+    <script src="../../js/ordenesincompletas.js"></script>
     <script>
         $(document).ready(function(){
             LoadOrdenesIncompletas();

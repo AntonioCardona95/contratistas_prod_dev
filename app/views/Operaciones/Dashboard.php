@@ -16,23 +16,19 @@ if (empty($Contratista)) {
 
 <!DOCTYPE html>
 <html lang="en">
-<!-- IMPORTAR EL HEAD -->
-<?php include '../components/HeadContratistas.php'; ?>
 
-<style>
-    /* Hacer el indicador de periodo más visible para el usuario */
-    .periodo-consulta { font-size: 1.15rem; }
-    .periodo-consulta .badge { font-size: 1.05rem; padding: .45rem .9rem; }
-    .periodo-consulta .periodo-label { color: #6c757d; font-weight:600; margin-right: .8rem; }
-</style>
+<!-- INSERTAR EL CSS -->
+<?php  $css = ['/../../css/DashboardOperaciones.css'] ?>
+<!-- IMPORTAR EL HEAD -->
+<?php include __DIR__ . '/../../components/HeadContratistas.php'; ?>
 
 <body id="page-top">
 
     <!-- Page Wrapper -->
     <div id="wrapper">
 
-        <!-- IMPORTAR LA SIDEBAR -->
-        <?php include '../components/SidebarContratistas.php'; ?>
+         <!-- SIDEBAR -->
+        <?php include_once __DIR__ . '/../../components/SidebarContratistas.php'; ?>
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
@@ -125,7 +121,7 @@ if (empty($Contratista)) {
             <!-- End of Main Content -->
 
             <!-- FOOTER -->
-            <?php include '../components/FooterContratistas.php'; ?>
+            <?php include_once __DIR__ . '/../../components/FooterContratistas.php'; ?>
 
         </div>
         <!-- End of Content Wrapper -->
@@ -158,7 +154,8 @@ if (empty($Contratista)) {
         </div>
     </div>
 
-    <?php include '../components/ScriptContratistas.php'; ?>
+    <!-- IMPORTAR SCRIPTS -->
+    <?php include_once __DIR__ . '/../../components/ScriptContratistas.php'; ?>
     <!-- Page level custom scripts -->
     <script src="js/app.js"></script>
     <script>
