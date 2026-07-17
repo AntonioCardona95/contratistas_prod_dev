@@ -14,6 +14,9 @@ if (!empty($topbar_defaults) && is_array($topbar_defaults)) {
 }
 if (empty($tbFecha1)) $tbFecha1 = $defaultFecha1 ?? ($_POST['Fecha1'] ?? date('Y-m-d'));
 if (empty($tbFecha2)) $tbFecha2 = $defaultFecha2 ?? ($_POST['Fecha2'] ?? date('Y-m-d'));
+
+// Nombre de la función JS que se debe invocar al cambiar las fechas o al buscar.
+$onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
 ?>
 
 <!-- Topbar -->
@@ -27,13 +30,18 @@ if (empty($tbFecha2)) $tbFecha2 = $defaultFecha2 ?? ($_POST['Fecha2'] ?? date('Y
     <!-- Topbar Search -->
     <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search" id="FormQueryUnidades">
         <div class="input-group">
-            <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" class="form-control bg-light border-0 small" onchange="if(typeof LoadEntradas==='function') LoadEntradas();" aria-label="AL" aria-describedby="basic-addon2">
-            <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" class="form-control bg-light border-0 small" onchange="if(typeof LoadEntradas==='function') LoadEntradas();" aria-label="AL" aria-describedby="basic-addon2">
+            <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" class="form-control bg-light border-0 small" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
+            <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" class="form-control bg-light border-0 small" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
             <div class="input-group-append">
-                <button class="btn btn-primary" type="button">
+                <button class="btn btn-primary" type="button" onclick="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
                     <i class="fas fa-search fa-sm"></i>
                 </button>
             </div>
+            <?php if(!empty($topbar_actions)): ?>
+                <div class="input-group-append ml-2">
+                    <?= $topbar_actions ?>
+                </div>
+            <?php endif; ?>
         </div>
     </form>
 
