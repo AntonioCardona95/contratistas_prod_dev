@@ -114,40 +114,40 @@ if (empty($Contratista)) {
                 </a>
             </li>
 
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="nav-link" href="CargaExcel.php">
                     <i class="fas fa-fw fa-table"></i>
                     <span>CARGAR MASIVA PRODUCCION</span>
                 </a>
-            </li>
+            </li> -->
 
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="nav-link" href="Prenomina.php">
                     <i class="fas fa-fw fa-table"></i>
                     <span>PRENOMINA</span>
                 </a>
-            </li>
+            </li> -->
 
-                  <li class="nav-item">
+                  <!-- <li class="nav-item">
                 <a class="nav-link" href="NominaContratista2.php">
                     <i class="fas fa-fw fa-table"></i>
                     <span>PRODUCCION ACEPTADA</span>
                 </a>
-            </li>
+            </li> -->
 
-             <li class="nav-item">
+             <!-- <li class="nav-item">
                 <a class="nav-link" href="OrdenesNoCargadasCoordiapp.php">
                     <i class="fas fa-fw fa-table"></i>
                     <span>NO CARGADAS COORDIAPP</span>
                 </a>
-            </li>
+            </li> -->
 
-             <li class="nav-item">
+             <!-- <li class="nav-item">
                 <a class="nav-link" href="Produccion.php">
                     <i class="fas fa-fw fa-table"></i>
                     <span>PRODUCCION CARGADA</span>
                 </a>
-            </li>
+            </li> -->
 
 
 
