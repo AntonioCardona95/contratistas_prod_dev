@@ -35,13 +35,11 @@ if (empty($Contratista)) {
     <!-- Custom styles for this template -->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
 
-    <!-- Responsive custom (móvil/laptop) -->
-    <link href="css/responsive_custom.css" rel="stylesheet">
-
     <!-- Custom styles for this page -->
     <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
  
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/responsive_custom.css" rel="stylesheet">
     
     <script src="https://kit.fontawesome.com/b5137b0dd6.js" crossorigin="anonymous"></script>
 
