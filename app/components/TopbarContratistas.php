@@ -126,12 +126,7 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
     // rutas relativas desde app/almacen o app/ordenes
     var base = window.location.pathname.replace(/\/[^/]*$/, '');
     // probar rutas comunes
-    tryFetch(base + '/ajax/get_conteo_alertas.php', 'alertsCount', 'alertsList');
     tryFetch(base + '/get_conteo_alertas.php', 'alertsCount', 'alertsList');
     tryFetch(base + '/../ordenes/get_conteo_alertas.php', 'alertsCount', 'alertsList');
-
-    tryFetch(base + '/ajax/get_messages.php', 'messagesCount', 'messagesList');
-    tryFetch(base + '/get_messages.php', 'messagesCount', 'messagesList');
-    tryFetch(base + '/../ordenes/get_messages.php', 'messagesCount', 'messagesList');
 })();
 </script>
