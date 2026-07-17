@@ -26,7 +26,15 @@
     .sidebar { display: block !important; }
     .navbar-search { display: block !important; }
     .navbar-search .input-group { min-width: 560px; }
-    .topbar-date-input { min-width: 190px; max-width: 250px; }
+    .navbar-search .topbar-date-input {
+        width: 250px !important;
+        min-width: 250px !important;
+        max-width: 250px !important;
+        flex: 0 0 250px !important;
+    }
+    .navbar-search .input-group > .form-control {
+        width: 250px !important;
+    }
     .topbar-actions-container { margin-left: .5rem; }
 }
 
