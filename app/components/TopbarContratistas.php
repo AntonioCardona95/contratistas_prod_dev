@@ -39,7 +39,7 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
             </div>
         </div>
         <?php if(!empty($topbar_actions)): ?>
-            <div class="ml-2">
+            <div class="d-flex align-items-center ml-2">
                 <?= $topbar_actions ?>
             </div>
         <?php endif; ?>

@@ -154,11 +154,9 @@
                 <?php
                     // Página SALIDAS añade su propio botón y usa LoadSalidas()
                     $topbar_onchange = 'LoadSalidas';
-                    $topbar_actions = '<a href="nueva_salida.php"><button class="btn btn-success form-control" type="button">NUEVA SALIDA</button></a>';
+                    $topbar_actions = '<a href="nueva_salida.php" class="btn btn-success">NUEVA SALIDA</a>';
                     include_once(__DIR__ . '/../components/TopbarContratistas.php');
                 ?>
-
-                <!-- Begin Page Content -->
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
