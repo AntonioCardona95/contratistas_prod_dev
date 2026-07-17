@@ -28,21 +28,21 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
     </button>
 
     <!-- Topbar Search -->
-    <form class="d-none d-sm-flex form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search" id="FormQueryUnidades">
-        <div class="input-group flex-wrap align-items-center">
-            <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" class="form-control bg-light border-0 topbar-date-input mr-2" style="width:250px;min-width:250px;max-width:250px;flex:0 0 250px;" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
-            <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" class="form-control bg-light border-0 topbar-date-input mr-2" style="width:250px;min-width:250px;max-width:250px;flex:0 0 250px;" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
+    <form id="FormQueryUnidades" class="d-none d-sm-flex form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search" style="display: contents;">
+        <div class="input-group">
+            <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" class="form-control bg-light border-0 small mr-2" style="width:250px;min-width:250px;max-width:250px;" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
+            <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" class="form-control bg-light border-0 small mr-2" style="width:250px;min-width:250px;max-width:250px;" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
             <div class="input-group-append mr-2">
                 <button class="btn btn-primary" type="button" onclick="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
                     <i class="fas fa-search fa-sm"></i>
                 </button>
             </div>
-            <?php if(!empty($topbar_actions)): ?>
-                <div class="topbar-actions-container">
-                    <?= $topbar_actions ?>
-                </div>
-            <?php endif; ?>
         </div>
+        <?php if(!empty($topbar_actions)): ?>
+            <div class="ml-2">
+                <?= $topbar_actions ?>
+            </div>
+        <?php endif; ?>
     </form>
 
     <!-- Topbar Navbar -->
