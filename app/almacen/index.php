@@ -159,38 +159,12 @@
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-12 static-top shadow">
-
-                    <!-- Sidebar Toggle (Topbar) -->
-                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-                        <i class="fa fa-bars"></i>
-                    </button>
-
-                    <!-- Topbar Search -->
-                    <form class="col-xl-10 col-md-10 mb-10" id="FormQueryUnidades">
-                        
-                        <div class="input-group">
-
-                            <?php
-                                // Valores por defecto: primer día del mes anterior y fecha actual
-                                $defaultFecha1 = $_POST['Fecha1'] ?? date('Y-m-d', strtotime('-1 month'));
-                                $defaultFecha2 = $_POST['Fecha2'] ?? date('Y-m-d');
-                            ?>
-                            <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($defaultFecha1) ?>" class="form-control bg-light border-0 small" onchange="LoadKPIS();" 
-                                aria-label="AL" aria-describedby="basic-addon2">
-
-                            <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($defaultFecha2) ?>" class="form-control bg-light border-0 small" onchange="LoadKPIS();" 
-                                aria-label="AL" aria-describedby="basic-addon2">
-
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
-                                    <i class="fas fa-search fa-sm"></i>
-                                </button>
-                            </div>
-                        
-                        </div>
-
-                    </form>
+                <?php
+                    $defaultFecha1 = $_POST['Fecha1'] ?? date('Y-m-d', strtotime('-1 month'));
+                    $defaultFecha2 = $_POST['Fecha2'] ?? date('Y-m-d');
+                    $topbar_onchange = 'LoadKPIS';
+                    include_once(__DIR__ . '/../components/TopbarContratistas.php');
+                ?>
 
                     <!-- Topbar Navbar -->
                     <ul class="navbar-nav ml-auto">
