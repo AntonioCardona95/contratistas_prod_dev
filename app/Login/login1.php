@@ -88,7 +88,7 @@ if (!empty($_POST['User_Contratista']) && !empty($_POST['Pass_Contratista'])) {
             if ($row['User_Contratista'] === 'USERP') {
                 header("Location: ../ordenes/indexp.php");
             } else {
-                header("Location: ../views/Bienvenida.php");
+                header("Location: ../ordenes/index.php");
             }
             exit;
         } else {
