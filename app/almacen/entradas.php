@@ -39,6 +39,9 @@
     <!-- Custom styles for this template -->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
 
+    <!-- Responsive custom (móvil/laptop) -->
+    <link href="css/responsive_custom.css" rel="stylesheet">
+
     <!-- Custom styles for this page -->
     <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
  
@@ -95,18 +98,34 @@
                 </div>
             </li>
 
-            <!-- Nav Item - Tables -->
+            <!-- MATERIAL RECIBIDO -->
             <li class="nav-item">
                 <a class="nav-link" href="entradas.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>ENTRADAS DE MATERIALES</span>
+                    <i class="fa-solid fa-clipboard-check"></i>
+                    <span>MATERIAL RECIBIDO</span>
+                </a>
+            </li>
+
+            <!-- ACEPTAR MATERIAL -->
+             <li class="nav-item">
+                <a class="nav-link" href="aceptarMaterial.php">
+                    <i class="fa-solid fa-feather-pointed"></i>
+                    <span>ACEPTAR MATERIAL</span>
+                </a>
+            </li>
+
+            <!-- MATERIAL RECHAZADO -->
+             <li class="nav-item">
+                <a class="nav-link" href="materialRechazado.php">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    <span>MATERIAL RECHAZADO</span>
                 </a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="salidas.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>ONT ASIGANADAS A MIS TECNICOS</span>
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>ASIGNAR MATERIAL</span>
                 </a>
             </li>
             
@@ -137,63 +156,7 @@
             <div id="content">
 
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-
-                    <!-- Sidebar Toggle (Topbar) -->
-                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-                        <i class="fa fa-bars"></i>
-                    </button>
-
-                    <!-- Topbar Search -->
-                    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search" id="FormQueryUnidades">
-                        <div class="input-group">
-
-                            <input type="date" name="Fecha1" id="Fecha1" class="form-control bg-light border-0 small" onchange="LoadEntradas();" 
-                                aria-label="AL" aria-describedby="basic-addon2">
-
-                            <input type="date" name="Fecha2" id="Fecha2" class="form-control bg-light border-0 small" onchange="LoadEntradas();" 
-                                aria-label="AL" aria-describedby="basic-addon2">
-
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
-                                    <i class="fas fa-search fa-sm"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-
-                    <!-- Topbar Navbar -->
-                    <ul class="navbar-nav ml-auto">
-
-                        <div class="topbar-divider d-none d-sm-block"></div>
-
-                        <!-- Nav Item - User Information -->
-                        <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?php echo $Contratista;?></span>
-                                <img class="img-profile rounded-circle"
-                                    src="img/undraw_profile.svg">
-                            </a>
-                            <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    PERFIL
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    CERRAR SESION
-                                </a>
-                            </div>
-                        </li>
-
-                    </ul>
-
-                </nav>
-                <!-- End of Topbar -->
+                <?php include_once(__DIR__ . '/../components/TopbarContratistas.php'); ?>
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">

@@ -96,18 +96,34 @@
                 </div>
             </li>
 
-            <!-- Nav Item - Tables -->
+            <!-- MATERIAL RECIBIDO -->
             <li class="nav-item">
                 <a class="nav-link" href="entradas.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>ENTRADAS DE MATERIALES</span>
+                    <i class="fa-solid fa-clipboard-check"></i>
+                    <span>MATERIAL RECIBIDO</span>
+                </a>
+            </li>
+
+            <!-- ACEPTAR MATERIAL -->
+             <li class="nav-item">
+                <a class="nav-link" href="aceptarMaterial.php">
+                    <i class="fa-solid fa-feather-pointed"></i>
+                    <span>ACEPTAR MATERIAL</span>
+                </a>
+            </li>
+
+            <!-- MATERIAL RECHAZADO -->
+             <li class="nav-item">
+                <a class="nav-link" href="materialRechazado.php">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    <span>MATERIAL RECHAZADO</span>
                 </a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="salidas.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>SALIDAS DE MATERIALES</span>
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>ASIGNAR MATERIAL</span>
                 </a>
             </li>
 

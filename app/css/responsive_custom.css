@@ -1,0 +1,28 @@
+/* responsive_custom.css
+   Simplifica la UI para que soporte sólo dos modos: móvil y laptop.
+   - Móvil: pantallas menores a 768px
+   - Laptop: pantallas >= 768px
+   Evita estilos específicos para tablets intermedias.
+*/
+
+/* MÓVIL */
+@media (max-width: 767.98px) {
+    /* Ocultar la sidebar para dispositivos móviles */
+    .sidebar { display: none !important; }
+
+    /* Simplificar búsqueda en topbar */
+    .navbar-search { display: none !important; }
+
+    /* Ajustes para imágenes de perfil */
+    .img-profile { width: 32px !important; height: 32px !important; }
+
+    /* Reducir márgenes para cabeceras */
+    .topbar { padding: .5rem 1rem; }
+    .container-fluid { padding-left: .5rem; padding-right: .5rem; }
+}
+
+/* LAPTOP Y MAYOR */
+@media (min-width: 768px) {
+    .sidebar { display: block !important; }
+    .navbar-search { display: block !important; }
+}

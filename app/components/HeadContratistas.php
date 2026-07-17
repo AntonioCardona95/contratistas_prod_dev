@@ -45,5 +45,7 @@ if (strpos($scriptDir, 'views') === 0) {
     <!-- SWEETALERT2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   
+    <!-- Responsive custom: for only mobile and laptop modes -->
+    <link href="<?= htmlspecialchars($relativePath) ?>css/responsive_custom.css" rel="stylesheet">
 
 </head>
