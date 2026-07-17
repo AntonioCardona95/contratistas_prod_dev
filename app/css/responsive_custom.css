@@ -25,4 +25,11 @@
 @media (min-width: 768px) {
     .sidebar { display: block !important; }
     .navbar-search { display: block !important; }
+    .navbar-search .input-group { min-width: 560px; }
+    .topbar-date-input { min-width: 190px; max-width: 250px; }
+    .topbar-actions-container { margin-left: .5rem; }
+}
+
+@media (min-width: 992px) {
+    .navbar-search .input-group { min-width: 620px; }
 }
