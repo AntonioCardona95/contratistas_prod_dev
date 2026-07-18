@@ -135,7 +135,7 @@ if (empty($idContratistas)) {
 
             <!-- Sidebar Toggler (Sidebar) -->
             <div class="text-center d-inline-block d-md-inline">
-                <button class="rounded-circle border-0" id="sidebarToggle" aria-label="Cerrar menú">
+                <button class="rounded-circle border-0" id="sidebarToggle" aria-label="Cerrar menu">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
