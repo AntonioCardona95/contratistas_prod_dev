@@ -145,14 +145,7 @@
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
-            <!-- Sidebar Toggler (Sidebar) -->
-            <!-- <div class="text-center">
-                <button class="rounded-circle border-0" id="sidebarToggle" aria-label="Cerrar menu">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div> -->
-
-            <div class="sidebar-footer">
+            <div class="sidebar-footer text-center">
                 <button class="rounded-circle border-0" id="sidebarToggle" aria-label="Cerrar menú">
                     <i class="fas fa-times"></i>
                 </button>

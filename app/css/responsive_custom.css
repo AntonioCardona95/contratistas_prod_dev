@@ -5,6 +5,16 @@
    SE EVITA LA COMPLEJIDAD DE ESTILOS INTERMEDIOS PARA TABLETS.
 */
 
+/* EVITAR ICONOS GENERADOS POR ::BEFORE/::AFTER SOBRE EL TOGGLE DEL FOOTER */
+    .sidebar-footer #sidebarToggle::before,
+    .sidebar-footer #sidebarToggle::after,
+    .sidebar-footer .rounded-circle::before,
+    .sidebar-footer .rounded-circle::after {
+        display: none !important;
+        content: none !important;
+    }
+
+    
 /* MÓVIL: CONFIGURACIÓN DE DRAWER PARA LA SIDEBAR Y TABLAS DESPLAZABLES */
 @media (max-width: 767.98px) {
     /* LA SIDEBAR SE TRANSFORMA EN DRAWER OCULTO EN MÓVIL */
@@ -92,15 +102,6 @@
         color: #fff;
     }
 
-    /* Evitar iconos generados por ::before/::after sobre el toggle del footer */
-    .sidebar-footer #sidebarToggle::before,
-    .sidebar-footer #sidebarToggle::after,
-    .sidebar-footer .rounded-circle::before,
-    .sidebar-footer .rounded-circle::after {
-        display: none !important;
-        content: none !important;
-    }
-
     /* En desktop, asegurar que el footer esté centrado respecto a la sidebar */
     @media (min-width: 768px) {
         .sidebar { position: relative; }
@@ -146,6 +147,7 @@
     .table tbody td {
         white-space: nowrap;
     }
+
 }
 
 /* LAPTOP Y MAYOR: MOSTRAR BÚSQUEDA Y LAYOUT DE TOPBAR NORMAL */
