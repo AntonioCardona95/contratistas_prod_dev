@@ -93,8 +93,8 @@ if($ruta_actual === ''){
     <!-- DIVISION -->
     <hr class="sidebar-divider d-none d-md-block">
 
-    <!-- BOTON DE PLIEGUE DE LA BARRA LATERAL -->
-    <div class="text-center d-inline-block d-md-inline">
+    <!-- FOOTER DE LA SIDEBAR: BOTÓN DE CIERRE (POSICIONADO POR CSS PARA MÓVIL) -->
+    <div class="sidebar-footer">
         <button class="rounded-circle border-0" id="sidebarToggle" aria-label="Cerrar menú">
             <i class="fas fa-times"></i>
         </button>

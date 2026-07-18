@@ -73,6 +73,29 @@
         padding: 1rem;
     }
 
+    /* OCULTAR EL BOTÓN ANTIGUO (SI EXISTE) Y POSICIONAR EL FOOTER AL FONDO */
+    .sidebar .text-center.d-inline-block.d-md-inline { display: none !important; }
+    .sidebar-footer {
+        position: absolute;
+        bottom: 1.25rem;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 1060;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .sidebar-footer #sidebarToggle {
+        width: 3rem;
+        height: 3rem;
+        background: rgba(255,255,255,0.12);
+        color: #fff;
+    }
+
+    /* Mostrar solo el toggle del footer y ocultar duplicados */
+    #sidebarToggle { display: none !important; }
+    .sidebar-footer #sidebarToggle { display: inline-flex !important; }
+
     /* Overlay de drawer móvil solo cuando el drawer está abierto */
     body.mobile-sidebar-open::before {
         content: '';
@@ -131,3 +154,4 @@
 @media (min-width: 992px) {
     .navbar-search .input-group { min-width: 620px; }
 }
+
