@@ -1,8 +1,20 @@
 (function($) {
   "use strict"; // Start of use strict
 
-  // Toggle the side navigation
-  $("#sidebarToggle, #sidebarToggleTop").on('click', function(e) {
+  // Toggle the side navigation on desktop only.
+  $("#sidebarToggle").on('click', function(e) {
+    $("body").toggleClass("sidebar-toggled");
+    $(".sidebar").toggleClass("toggled");
+    if ($(".sidebar").hasClass("toggled")) {
+      $('.sidebar .collapse').collapse('hide');
+    };
+  });
+
+  // On mobile, the topbar button is handled by custom mobile logic.
+  $("#sidebarToggleTop").on('click', function(e) {
+    if ($(window).width() < 768) {
+      return;
+    }
     $("body").toggleClass("sidebar-toggled");
     $(".sidebar").toggleClass("toggled");
     if ($(".sidebar").hasClass("toggled")) {
@@ -16,12 +28,10 @@
       $('.sidebar .collapse').collapse('hide');
     };
     
-    // Toggle the side navigation when window is resized below 480px
-    if ($(window).width() < 480 && !$(".sidebar").hasClass("toggled")) {
-      $("body").addClass('sidebar-toggled');
-      $(".sidebar").addClass('toggled');
-      $('.sidebar .collapse').collapse('hide');
-    };
+    // Do not force toggle state on tiny screens.
+    if ($(window).width() < 480) {
+      return;
+    }
   });
 
   // Prevent the content wrapper from scrolling when the fixed side navigation hovered over

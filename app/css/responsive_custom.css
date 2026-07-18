@@ -20,11 +20,18 @@
         overflow-y: auto;
         background-color: #007BFF;
     }
+    /* LA SIDEBAR PERMANECE OCULTA HASTA QUE SE ABRE EXPLÍCITAMENTE */
     .sidebar.toggled {
+        transform: translateX(-100%);
+    }
+    .sidebar.mobile-open,
+    body.mobile-sidebar-open .sidebar {
         transform: translateX(0);
     }
-    body.sidebar-toggled .sidebar {
-        transform: translateX(0);
+    .sidebar.toggled.mobile-open {
+        width: 250px !important;
+        overflow: visible !important;
+        transform: translateX(0) !important;
     }
     .sidebar .sidebar-brand-text {
         display: inline !important;
@@ -53,8 +60,8 @@
         padding: 1rem;
     }
 
-    /* Overlay de drawer móvil */
-    body.sidebar-toggled::before {
+    /* Overlay de drawer móvil solo cuando el drawer está abierto */
+    body.mobile-sidebar-open::before {
         content: '';
         position: fixed;
         inset: 0;
