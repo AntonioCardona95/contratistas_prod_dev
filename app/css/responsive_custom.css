@@ -14,6 +14,24 @@
         content: none !important;
     }
 
+/* También ocultar pseudo-elementos globales que generan el segundo icono */
+.sidebar #sidebarToggle::before,
+.sidebar #sidebarToggle::after {
+    display: none !important;
+    content: none !important;
+}
+
+/* Forzar apariencia del toggle del footer */
+.sidebar-footer #sidebarToggle {
+    background: rgba(255,255,255,0.12) !important;
+    color: #fff !important;
+    border: 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+.sidebar-footer #sidebarToggle i,
+.sidebar-footer #sidebarToggle .fas { color: #fff !important; }
+
     
 /* MÓVIL: CONFIGURACIÓN DE DRAWER PARA LA SIDEBAR Y TABLAS DESPLAZABLES */
 @media (max-width: 767.98px) {
@@ -102,16 +120,7 @@
         color: #fff;
     }
 
-    /* En desktop, asegurar que el footer esté centrado respecto a la sidebar */
-    @media (min-width: 768px) {
-        .sidebar { position: relative; }
-        .sidebar-footer { position: absolute; bottom: 1.25rem; left: 50%; transform: translateX(-50%); }
-        /* Forzar visibilidad sólo del toggle dentro del footer */
-        #sidebarToggle { display: none !important; }
-        .sidebar-footer #sidebarToggle { display: inline-flex !important; }
-    }
-
-    /* Mostrar solo el toggle del footer y ocultar duplicados */
+    /* Mostrar solo el toggle del footer y ocultar duplicados (móvil) */
     #sidebarToggle { display: none !important; }
     .sidebar-footer #sidebarToggle { display: inline-flex !important; }
 
@@ -154,6 +163,12 @@
 @media (min-width: 768px) {
     /* SIDEBAR FIJA EN LAPTOP Y TOPBAR DE FILTROS HABITUAL */
     .sidebar { display: block !important; }
+    /* Asegurar footer toggle centrado en vista sidebar (desktop) */
+    .sidebar { position: relative; }
+    .sidebar-footer { position: absolute; bottom: 1.25rem; left: 50%; transform: translateX(-50%); }
+    /* Forzar visibilidad solo del toggle dentro del footer en desktop */
+    #sidebarToggle { display: none !important; }
+    .sidebar-footer #sidebarToggle { display: inline-flex !important; }
     .navbar-search { display: block !important; }
     .navbar-search { display: flex !important; flex-wrap: nowrap; align-items: center; }
     .navbar-search .input-group { min-width: 560px; display: flex; flex-wrap: nowrap; }
