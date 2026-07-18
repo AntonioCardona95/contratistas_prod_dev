@@ -47,6 +47,8 @@ html, body {
         left: 0;
         bottom: 0;
         width: 250px !important;
+        height: 100vh !important;
+        min-height: 100vh !important;
         transform: translateX(-100%);
         transition: transform 0.25s ease;
         z-index: 1045;
@@ -117,6 +119,11 @@ html, body {
         display: flex;
         align-items: center;
         justify-content: center;
+        width: 100%;
+        pointer-events: none;
+    }
+    .sidebar-footer #sidebarToggle {
+        pointer-events: auto;
     }
     .sidebar-footer #sidebarToggle {
         width: 3rem;
@@ -170,7 +177,8 @@ html, body {
     .sidebar { display: block !important; }
     /* Asegurar footer toggle centrado en vista sidebar (desktop) */
     .sidebar { position: relative; }
-    .sidebar-footer { position: absolute; bottom: 1.25rem; left: 50%; transform: translateX(-50%); }
+    .sidebar-footer { position: absolute; bottom: 1.25rem; left: 50%; transform: translateX(-50%); width: 100%; pointer-events: none; }
+    .sidebar-footer #sidebarToggle { pointer-events: auto; }
     /* Forzar visibilidad solo del toggle dentro del footer en desktop */
     #sidebarToggle { display: none !important; }
     .sidebar-footer #sidebarToggle { display: inline-flex !important; }
