@@ -92,6 +92,24 @@
         color: #fff;
     }
 
+    /* Evitar iconos generados por ::before/::after sobre el toggle del footer */
+    .sidebar-footer #sidebarToggle::before,
+    .sidebar-footer #sidebarToggle::after,
+    .sidebar-footer .rounded-circle::before,
+    .sidebar-footer .rounded-circle::after {
+        display: none !important;
+        content: none !important;
+    }
+
+    /* En desktop, asegurar que el footer esté centrado respecto a la sidebar */
+    @media (min-width: 768px) {
+        .sidebar { position: relative; }
+        .sidebar-footer { position: absolute; bottom: 1.25rem; left: 50%; transform: translateX(-50%); }
+        /* Forzar visibilidad sólo del toggle dentro del footer */
+        #sidebarToggle { display: none !important; }
+        .sidebar-footer #sidebarToggle { display: inline-flex !important; }
+    }
+
     /* Mostrar solo el toggle del footer y ocultar duplicados */
     #sidebarToggle { display: none !important; }
     .sidebar-footer #sidebarToggle { display: inline-flex !important; }
