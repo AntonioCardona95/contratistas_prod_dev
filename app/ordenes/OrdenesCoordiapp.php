@@ -102,7 +102,16 @@
                 </a>
             </li>
 
-            <!-- Divider -->\r\n            <hr class="sidebar-divider d-none d-md-block">\r\n\r\n            <!-- Sidebar Toggler (Sidebar) -->\r\n            <div class="text-center d-inline-block d-md-inline">\r\n                <button class="rounded-circle border-0" id="sidebarToggle" aria-label="Cerrar menú">\r\n                    <i class="fas fa-times"></i>\r\n                </button>\r\n            </div>\r\n
+            <!-- Divider -->
+            <hr class="sidebar-divider d-none d-md-block">
+
+            <!-- Sidebar Toggler (Sidebar) -->
+            <div class="text-center d-inline-block d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle" aria-label="Cerrar menú">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
 
         </ul>
         <!-- End of Sidebar -->
@@ -209,3 +218,4 @@
 </body>
 
 </html>
+
