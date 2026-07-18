@@ -25,7 +25,8 @@
 @media (min-width: 768px) {
     .sidebar { display: block !important; }
     .navbar-search { display: block !important; }
-    .navbar-search .input-group { min-width: 560px; }
+    .navbar-search { display: flex !important; flex-wrap: nowrap; align-items: center; }
+    .navbar-search .input-group { min-width: 560px; display: flex; flex-wrap: nowrap; }
     .navbar-search .topbar-date-input {
         width: 250px !important;
         min-width: 250px !important;
@@ -35,7 +36,8 @@
     .navbar-search .input-group > .form-control {
         width: 250px !important;
     }
-    .topbar-actions-container { margin-left: .5rem; }
+    .topbar-actions-container { margin-left: .5rem; white-space: nowrap; }
+    .topbar-actions-container a.btn { white-space: nowrap; }
 }
 
 @media (min-width: 992px) {
