@@ -1,32 +1,100 @@
-/* responsive_custom.css
-   Simplifica la UI para que soporte sólo dos modos: móvil y laptop.
-   - Móvil: pantallas menores a 768px
-   - Laptop: pantallas >= 768px
-   Evita estilos específicos para tablets intermedias.
+/* RESPONSIVE_CUSTOM.CSS
+   ESTILOS ADICIONALES PARA SOPORTAR SOLO DOS MODOS PRINCIPALES:
+   - MÓVIL: PANTALLAS MENORES A 768PX
+   - LAPTOP: PANTALLAS IGUALES O MAYORES A 768PX
+   SE EVITA LA COMPLEJIDAD DE ESTILOS INTERMEDIOS PARA TABLETS.
 */
 
-/* MÓVIL */
+/* MÓVIL: CONFIGURACIÓN DE DRAWER PARA LA SIDEBAR Y TABLAS DESPLAZABLES */
 @media (max-width: 767.98px) {
-    /* Ocultar la sidebar para dispositivos móviles */
-    .sidebar { display: none !important; }
+    /* LA SIDEBAR SE TRANSFORMA EN DRAWER OCULTO EN MÓVIL */
+    .sidebar {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 250px !important;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+        z-index: 1045;
+        overflow-y: auto;
+        background-color: #007BFF;
+    }
+    .sidebar.toggled {
+        transform: translateX(0);
+    }
+    body.sidebar-toggled .sidebar {
+        transform: translateX(0);
+    }
+    .sidebar .sidebar-brand-text {
+        display: inline !important;
+    }
+    .sidebar .nav-item .nav-link {
+        text-align: left;
+        width: auto;
+        padding: .75rem 1rem;
+    }
+    .sidebar .nav-item .nav-link span {
+        display: inline-block;
+        margin-left: .75rem;
+        font-size: .9rem;
+    }
+    .sidebar .sidebar-heading {
+        text-align: left;
+        padding-left: 1rem;
+    }
+    .sidebar hr.sidebar-divider {
+        margin: .5rem 0;
+    }
+    .sidebar #sidebarToggle {
+        display: none;
+    }
+    .sidebar .sidebar-brand {
+        padding: 1rem;
+    }
 
-    /* Simplificar búsqueda en topbar */
+    /* Overlay de drawer móvil */
+    body.sidebar-toggled::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 1040;
+    }
+
+    /* OCULTAR BÚSQUEDA Y REDUCIR ESPACIOS PARA MÓVIL */
     .navbar-search { display: none !important; }
-
-    /* Ajustes para imágenes de perfil */
     .img-profile { width: 32px !important; height: 32px !important; }
-
-    /* Reducir márgenes para cabeceras */
     .topbar { padding: .5rem 1rem; }
     .container-fluid { padding-left: .5rem; padding-right: .5rem; }
+    #content-wrapper { margin-left: 0 !important; }
+
+    /* PERMITIR SCROLL HORIZONTAL EN TABLAS PARA MÓVIL */
+    .table-responsive,
+    .dataTables_wrapper,
+    .table,
+    .card,
+    .card-body {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .table {
+        min-width: 600px;
+    }
+    .table thead th,
+    .table tbody td {
+        white-space: nowrap;
+    }
 }
 
-/* LAPTOP Y MAYOR */
+/* LAPTOP Y MAYOR: MOSTRAR BÚSQUEDA Y LAYOUT DE TOPBAR NORMAL */
 @media (min-width: 768px) {
+    /* SIDEBAR FIJA EN LAPTOP Y TOPBAR DE FILTROS HABITUAL */
     .sidebar { display: block !important; }
     .navbar-search { display: block !important; }
     .navbar-search { display: flex !important; flex-wrap: nowrap; align-items: center; }
     .navbar-search .input-group { min-width: 560px; display: flex; flex-wrap: nowrap; }
+    /* CAMPOS DE FECHA FIJOS EN TOPBAR */
     .navbar-search .topbar-date-input {
         width: 250px !important;
         min-width: 250px !important;

@@ -129,4 +129,17 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
     tryFetch(base + '/get_conteo_alertas.php', 'alertsCount', 'alertsList');
     tryFetch(base + '/../ordenes/get_conteo_alertas.php', 'alertsCount', 'alertsList');
 })();
+
+(function(){
+    document.addEventListener('click', function(event){
+        if (!document.body.classList.contains('sidebar-toggled')) return;
+        var sidebar = document.querySelector('.sidebar');
+        var sidebarToggleTop = document.getElementById('sidebarToggleTop');
+        if (!sidebar) return;
+        if (sidebar.contains(event.target)) return;
+        if (sidebarToggleTop && sidebarToggleTop.contains(event.target)) return;
+        document.body.classList.remove('sidebar-toggled');
+        sidebar.classList.remove('toggled');
+    });
+})();
 </script>
