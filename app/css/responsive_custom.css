@@ -5,14 +5,19 @@
    SE EVITA LA COMPLEJIDAD DE ESTILOS INTERMEDIOS PARA TABLETS.
 */
 
+/* EVITAR EL OVERFLOW EN EL TOP  */
+html, body {
+        overscroll-behavior: none;
+}
+
 /* EVITAR ICONOS GENERADOS POR ::BEFORE/::AFTER SOBRE EL TOGGLE DEL FOOTER */
-    .sidebar-footer #sidebarToggle::before,
-    .sidebar-footer #sidebarToggle::after,
-    .sidebar-footer .rounded-circle::before,
-    .sidebar-footer .rounded-circle::after {
-        display: none !important;
-        content: none !important;
-    }
+.sidebar-footer #sidebarToggle::before,
+.sidebar-footer #sidebarToggle::after,
+.sidebar-footer .rounded-circle::before,
+.sidebar-footer .rounded-circle::after {
+    display: none !important;
+    content: none !important;
+}
 
 /* También ocultar pseudo-elementos globales que generan el segundo icono */
 .sidebar #sidebarToggle::before,
