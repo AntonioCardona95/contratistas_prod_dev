@@ -57,7 +57,7 @@ if (empty($Contratista)) {
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
                 <div class="sidebar-brand-text mx-3">OPERACIONES</div>
             </a>
 
@@ -148,13 +148,7 @@ if (empty($Contratista)) {
 
 
 
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
-
-            <!-- Sidebar Toggler (Sidebar) -->
-            <div class="text-center d-none d-md-inline">
-                <button class="rounded-circle border-0" id="sidebarToggle"></button>
-            </div>
+            <!-- Divider -->\r\n            <hr class="sidebar-divider d-none d-md-block">\r\n\r\n            <!-- Sidebar Toggler (Sidebar) -->\r\n            <div class="text-center d-inline-block d-md-inline">\r\n                <button class="rounded-circle border-0" id="sidebarToggle" aria-label="Cerrar menú">\r\n                    <i class="fas fa-times"></i>\r\n                </button>\r\n            </div>\r\n
 
         </ul>
         <!-- End of Sidebar -->

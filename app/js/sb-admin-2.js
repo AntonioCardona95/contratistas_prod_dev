@@ -13,6 +13,34 @@
   // On mobile, the topbar button is handled by custom mobile logic.
   $("#sidebarToggleTop").on('click', function(e) {
     if ($(window).width() < 768) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      var body = $("body");
+      var sidebar = $(".sidebar");
+      if (body.hasClass('mobile-sidebar-open')) {
+        body.removeClass('mobile-sidebar-open');
+        sidebar.removeClass('mobile-open');
+      } else {
+        body.addClass('mobile-sidebar-open');
+        sidebar.addClass('mobile-open');
+      }
+      return;
+    }
+    $("body").toggleClass("sidebar-toggled");
+    $(".sidebar").toggleClass("toggled");
+    if ($(".sidebar").hasClass("toggled")) {
+      $('.sidebar .collapse').collapse('hide');
+    };
+  });
+
+  $("#sidebarToggle").on('click', function(e) {
+    if ($(window).width() < 768) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      $("body").removeClass('mobile-sidebar-open');
+      $(".sidebar").removeClass('mobile-open');
       return;
     }
     $("body").toggleClass("sidebar-toggled");

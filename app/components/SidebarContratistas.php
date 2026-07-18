@@ -94,8 +94,10 @@ if($ruta_actual === ''){
     <hr class="sidebar-divider d-none d-md-block">
 
     <!-- BOTON DE PLIEGUE DE LA BARRA LATERAL -->
-    <div class="text-center d-none d-md-inline">
-        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+    <div class="text-center d-inline-block d-md-inline">
+        <button class="rounded-circle border-0" id="sidebarToggle" aria-label="Cerrar menú">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
 
 </ul>

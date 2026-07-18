@@ -164,6 +164,17 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
                 sidebar.classList.add('mobile-open');
             }
         });
+
+        var sidebarCloseBtn = document.getElementById('sidebarToggle');
+        if (sidebarCloseBtn) {
+            sidebarCloseBtn.addEventListener('click', function(event){
+                if (window.innerWidth >= 768) return;
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+                closeMobileSidebar();
+            });
+        }
     }
 
     attachMobileSidebarHandler();

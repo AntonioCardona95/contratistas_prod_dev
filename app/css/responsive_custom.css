@@ -54,7 +54,20 @@
         margin: .5rem 0;
     }
     .sidebar #sidebarToggle {
-        display: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.4rem;
+        height: 2.4rem;
+        color: #ffffff;
+        background: rgba(255,255,255,0.12);
+        transition: background 0.2s ease;
+    }
+    .sidebar #sidebarToggle i {
+        font-size: 0.95rem;
+    }
+    .sidebar #sidebarToggle:hover {
+        background: rgba(255,255,255,0.2);
     }
     .sidebar .sidebar-brand {
         padding: 1rem;
