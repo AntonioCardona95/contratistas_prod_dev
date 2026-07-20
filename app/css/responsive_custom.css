@@ -189,6 +189,9 @@ html, body {
         overflow-y: auto !important;
         z-index: 1045 !important;
     }
+    #content-wrapper {
+        margin-left: 250px !important;
+    }
     /* Asegurar footer toggle centrado en vista sidebar (desktop) */
     .sidebar-footer { position: absolute; bottom: 1.25rem; left: 50%; transform: translateX(-50%); width: 100%; pointer-events: none; }
     .sidebar-footer #sidebarToggle { pointer-events: auto; }
