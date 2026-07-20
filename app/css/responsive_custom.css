@@ -198,9 +198,21 @@ html, body {
     /* Forzar visibilidad solo del toggle dentro del footer en desktop */
     #sidebarToggle { display: none !important; }
     .sidebar-footer #sidebarToggle { display: inline-flex !important; }
-    .navbar-search { display: block !important; }
-    .navbar-search { display: flex !important; flex-wrap: nowrap; align-items: center; }
-    .navbar-search .input-group { min-width: 560px; display: flex; flex-wrap: nowrap; }
+    .navbar-search {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        width: calc(100vw - 340px) !important;
+        max-width: calc(100vw - 340px) !important;
+        min-width: 0 !important;
+    }
+    .navbar-search .input-group {
+        min-width: 0 !important;
+        width: auto !important;
+        max-width: 100% !important;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+    }
 
     /* CAMPOS DE FECHA FIJOS EN TOPBAR */
     .navbar-search .topbar-date-input {
@@ -212,8 +224,35 @@ html, body {
     .navbar-search .input-group > .form-control {
         width: 300px !important;
     }
-    .topbar-actions-container { margin-left: .5rem; white-space: nowrap; }
-    .topbar-actions-container a.btn { white-space: nowrap; }
+    .topbar-actions-container {
+        margin-left: auto !important;
+        justify-content: flex-end !important;
+        gap: .75rem;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+    }
+    .topbar-actions-container a.btn {
+        white-space: nowrap;
+        margin-left: .5rem;
+    }
+}
+
+@media (max-width: 1199.98px) {
+    .sidebar { width: 230px !important; }
+    #content-wrapper { margin-left: 230px !important; }
+}
+@media (max-width: 991.98px) {
+    .sidebar { width: 210px !important; }
+    #content-wrapper { margin-left: 210px !important; }
+}
+@media (max-width: 879.98px) {
+    .sidebar { width: 190px !important; }
+    #content-wrapper { margin-left: 190px !important; }
+}
+@media (max-width: 767.98px) {
+    .sidebar { width: 250px !important; }
+    #content-wrapper { margin-left: 0 !important; }
 }
 
 @media (min-width: 992px) {
