@@ -121,9 +121,12 @@ html, body {
         justify-content: center;
         width: 100%;
         pointer-events: none;
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
     .sidebar-footer #sidebarToggle {
         pointer-events: auto;
+        margin: 0 auto;
     }
     .sidebar-footer #sidebarToggle {
         width: 3rem;
@@ -174,9 +177,19 @@ html, body {
 /* LAPTOP Y MAYOR: MOSTRAR BÚSQUEDA Y LAYOUT DE TOPBAR NORMAL */
 @media (min-width: 768px) {
     /* SIDEBAR FIJA EN LAPTOP Y TOPBAR DE FILTROS HABITUAL */
-    .sidebar { display: block !important; }
+    .sidebar {
+        display: block !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: 250px !important;
+        height: 100vh !important;
+        min-height: 100vh !important;
+        overflow-y: auto !important;
+        z-index: 1045 !important;
+    }
     /* Asegurar footer toggle centrado en vista sidebar (desktop) */
-    .sidebar { position: relative; }
     .sidebar-footer { position: absolute; bottom: 1.25rem; left: 50%; transform: translateX(-50%); width: 100%; pointer-events: none; }
     .sidebar-footer #sidebarToggle { pointer-events: auto; }
     /* Forzar visibilidad solo del toggle dentro del footer en desktop */
