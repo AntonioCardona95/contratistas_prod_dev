@@ -181,3 +181,34 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
     document.addEventListener('DOMContentLoaded', attachMobileSidebarHandler);
 })();
 </script>
+
+<script>
+(function(){
+    // Ajusta el margin-left de #content-wrapper según el ancho actual de la sidebar
+    function adjustContentForSidebar(){
+        var sidebar = document.querySelector('.sidebar');
+        var content = document.getElementById('content-wrapper');
+        if(!sidebar || !content) return;
+        if(window.innerWidth >= 768){
+            var w = Math.round(sidebar.getBoundingClientRect().width) || 0;
+            content.style.marginLeft = w + 'px';
+        } else {
+            content.style.marginLeft = '';
+        }
+    }
+
+    // Ejecutar en eventos relevantes
+    window.addEventListener('resize', adjustContentForSidebar);
+    document.addEventListener('DOMContentLoaded', adjustContentForSidebar);
+    setTimeout(adjustContentForSidebar, 80);
+
+    // Observar cambios de tamaño de la sidebar (cuando existan)
+    try{
+        var sidebarEl = document.querySelector('.sidebar');
+        if(window.ResizeObserver && sidebarEl){
+            var ro = new ResizeObserver(function(){ adjustContentForSidebar(); });
+            ro.observe(sidebarEl);
+        }
+    }catch(e){ /* ignore */ }
+})();
+</script>
