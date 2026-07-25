@@ -144,6 +144,47 @@
         });
     });
 
+    // ACEPTAR DESDE LA FILA
+    $(document).off('click', '.aceptar-pendiente').on('click', '.aceptar-pendiente', function(){
+        var folio = $(this).data('folio');
+        if (!folio) return;
+
+        Swal.fire({
+            position: 'top',
+            icon: 'question',
+            title: '¿Aceptar esta salida?',
+            html: 'Confirmas que recibiste correctamente el material de la salida <strong>SD-A-' + folio + '</strong>.',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, aceptar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#1cc88a'
+        }).then(function(result){
+            if (!result.isConfirmed) return;
+
+            $.post('modal/AceptarSalida.php', { folio: folio }, function(response){
+                if (response.success) {
+                    Swal.fire({
+                        position: 'top',
+                        icon: 'success',
+                        title: 'Salida aceptada',
+                        text: 'El material fue marcado como aceptado correctamente.',
+                        showConfirmButton: true
+                    });
+                    $('#detallePendienteModal').modal('hide');
+                    LoadPendientes();
+                } else {
+                    Swal.fire({
+                        position: 'top',
+                        icon: 'error',
+                        title: 'Error al aceptar',
+                        text: response.message || 'Ocurrió un error.',
+                        showConfirmButton: true
+                    });
+                }
+            }, 'json');
+        });
+    });
+
     // ACEPTAR
     $(document).off('click', '#btn-aceptar-pendiente').on('click', '#btn-aceptar-pendiente', function(){
         if (!folioActivoPendiente) return;
