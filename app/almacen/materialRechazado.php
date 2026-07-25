@@ -49,7 +49,7 @@
     <div id="wrapper">
 
         <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a 100%, #224abe 0%); background-size: cover;">
 
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div class="sidebar-brand-text mx-3">ALMACEN</div>
@@ -130,21 +130,25 @@
 
                 <div class="container-fluid">
 
-                    <h1 class="h3 mb-2 text-gray-800"><i class="fa-solid fa-circle-xmark"></i> MATERIAL RECHAZADO</h1>
-
-                    <div id="LoadRechazados"></div>
+                    <!-- CONTENEDOR DE DATOS OPTIMIZADO -->
+                    <div class="card shadow mb-4 table-container">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h1 class="m-0 font-weight-bold text-gray-800"> MATERIAL RECHAZADO <i class="fa-solid fa-circle-xmark"></i></h1>
+                        </div>
+                        <div class="card-body p-0">
+                            <!-- CONTENEDOR DE LA TABLA -->
+                            <div id="LoadRechazados">
+                                <!-- AQUI SE CARGAN LOS DATOS VIA AJAX -->
+                            </div>
+                        </div> 
+                    </div>
 
                 </div>
 
             </div>
 
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; ENLACE DIGITAL 2025</span>
-                    </div>
-                </div>
-            </footer>
+            <!-- IMPORTAR EL FOOTER DE CONTRATISTAS -->
+            <?php include_once(__DIR__ . '/../components/FooterContratistas.php'); ?>
 
         </div>
 
@@ -154,25 +158,10 @@
         <i class="fas fa-angle-up"></i>
     </a>
 
-    <!-- LOGOUT MODAL -->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">CERRAR SESION</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">PRESIONA SALIR, PARA CERRAR LA SESSION.</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">CANCELAR</button>
-                    <a class="btn btn-primary" href="../Login/modal/poweroff.php">SALIR</a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- MODAL DE CIERRE DE SESION -->
+    <?php include_once(__DIR__ . '/../components/ModalCierreSesion.php'); ?>
 
+    <!-- SCRIPTS DE CONTRATISTAS -->
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
 
     <script>
