@@ -64,21 +64,6 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
             </div>
         </li>
 
-        <!-- Buzón (sobre) -->
-        <li class="nav-item dropdown no-arrow mx-1">
-            <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-envelope fa-fw"></i>
-                <span id="messagesCount" class="badge badge-danger badge-counter">0</span>
-            </a>
-            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="messagesDropdown">
-                <h6 class="dropdown-header">Buzón</h6>
-                <div id="messagesList">
-                    <a class="dropdown-item text-center small text-gray-500">No hay mensajes</a>
-                </div>
-                <a class="dropdown-item text-center small text-gray-500" href="#">Ver buzón</a>
-            </div>
-        </li>
-
         <div class="topbar-divider d-none d-sm-block"></div>
 
         <!-- Nav Item - User Information -->
@@ -107,28 +92,6 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
 <!-- End of Topbar -->
 
 <script>
-// Intento simple de cargar contadores si existe el endpoint
-(function(){
-    function tryFetch(url, elCount, elList){
-        fetch(url).then(r=>r.json()).then(data=>{
-            if(data && typeof data.count !== 'undefined'){
-                document.getElementById(elCount).textContent = data.count;
-            }
-            if(data && data.items){
-                var html = '';
-                data.items.slice(0,5).forEach(it=>{
-                    html += '<a class="dropdown-item d-flex align-items-center" href="#">'+(it.title||'Item')+'<div class="small text-gray-500">'+(it.date||'')+'</div></a>';
-                });
-                if(html) document.getElementById(elList).innerHTML = html;
-            }
-        }).catch(e=>{});
-    }
-    // rutas relativas desde app/almacen o app/ordenes
-    var base = window.location.pathname.replace(/\/[^/]*$/, '');
-    // probar rutas comunes
-    tryFetch(base + '/get_conteo_alertas.php', 'alertsCount', 'alertsList');
-    tryFetch(base + '/../ordenes/get_conteo_alertas.php', 'alertsCount', 'alertsList');
-})();
 
 (function(){
     function closeMobileSidebar(){

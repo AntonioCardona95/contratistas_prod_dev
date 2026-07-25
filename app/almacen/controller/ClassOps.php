@@ -9,6 +9,56 @@
 
     class Ops extends Conexion
     {
+        // ====== FUNCIONES GENERICAS DE CONSULTA Y EJECUCION ====== //
+
+        protected function runQuery($sql, $params = array(), $useAnalytics = false)
+        {
+            $rows = array();
+            // En Salidas usamos la conexión principal
+            $conexion = $this->get_conexion();
+
+            try {
+                $stmt = $conexion->prepare($sql);
+
+                foreach ($params as $key => $val) {
+                    $param = ':' . ltrim($key, ':');
+                    if (is_int($val)) {
+                        $stmt->bindValue($param, $val, PDO::PARAM_INT);
+                    } else {
+                        $stmt->bindValue($param, $val, PDO::PARAM_STR);
+                    }
+                }
+
+                $stmt->execute();
+                $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                if (method_exists($stmt, 'closeCursor')) {
+                    $stmt->closeCursor();
+                }
+            } catch (PDOException $e) {
+                // Loguear el error para diagnóstico y devolver array vacío
+                error_log("[Tac::runQuery] Error: " . $e->getMessage() . " SQL: " . $sql);
+                return array();
+            }
+
+            return is_array($rows) ? $rows : array();
+        }
+
+        protected function runExecute($sql, $params = array())
+        {
+            $conexion = $this->get_conexion();
+            try {
+                $stmt = $conexion->prepare($sql);
+                foreach ($params as $key => $val) {
+                    $param = ':' . ltrim($key, ':');
+                    $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+                }
+                return $stmt->execute(); // true o false
+            } catch (PDOException $e) {
+                error_log("[Tac::runExecute] Error: " . $e->getMessage() . " SQL: " . $sql);
+                return false;
+            }
+        }
+        
         public function CountMaterialesAsignados($FK_Contratista_Salida_Det,$Fecha1,$Fecha2)
         {
             $rows = null;
@@ -615,6 +665,213 @@
                 $resultado = $statement->execute();
                 return "Registro Exitoso";
             }
+        }
+
+
+        // ========  METODOS DE ACEPTACION DE MATERIAL =========
+
+        // ACEPTAR UNA SALIDA COMPLETA
+        public function AceptarSalida($Folio_Salida, $idContratistas)
+        {
+            $conexion = $this->get_conexion();
+            try {
+                $conexion->beginTransaction();
+
+                // 1. VALIDAR QUE LA SALIDA EXISTE, ESTÁ PENDIENTE Y LE PERTENECE A ESTE CONTRATISTA
+                $stmtCheck = $conexion->prepare("SELECT FK_User_ST FROM temp_transferencias_t 
+                    WHERE Folio_Salida_ST = :folio AND FK_Contra_ST = :contratista AND Status_Temp = 'pendiente'
+                    FOR UPDATE");
+                $stmtCheck->bindValue(':folio', $Folio_Salida, PDO::PARAM_INT);
+                $stmtCheck->bindValue(':contratista', $idContratistas, PDO::PARAM_INT);
+                $stmtCheck->execute();
+                $fila = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+
+                if (!$fila) {
+                    $conexion->rollBack();
+                    return ['success' => false, 'message' => 'Esta salida no existe, ya fue procesada o no te pertenece.'];
+                }
+
+                $idUsuarioNass = $fila['FK_User_ST'];
+
+                // 2. MOVER LA CABECERA
+                $conexion->exec("INSERT INTO transferencias_t 
+                    (FK_Almacen_ST, FK_Contra_ST, Fecha_Salida_ST, Cantidad_ST, FK_User_ST, Folio_Salida_ST, 
+                    Solicitante_Salida_T, Solicitante_SalidaA_T, DescripcionSalida_T, Tipo_MovS_T, Folio_Telmex_ST, 
+                    FK_UNS_T, Comprobante_Salida_T, Hash_Archivo_Salidas, Estatus_ComprobanteS_T, 
+                    Ubicacion_Material_ST, recibe_contratista_t, Cantidad_Metros_T)
+                    SELECT FK_Almacen_ST, FK_Contra_ST, Fecha_Salida_ST, Cantidad_ST, FK_User_ST, Folio_Salida_ST, 
+                        Solicitante_Salida_T, Solicitante_SalidaA_T, DescripcionSalida_T, Tipo_MovS_T, Folio_Telmex_ST, 
+                        FK_UNS_T, Comprobante_Salida_T, Hash_Archivo_Salidas, Estatus_ComprobanteS_T, 
+                        Ubicacion_Material_ST, recibe_contratista_t, Cantidad_Metros_T
+                    FROM temp_transferencias_t
+                    WHERE Folio_Salida_ST = " . (int)$Folio_Salida);
+
+                // 3. MOVER EL DETALLE DE PRODUCTOS
+                $conexion->exec("INSERT INTO transferencias 
+                    (Folio_Salida, FK_Almacen_S, FK_Contratista_S, FK_Producto_S, Fecha_S, Cantidad_S, 
+                    FK_User_S, FK_Tecnico_S, Folio_Telmex_S, FK_UNS, recibe_contratista, Tecnologia, 
+                    Piezas_Sueltas, Total_Piezas, Total_Metros)
+                    SELECT Folio_Salida, FK_Almacen_S, FK_Contratista_S, FK_Producto_S, Fecha_S, Cantidad_S, 
+                        FK_User_S, FK_Tecnico_S, Folio_Telmex_S, FK_UNS, recibe_contratista, Tecnologia, 
+                        Piezas_Sueltas, Total_Piezas, Total_Metros
+                    FROM temp_transferencias
+                    WHERE Folio_Salida = " . (int)$Folio_Salida);
+
+                // 4. MOVER LOS NUMEROS DE SERIE
+                $conexion->exec("INSERT INTO material_det_salida 
+                    (Num_Serie_S, Alfanumerico_S, FK_Material_S, Localidad_Material_S, Folio_Salida_Material_Det_S, 
+                    Fecha_Salida_S, FK_Contratista_Salida, Ubicacion_Material, Estatus_Ubicacion, 
+                    Folio_Ultima_Transferencia, Folio_Ultima_Devolucion)
+                    SELECT Num_Serie_S, Alfanumerico_S, FK_Material_S, Localidad_Material_S, Folio_Salida_Material_Det_S, 
+                        Fecha_Salida_S, FK_Contratista_Salida, Ubicacion_Material, Estatus_Ubicacion, 
+                        Folio_Ultima_Transferencia, Folio_Ultima_Devolucion
+                    FROM temp_material_det_salida
+                    WHERE Folio_Salida_Material_Det_S = " . (int)$Folio_Salida);
+
+                // 5. ACTUALIZAR EL ESTATUS DE LOS NUMEROS DE SERIE: PENDING -> ASSIGMENT
+                $conexion->exec("UPDATE materiales_det
+                    SET Estatus_NS = 'ASSIGMENT'
+                    WHERE Num_Serie IN (
+                        SELECT Num_Serie_S FROM temp_material_det_salida 
+                        WHERE Folio_Salida_Material_Det_S = " . (int)$Folio_Salida . "
+                    )");
+
+                // 6. MARCAR LA TEMPORAL COMO ACEPTADA (NO SE BORRA, QUEDA COMO HISTORIAL)
+                $stmtUpdate = $conexion->prepare("UPDATE temp_transferencias_t
+                    SET Status_Temp = 'aceptado', Fecha_Respuesta = NOW()
+                    WHERE Folio_Salida_ST = :folio");
+                $stmtUpdate->bindValue(':folio', $Folio_Salida, PDO::PARAM_INT);
+                $stmtUpdate->execute();
+
+                $conexion->commit();
+
+                return ['success' => true, 'idUsuarioNass' => $idUsuarioNass];
+
+            } catch (PDOException $e) {
+                if ($conexion->inTransaction()) {
+                    $conexion->rollBack();
+                }
+                error_log("[AceptarSalida] Error: " . $e->getMessage());
+                return ['success' => false, 'message' => 'Error al procesar la aceptación.'];
+            }
+        }
+
+        // RECHAZAR UNA SALIDA COMPLETA
+        public function RechazarSalida($Folio_Salida, $idContratistas)
+        {
+            $conexion = $this->get_conexion();
+            try {
+                $conexion->beginTransaction();
+
+                $stmtCheck = $conexion->prepare("SELECT FK_User_ST FROM temp_transferencias_t 
+                    WHERE Folio_Salida_ST = :folio AND FK_Contra_ST = :contratista AND Status_Temp = 'pendiente'
+                    FOR UPDATE");
+                $stmtCheck->bindValue(':folio', $Folio_Salida, PDO::PARAM_INT);
+                $stmtCheck->bindValue(':contratista', $idContratistas, PDO::PARAM_INT);
+                $stmtCheck->execute();
+                $fila = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+
+                if (!$fila) {
+                    $conexion->rollBack();
+                    return ['success' => false, 'message' => 'Esta salida no existe, ya fue procesada o no te pertenece.'];
+                }
+
+                $idUsuarioNass = $fila['FK_User_ST'];
+
+                // LIBERAR LOS NUMEROS DE SERIE: PENDING -> NULL (VUELVEN A ESTAR DISPONIBLES)
+                $conexion->exec("UPDATE materiales_det
+                    SET Estatus_NS = NULL
+                    WHERE Num_Serie IN (
+                        SELECT Num_Serie_S FROM temp_material_det_salida 
+                        WHERE Folio_Salida_Material_Det_S = " . (int)$Folio_Salida . "
+                    )");
+
+                // MARCAR LA TEMPORAL COMO RECHAZADA (NO SE TOCAN LAS TABLAS DEFINITIVAS)
+                $stmtUpdate = $conexion->prepare("UPDATE temp_transferencias_t
+                    SET Status_Temp = 'rechazado', Fecha_Respuesta = NOW()
+                    WHERE Folio_Salida_ST = :folio");
+                $stmtUpdate->bindValue(':folio', $Folio_Salida, PDO::PARAM_INT);
+                $stmtUpdate->execute();
+
+                $conexion->commit();
+
+                return ['success' => true, 'idUsuarioNass' => $idUsuarioNass];
+
+            } catch (PDOException $e) {
+                if ($conexion->inTransaction()) {
+                    $conexion->rollBack();
+                }
+                error_log("[RechazarSalida] Error: " . $e->getMessage());
+                return ['success' => false, 'message' => 'Error al procesar el rechazo.'];
+            }
+        }
+
+        // SALIDAS PENDIENTES DE ESTE CONTRATISTA
+        public function ObtenerPendientes($idContratistas, $Fecha1, $Fecha2)
+        {
+            $sql = "SELECT 
+                        t.idTransferencias_T, t.Folio_Salida_ST, t.Folio_Telmex_ST, t.Fecha_Salida_ST,
+                        t.Cantidad_ST, t.Cantidad_Metros_T, t.Solicitante_Salida_T, t.DescripcionSalida_T,
+                        a.Almacen, uNeg.UN AS Unidad_Negocio
+                    FROM temp_transferencias_t t
+                    INNER JOIN almacenes a ON t.FK_Almacen_ST = a.idAlmacenes
+                    LEFT JOIN unegocio uNeg ON t.FK_UNS_T = uNeg.idUN
+                    WHERE t.FK_Contra_ST = :idContratistas 
+                    AND t.Status_Temp = 'pendiente'
+                    AND t.Fecha_Salida_ST BETWEEN :Fecha1 AND :Fecha2
+                    ORDER BY t.Folio_Salida_ST DESC";
+
+            return $this->runQuery($sql, [
+                'idContratistas' => $idContratistas,
+                'Fecha1' => $Fecha1,
+                'Fecha2' => $Fecha2
+            ]);
+        }
+
+        // SALIDAS RECHAZADAS DE ESTE CONTRATISTA
+        public function ObtenerRechazados($idContratistas, $Fecha1, $Fecha2)
+        {
+            $sql = "SELECT 
+                        t.idTransferencias_T, t.Folio_Salida_ST, t.Folio_Telmex_ST, t.Fecha_Salida_ST,
+                        t.Cantidad_ST, t.Cantidad_Metros_T, t.Solicitante_Salida_T, t.DescripcionSalida_T,
+                        t.Fecha_Respuesta,
+                        a.Almacen, uNeg.UN AS Unidad_Negocio
+                    FROM temp_transferencias_t t
+                    INNER JOIN almacenes a ON t.FK_Almacen_ST = a.idAlmacenes
+                    LEFT JOIN unegocio uNeg ON t.FK_UNS_T = uNeg.idUN
+                    WHERE t.FK_Contra_ST = :idContratistas 
+                    AND t.Status_Temp = 'rechazado'
+                    AND t.Fecha_Salida_ST BETWEEN :Fecha1 AND :Fecha2
+                    ORDER BY t.Fecha_Respuesta DESC";
+
+            return $this->runQuery($sql, [
+                'idContratistas' => $idContratistas,
+                'Fecha1' => $Fecha1,
+                'Fecha2' => $Fecha2
+            ]);
+        }
+
+        // DETALLE DE MATERIALES DE UNA SALIDA TEMPORAL (PARA EL MODAL)
+        public function ObtenerDetalleMateriales($Folio_Salida)
+        {
+            $sql = "SELECT p.Producto, p.Modelo, t.Tecnologia, p.UM, p.Presentacion,
+                        t.Cantidad_S, t.Piezas_Sueltas, t.Total_Piezas, t.Total_Metros
+                    FROM temp_transferencias t
+                    INNER JOIN producto p ON t.FK_Producto_S = p.idProducto
+                    WHERE t.Folio_Salida = :folio";
+
+            return $this->runQuery($sql, ['folio' => $Folio_Salida]);
+        }
+
+        // DETALLE DE NUMEROS DE SERIE DE UNA SALIDA TEMPORAL (PARA EL MODAL)
+        public function ObtenerDetalleSeries($Folio_Salida)
+        {
+            $sql = "SELECT m.Num_Serie_S, p.Producto, p.Modelo
+                    FROM temp_material_det_salida m
+                    INNER JOIN producto p ON m.FK_Material_S = p.idProducto
+                    WHERE m.Folio_Salida_Material_Det_S = :folio";
+
+            return $this->runQuery($sql, ['folio' => $Folio_Salida]);
         }
     }
 

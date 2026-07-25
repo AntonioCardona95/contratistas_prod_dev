@@ -228,20 +228,9 @@
         </div>
     </div>
 
-    <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Core plugin JavaScript-->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-
-    <!-- Custom scripts for all pages-->
-    <script src="js/sb-admin-2.min.js"></script>
-
-    <!-- Page level plugins -->
+    <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
     <script src="vendor/chart.js/Chart.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="js/app.js"></script>
     <script>
         $(document).ready(function(){
             LoadKPIS();
