@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once("../controller/ClassNotificaciones.php");
+require_once(__DIR__ . '/controller/ClassNotificaciones.php');
 
 header('Content-Type: application/json');
 
