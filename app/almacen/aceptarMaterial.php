@@ -183,6 +183,15 @@
 
         function LoadPendientes(){
             var parametros = $("#FormQueryUnidades").serialize();
+            var urlParams = new URLSearchParams(window.location.search);
+            var folioBuscar = urlParams.get('folio');
+            if (folioBuscar) {
+                var folioNumerico = folioBuscar.replace(/\D/g, '');
+                if (folioNumerico.length) {
+                    parametros += (parametros.length ? '&' : '') + 'folio=' + encodeURIComponent(folioNumerico);
+                }
+            }
+
             $.ajax({
                 type: 'POST',
                 url: 'modal/TablaPendientes.php',

@@ -93,6 +93,7 @@ class Notificaciones extends Conexion
         $sql = "SELECT id, mensaje, url_destino, tipo_notificacion, leido, fecha_creacion
                 FROM notificaciones_almacen 
                 WHERE id_receptor = :id_usuario 
+                AND leido = 0
                 ORDER BY id DESC 
                 LIMIT " . (int)$limite;
 

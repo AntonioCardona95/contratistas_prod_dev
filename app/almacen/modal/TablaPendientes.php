@@ -12,6 +12,7 @@
 
     $Fecha1 = $_POST['Fecha1'] ?? null;
     $Fecha2 = $_POST['Fecha2'] ?? null;
+    $folioFiltro = preg_replace('/\D/', '', $_POST['folio'] ?? '');
     $mes_anterior = date('Y-m-d', strtotime('-2 month'));
 
     if (empty($Fecha1)) {
@@ -23,6 +24,12 @@
     }
 
     $filas = $modal->ObtenerPendientes($idContratistas, $Fecha1, $Fecha2);
+
+    if ($folioFiltro !== '') {
+        $filas = array_filter($filas, function($row) use ($folioFiltro) {
+            return strpos((string)$row['Folio_Salida_ST'], $folioFiltro) !== false;
+        });
+    }
 ?>
 
 <style>
@@ -241,7 +248,12 @@
         }).then(function(result){
             if (!result.isConfirmed) return;
 
-            $.post('modal/RechazarSalida.php', { folio: folioActivoPendiente }, function(response){
+            $.ajax({
+                url: 'modal/RechazarSalida.php',
+                type: 'POST',
+                dataType: 'json',
+                data: { folio: folioActivoPendiente }
+            }).done(function(response){
                 if (response.success) {
                     Swal.fire({
                         position: 'top',
@@ -261,7 +273,15 @@
                         showConfirmButton: true
                     });
                 }
-            }, 'json');
+            }).fail(function(){
+                Swal.fire({
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Error de red',
+                    text: 'No se pudo rechazar el material. Intenta de nuevo.',
+                    showConfirmButton: true
+                });
+            });
         });
     });
 </script>
