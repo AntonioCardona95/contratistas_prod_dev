@@ -67,8 +67,13 @@
                 <td class="text-center">
                     <button type="button" class="btn btn-info btn-sm ver-detalle-pendiente"
                         data-folio="<?= $row['Folio_Salida_ST'] ?>"
-                        title="VER DETALLES Y RESPONDER">
-                        <i class="fas fa-eye"></i> Ver / Responder
+                        title="VER DETALLES">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button type="button" class="btn btn-success btn-sm aceptar-pendiente"
+                        data-folio="<?= $row['Folio_Salida_ST'] ?>"
+                        title="ACEPTAR SALIDA">
+                        <i class="fas fa-check"></i>
                     </button>
                 </td>
             </tr>
