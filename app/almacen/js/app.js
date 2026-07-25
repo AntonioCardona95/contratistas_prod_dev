@@ -77,3 +77,35 @@ function LoadKPIS(){
         }
     });
 }
+
+function LoadPendientes(){
+    var parametros = $("#FormQueryUnidades").serialize();
+    $("#LoadPendientes").fadeIn('slow');
+    $.ajax({
+        type:'POST',
+        url:'modal/TablaPendientes.php',
+        data: parametros,
+         beforeSend: function(objeto){
+            $("#LoadPendientes").html("<center><img src='../image/loading-46.gif'></center>");
+        },
+        success:function(data){
+            $("#LoadPendientes").html(data);
+        }
+    });
+}
+
+function LoadRechazados(){
+    var parametros = $("#FormQueryUnidades").serialize();
+    $("#LoadRechazados").fadeIn('slow');
+    $.ajax({
+        type:'POST',
+        url:'modal/TablaRechazados.php',
+        data: parametros,
+         beforeSend: function(objeto){
+            $("#LoadRechazados").html("<center><img src='../image/loading-46.gif'></center>");
+        },
+        success:function(data){
+            $("#LoadRechazados").html(data);
+        }
+    });
+}

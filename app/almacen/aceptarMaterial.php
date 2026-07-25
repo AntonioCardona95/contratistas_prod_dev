@@ -5,9 +5,8 @@
     error_reporting(E_ALL);
 
     date_default_timezone_set('America/Monterrey');
-    
+
     require_once("controller/ClassOps.php");
-    require_once("modal/cargar.php");
 
     session_start();
     $Contratista = $_SESSION['Contratista'];
@@ -16,6 +15,9 @@
     if (empty($idContratistas)) {
         header("location: ../Login/modal/poweroff.php");
     }
+
+    // FUNCION JS QUE EL TOPBAR VA A LLAMAR AL CAMBIAR FECHAS O BUSCAR
+    $topbar_onchange = 'LoadPendientes';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -24,59 +26,48 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-
     <title>ERP - ALMACEN</title>
 
-    <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-
-    <!-- Custom styles for this template -->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
-
-    <!-- Custom styles for this page -->
     <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
- 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="../css/responsive_custom.css" rel="stylesheet">
+
+    <style>
+        .modal-header-gradient {
+            background: linear-gradient(135deg, #4462e7 0%, #764ba2 100%) !important;
+        }
+        .badge-pendiente { background-color: #ffc107; color: #212529; }
+    </style>
 
 </head>
 
 <body id="page-top">
 
-    <!-- Page Wrapper -->
     <div id="wrapper">
 
         <!-- Sidebar -->
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
-            <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div class="sidebar-brand-text mx-3">ALMACEN</div>
             </a>
 
-            <!-- Divider -->
             <hr class="sidebar-divider my-0">
 
-            <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
+            <li class="nav-item">
                 <a class="nav-link" href="index.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
 
-            <!-- Divider -->
             <hr class="sidebar-divider">
 
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                ACCION
-            </div>
+            <div class="sidebar-heading">ACCION</div>
 
-            <!-- Nav Item - Pages Collapse Menu -->
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
                     aria-expanded="true" aria-controls="collapsePages">
@@ -92,7 +83,6 @@
                 </div>
             </li>
 
-            <!-- MATERIAL RECIBIDO -->
             <li class="nav-item">
                 <a class="nav-link" href="entradas.php">
                     <i class="fa-solid fa-clipboard-check"></i>
@@ -100,16 +90,15 @@
                 </a>
             </li>
 
-            <!-- ACEPTAR MATERIAL -->
-             <li class="nav-item active">
+            <!-- ACTIVO EN ESTA VISTA -->
+            <li class="nav-item active">
                 <a class="nav-link" href="aceptarMaterial.php">
                     <i class="fa-solid fa-feather-pointed"></i>
                     <span>ACEPTAR MATERIAL</span>
                 </a>
             </li>
 
-            <!-- MATERIAL RECHAZADO -->
-             <li class="nav-item">
+            <li class="nav-item">
                 <a class="nav-link" href="materialRechazado.php">
                     <i class="fa-solid fa-circle-xmark"></i>
                     <span>MATERIAL RECHAZADO</span>
@@ -122,57 +111,34 @@
                     <span>ASIGNAR MATERIAL</span>
                 </a>
             </li>
-            
-            <!--
-            <li class="nav-item">
-                <a class="nav-link" href="traspasos.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>TRASPASO MATERIAL</span>
-                </a>
-            </li>
-            -->
 
-            <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
 
-            <!-- Sidebar Toggler (Sidebar) -->
             <div class="sidebar-footer text-center">
                 <button class="rounded-circle border-0" id="sidebarToggle" aria-label="Cerrar menú">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
 
-
         </ul>
         <!-- End of Sidebar -->
 
-        <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
 
-            <!-- Main Content -->
             <div id="content">
 
-                <!-- Topbar -->
                 <?php include_once(__DIR__ . '/../components/TopbarContratistas.php'); ?>
 
-                <!-- Begin Page Content -->
                 <div class="container-fluid">
 
-                    <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">ACEPTAR MATERIAL</h1>
+                    <h1 class="h3 mb-2 text-gray-800"><i class="fa-solid fa-feather-pointed"></i> MATERIAL PENDIENTE DE ACEPTAR</h1>
 
-                    <!-- DataTales Example -->
-                    <div id="LoadEntradas">
-
-                    </div>
+                    <div id="LoadPendientes"></div>
 
                 </div>
-                <!-- /.container-fluid -->
 
             </div>
-            <!-- End of Main Content -->
 
-            <!-- Footer -->
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
@@ -180,26 +146,21 @@
                     </div>
                 </div>
             </footer>
-            <!-- End of Footer -->
 
         </div>
-        <!-- End of Content Wrapper -->
 
     </div>
-    <!-- End of Page Wrapper -->
 
-    <!-- Scroll to Top Button-->
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
-    
-    <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
+
+    <!-- LOGOUT MODAL -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">CERRAR SESION</h5>
+                    <h5 class="modal-title">CERRAR SESION</h5>
                     <button class="close" type="button" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
@@ -213,14 +174,28 @@
         </div>
     </div>
 
-<?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
+    <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
+
     <script>
         $(document).ready(function(){
-            LoadEntradas();
+            LoadPendientes();
         });
+
+        function LoadPendientes(){
+            var parametros = $("#FormQueryUnidades").serialize();
+            $.ajax({
+                type: 'POST',
+                url: 'modal/TablaPendientes.php',
+                data: parametros,
+                beforeSend: function(){
+                    $("#LoadPendientes").html("<center><img src='../image/loading-46.gif'></center>");
+                },
+                success: function(data){
+                    $("#LoadPendientes").html(data);
+                }
+            });
+        }
     </script>
 
 </body>
 </html>
-
-
