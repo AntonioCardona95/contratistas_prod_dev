@@ -72,13 +72,15 @@ class Notificaciones extends Conexion
         return $resultado[0]['total'] ?? 0;
     }
 
+
     // OBTENER LAS NUEVAS DESDE EL ULTIMO ID VISTO (PARA EL TOAST DEL POLLING)
     public function ObtenerNuevas($idUsuario, $desdeId)
     {
         $sql = "SELECT id, mensaje, url_destino, tipo_notificacion, fecha_creacion
                 FROM notificaciones_almacen 
                 WHERE id_receptor = :id_usuario 
-                  AND id > :desde_id 
+                AND id > :desde_id 
+                AND leido = 0
                 ORDER BY id ASC";
 
         return $this->runQuery($sql, [
