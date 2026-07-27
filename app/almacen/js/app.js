@@ -5,9 +5,6 @@ function LoadEntradas(){
         type:'POST',
         url:'modal/TablaEntradas.php',
         data: parametros,
-         beforeSend: function(objeto){
-            $("#LoadEntradas").html("<center><img src='../image/loading-46.gif'></center>");
-        },
         success:function(data){
             $("#LoadEntradas").html(data);
         }
@@ -53,9 +50,6 @@ function LoadSalidas(){
         type:'POST',
         url:'modal/TablaSalidas.php',
         data: parametros,
-         beforeSend: function(objeto){
-            $("#LoadSalidas").html("<center><img src='../image/loading-46.gif'></center>");
-        },
         success:function(data){
             $("#LoadSalidas").html(data);
         }
@@ -85,9 +79,6 @@ function LoadPendientes(){
         type:'POST',
         url:'modal/TablaPendientes.php',
         data: parametros,
-         beforeSend: function(objeto){
-            $("#LoadPendientes").html("<center><img src='../image/loading-46.gif'></center>");
-        },
         success:function(data){
             $("#LoadPendientes").html(data);
         }
@@ -101,9 +92,6 @@ function LoadRechazados(){
         type:'POST',
         url:'modal/TablaRechazados.php',
         data: parametros,
-         beforeSend: function(objeto){
-            $("#LoadRechazados").html("<center><img src='../image/loading-46.gif'></center>");
-        },
         success:function(data){
             $("#LoadRechazados").html(data);
         }

@@ -38,7 +38,7 @@
 
     <style>
         .modal-header-gradient {
-            background: linear-gradient(135deg, #4462e7 0%, #764ba2 100%) !important;
+            background: linear-gradient(90deg, #007BFF 0%, #007 100%) !important;
         }
     </style>
 
@@ -46,6 +46,7 @@
 
 <body id="page-top">
 
+    <!-- CONTENEDOR DE LA PAGINA -->
     <div id="wrapper">
 
         <!-- Sidebar -->
