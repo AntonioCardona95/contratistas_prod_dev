@@ -66,16 +66,46 @@ function irANotificacion(id, url) {
 }
 
 function mostrarToast(n) {
-    Swal.fire({
+    // ICONO Y COLOR SEGUN EL TIPO DE NOTIFICACION
+    var iconoTipo = 'info';
+    var colorBorde = '#4462e7';
+
+    if (n.tipo_notificacion === 'salida_aceptada') {
+        iconoTipo = 'success';
+        colorBorde = '#1cc88a';
+    } else if (n.tipo_notificacion === 'salida_rechazada') {
+        iconoTipo = 'error';
+        colorBorde = '#e74a3b';
+    } else if (n.tipo_notificacion === 'salida_pendiente') {
+        iconoTipo = 'warning';
+        colorBorde = '#f6c23e';
+    }
+
+    const Toast = Swal.mixin({
         toast: true,
-        position: 'top-end',
-        icon: 'info',
-        title: n.mensaje,
+        position: 'bottom-end',
         showConfirmButton: false,
         timer: 6000,
         timerProgressBar: true,
+        showCloseButton: true,
+        customClass: {
+            popup: 'toast-notificacion-custom'
+        },
         didOpen: (toast) => {
-            toast.addEventListener('click', () => irANotificacion(n.id, n.url_destino));
+            toast.style.borderLeft = '4px solid ' + colorBorde;
+            toast.addEventListener('click', (e) => {
+                // EVITAR QUE EL CLICK EN LA X DE CERRAR TAMBIEN DISPARE LA NAVEGACION
+                if (!e.target.closest('.swal2-close')) {
+                    irANotificacion(n.id, n.url_destino);
+                }
+            });
+            toast.addEventListener('mouseenter', Swal.stopTimer);
+            toast.addEventListener('mouseleave', Swal.resumeTimer);
         }
+    });
+
+    Toast.fire({
+        icon: iconoTipo,
+        title: n.mensaje
     });
 }
