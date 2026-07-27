@@ -39,54 +39,63 @@
     td { align-content: center; }
 </style>
 
-<table class="table table-bordered display nowrap" style="width:100%" id="pendientes">
-    <thead>
-        <tr>
-            <th>Folio</th>
-            <th>Almacén</th>
-            <th>Unidad de Negocio</th>
-            <th>Solicitante</th>
-            <th>Cantidad</th>
-            <th>Fecha</th>
-            <th>Acción</th>
-        </tr>
-    </thead>
-    <tfoot>
-        <tr>
-            <th>Folio</th>
-            <th>Almacén</th>
-            <th>Unidad de Negocio</th>
-            <th>Solicitante</th>
-            <th>Cantidad</th>
-            <th>Fecha</th>
-            <th>Acción</th>
-        </tr>
-    </tfoot>
-    <tbody>
-        <?php if (!empty($filas)): foreach ($filas as $row): ?>
+<div id="pendientes-loading" style="text-align: center; padding: 20px;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Cargando...</span>
+    </div>
+    <p>Cargando datos, por favor espere...</p>
+</div>
+
+<div id="contenedor-tabla-pendientes" style="opacity: 0; transition: opacity 0.3s ease;">
+    <table class="table table-bordered display nowrap" style="width:100%" id="pendientes">
+        <thead>
             <tr>
-                <td><span class="badge badge-warning">SD-A-<?= $row['Folio_Salida_ST'] ?></span></td>
-                <td><?= strtoupper($row['Almacen'] ?? '') ?></td>
-                <td><?= strtoupper($row['Unidad_Negocio'] ?? '') ?></td>
-                <td><?= strtoupper($row['Solicitante_Salida_T'] ?? '') ?></td>
-                <td><?= number_format($row['Cantidad_ST']) ?></td>
-                <td><?= strtoupper($row['Fecha_Salida_ST'] ?? '') ?></td>
-                <td class="text-center">
-                    <button type="button" class="btn btn-info btn-sm ver-detalle-pendiente"
-                        data-folio="<?= $row['Folio_Salida_ST'] ?>"
-                        title="VER DETALLES">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button type="button" class="btn btn-success btn-sm aceptar-pendiente"
-                        data-folio="<?= $row['Folio_Salida_ST'] ?>"
-                        title="ACEPTAR SALIDA">
-                        <i class="fas fa-check"></i>
-                    </button>
-                </td>
+                <th>Folio</th>
+                <th>Almacén</th>
+                <th>Unidad de Negocio</th>
+                <th>Solicitante</th>
+                <th>Cantidad</th>
+                <th>Fecha</th>
+                <th>Acción</th>
             </tr>
-        <?php endforeach; endif; ?>
-    </tbody>
-</table>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>Folio</th>
+                <th>Almacén</th>
+                <th>Unidad de Negocio</th>
+                <th>Solicitante</th>
+                <th>Cantidad</th>
+                <th>Fecha</th>
+                <th>Acción</th>
+            </tr>
+        </tfoot>
+        <tbody>
+            <?php if (!empty($filas)): foreach ($filas as $row): ?>
+                <tr>
+                    <td><span class="badge badge-warning">SD-A-<?= $row['Folio_Salida_ST'] ?></span></td>
+                    <td><?= strtoupper($row['Almacen'] ?? '') ?></td>
+                    <td><?= strtoupper($row['Unidad_Negocio'] ?? '') ?></td>
+                    <td><?= strtoupper($row['Solicitante_Salida_T'] ?? '') ?></td>
+                    <td><?= number_format($row['Cantidad_ST']) ?></td>
+                    <td><?= strtoupper($row['Fecha_Salida_ST'] ?? '') ?></td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-info btn-sm ver-detalle-pendiente"
+                            data-folio="<?= $row['Folio_Salida_ST'] ?>"
+                            title="VER DETALLES">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button type="button" class="btn btn-success btn-sm aceptar-pendiente"
+                            data-folio="<?= $row['Folio_Salida_ST'] ?>"
+                            title="ACEPTAR SALIDA">
+                            <i class="fas fa-check"></i>
+                        </button>
+                    </td>
+                </tr>
+            <?php endforeach; endif; ?>
+        </tbody>
+    </table>
+</div>
 
 <!-- MODAL DE DETALLES + ACEPTAR/RECHAZAR -->
 <div class="modal fade" id="detallePendienteModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
@@ -122,7 +131,11 @@
             ordering: false,
             searching: true,
             scrollY: true,
-            scrollX: true
+            scrollX: true,
+            initComplete: function(settings, json) {
+                $('#pendientes-loading').hide();
+                $('#contenedor-tabla-pendientes').css('opacity', '1');
+            }
         });
 
         // AUTOFILTRAR SI SE LLEGO DESDE UNA NOTIFICACION

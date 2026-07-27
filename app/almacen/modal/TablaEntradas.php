@@ -26,18 +26,26 @@
 		$filas = $modal->Entradas($idContratistas,$Fecha1,$Fecha2);
     }
 ?>
-<table class="table table-bordered display nowrap" style="width:100%" id="ventas">			
-    <thead>
-        <tr>
-            <th>Folio Entrada</th> 
-            <th>Almacen</th>
-            <th>Contratista</th>
-            <th>Tipo</th>
-            <th>Cantidad</th>
-            <th>Fecha</th>
-            <th>Accion</th>
-        </tr>
-    </thead>
+<div id="entradas-loading" style="text-align: center; padding: 20px;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Cargando...</span>
+    </div>
+    <p>Cargando datos, por favor espere...</p>
+</div>
+
+<div id="contenedor-tabla-entradas" style="opacity: 0; transition: opacity 0.3s ease;">
+    <table class="table table-bordered display nowrap" style="width:100%" id="ventas">            
+        <thead>
+            <tr>
+                <th>Folio Entrada</th> 
+                <th>Almacen</th>
+                <th>Contratista</th>
+                <th>Tipo</th>
+                <th>Cantidad</th>
+                <th>Fecha</th>
+                <th>Accion</th>
+            </tr>
+        </thead>
     <tfoot>
         <tr>
             <th>Folio Entrada</th> 
@@ -74,24 +82,23 @@
 
         }
     ?>
-</table>
+    </table>
+</div>
 <script>
 	$(document).ready(function () {
         let table = new DataTable('#ventas', {
-            fixedColumns: {
-                start: 1,
-                end: 1
-            },
-            responsive:true,
-            'language':{
-                'URL':'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'
-            },
-            "ordering": false,
-            "searching": true,
-				"scrollY": true,
-				"scrollX": true
+            responsive: true,
+            language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
+            ordering: false,
+            searching: true,
+            scrollY: true,
+            scrollX: true,
+            initComplete: function(settings, json) {
+                $('#entradas-loading').hide();
+                $('#contenedor-tabla-entradas').css('opacity', '1');
+            }
         });
-    
+
         new DataTable.Buttons(table, {
                 buttons: [
                     {
