@@ -52,15 +52,13 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
         <li class="nav-item dropdown no-arrow mx-1">
             <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <i class="fas fa-bell fa-fw"></i>
-                <!-- Contador de alertas -->
                 <span id="alertsCount" class="badge badge-danger badge-counter">0</span>
             </a>
             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
-                <h6 class="dropdown-header">Alertas</h6>
-                <div id="alertsList">
-                    <a class="dropdown-item text-center small text-gray-500">No hay alertas</a>
-                </div>
-                <a class="dropdown-item text-center small text-gray-500" href="../ordenes/AlertasGenerales.php">Ver todas</a>
+                <h6 class="dropdown-header">Notificaciones</h6>
+                    <div id="alertsList" style="max-height: 350px; overflow-y: auto;">
+                        <a class="dropdown-item text-center small text-gray-500">No hay notificaciones</a>
+                    </div>
             </div>
         </li>
 

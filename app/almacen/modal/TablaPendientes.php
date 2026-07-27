@@ -34,7 +34,7 @@
 
 <style>
     .modal-header-gradient {
-        background: linear-gradient(135deg, #4462e7 0%, #764ba2 100%) !important;
+        background: linear-gradient(90deg, #0f172a 0%, #003d99 100%) !important;
     }
     td { align-content: center; }
 </style>
@@ -84,11 +84,6 @@
                             data-folio="<?= $row['Folio_Salida_ST'] ?>"
                             title="VER DETALLES">
                             <i class="fas fa-eye"></i>
-                        </button>
-                        <button type="button" class="btn btn-success btn-sm aceptar-pendiente"
-                            data-folio="<?= $row['Folio_Salida_ST'] ?>"
-                            title="ACEPTAR SALIDA">
-                            <i class="fas fa-check"></i>
                         </button>
                     </td>
                 </tr>
@@ -164,47 +159,6 @@
         });
     });
 
-    // ACEPTAR DESDE LA FILA
-    $(document).off('click', '.aceptar-pendiente').on('click', '.aceptar-pendiente', function(){
-        var folio = $(this).data('folio');
-        if (!folio) return;
-
-        Swal.fire({
-            position: 'top',
-            icon: 'question',
-            title: '¿Aceptar esta salida?',
-            html: 'Confirmas que recibiste correctamente el material de la salida <strong>SD-A-' + folio + '</strong>.',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, aceptar',
-            cancelButtonText: 'Cancelar',
-            confirmButtonColor: '#1cc88a'
-        }).then(function(result){
-            if (!result.isConfirmed) return;
-
-            $.post('modal/AceptarSalida.php', { folio: folio }, function(response){
-                if (response.success) {
-                    Swal.fire({
-                        position: 'top',
-                        icon: 'success',
-                        title: 'Salida aceptada',
-                        text: 'El material fue marcado como aceptado correctamente.',
-                        showConfirmButton: true
-                    });
-                    $('#detallePendienteModal').modal('hide');
-                    LoadPendientes();
-                } else {
-                    Swal.fire({
-                        position: 'top',
-                        icon: 'error',
-                        title: 'Error al aceptar',
-                        text: response.message || 'Ocurrió un error.',
-                        showConfirmButton: true
-                    });
-                }
-            }, 'json');
-        });
-    });
-
     // ACEPTAR
     $(document).off('click', '#btn-aceptar-pendiente').on('click', '#btn-aceptar-pendiente', function(){
         if (!folioActivoPendiente) return;
@@ -221,7 +175,12 @@
         }).then(function(result){
             if (!result.isConfirmed) return;
 
-            $.post('modal/AceptarSalida.php', { folio: folioActivoPendiente }, function(response){
+            $.ajax({
+                url: 'modal/AceptarSalida.php',
+                type: 'POST',
+                dataType: 'json',
+                data: { folio: folioActivoPendiente }
+            }).done(function(response){
                 if (response.success) {
                     Swal.fire({
                         position: 'top',
@@ -230,8 +189,11 @@
                         text: 'El material fue marcado como aceptado correctamente.',
                         showConfirmButton: true
                     });
+
+                    $('#detallePendienteModal').one('hidden.bs.modal', function() {
+                        LoadPendientes();
+                    });
                     $('#detallePendienteModal').modal('hide');
-                    LoadPendientes();
                 } else {
                     Swal.fire({
                         position: 'top',
@@ -241,7 +203,15 @@
                         showConfirmButton: true
                     });
                 }
-            }, 'json');
+            }).fail(function(jqXHR, textStatus){
+                Swal.fire({
+                    position: 'top',
+                    icon: 'error',
+                    title: 'Error de red',
+                    text: 'No se pudo procesar la aceptación. Intenta de nuevo. (' + textStatus + ')',
+                    showConfirmButton: true
+                });
+            });
         });
     });
 
