@@ -28,18 +28,40 @@ function revisarNotificaciones() {
 }
 
 function agregarNotificacionAlDropdown(n) {
-    if ($('#alertsList .text-gray-500').length) {
+    if ($('#alertsList .text-gray-500').closest('.notif-item, div').length && $('#alertsList').find('.notif-item').length === 0) {
         $('#alertsList').empty();
     }
 
+    var iconoClase = 'fa-bell';
+    var colorClase = 'default';
+
+    if (n.tipo_notificacion === 'salida_pendiente') {
+        iconoClase = 'fa-box-open';
+        colorClase = 'pendiente';
+    } else if (n.tipo_notificacion === 'salida_aceptada') {
+        iconoClase = 'fa-check';
+        colorClase = 'aceptada';
+    } else if (n.tipo_notificacion === 'salida_rechazada') {
+        iconoClase = 'fa-times';
+        colorClase = 'rechazada';
+    }
+
+    var fecha = n.fecha_creacion ? formatearFechaRelativa(n.fecha_creacion) : '';
+
     var item = `
-        <div class="dropdown-item d-flex justify-content-between align-items-center" data-id="${n.id}">
-            <span class="small" style="max-width: 200px;">${n.mensaje}</span>
-            <div class="btn-group btn-group-sm">
-                <button class="btn btn-outline-secondary btn-sm" onclick="marcarComoVisto(${n.id})" title="Marcar como visto">
+        <div class="notif-item" data-id="${n.id}">
+            <div class="notif-icon ${colorClase}">
+                <i class="fas ${iconoClase}"></i>
+            </div>
+            <div class="notif-texto">
+                <span class="notif-mensaje">${n.mensaje}</span>
+                <span class="notif-fecha">${fecha}</span>
+            </div>
+            <div class="notif-acciones">
+                <button class="btn btn-outline-secondary" onclick="marcarComoVisto(${n.id})" title="Marcar como visto">
                     <i class="fas fa-check"></i>
                 </button>
-                <button class="btn btn-outline-primary btn-sm" onclick="irANotificacion(${n.id}, '${n.url_destino}')" title="Ir">
+                <button class="btn btn-outline-primary" onclick="irANotificacion(${n.id}, '${n.url_destino}')" title="Ir">
                     <i class="fas fa-arrow-right"></i>
                 </button>
             </div>
@@ -47,14 +69,33 @@ function agregarNotificacionAlDropdown(n) {
     $('#alertsList').prepend(item);
 }
 
+// FORMATEA FECHA A "hace X min/horas/días" - simple, sin librerias externas
+function formatearFechaRelativa(fechaStr) {
+    var fecha = new Date(fechaStr.replace(' ', 'T'));
+    var ahora = new Date();
+    var diffMs = ahora - fecha;
+    var diffMin = Math.floor(diffMs / 60000);
+
+    if (diffMin < 1) return 'Justo ahora';
+    if (diffMin < 60) return 'Hace ' + diffMin + ' min';
+    var diffHoras = Math.floor(diffMin / 60);
+    if (diffHoras < 24) return 'Hace ' + diffHoras + ' h';
+    var diffDias = Math.floor(diffHoras / 24);
+    return 'Hace ' + diffDias + ' d';
+}
+
 function marcarComoVisto(id) {
     $.post('Ajax_Notificaciones.php', { accion: 'marcar_leido', id: id }, function() {
-        $(`#alertsList div[data-id="${id}"]`).fadeOut(200, function() { $(this).remove(); });
+        $(`#alertsList .notif-item[data-id="${id}"]`).fadeOut(200, function() { $(this).remove(); });
         var actual = parseInt($('#alertsCount').text(), 10);
         $('#alertsCount').text(Math.max(0, actual - 1));
 
-        if ($('#alertsList div').length === 0) {
-            $('#alertsList').html('<a class="dropdown-item text-center small text-gray-500">No hay notificaciones</a>');
+        if ($('#alertsList .notif-item').length === 0) {
+            $('#alertsList').html(`
+                <div class="text-center small text-gray-500 py-4">
+                    <i class="fas fa-inbox fa-2x mb-2 d-block text-gray-300"></i>
+                    No hay notificaciones
+                </div>`);
         }
     });
 }
