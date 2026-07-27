@@ -97,7 +97,7 @@ $topbar_onchange = 'noop';
 
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
-                <?php include_once(__DIR__ . '/../components/TopbarContratistas.php'); ?>
+                <?php include_once(__DIR__ . '/../../components/TopbarContratistas.php'); ?>
                 <div class="container-fluid">
                     <div class="card shadow mb-4">
                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
@@ -148,7 +148,7 @@ $topbar_onchange = 'noop';
                     </div>
                 </div>
             </div>
-            <?php include_once(__DIR__ . '/../components/FooterContratistas.php'); ?>
+            <?php include_once(__DIR__ . '/../../components/FooterContratistas.php'); ?>
         </div>
     </div>
 
@@ -156,8 +156,8 @@ $topbar_onchange = 'noop';
         <i class="fas fa-angle-up"></i>
     </a>
 
-    <?php include_once(__DIR__ . '/../components/ModalCierreSesion.php'); ?>
-    <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
+    <?php include_once(__DIR__ . '/../../components/ModalCierreSesion.php'); ?>
+    <?php include_once(__DIR__ . '/../../components/ScriptContratistas.php'); ?>
 
     <script>
         function noop() {}
