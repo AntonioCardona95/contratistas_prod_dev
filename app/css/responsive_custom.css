@@ -7,7 +7,23 @@
 
 /* EVITAR EL OVERFLOW EN EL TOP  */
 html, body {
-        overscroll-behavior: none;
+    overscroll-behavior: none;
+    min-height: 100%;
+    background-color: #f8f9fc; /* el gris claro típico de SB Admin 2 */
+}
+
+#wrapper,
+#content-wrapper {
+    min-height: 100vh;
+}
+
+#content-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+#content {
+    flex: 1 0 auto;
 }
 
 /* EVITAR ICONOS GENERADOS POR ::BEFORE/::AFTER SOBRE EL TOGGLE DEL FOOTER */
