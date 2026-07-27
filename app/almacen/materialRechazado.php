@@ -137,7 +137,7 @@
                         </div>
                         <div class="card-body p-0">
                             <!-- CONTENEDOR DE LA TABLA -->
-                            <div id="LoadRechazados">
+                            <div id="LoadRechazados" class="p-3">
                                 <!-- AQUI SE CARGAN LOS DATOS VIA AJAX -->
                             </div>
                         </div> 
