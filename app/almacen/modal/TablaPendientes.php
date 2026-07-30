@@ -120,6 +120,14 @@
             display: grid;
             grid-template-columns: 1fr;
         }
+
+        .modal-title{
+            font-size: 15px !important;
+        }
+
+        h2{
+            font-size: 15px !important;
+        }
     }
 </style>
 
