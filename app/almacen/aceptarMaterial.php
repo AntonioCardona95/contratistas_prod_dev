@@ -114,6 +114,14 @@
                 </a>
             </li>
 
+            <!-- TECNICOS -->
+            <li class="nav-item">
+                <a class="nav-link" href="tecnicos.php">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>TÉCNICOS</span>
+                </a>
+            </li>
+
             <hr class="sidebar-divider d-none d-md-block">
 
             <div class="sidebar-footer text-center">

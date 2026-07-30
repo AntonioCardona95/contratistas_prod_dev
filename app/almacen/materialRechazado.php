@@ -26,7 +26,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>ERP - ALMACEN</title>
+    <title>CONTRATISTAS</title>
 
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
@@ -48,10 +48,10 @@
     <!-- CONTENEDOR DE LA PAGINA -->
     <div id="wrapper">
 
-        <!-- Sidebar -->
+        <!-- SIDEBAR -->
         <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a 100%, #224abe 0%); background-size: cover;">
 
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
                 <div class="sidebar-brand-text mx-3">ALMACEN</div>
             </a>
 
@@ -82,6 +82,7 @@
                 </div>
             </li>
 
+            <!-- MATERIAL RECIBIDO -->
             <li class="nav-item">
                 <a class="nav-link" href="entradas.php">
                     <i class="fa-solid fa-clipboard-check"></i>
@@ -89,6 +90,7 @@
                 </a>
             </li>
 
+            <!-- ACEPTAR MATERIAL -->
             <li class="nav-item">
                 <a class="nav-link" href="aceptarMaterial.php">
                     <i class="fa-solid fa-feather-pointed"></i>
@@ -96,7 +98,7 @@
                 </a>
             </li>
 
-            <!-- ACTIVO EN ESTA VISTA -->
+            <!-- MATERIAL RECHAZADO -->
             <li class="nav-item active">
                 <a class="nav-link" href="materialRechazado.php">
                     <i class="fa-solid fa-circle-xmark"></i>
@@ -104,10 +106,19 @@
                 </a>
             </li>
 
+            <!-- ASIGNAR MATERIAL -->
             <li class="nav-item">
                 <a class="nav-link" href="salidas.php">
                     <i class="fa-solid fa-circle-plus"></i>
                     <span>ASIGNAR MATERIAL</span>
+                </a>
+            </li>
+
+            <!-- TECNICOS -->
+            <li class="nav-item">
+                <a class="nav-link" href="tecnicos.php">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>TÉCNICOS</span>
                 </a>
             </li>
 
@@ -120,7 +131,7 @@
             </div>
 
         </ul>
-        <!-- End of Sidebar -->
+        <!-- FIN DE LA SIDEBAR -->
 
         <div id="content-wrapper" class="d-flex flex-column">
 

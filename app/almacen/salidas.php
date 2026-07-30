@@ -28,7 +28,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>ERP - ALMACEN</title>
+    <title>CONTRATISTAS</title>
 
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -122,14 +122,13 @@
                 </a>
             </li>
 
-            <!--
+            <!-- TECNICOS -->
             <li class="nav-item">
-                <a class="nav-link" href="traspasos.php">
+                <a class="nav-link" href="tecnicos.php">
                     <i class="fas fa-fw fa-table"></i>
-                    <span>TRASPASO MATERIAL</span>
+                    <span>TÉCNICOS</span>
                 </a>
             </li>
-            -->
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">

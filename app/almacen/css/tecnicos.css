@@ -1,0 +1,273 @@
+/* ESTILOS PERSONALIZADOS PARA DASHBOARD DE TÉCNICOS */
+
+:root {
+    --primary-color: #007BFF;
+    --success-color: #28A745;
+    --warning-color: #FFC107;
+    --info-color: #17A2B8;
+    --border-radius: 12px;
+    --transition: all 0.3s ease;
+}
+
+/* SECCIÓN HÉROE CON GRADIENTE */
+.prod-hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #0f766e 100%);
+    color: #fff;
+    border-radius: 12px;
+    padding: 1rem 1.75rem;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    margin: 15px 0;
+}
+
+.prod-hero h1 {
+    margin: 0;
+}
+
+/* ESTILOS PARA DATATABLES */
+.dt-search {
+    margin-bottom: 0px;
+    margin-top: 0px;
+    width: 100%;
+}
+
+.dt-search input {
+    width: 100% !important;
+    max-width: 500px !important;
+    padding: 10px 15px !important;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px !important;
+}
+
+.dt-search input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.dt-paging {
+    margin-top: 0px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.dt-paging .dt-pager {
+    display: flex;
+    gap: 5px;
+}
+
+.dt-paging .dt-pager button {
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.dt-paging .dt-pager button:hover:not(.disabled) {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.dt-paging .dt-pager button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.dt-info {
+    padding-top: 0.75rem;
+    color: #495057;
+    font-size: 14px;
+}
+
+/* GRID DINÁMICO DE TARJETAS */
+#tecnicos-grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+@media (max-width: 1200px) {
+    #tecnicos-grid-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    #tecnicos-grid-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+}
+
+/* TARJETAS DE TÉCNICOS */
+.tecnico-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: var(--transition);
+    border-top: 4px solid var(--primary-color);
+}
+
+.tecnico-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    border-top-color: var(--success-color);
+}
+
+.card-body {
+    padding: 25px;
+}
+
+/* ENCABEZADO DE LA TARJETA (NOMBRE) */
+.tecnico-nombre {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tecnico-nombre::before {
+    content: '\f007';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    color: var(--primary-color);
+    margin-right: 5px;
+}
+
+/* ÍTEMS DE INFORMACIÓN EN LA TARJETA */
+.tecnico-info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 14px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    transition: var(--transition);
+}
+
+.tecnico-info-item:hover {
+    background-color: #e9ecef;
+}
+
+.tecnico-info-item:last-child {
+    margin-bottom: 0;
+}
+
+.tecnico-info-label {
+    font-weight: 600;
+    color: #495057;
+    min-width: 110px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tecnico-info-value {
+    color: #2c3e50;
+    font-weight: 500;
+    flex: 1;
+    margin-left: 10px;
+    font-size: 0.95rem;
+}
+
+/* ICONOS Y ESTILOS PARA CADA CAMPO */
+.info-expediente {
+    border-left: 3px solid var(--info-color);
+    padding-left: 12px;
+}
+
+.info-expediente .tecnico-info-label::before {
+    content: '\f15b';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-right: 8px;
+    color: var(--info-color);
+}
+
+.info-telefono {
+    border-left: 3px solid var(--success-color);
+    padding-left: 12px;
+}
+
+.info-telefono .tecnico-info-label::before {
+    content: '\f095';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-right: 8px;
+    color: var(--success-color);
+}
+
+.info-cope {
+    border-left: 3px solid var(--warning-color);
+    padding-left: 12px;
+}
+
+.info-cope .tecnico-info-label::before {
+    content: '\f1ad';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-right: 8px;
+    color: var(--warning-color);
+}
+
+/* BADGE MOSTRANDO TOTAL DE TÉCNICOS */
+.badge-total {
+    background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+}
+
+/* ALERTA CUANDO NO HAY TÉCNICOS */
+.alert-empty {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    border-radius: var(--border-radius);
+    padding: 30px;
+    text-align: center;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* ANIMACIONES DE ENTRADA */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* APLICAR ANIMACIÓN A TARJETAS */
+.tecnico-card {
+    animation: slideInUp 0.5s ease-out forwards;
+}
+
+/* RETRASOS ESCALONADOS PARA EFECTO VISUAL */
+.tecnico-card:nth-child(1) { animation-delay: 0.05s; }
+.tecnico-card:nth-child(2) { animation-delay: 0.1s; }
+.tecnico-card:nth-child(3) { animation-delay: 0.15s; }
+.tecnico-card:nth-child(4) { animation-delay: 0.2s; }
+.tecnico-card:nth-child(5) { animation-delay: 0.25s; }
+.tecnico-card:nth-child(6) { animation-delay: 0.3s; }
+.tecnico-card:nth-child(7) { animation-delay: 0.35s; }
+.tecnico-card:nth-child(8) { animation-delay: 0.4s; }
+.tecnico-card:nth-child(9) { animation-delay: 0.45s; }
+.tecnico-card:nth-child(n+10) { animation-delay: 0.5s; }

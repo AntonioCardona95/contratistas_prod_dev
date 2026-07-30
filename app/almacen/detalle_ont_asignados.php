@@ -25,22 +25,20 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>ERP - ALMACEN</title>
+    <title>CONTRATISTAS</title>
 
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
-    <script src="https://kit.fontawesome.com/b5137b0dd6.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
 
     <!-- Custom styles for this page -->
     <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
+
+    <link href="../css/responsive_custom.css" rel="stylesheet">
  
-    <script src="https://kit.fontawesome.com/b5137b0dd6.js" crossorigin="anonymous"></script>
 
 </head>
 
@@ -49,15 +47,15 @@
     <!-- Page Wrapper -->
     <div id="wrapper">
 
-        <!-- Sidebar -->
+        <!-- SIDEBAR -->
         <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a 100%, #224abe 0%); background-size: cover;">
 
-            <!-- Sidebar - Brand -->
+            <!-- SIDEBAR TITULO -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
                 <div class="sidebar-brand-text mx-3">ALMACEN</div>
             </a>
 
-            <!-- Divider -->
+            <!-- DIVISOR -->
             <hr class="sidebar-divider my-0">
 
             <!-- Nav Item - Dashboard -->
@@ -67,7 +65,7 @@
                     <span>Dashboard</span></a>
             </li>
 
-            <!-- Divider -->
+            <!-- DIVISOR -->
             <hr class="sidebar-divider">
 
             <!-- Heading -->
@@ -106,16 +104,15 @@
                 </a>
             </li>
             
-            <!--
+            <!-- TECNICOS -->
             <li class="nav-item">
-                <a class="nav-link" href="traspasos.php">
+                <a class="nav-link" href="tecnicos.php">
                     <i class="fas fa-fw fa-table"></i>
-                    <span>TRASPASO MATERIAL</span>
+                    <span>TÉCNICOS</span>
                 </a>
             </li>
-            -->
 
-            <!-- Divider -->
+            <!-- DIVISOR -->
             <hr class="sidebar-divider d-none d-md-block">
 
             <!-- Sidebar Toggler (Sidebar) -->
@@ -127,7 +124,7 @@
 
 
         </ul>
-        <!-- End of Sidebar -->
+        <!-- FIN DE LA SIDEBAR -->
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
@@ -209,15 +206,8 @@
             </div>
             <!-- End of Main Content -->
 
-            <!-- Footer -->
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; ENLACE DIGITAL 2025</span>
-                    </div>
-                </div>
-            </footer>
-            <!-- End of Footer -->
+            <!-- IMPORTAR EL FOOTER DE CONTRATISTAS -->
+            <?php include_once(__DIR__ . '/../components/FooterContratistas.php'); ?>
 
         </div>
         <!-- End of Content Wrapper -->

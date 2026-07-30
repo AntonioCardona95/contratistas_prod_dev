@@ -25,22 +25,19 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>ERP - ALMACEN</title>
+    <title>CONTRATISTAS</title>
 
     <!-- Custom fonts for this template -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
-    <script src="https://kit.fontawesome.com/b5137b0dd6.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
 
     <!-- Custom styles for this page -->
     <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
- 
-    <script src="https://kit.fontawesome.com/b5137b0dd6.js" crossorigin="anonymous"></script>
+
+    <link href="../css/responsive_custom.css" rel="stylesheet">
 
 </head>
 
@@ -91,31 +88,47 @@
                 </div>
             </li>
 
-            <!-- Nav Item - Tables -->
+            <!-- MATERIAL RECIBIDO -->
             <li class="nav-item">
                 <a class="nav-link" href="entradas.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>ENTRADAS DE MATERIALES</span>
+                    <i class="fa-solid fa-clipboard-check"></i>
+                    <span>MATERIAL RECIBIDO</span>
                 </a>
             </li>
 
+            <!-- ACEPTAR MATERIAL -->
+            <li class="nav-item">
+                <a class="nav-link" href="aceptarMaterial.php">
+                    <i class="fa-solid fa-feather-pointed"></i>
+                    <span>ACEPTAR MATERIAL</span>
+                </a>
+            </li>
+
+            <!-- MATERIAL RECHAZADO -->
+            <li class="nav-item active">
+                <a class="nav-link" href="materialRechazado.php">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    <span>MATERIAL RECHAZADO</span>
+                </a>
+            </li>
+
+            <!-- ASIGNAR MATERIAL -->
             <li class="nav-item">
                 <a class="nav-link" href="salidas.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>SALIDAS DE MATERIALES</span>
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>ASIGNAR MATERIAL</span>
                 </a>
             </li>
-            
-            <!--
-            <li class="nav-item">
-                <a class="nav-link" href="traspasos.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>TRASPASO MATERIAL</span>
-                </a>
-            </li>
-            -->
 
-            <!-- Divider -->
+            <!-- TECNICOS -->
+            <li class="nav-item">
+                <a class="nav-link" href="tecnicos.php">
+                    <i class="fas fa-fw fa-table"></i>
+                    <span>TÉCNICOS</span>
+                </a>
+            </li>
+
+            <!-- DIVISOR -->
             <hr class="sidebar-divider d-none d-md-block">
 
             <!-- Sidebar Toggler (Sidebar) -->
@@ -127,7 +140,7 @@
 
 
         </ul>
-        <!-- End of Sidebar -->
+        <!-- FIN DE LA SIDEBAR -->
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
@@ -209,15 +222,8 @@
             </div>
             <!-- End of Main Content -->
 
-            <!-- Footer -->
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; ENLACE DIGITAL 2025</span>
-                    </div>
-                </div>
-            </footer>
-            <!-- End of Footer -->
+            <!-- IMPORTAR EL FOOTER DE CONTRATISTAS -->
+            <?php include_once(__DIR__ . '/../components/FooterContratistas.php'); ?>
 
         </div>
         <!-- End of Content Wrapper -->
