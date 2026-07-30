@@ -27,18 +27,18 @@
 
     <title>CONTRATISTAS</title>
 
-    <!-- Custom fonts for this template -->
+    <!-- CSS DE FONT AWESOME -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <!-- FUENTE GLOBAL DE GOOGLE FONTS NUNITO -->
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
+    <!-- COMPATIBILIDAD CON FONT AWESOME 6.5.0 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <!-- PLANTILLA GLOBAL DE CSS -->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
-
-    <!-- Custom styles for this page -->
+    <!-- ESTILOS DE DATATABLES -->
     <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
-
+    <!-- CSS GLOBAL PERSONALIZADO -->
     <link href="../css/responsive_custom.css" rel="stylesheet">
- 
 
 </head>
 
@@ -89,21 +89,38 @@
                 </div>
             </li>
 
-            <!-- Nav Item - Tables -->
+            <!-- MATERIAL RECIBIDO -->
             <li class="nav-item">
                 <a class="nav-link" href="entradas.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>ENTRADAS DE MATERIALES</span>
+                    <i class="fa-solid fa-clipboard-check"></i>
+                    <span>MATERIAL RECIBIDO</span>
                 </a>
             </li>
 
+            <!-- ACEPTAR MATERIAL -->
             <li class="nav-item">
-                <a class="nav-link" href="salidas.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>SALIDAS DE MATERIALES</span>
+                <a class="nav-link" href="aceptarMaterial.php">
+                    <i class="fa-solid fa-feather-pointed"></i>
+                    <span>ACEPTAR MATERIAL</span>
                 </a>
             </li>
-            
+
+            <!-- MATERIAL RECHAZADO -->
+            <li class="nav-item active">
+                <a class="nav-link" href="materialRechazado.php">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    <span>MATERIAL RECHAZADO</span>
+                </a>
+            </li>
+
+            <!-- ASIGNAR MATERIAL -->
+            <li class="nav-item">
+                <a class="nav-link" href="salidas.php">
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>ASIGNAR MATERIAL</span>
+                </a>
+            </li>
+
             <!-- TECNICOS -->
             <li class="nav-item">
                 <a class="nav-link" href="tecnicos.php">
