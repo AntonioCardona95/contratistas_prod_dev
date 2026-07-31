@@ -67,7 +67,8 @@
             <li class="nav-item active">
                 <a class="nav-link" href="index.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span></a>
+                    <span>Dashboard</span>
+                </a>
             </li>
 
             <!-- Divider -->
@@ -118,6 +119,7 @@
                 </a>
             </li>
 
+            <!-- ASIGNAR MATERIAL -->
             <li class="nav-item">
                 <a class="nav-link" href="salidas.php">
                     <i class="fa-solid fa-circle-plus"></i>
@@ -145,7 +147,7 @@
 
 
         </ul>
-        <!-- End of Sidebar -->
+        <!-- FIN DE LA SIDEBAR -->
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
