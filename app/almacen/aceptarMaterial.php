@@ -219,9 +219,6 @@
                 type: 'POST',
                 url: 'modal/TablaPendientes.php',
                 data: parametros,
-                beforeSend: function(){
-                    $("#LoadPendientes").html("<center><img src='../image/loading-46.gif'></center>");
-                },
                 success: function(data){
                     $("#LoadPendientes").html(data);
                 }
