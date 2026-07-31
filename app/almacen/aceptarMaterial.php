@@ -41,7 +41,7 @@
     <!-- CSS GLOBAL RESPONSIVO -->
     <link href="../css/responsive_custom.css" rel="stylesheet">
     <!-- CSS DE SIDEBAR ACTIVA -->
-    <link rel="stylesheet" href="../css/sidebar-active.css">
+    <link rel="stylesheet" href="css/sidebar-active.css">
 
     <style>
         .modal-header-gradient 

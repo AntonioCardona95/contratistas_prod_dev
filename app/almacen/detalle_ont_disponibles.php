@@ -40,7 +40,7 @@
     <!-- CSS GLOBAL PERSONALIZADO -->
     <link href="../css/responsive_custom.css" rel="stylesheet">
     <!-- CSS DE SIDEBAR ACTIVA -->
-    <link rel="stylesheet" href="../css/sidebar-active.css">
+    <link rel="stylesheet" href="css/sidebar-active.css">
 
 </head>
 
