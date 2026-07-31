@@ -16,7 +16,7 @@
     
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 
     <meta charset="utf-8">
@@ -27,55 +27,55 @@
 
     <title>CONTRATSTAS</title>
 
-    <!-- CSS DE FONT AWESOME -->
+    <!-- CARGA DE ICONOS Y FUENTES -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <!-- FUENTE GLOBAL DE GOOGLE FONTS NUNITO -->
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <!-- COMPATIBILIDAD CON FONT AWESOME 6.5.0 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-    <!-- PLANTILLA GLOBAL DE CSS -->
+
+    <!-- ESTILOS BASE DE LA PLANTILLA -->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
-    <!-- ESTILOS DE DATATABLES -->
+
+    <!-- ESTILOS PARA TABLAS Y RESPONSIVIDAD -->
     <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
-    <!-- CSS GLOBAL PERSONALIZADO -->
     <link href="../css/responsive_custom.css" rel="stylesheet">
-    <!-- CSS DE SIDEBAR ACTIVA -->
+
+    <!-- ESTILO PERSONALIZADO PARA EL MENU ACTIVO DE LA SIDEBAR -->
     <link rel="stylesheet" href="css/sidebar-active.css">
 
 </head>
 
 <body id="page-top">
 
-    <!-- Page Wrapper -->
+    <!-- CONTENEDOR PRINCIPAL DE LA PÁGINA -->
     <div id="wrapper">
 
-        <!-- SIDEBAR -->
+        <!-- SIDEBAR DEL MÓDULO DE ALMACÉN -->
         <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a 100%, #224abe 0%); background-size: cover;">
 
-            <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <!-- ENCABEZADO DEL MÓDULO -->
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
                 <div class="sidebar-brand-text mx-3">ALMACEN</div>
             </a>
 
-            <!-- Divider -->
+            <!-- SEPARADOR SUPERIOR -->
             <hr class="sidebar-divider my-0">
 
-            <!-- Nav Item - Dashboard -->
+            <!-- OPCIÓN ACTIVA DEL DASHBOARD -->
             <li class="nav-item active">
                 <a class="nav-link" href="index.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
 
-            <!-- Divider -->
+            <!-- SEPARADOR DE SECCIÓN -->
             <hr class="sidebar-divider">
 
-            <!-- Heading -->
+            <!-- TÍTULO DE ACCIONES -->
             <div class="sidebar-heading">
                 ACCION
             </div>
 
-            <!-- Nav Item - Pages Collapse Menu -->
+            <!-- MENÚ DE MÓDULOS -->
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
                     aria-expanded="true" aria-controls="collapsePages">
@@ -91,7 +91,7 @@
                 </div>
             </li>
 
-            <!-- MATERIAL RECIBIDO -->
+            <!-- MÓDULO: MATERIAL RECIBIDO -->
             <li class="nav-item">
                 <a class="nav-link" href="entradas.php">
                     <i class="fa-solid fa-clipboard-check"></i>
@@ -99,7 +99,7 @@
                 </a>
             </li>
 
-            <!-- ACEPTAR MATERIAL -->
+            <!-- MÓDULO: ACEPTAR MATERIAL -->
             <li class="nav-item">
                 <a class="nav-link" href="aceptarMaterial.php">
                     <i class="fa-solid fa-feather-pointed"></i>
@@ -107,7 +107,7 @@
                 </a>
             </li>
 
-            <!-- MATERIAL RECHAZADO -->
+            <!-- MÓDULO ACTIVO: MATERIAL RECHAZADO -->
             <li class="nav-item active">
                 <a class="nav-link" href="materialRechazado.php">
                     <i class="fa-solid fa-circle-xmark"></i>
@@ -115,7 +115,7 @@
                 </a>
             </li>
 
-            <!-- ASIGNAR MATERIAL -->
+            <!-- MÓDULO: ASIGNAR MATERIAL -->
             <li class="nav-item">
                 <a class="nav-link" href="salidas.php">
                     <i class="fa-solid fa-circle-plus"></i>
@@ -123,7 +123,7 @@
                 </a>
             </li>
 
-            <!-- TECNICOS -->
+            <!-- MÓDULO: TÉCNICOS -->
             <li class="nav-item">
                 <a class="nav-link" href="tecnicos.php">
                     <i class="fas fa-fw fa-table"></i>
@@ -131,30 +131,29 @@
                 </a>
             </li>
 
-            <!-- Divider -->
+            <!-- SEPARADOR FINAL -->
             <hr class="sidebar-divider d-none d-md-block">
 
-            <!-- Sidebar Toggler (Sidebar) -->
+            <!-- BOTÓN PARA OCULTAR EL MENÚ -->
             <div class="sidebar-footer text-center">
                 <button class="rounded-circle border-0" id="sidebarToggle" aria-label="Cerrar menú">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
 
-
         </ul>
         <!-- FIN DE LA SIDEBAR -->
 
-        <!-- Content Wrapper -->
+        <!-- CONTENEDOR DEL ÁREA DE CONTENIDO -->
         <div id="content-wrapper" class="d-flex flex-column">
 
-            <!-- Main Content -->
+            <!-- CONTENIDO PRINCIPAL -->
             <div id="content">
 
-                <!-- Topbar -->
+                <!-- TOPBAR CON FILTROS DE FECHAS -->
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
-                    <!-- Topbar Search -->
+                    <!-- FILTRO POR FECHA EN EL TOPBAR -->
                     <form class="col-xl-10 col-md-10 mb-10" id="FormQueryUnidades">
                         
                         <div class="input-group">
@@ -175,12 +174,12 @@
 
                     </form>
                     
-                    <!-- Topbar Navbar -->
+                    <!-- BARRA DE NAVEGACIÓN DEL USUARIO -->
                     <ul class="navbar-nav ml-auto">
 
                         <div class="topbar-divider d-none d-sm-block"></div>
 
-                        <!-- Nav Item - User Information -->
+                        <!-- INFORMACIÓN DEL USUARIO -->
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -188,7 +187,7 @@
                                 <img class="img-profile rounded-circle"
                                     src="img/undraw_profile.svg">
                             </a>
-                            <!-- Dropdown - User Information -->
+                            <!-- MENÚ DEL USUARIO -->
                             <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                 aria-labelledby="userDropdown">
                                 <a class="dropdown-item" href="#">
@@ -206,15 +205,15 @@
                     </ul>
 
                 </nav>
-                <!-- End of Topbar -->
+                <!-- FIN DEL TOPBAR -->
 
-                <!-- Begin Page Content -->
+                <!-- INICIO DEL CONTENIDO DE LA PÁGINA -->
                 <div class="container-fluid">
 
-                    <!-- Page Heading -->
+                    <!-- ENCABEZADO DE LA SECCIÓN -->
                     <h1 class="h3 mb-2 text-gray-800">ONT DISPONIBLES PARA ASIGNAR</h1>
 
-                    <!-- DataTales Example -->
+                    <!-- CONTENEDOR DONDE SE CARGA LA TABLA DETALLADA -->
                     <div id="LoadOntDisponiblesDet">
                     
                     </div>

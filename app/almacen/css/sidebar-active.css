@@ -1,26 +1,31 @@
 /* Estado activo global para el sidebar del modulo Almacen */
+#accordionSidebar .nav-item.active > .nav-link,
 #accordionSidebar .nav-item .nav-link.active {
-    color: #ffffff;
-    font-weight: 700;
-    background: rgba(255, 255, 255, 0.16);
-    border-left: 4px solid #ffffff;
-    border-radius: 0.35rem;
-    padding-left: calc(1rem - 4px);
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    background: rgba(255, 255, 255, 0.16) !important;
+    border-left: 4px solid #ffffff !important;
+    border-radius: 0.35rem !important;
+    padding-left: calc(1rem - 4px) !important;
 }
 
+#accordionSidebar .nav-item.active > .nav-link i,
+#accordionSidebar .nav-item.active > .nav-link span,
 #accordionSidebar .nav-item .nav-link.active i,
 #accordionSidebar .nav-item .nav-link.active span {
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
+#accordionSidebar .nav-item.active > .nav-link:hover,
 #accordionSidebar .nav-item .nav-link.active:hover {
-    background: rgba(255, 255, 255, 0.24);
+    background: rgba(255, 255, 255, 0.24) !important;
 }
 
 /* Ajuste visual en pantallas pequenas */
 @media (max-width: 768px) {
+    #accordionSidebar .nav-item.active > .nav-link,
     #accordionSidebar .nav-item .nav-link.active {
-        border-left-width: 3px;
-        padding-left: calc(1rem - 3px);
+        border-left-width: 3px !important;
+        padding-left: calc(1rem - 3px) !important;
     }
 }

@@ -18,7 +18,7 @@
     }
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 
     <meta charset="utf-8">
@@ -29,55 +29,55 @@
 
     <title>CONTRATISTAS</title>
 
-    <!-- CSS DE FONT AWESOME -->
+    <!-- CARGA DE ICONOS Y FUENTES -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <!-- FUENTE GLOBAL DE GOOGLE FONTS NUNITO -->
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <!-- COMPATIBILIDAD CON FONT AWESOME 6.5.0 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-    <!-- PLANTILLA GLOBAL DE CSS -->
+
+    <!-- ESTILOS BASE DE LA PLANTILLA -->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
-    <!-- ESTILOS DE DATATABLES -->
+
+    <!-- ESTILOS PARA TABLAS Y RESPONSIVIDAD -->
     <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
-    <!-- CSS GLOBAL PERSONALIZADO -->
     <link href="../css/responsive_custom.css" rel="stylesheet">
-    <!-- CSS DE SIDEBAR ACTIVA -->
+
+    <!-- ESTILO PERSONALIZADO PARA EL MENU ACTIVO DE LA SIDEBAR -->
     <link rel="stylesheet" href="css/sidebar-active.css">
 
 </head>
 
 <body id="page-top">
 
-    <!-- Page Wrapper -->
+    <!-- CONTENEDOR DE LA PAGINA -->
     <div id="wrapper">
 
         <!-- SIDEBAR -->
         <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a 100%, #224abe 0%); background-size: cover;">
 
-            <!-- Sidebar - Brand -->
+            <!-- SIDEBAR TITULO -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
                 <div class="sidebar-brand-text mx-3">ALMACEN</div>
             </a>
 
-            <!-- Divider -->
+            <!-- DIVISOR -->
             <hr class="sidebar-divider my-0">
 
-            <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
+            <!-- DASHBOARD -->
+            <li class="nav-item">
                 <a class="nav-link" href="index.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span></a>
             </li>
 
-            <!-- Divider -->
+            <!-- DIVISOR -->
             <hr class="sidebar-divider">
 
-            <!-- Heading -->
+            <!-- SUBTITULO -->
             <div class="sidebar-heading">
                 ACCION
             </div>
 
-            <!-- Nav Item - Pages Collapse Menu -->
+            <!-- PAGINA DE MODULOS -->
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
                     aria-expanded="true" aria-controls="collapsePages">
@@ -102,8 +102,8 @@
             </li>
 
             <!-- ACEPTAR MATERIAL -->
-             <li class="nav-item">
-                <a class="nav-link" href="aceptarMaterial.php">
+             <li class="nav-item active">
+                <a class="nav-link active" href="aceptarMaterial.php">
                     <i class="fa-solid fa-feather-pointed"></i>
                     <span>ACEPTAR MATERIAL</span>
                 </a>
@@ -117,6 +117,7 @@
                 </a>
             </li>
 
+            <!-- ASIGNAR MATERIAL -->
             <li class="nav-item">
                 <a class="nav-link" href="salidas.php">
                     <i class="fa-solid fa-circle-plus"></i>
@@ -132,10 +133,10 @@
                 </a>
             </li>
 
-            <!-- Divider -->
+            <!-- DIVISOR -->
             <hr class="sidebar-divider d-none d-md-block">
 
-            <!-- Sidebar Toggler (Sidebar) -->
+            <!-- SIDEBAR DESPLEGABLE -->
             <div class="sidebar-footer text-center">
                 <button class="rounded-circle border-0" id="sidebarToggle" aria-label="Cerrar menú">
                     <i class="fas fa-times"></i>
@@ -146,16 +147,16 @@
         </ul>
         <!-- FIN DE LA SIDEBAR -->
 
-        <!-- Content Wrapper -->
+        <!-- CONTENEDOR -->
         <div id="content-wrapper" class="d-flex flex-column">
 
-            <!-- Main Content -->
+            <!-- CONTENIDO PRINCIPAL -->
             <div id="content">
 
-                <!-- Topbar -->
+                <!-- TOPBAR -->
                 <?php include_once(__DIR__ . '/../components/TopbarContratistas.php'); ?>
 
-                <!-- Begin Page Content -->
+                <!-- CONTENIDO DE LA PAGINA -->
                 <div class="container-fluid">
 
                     <!-- CONTENEDOR DE DATOS OPTIMIZADO -->
@@ -172,21 +173,20 @@
                     </div>
 
                 </div>
-                <!-- /.container-fluid -->
 
             </div>
-            <!-- End of Main Content -->
+            <!-- FIN DEL CONTENIDO PRINCIPAL -->
 
             <!-- IMPORTAR EL FOOTER DE CONTRATISTAS -->
             <?php include_once(__DIR__ . '/../components/FooterContratistas.php'); ?>
 
         </div>
-        <!-- End of Content Wrapper -->
+        <!-- FIN DEL CONTENEDOR -->
 
     </div>
-    <!-- End of Page Wrapper -->
+    <!-- FIN DEL CONTENEDOR DE LA PAGINA -->
 
-    <!-- Scroll to Top Button-->
+    <!-- BOTON DE DESPLAZAMIENTO HACIA ARRIBA -->
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>

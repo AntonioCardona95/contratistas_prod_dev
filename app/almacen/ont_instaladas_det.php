@@ -16,7 +16,7 @@
     
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 
     <meta charset="utf-8">
@@ -27,19 +27,19 @@
 
     <title>CONTRATISTAS</title>
 
-    <!-- CSS DE FONT AWESOME -->
+    <!-- CARGA DE ICONOS Y FUENTES -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <!-- FUENTE GLOBAL DE GOOGLE FONTS NUNITO -->
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <!-- COMPATIBILIDAD CON FONT AWESOME 6.5.0 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-    <!-- PLANTILLA GLOBAL DE CSS -->
+
+    <!-- ESTILOS BASE DE LA PLANTILLA -->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
-    <!-- ESTILOS DE DATATABLES -->
+
+    <!-- ESTILOS PARA TABLAS Y RESPONSIVIDAD -->
     <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
-    <!-- CSS GLOBAL PERSONALIZADO -->
     <link href="../css/responsive_custom.css" rel="stylesheet">
-    <!-- CSS DE SIDEBAR ACTIVA -->
+
+    <!-- ESTILO PERSONALIZADO PARA EL MENU ACTIVO DE LA SIDEBAR -->
     <link rel="stylesheet" href="css/sidebar-active.css">
 
 </head>

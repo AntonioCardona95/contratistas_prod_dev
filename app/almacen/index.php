@@ -23,7 +23,7 @@
     
 ?>
 <!DOCTYPE html>
-<html lang="en">    
+<html lang="es">    
 <head>
 
     <meta charset="utf-8">
@@ -34,40 +34,40 @@
 
     <title>CONTRATISTAS - ALMACEN</title>
 
-    <!-- CSS DE FONT AWESOME -->
+    <!-- CARGA DE ICONOS Y FUENTES -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <!-- FUENTE GLOBAL DE GOOGLE FONTS NUNITO -->
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <!-- COMPATIBILIDAD CON FONT AWESOME 6.5.0 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-    <!-- PLANTILLA GLOBAL DE CSS -->
+
+    <!-- ESTILOS BASE DE LA PLANTILLA -->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
-    <!-- ESTILOS DE DATATABLES -->
+
+    <!-- ESTILOS PARA TABLAS Y RESPONSIVIDAD -->
     <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
-    <!-- CSS GLOBAL RESPONSIVO -->
     <link href="../css/responsive_custom.css" rel="stylesheet">
-    <!-- CSS DE SIDEBAR ACTIVA -->
+
+    <!-- ESTILO PERSONALIZADO PARA EL MENU ACTIVO DE LA SIDEBAR -->
     <link rel="stylesheet" href="css/sidebar-active.css">
 
 </head>
 
 <body id="page-top">
 
-    <!-- Page Wrapper -->
+    <!-- CONTENEDOR PRINCIPAL DE LA PÁGINA -->
     <div id="wrapper">
 
-        <!-- Sidebar -->
+        <!-- SIDEBAR DEL MÓDULO DE ALMACÉN -->
         <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a 100%, #224abe 0%); background-size: cover;">
 
-            <!-- Sidebar - Brand -->
+            <!-- ENCABEZADO DEL MODULO -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
                 <div class="sidebar-brand-text mx-3">MI ALMACEN</div>
             </a>
 
-            <!-- Divider -->
+            <!-- SEPARADOR SUPERIOR -->
             <hr class="sidebar-divider my-0">
 
-            <!-- Nav Item - Dashboard -->
+            <!-- OPCIÓN ACTIVA DEL DASHBOARD -->
             <li class="nav-item active">
                 <a class="nav-link" href="index.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
@@ -75,15 +75,15 @@
                 </a>
             </li>
 
-            <!-- Divider -->
+            <!-- SEPARADOR DE SECCIÓN -->
             <hr class="sidebar-divider">
 
-            <!-- Heading -->
+            <!-- TÍTULO DE ACCIONES -->
             <div class="sidebar-heading">
                 ACCION
             </div>
 
-            <!-- Nav Item - Pages Collapse Menu -->
+            <!-- MENÚ DE MÓDULOS -->
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
                     aria-expanded="true" aria-controls="collapsePages">
@@ -99,7 +99,7 @@
                 </div>
             </li>
 
-            <!-- MATERIAL RECIBIDO -->
+            <!-- MÓDULO: MATERIAL RECIBIDO -->
             <li class="nav-item">
                 <a class="nav-link" href="entradas.php">
                     <i class="fa-solid fa-clipboard-check"></i>
@@ -107,7 +107,7 @@
                 </a>
             </li>
 
-            <!-- ACEPTAR MATERIAL -->
+            <!-- MÓDULO: ACEPTAR MATERIAL -->
              <li class="nav-item">
                 <a class="nav-link" href="aceptarMaterial.php">
                     <i class="fa-solid fa-feather-pointed"></i>
@@ -115,7 +115,7 @@
                 </a>
             </li>
 
-            <!-- MATERIAL RECHAZADO -->
+            <!-- MÓDULO: MATERIAL RECHAZADO -->
              <li class="nav-item">
                 <a class="nav-link" href="materialRechazado.php">
                     <i class="fa-solid fa-circle-xmark"></i>
@@ -123,7 +123,7 @@
                 </a>
             </li>
 
-            <!-- ASIGNAR MATERIAL -->
+            <!-- MÓDULO: ASIGNAR MATERIAL -->
             <li class="nav-item">
                 <a class="nav-link" href="salidas.php">
                     <i class="fa-solid fa-circle-plus"></i>
@@ -131,7 +131,7 @@
                 </a>
             </li>
 
-            <!-- TECNICOS -->
+            <!-- MÓDULO: TÉCNICOS -->
             <li class="nav-item">
                 <a class="nav-link" href="tecnicos.php">
                     <i class="fas fa-fw fa-table"></i>
@@ -139,26 +139,26 @@
                 </a>
             </li>
 
-            <!-- Divider -->
+            <!-- SEPARADOR FINAL -->
             <hr class="sidebar-divider d-none d-md-block">
 
+            <!-- BOTÓN DE OCULTAR MENÚ -->
             <div class="sidebar-footer text-center">
                 <button class="rounded-circle border-0" id="sidebarToggle" aria-label="Cerrar menú">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
 
-
         </ul>
-        <!-- End of Sidebar -->
+        <!-- FIN DE LA SIDEBAR -->
 
-        <!-- Content Wrapper -->
+        <!-- CONTENEDOR DEL ÁREA DE CONTENIDO -->
         <div id="content-wrapper" class="d-flex flex-column">
 
-            <!-- Main Content -->
+            <!-- CONTENIDO PRINCIPAL -->
             <div id="content">
 
-                <!-- Topbar -->
+                <!-- TOPBAR CON FILTROS Y ACCIONES GLOBALES -->
                 <?php
                     $defaultFecha1 = $_POST['Fecha1'] ?? date('Y-m-d', strtotime('-1 month'));
                     $defaultFecha2 = $_POST['Fecha2'] ?? date('Y-m-d');
@@ -166,25 +166,26 @@
                     include_once(__DIR__ . '/../components/TopbarContratistas.php');
                 ?>
 
-                <!-- Begin Page Content -->
+                <!-- INICIO DEL CONTENIDO DE LA PÁGINA -->
                 <div class="container-fluid">
 
-                    <!-- Page Heading -->
+                    <!-- ENCABEZADO DE LA SECCIÓN -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">GESTIÓN OPERATIVA DE EQUIPO Y SERVICIOS (ONT)</h1>
                     </div>
                     
+                    <!-- CONTENEDOR DINÁMICO QUE CARGA LOS KPI Y GRÁFICAS -->
                     <div id="LoadKPIS">
 
                     </div>
 
                 </div>
-                <!-- /.container-fluid -->
+                <!-- FIN DEL CONTENIDO -->
 
             </div>
-            <!-- End of Main Content -->
+            <!-- FIN DEL CONTENIDO PRINCIPAL -->
 
-            <!-- Footer -->
+            <!-- PIE DE PÁGINA -->
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
@@ -192,15 +193,15 @@
                     </div>
                 </div>
             </footer>
-            <!-- End of Footer -->
+            <!-- FIN DEL PIE -->
 
         </div>
-        <!-- End of Content Wrapper -->
+        <!-- FIN DEL CONTENEDOR DEL CONTENIDO -->
 
     </div>
-    <!-- End of Page Wrapper -->
+    <!-- FIN DEL CONTENEDOR PRINCIPAL -->
 
-    <!-- Scroll to Top Button-->
+    <!-- BOTÓN PARA VOLVER AL INICIO -->
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
