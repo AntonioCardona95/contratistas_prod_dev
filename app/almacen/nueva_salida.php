@@ -29,30 +29,30 @@ if (empty($idContratistas)) {
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>ERP - ALMACEN</title>
+    <title>CONTRATISTAS</title>
 
-    <!-- Custom fonts for this template -->
+    <!-- CSS DE FONT AWESOME -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
-    <script src="https://kit.fontawesome.com/b5137b0dd6.js" crossorigin="anonymous"></script>
-
-    <!-- Custom styles for this template -->
+    <!-- FUENTE GLOBAL DE GOOGLE FONTS NUNITO -->
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <!-- COMPATIBILIDAD CON FONT AWESOME 6.5.0 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <!-- PLANTILLA GLOBAL DE CSS -->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
-
-    <!-- Custom styles for this page -->
+    <!-- ESTILOS DE DATATABLES -->
     <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
+    <!-- CSS GLOBAL PERSONALIZADO -->
+    <link href="../css/responsive_custom.css" rel="stylesheet">
 
-    <script src="https://kit.fontawesome.com/b5137b0dd6.js" crossorigin="anonymous"></script>
-    <!-- Bootstrap Select CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
     <style>
         .selected-option {
             background-color: #d4edda !important;
             /* Verde claro */
             color: #155724 !important;
             /* Texto verde oscuro */
+        }
+        .modal-header-gradient {
+            background: linear-gradient(90deg, #007BFF 0%, #007 100%) !important;
         }
     </style>
 </head>
@@ -62,11 +62,11 @@ if (empty($idContratistas)) {
     <!-- Page Wrapper -->
     <div id="wrapper">
 
-        <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        <!-- SIDEBAR -->
+        <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a 100%, #224abe 0%); background-size: cover;">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
                 <div class="sidebar-brand-text mx-3">ALMACEN</div>
             </a>
 
@@ -104,29 +104,45 @@ if (empty($idContratistas)) {
                 </div>
             </li>
 
-            <!-- Nav Item - Tables -->
+            <!-- MATERIAL RECIBIDO -->
             <li class="nav-item">
                 <a class="nav-link" href="entradas.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>ENTRADAS DE MATERIALES</span>
+                    <i class="fa-solid fa-clipboard-check"></i>
+                    <span>MATERIAL RECIBIDO</span>
                 </a>
             </li>
 
+            <!-- ACEPTAR MATERIAL -->
+            <li class="nav-item">
+                <a class="nav-link" href="aceptarMaterial.php">
+                    <i class="fa-solid fa-feather-pointed"></i>
+                    <span>ACEPTAR MATERIAL</span>
+                </a>
+            </li>
+
+            <!-- MATERIAL RECHAZADO -->
+            <li class="nav-item active">
+                <a class="nav-link" href="materialRechazado.php">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                    <span>MATERIAL RECHAZADO</span>
+                </a>
+            </li>
+
+            <!-- ASIGNAR MATERIAL -->
             <li class="nav-item">
                 <a class="nav-link" href="salidas.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>SALIDAS DE MATERIALES</span>
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <span>ASIGNAR MATERIAL</span>
                 </a>
             </li>
-            
-            <!--
+
+            <!-- TECNICOS -->
             <li class="nav-item">
-                <a class="nav-link" href="traspasos.php">
+                <a class="nav-link" href="tecnicos.php">
                     <i class="fas fa-fw fa-table"></i>
-                    <span>TRASPASO MATERIAL</span>
+                    <span>TÉCNICOS</span>
                 </a>
             </li>
-            -->
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
@@ -140,7 +156,7 @@ if (empty($idContratistas)) {
 
 
         </ul>
-        <!-- End of Sidebar -->
+        <!-- FIN DE LA SIDEBAR -->
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
@@ -282,15 +298,8 @@ if (empty($idContratistas)) {
             </div>
             <!-- End of Main Content -->
 
-            <!-- Footer -->
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; ENLACE DIGITAL 2025</span>
-                    </div>
-                </div>
-            </footer>
-            <!-- End of Footer -->
+            <!-- IMPORTAR EL FOOTER DE CONTRATISTAS -->
+            <?php include_once(__DIR__ . '/../components/FooterContratistas.php'); ?>
 
         </div>
         <!-- End of Content Wrapper -->
@@ -303,25 +312,8 @@ if (empty($idContratistas)) {
         <i class="fas fa-angle-up"></i>
     </a>
 
-    <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">CERRAR SESION</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">PRESIONA SALIR, PARA CERRAR LA SESSION.</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">CANCELAR</button>
-                    <a class="btn btn-primary" href="../Login/modal/poweroff.php">SALIR</a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- MODAL DE CIERRE DE SESION -->
+    <?php include_once(__DIR__ . '/../components/ModalCierreSesion.php'); ?>
 
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
     <script src="js/app-2.js"></script>

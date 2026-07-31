@@ -56,6 +56,8 @@
     <link href="../css/responsive_custom.css" rel="stylesheet">
     <!-- CSS PERSONALIZADO PARA LA PÁGINA DE TÉCNICOS -->
     <link href="css/tecnicos.css" rel="stylesheet">
+    <!-- CSS DE SIDEBAR ACTIVA -->
+    <link rel="stylesheet" href="../css/sidebar-active.css">
 
 </head>
 <body id="page-top">
