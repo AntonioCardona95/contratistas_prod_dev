@@ -101,6 +101,11 @@
         }
     }
 
+    /* ── BUSCADOR MOVIL ── */
+    #salidas-mobile-search {
+        display: none;
+    }
+
     @media (max-width: 768px) {
         #salidas-table-wrapper {
             display: none;
@@ -109,6 +114,11 @@
         #salidas-cards-container {
             display: grid;
             grid-template-columns: 1fr;
+        }
+
+        #salidas-mobile-search {
+            display: block;
+            margin-bottom: 14px;
         }
 
         .modal-title {
@@ -174,6 +184,15 @@
                 <?php endforeach; endif; ?>
             </tbody>
         </table>
+    </div>
+
+    <div id="salidas-mobile-search">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+            </div>
+            <input type="text" id="salidas-search-input" class="form-control" placeholder="Buscar salidas...">
+        </div>
     </div>
 
     <div id="salidas-cards-container"></div>
@@ -273,6 +292,11 @@
 
         table.on('search.dt page.dt draw.dt', function() {
             renderSalidaCards();
+        });
+
+        // Buscador móvil
+        $('#salidas-search-input').on('input', function() {
+            table.search($(this).val()).draw();
         });
 	});
 </script>

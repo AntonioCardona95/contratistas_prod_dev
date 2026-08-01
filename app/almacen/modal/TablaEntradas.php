@@ -101,6 +101,11 @@
         }
     }
 
+    /* ── BUSCADOR MOVIL ── */
+    #entradas-mobile-search {
+        display: none;
+    }
+
     @media (max-width: 768px) {
         #entradas-table-wrapper {
             display: none;
@@ -109,6 +114,11 @@
         #entradas-cards-container {
             display: grid;
             grid-template-columns: 1fr;
+        }
+
+        #entradas-mobile-search {
+            display: block;
+            margin-bottom: 14px;
         }
 
         .modal-title {
@@ -178,6 +188,15 @@
                 <?php endforeach; endif; ?>
             </tbody>
         </table>
+    </div>
+
+    <div id="entradas-mobile-search">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+            </div>
+            <input type="text" id="entradas-search-input" class="form-control" placeholder="Buscar entradas...">
+        </div>
     </div>
 
     <div id="entradas-cards-container"></div>
@@ -282,6 +301,11 @@
 
         table.on('search.dt page.dt draw.dt', function() {
             renderEntradaCards();
+        });
+
+        // Buscador móvil
+        $('#entradas-search-input').on('input', function() {
+            table.search($(this).val()).draw();
         });
 	});
 </script>

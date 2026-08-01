@@ -99,6 +99,11 @@
         }
     }
 
+    /* ── BUSCADOR MOVIL ── */
+    #rechazados-mobile-search {
+        display: none;
+    }
+
     @media (max-width: 768px) {
         #rechazados-table-wrapper {
             display: none;
@@ -107,6 +112,11 @@
         #rechazados-cards-container {
             display: grid;
             grid-template-columns: 1fr;
+        }
+
+        #rechazados-mobile-search {
+            display: block;
+            margin-bottom: 14px;
         }
 
         .modal-title {
@@ -181,6 +191,15 @@
                 <?php endforeach; endif; ?>
             </tbody>
         </table>
+    </div>
+
+    <div id="rechazados-mobile-search">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+            </div>
+            <input type="text" id="rechazados-search-input" class="form-control" placeholder="Buscar rechazados...">
+        </div>
     </div>
 
     <div id="rechazados-cards-container"></div>
@@ -295,6 +314,11 @@
 
         table.on('search.dt page.dt draw.dt', function() {
             renderRechazadoCards();
+        });
+
+        // Buscador móvil
+        $('#rechazados-search-input').on('input', function() {
+            table.search($(this).val()).draw();
         });
     });
 
