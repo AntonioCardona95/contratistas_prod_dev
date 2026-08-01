@@ -49,6 +49,7 @@
 
     <!-- ESTILOS BASE DE LA PLANTILLA -->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link href="css/tecnicos.css" rel="stylesheet">
 
     <!-- ESTILOS PARA TABLAS Y RESPONSIVIDAD -->
     <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">

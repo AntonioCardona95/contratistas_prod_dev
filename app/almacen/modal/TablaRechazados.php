@@ -25,6 +25,100 @@
     $filas = $modal->ObtenerRechazados($idContratistas, $Fecha1, $Fecha2);
 ?>
 
+<style>
+    #rechazados-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    #rechazados-cards-container {
+        display: none;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .rechazado-card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .rechazado-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .rechazado-card-header {
+        padding: 18px 18px 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .rechazado-card-body {
+        padding: 0 18px 18px;
+    }
+
+    .rechazado-field {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f3f5;
+        gap: 10px;
+    }
+
+    .rechazado-field:last-child {
+        border-bottom: none;
+    }
+
+    .rechazado-field span {
+        color: #6c757d;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        flex: 1;
+    }
+
+    .rechazado-field strong {
+        color: #1f2937;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-align: right;
+        min-width: 120px;
+    }
+
+    @media (max-width: 1200px) {
+        #rechazados-cards-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        #rechazados-table-wrapper {
+            display: none;
+        }
+
+        #rechazados-cards-container {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        .modal-title {
+            font-size: 15px !important;
+        }
+
+        h2 {
+            font-size: 15px !important;
+        }
+    }
+</style>
+
 <!-- CONTENEDOR PRINCIPAL DE LA TABLA, CON OPACIDAD 0 DE INICIO PARA EL EFECTO DE CARGA -->
 <div id="rechazados-loading" style="text-align: center; padding: 20px;">
     <div class="spinner-border text-primary" role="status">
@@ -34,52 +128,62 @@
 </div>
 
 <div id="contenedor-tabla-rechazados" style="opacity: 0; transition: opacity 0.3s ease;">
-    <table class="table table-bordered display nowrap datatable-init" style="width:100%" id="rechazados">
-        <thead>
-            <tr>
-                <th>Folio</th>
-                <th>Almacén</th>
-                <th>Unidad de Negocio</th>
-                <th>Solicitante</th>
-                <th>Cantidad</th>
-                <th>Fecha Salida</th>
-                <th>Fecha Rechazo</th>
-                <th>Acción</th>
-            </tr>
-        </thead>
-        <tfoot>
-            <tr>
-                <th>Folio</th>
-                <th>Almacén</th>
-                <th>Unidad de Negocio</th>
-                <th>Solicitante</th>
-                <th>Cantidad</th>
-                <th>Fecha Salida</th>
-                <th>Fecha Rechazo</th>
-                <th>Acción</th>
-            </tr>
-        </tfoot>
-        <tbody>
-            <?php if (!empty($filas)): foreach ($filas as $row): ?>
+    <div id="rechazados-table-wrapper">
+        <table class="table table-bordered display nowrap datatable-init" style="width:100%" id="rechazados">
+            <thead>
                 <tr>
-                    <td><span class="badge badge-danger">SD-A-<?= $row['Folio_Salida_ST'] ?></span></td>
-                    <td><?= strtoupper($row['Almacen'] ?? '') ?></td>
-                    <td><?= strtoupper($row['Unidad_Negocio'] ?? '') ?></td>
-                    <td><?= strtoupper($row['Solicitante_Salida_T'] ?? '') ?></td>
-                    <td><?= number_format($row['Cantidad_ST']) ?></td>
-                    <td><?= strtoupper($row['Fecha_Salida_ST'] ?? '') ?></td>
-                    <td><?= strtoupper($row['Fecha_Respuesta'] ?? '') ?></td>
-                    <td class="text-center">
-                        <button type="button" class="btn btn-dark btn-sm ver-detalle-rechazado"
-                            data-folio="<?= $row['Folio_Salida_ST'] ?>"
-                            title="VER DETALLES">
-                            <i class="fas fa-eye"></i> Ver Detalles
-                        </button>
-                    </td>
+                    <th>Folio</th>
+                    <th>Almacén</th>
+                    <th>Unidad de Negocio</th>
+                    <th>Solicitante</th>
+                    <th>Cantidad</th>
+                    <th>Fecha Salida</th>
+                    <th>Fecha Rechazo</th>
+                    <th>Acción</th>
                 </tr>
-            <?php endforeach; endif; ?>
-        </tbody>
-    </table>
+            </thead>
+            <tfoot>
+                <tr>
+                    <th>Folio</th>
+                    <th>Almacén</th>
+                    <th>Unidad de Negocio</th>
+                    <th>Solicitante</th>
+                    <th>Cantidad</th>
+                    <th>Fecha Salida</th>
+                    <th>Fecha Rechazo</th>
+                    <th>Acción</th>
+                </tr>
+            </tfoot>
+            <tbody>
+                <?php if (!empty($filas)): foreach ($filas as $row): ?>
+                    <tr data-folio="<?= $row['Folio_Salida_ST'] ?>"
+                        data-almacen="<?= htmlspecialchars(strtoupper($row['Almacen'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                        data-unidad="<?= htmlspecialchars(strtoupper($row['Unidad_Negocio'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                        data-solicitante="<?= htmlspecialchars(strtoupper($row['Solicitante_Salida_T'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                        data-cantidad="<?= number_format($row['Cantidad_ST']) ?>"
+                        data-fecha-salida="<?= htmlspecialchars(strtoupper($row['Fecha_Salida_ST'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                        data-fecha-rechazo="<?= htmlspecialchars(strtoupper($row['Fecha_Respuesta'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        <td><span class="badge badge-danger">SD-A-<?= $row['Folio_Salida_ST'] ?></span></td>
+                        <td><?= strtoupper($row['Almacen'] ?? '') ?></td>
+                        <td><?= strtoupper($row['Unidad_Negocio'] ?? '') ?></td>
+                        <td><?= strtoupper($row['Solicitante_Salida_T'] ?? '') ?></td>
+                        <td><?= number_format($row['Cantidad_ST']) ?></td>
+                        <td><?= strtoupper($row['Fecha_Salida_ST'] ?? '') ?></td>
+                        <td><?= strtoupper($row['Fecha_Respuesta'] ?? '') ?></td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-dark btn-sm ver-detalle-rechazado"
+                                data-folio="<?= $row['Folio_Salida_ST'] ?>"
+                                title="VER DETALLES">
+                                <i class="fas fa-eye"></i> Ver Detalles
+                            </button>
+                        </td>
+                    </tr>
+                <?php endforeach; endif; ?>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="rechazados-cards-container"></div>
 </div>
 
 
@@ -123,6 +227,75 @@
         if (folioBuscar) {
             table.search(folioBuscar).draw();
         }
+
+        function renderRechazadoCards() {
+            const container = $('#rechazados-cards-container');
+            container.empty();
+
+            const rows = table.rows({ search: 'applied' }).nodes();
+
+            if (rows.length === 0) {
+                container.html('<div class="text-center text-muted">No se encontraron rechazados.</div>');
+                return;
+            }
+
+            rows.each(function(node) {
+                const row = $(node);
+                const folio        = row.data('folio');
+                const almacen      = row.data('almacen');
+                const unidad       = row.data('unidad');
+                const solicitante  = row.data('solicitante');
+                const cantidad     = row.data('cantidad');
+                const fechaSalida  = row.data('fecha-salida');
+                const fechaRechazo = row.data('fecha-rechazo');
+
+                const card = `
+                    <div class="rechazado-card">
+                        <div class="rechazado-card-header">
+                            <div>
+                                <div class="font-weight-bold">SD-A-${folio}</div>
+                                <div class="text-muted small">${almacen}</div>
+                            </div>
+                            <button type="button" class="btn btn-dark btn-sm ver-detalle-rechazado"
+                                data-folio="${folio}"
+                                title="VER DETALLES">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="rechazado-card-body">
+                            <div class="rechazado-field">
+                                <span>Unidad de Negocio</span>
+                                <strong>${unidad}</strong>
+                            </div>
+                            <div class="rechazado-field">
+                                <span>Solicitante</span>
+                                <strong>${solicitante}</strong>
+                            </div>
+                            <div class="rechazado-field">
+                                <span>Cantidad</span>
+                                <strong>${cantidad}</strong>
+                            </div>
+                            <div class="rechazado-field">
+                                <span>Fecha Salida</span>
+                                <strong>${fechaSalida}</strong>
+                            </div>
+                            <div class="rechazado-field">
+                                <span>Fecha Rechazo</span>
+                                <strong>${fechaRechazo}</strong>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                container.append(card);
+            });
+        }
+
+        renderRechazadoCards();
+
+        table.on('search.dt page.dt draw.dt', function() {
+            renderRechazadoCards();
+        });
     });
 
     $(document).off('click', '.ver-detalle-rechazado').on('click', '.ver-detalle-rechazado', function(){
