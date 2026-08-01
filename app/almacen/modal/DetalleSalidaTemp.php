@@ -55,7 +55,6 @@
         justify-content: space-between;
         align-items: flex-start;
         gap: 10px;
-        padding: 10px 0;
         border-bottom: 1px solid #e9ecef;
     }
 
@@ -89,6 +88,10 @@
 
         a{
             font-size: 15px !important;
+        }
+
+        .detalle-card-field .value {
+            font-size: 15px;
         }
     }
 </style>
@@ -201,13 +204,12 @@
                 <?php foreach ($series as $s): ?>
                     <div class="detalle-card">
                         <div class="detalle-card-header">
-                            <span class="titulo">Serie: <?= strtoupper($s['Num_Serie_S'] ?? '') ?></span>
                             <span class="value"><?= strtoupper($s['Producto'] ?? '') ?></span>
+                            <span class="label">Modelo: <strong class="value"><?= strtoupper($s['Modelo'] ?? '') ?></strong></span>
                         </div>
                         <div class="detalle-card-body">
                             <div class="detalle-card-field">
-                                <span class="label">Modelo</span>
-                                <strong class="value"><?= strtoupper($s['Modelo'] ?? '') ?></strong>
+                                <span class="titulo">Serie: <?= strtoupper($s['Num_Serie_S'] ?? '') ?></span>
                             </div>
                         </div>
                     </div>
