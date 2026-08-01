@@ -205,11 +205,11 @@
                     <div class="detalle-card">
                         <div class="detalle-card-header">
                             <span class="value"><?= strtoupper($s['Producto'] ?? '') ?></span>
-                            <span class="label">Modelo: <strong class="value"><?= strtoupper($s['Modelo'] ?? '') ?></strong></span>
+                            <span class="label">SKU: <strong class="value" style = "color: #212529;"><?= strtoupper($s['Modelo'] ?? '') ?></strong></span>
                         </div>
                         <div class="detalle-card-body">
                             <div class="detalle-card-field">
-                                <span class="titulo">Serie: <?= strtoupper($s['Num_Serie_S'] ?? '') ?></span>
+                                <span class="titulo">Serie: <strong class="value" style = "color: #212529;"><?= strtoupper($s['Num_Serie_S'] ?? '') ?></strong></span>
                             </div>
                         </div>
                     </div>
