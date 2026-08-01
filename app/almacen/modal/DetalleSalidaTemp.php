@@ -29,7 +29,7 @@
     }
 
     .detalle-card-header {
-        padding: 18px;
+        padding: 10px;
         background: #f8f9fa;
         border-bottom: 1px solid rgba(0,0,0,0.08);
         display: flex;
@@ -45,7 +45,7 @@
     }
 
     .detalle-card-body {
-        padding: 16px 18px 20px;
+        padding: 10px;
         display: grid;
         gap: 12px;
     }
@@ -86,6 +86,10 @@
         .detalle-card-container {
             display: grid;
         }
+
+        a{
+            font-size: 15px !important;
+        }
     }
 </style>
 
@@ -114,8 +118,6 @@
                         <th>Modelo</th>
                         <th>Tecnología</th>
                         <th>Presentación</th>
-                        <th>Cantidad</th>
-                        <th>Piezas Sueltas</th>
                         <th>Total Piezas</th>
                         <th>Total Metros</th>
                     </tr>
@@ -127,13 +129,11 @@
                             <td><?= strtoupper($m['Modelo'] ?? '') ?></td>
                             <td><?= strtoupper($m['Tecnologia'] ?? '') ?></td>
                             <td><?= strtoupper($m['Presentacion'] ?? '') ?></td>
-                            <td><?= $m['Cantidad_S'] ?? 0 ?></td>
-                            <td><?= $m['Piezas_Sueltas'] ?? 0 ?></td>
                             <td><?= $m['Total_Piezas'] ?? 0 ?></td>
                             <td><?= $m['Total_Metros'] ?? 0 ?></td>
                         </tr>
                     <?php endforeach; else: ?>
-                        <tr><td colspan="8" class="text-center text-muted">Sin materiales registrados.</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted">Sin materiales registrados.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
@@ -154,14 +154,6 @@
                         <div class="detalle-card-field">
                             <span class="label">Presentación</span>
                             <strong class="value"><?= strtoupper($m['Presentacion'] ?? '') ?></strong>
-                        </div>
-                        <div class="detalle-card-field">
-                            <span class="label">Cantidad</span>
-                            <strong class="value"><?= $m['Cantidad_S'] ?? 0 ?></strong>
-                        </div>
-                        <div class="detalle-card-field">
-                            <span class="label">Piezas Sueltas</span>
-                            <strong class="value"><?= $m['Piezas_Sueltas'] ?? 0 ?></strong>
                         </div>
                         <div class="detalle-card-field">
                             <span class="label">Total Piezas</span>
