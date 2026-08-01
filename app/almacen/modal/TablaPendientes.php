@@ -245,17 +245,15 @@
             const container = $('#pendientes-cards-container');
             container.empty();
 
-            const visibleRows = $('#pendientes tbody tr').filter(function() {
-                return $(this).is(':visible');
-            });
+            const rows = table.rows({ search: 'applied' }).nodes();
 
-            if (visibleRows.length === 0) {
+            if (rows.length === 0) {
                 container.html('<div class="text-center text-muted">No se encontraron pendientes.</div>');
                 return;
             }
 
-            visibleRows.each(function() {
-                const row = $(this);
+            rows.each(function(node) {
+                const row = $(node);
                 const folio = row.data('folio');
                 const almacen = row.data('almacen');
                 const unidad = row.data('unidad');
