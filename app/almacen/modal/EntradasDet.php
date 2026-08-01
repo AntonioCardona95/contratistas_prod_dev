@@ -46,6 +46,110 @@ $topbar_onchange = 'noop';
         .dataTables_wrapper .dt-buttons .btn {
             margin-right: .25rem;
         }
+
+        /* ── Wrapper tabla ── */
+        #entradas-det-table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        /* ── Cards container ── */
+        #entradas-det-cards-container {
+            display: none;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        /* ── Card ── */
+        .entradas-det-card {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .entradas-det-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .entradas-det-card-header {
+            background: linear-gradient(90deg, #0f172a 0%, #003d99 100%);
+            color: #fff;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .entradas-det-card-header .badge-folio {
+            background: rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .entradas-det-card-body {
+            padding: 0 18px 18px;
+        }
+
+        .entradas-det-field {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 10px 0;
+            border-bottom: 1px solid #f1f3f5;
+            gap: 10px;
+        }
+
+        .entradas-det-field:last-child {
+            border-bottom: none;
+        }
+
+        .entradas-det-field span {
+            color: #6c757d;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            flex: 1;
+            white-space: nowrap;
+        }
+
+        .entradas-det-field strong {
+            color: #1f2937;
+            font-size: 0.92rem;
+            font-weight: 600;
+            text-align: right;
+            min-width: 100px;
+            word-break: break-word;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 1200px) {
+            #entradas-det-cards-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            #entradas-det-table-wrapper {
+                display: none;
+            }
+
+            #entradas-det-cards-container {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            h1.font-weight-bold {
+                font-size: 1rem !important;
+            }
+        }
     </style>
 </head>
 <body id="page-top">
@@ -108,7 +212,9 @@ $topbar_onchange = 'noop';
                             </a>
                         </div>
                         <div class="card-body">
-                            <div class="table-responsive">
+
+                            <!-- TABLA (escritorio) -->
+                            <div id="entradas-det-table-wrapper">
                                 <table class="table table-bordered display nowrap" style="width:100%" id="ventas">
                                     <thead>
                                         <tr>
@@ -130,7 +236,11 @@ $topbar_onchange = 'noop';
                                     </tfoot>
                                     <tbody>
                                         <?php if (!empty($salidas_det)): foreach ($salidas_det as $row): ?>
-                                            <tr>
+                                            <tr data-material="<?= htmlspecialchars($row['Producto'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                                data-detalle="<?= htmlspecialchars($row['Descripcion'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                                data-tecnologia="<?= htmlspecialchars($row['Tecnologia'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                                data-sku="<?= htmlspecialchars($row['Modelo'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                                                data-serie="<?= htmlspecialchars($row['Num_Serie_S'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                                                 <td><?= htmlspecialchars($row['Producto'] ?? '') ?></td>
                                                 <td><?= htmlspecialchars($row['Descripcion'] ?? '') ?></td>
                                                 <td><?= htmlspecialchars($row['Tecnologia'] ?? '') ?></td>
@@ -145,6 +255,10 @@ $topbar_onchange = 'noop';
                                     </tbody>
                                 </table>
                             </div>
+
+                            <!-- CARDS (móvil) -->
+                            <div id="entradas-det-cards-container"></div>
+
                         </div>
                     </div>
                 </div>
@@ -191,6 +305,67 @@ $topbar_onchange = 'noop';
             });
 
             table.buttons(0, null).container().prependTo(table.table().container());
+
+            // ── Render cards para móvil ──
+            function renderEntradasDetCards() {
+                const container = $('#entradas-det-cards-container');
+                container.empty();
+
+                const rows = table.rows({ search: 'applied' }).nodes();
+
+                if (rows.length === 0) {
+                    container.html('<div class="text-center text-muted py-4">No se encontraron registros.</div>');
+                    return;
+                }
+
+                let idx = 1;
+                rows.each(function(node) {
+                    const row       = $(node);
+                    const material  = row.data('material') || '';
+                    const detalle   = row.data('detalle') || '';
+                    const tecnologia = row.data('tecnologia') || '';
+                    const sku       = row.data('sku') || '';
+                    const serie     = row.data('serie') || '';
+
+                    const card = `
+                        <div class="entradas-det-card">
+                            <div class="entradas-det-card-header">
+                                <i class="fas fa-box-open"></i>
+                                <span class="font-weight-bold" style="flex:1">${material}</span>
+                                <span class="badge-folio">#${idx}</span>
+                            </div>
+                            <div class="entradas-det-card-body">
+                                <div class="entradas-det-field">
+                                    <span>Detalle</span>
+                                    <strong>${detalle}</strong>
+                                </div>
+                                <div class="entradas-det-field">
+                                    <span>Tecnología</span>
+                                    <strong>${tecnologia}</strong>
+                                </div>
+                                <div class="entradas-det-field">
+                                    <span>SKU</span>
+                                    <strong>${sku}</strong>
+                                </div>
+                                <div class="entradas-det-field">
+                                    <span>N° de Serie</span>
+                                    <strong>${serie}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    container.append(card);
+                    idx++;
+                });
+            }
+
+            renderEntradasDetCards();
+
+            table.on('search.dt page.dt draw.dt', function() {
+                renderEntradasDetCards();
+            });
         });
     </script>
 </body>
+</html>

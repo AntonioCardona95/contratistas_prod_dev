@@ -142,6 +142,17 @@
                     <th>Accion</th>
                 </tr>
             </thead>
+            <tfoot>
+                <tr>
+                    <th>Folio Entrada</th>
+                    <th>Almacen</th>
+                    <th>Contratista</th>
+                    <th>Tipo</th>
+                    <th>Cantidad</th>
+                    <th>Fecha</th>
+                    <th>Accion</th>
+                </tr>
+            </tfoot>
             <tbody>
                 <?php if (!empty($filas)): foreach ($filas as $row): ?>
                     <tr data-folio="<?= htmlspecialchars($row['Folio_Salida_ST'], ENT_QUOTES, 'UTF-8') ?>"
@@ -166,17 +177,6 @@
                     </tr>
                 <?php endforeach; endif; ?>
             </tbody>
-            <tfoot>
-                <tr>
-                    <th>Folio Entrada</th>
-                    <th>Almacen</th>
-                    <th>Contratista</th>
-                    <th>Tipo</th>
-                    <th>Cantidad</th>
-                    <th>Fecha</th>
-                    <th>Accion</th>
-                </tr>
-            </tfoot>
         </table>
     </div>
 
