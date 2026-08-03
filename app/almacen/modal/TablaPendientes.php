@@ -213,7 +213,7 @@
     <div id="pendientes-cards-container"></div>
 </div>
 
-<!-- MODAL DE DETALLES + ACEPTAR/RECHAZAR -->
+<!-- MODAL DE DETALLES + RESPUESTA PARCIAL -->
 <div class="modal fade" id="detallePendienteModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -228,11 +228,8 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-danger" id="btn-rechazar-pendiente">
-                    <i class="fas fa-times-circle"></i> Rechazar
-                </button>
-                <button type="button" class="btn btn-success" id="btn-aceptar-pendiente">
-                    <i class="fas fa-check-circle"></i> Aceptar
+                <button type="button" class="btn btn-primary" id="btn-confirmar-respuesta">
+                    <i class="fas fa-paper-plane"></i> Confirmar Respuesta
                 </button>
             </div>
         </div>
@@ -362,37 +359,74 @@
         });
     });
 
-    // ACEPTAR
-    $(document).off('click', '#btn-aceptar-pendiente').on('click', '#btn-aceptar-pendiente', function(){
+    // CONFIRMAR RESPUESTA (ACEPTACION TOTAL, PARCIAL O RECHAZO TOTAL)
+    $(document).off('click', '#btn-confirmar-respuesta').on('click', '#btn-confirmar-respuesta', function(){
         if (!folioActivoPendiente) return;
+
+        var seriesAceptadas = [];
+        var seriesRechazadas = [];
+        var ajustesCantidad = [];
+
+        // SOLO SE LEE LA VERSION REALMENTE VISIBLE (TABLA EN DESKTOP, CARD EN MOVIL)
+        // ASI SE EVITA LEER VALORES DE LA VERSION OCULTA QUE EL USUARIO NUNCA TOCO
+        $('.fila-serie:visible').each(function(){
+            var serie = $(this).data('serie');
+            var valor = $(this).find('input[type="radio"]:checked').val();
+            if (valor === 'aceptado') {
+                seriesAceptadas.push(serie);
+            } else if (valor === 'rechazado') {
+                seriesRechazadas.push({ serie: serie, motivo: 'numero_serie_incorrecto' });
+            }
+        });
+
+        $('.fila-linea:visible').each(function(){
+            var idLinea = $(this).data('id-linea');
+            var solicitada = parseInt($(this).data('cantidad-solicitada'), 10);
+            var aceptada = parseInt($(this).find('.input-cantidad-aceptada').val(), 10) || 0;
+            ajustesCantidad.push({
+                id: idLinea,
+                cantidad_solicitada: solicitada,
+                cantidad_aceptada: aceptada,
+                motivo: aceptada < solicitada ? 'cantidad_incorrecta' : null
+            });
+        });
+
+        var hayDiferencias = seriesRechazadas.length > 0 || ajustesCantidad.some(a => a.cantidad_aceptada < a.cantidad_solicitada);
+        var descripcion = hayDiferencias
+            ? 'Vas a confirmar lo correcto y rechazar/ajustar el resto. El almacén será notificado de las diferencias.'
+            : 'Vas a confirmar todo el material como correcto.';
 
         Swal.fire({
             position: 'top',
             icon: 'question',
-            title: '¿Aceptar esta salida?',
-            html: 'Confirmas que recibiste correctamente el material de la salida <strong>SD-A-' + folioActivoPendiente + '</strong>.',
+            title: '¿Confirmar respuesta?',
+            html: descripcion,
             showCancelButton: true,
-            confirmButtonText: 'Sí, aceptar',
+            confirmButtonText: 'Sí, confirmar',
             cancelButtonText: 'Cancelar',
             confirmButtonColor: '#1cc88a'
         }).then(function(result){
             if (!result.isConfirmed) return;
 
             $.ajax({
-                url: 'modal/AceptarSalida.php',
+                url: 'modal/ProcesarRespuestaParcial.php',
                 type: 'POST',
                 dataType: 'json',
-                data: { folio: folioActivoPendiente }
+                data: {
+                    folio: folioActivoPendiente,
+                    seriesAceptadas: seriesAceptadas,
+                    seriesRechazadas: JSON.stringify(seriesRechazadas),
+                    ajustesCantidad: JSON.stringify(ajustesCantidad)
+                }
             }).done(function(response){
                 if (response.success) {
                     Swal.fire({
                         position: 'top',
                         icon: 'success',
-                        title: 'Salida aceptada',
-                        text: 'El material fue marcado como aceptado correctamente.',
+                        title: 'Respuesta procesada',
+                        text: 'El almacén fue notificado del resultado.',
                         showConfirmButton: true
                     });
-
                     $('#detallePendienteModal').one('hidden.bs.modal', function() {
                         LoadPendientes();
                     });
@@ -401,7 +435,7 @@
                     Swal.fire({
                         position: 'top',
                         icon: 'error',
-                        title: 'Error al aceptar',
+                        title: 'Error al procesar',
                         text: response.message || 'Ocurrió un error.',
                         showConfirmButton: true
                     });
@@ -411,60 +445,7 @@
                     position: 'top',
                     icon: 'error',
                     title: 'Error de red',
-                    text: 'No se pudo procesar la aceptación. Intenta de nuevo. (' + textStatus + ')',
-                    showConfirmButton: true
-                });
-            });
-        });
-    });
-
-    // RECHAZAR
-    $(document).off('click', '#btn-rechazar-pendiente').on('click', '#btn-rechazar-pendiente', function(){
-        if (!folioActivoPendiente) return;
-
-        Swal.fire({
-            position: 'top',
-            icon: 'warning',
-            title: '¿Rechazar esta salida?',
-            html: 'Vas a rechazar el material de la salida <strong>SD-A-' + folioActivoPendiente + '</strong>. Esta acción notificará al almacén.',
-            showCancelButton: true,
-            confirmButtonText: 'Sí, rechazar',
-            cancelButtonText: 'Cancelar',
-            confirmButtonColor: '#e74a3b'
-        }).then(function(result){
-            if (!result.isConfirmed) return;
-
-            $.ajax({
-                url: 'modal/RechazarSalida.php',
-                type: 'POST',
-                dataType: 'json',
-                data: { folio: folioActivoPendiente }
-            }).done(function(response){
-                if (response.success) {
-                    Swal.fire({
-                        position: 'top',
-                        icon: 'success',
-                        title: 'Salida rechazada',
-                        text: 'El almacén fue notificado del rechazo.',
-                        showConfirmButton: true
-                    });
-                    $('#detallePendienteModal').modal('hide');
-                    LoadPendientes();
-                } else {
-                    Swal.fire({
-                        position: 'top',
-                        icon: 'error',
-                        title: 'Error al rechazar',
-                        text: response.message || 'Ocurrió un error.',
-                        showConfirmButton: true
-                    });
-                }
-            }).fail(function(){
-                Swal.fire({
-                    position: 'top',
-                    icon: 'error',
-                    title: 'Error de red',
-                    text: 'No se pudo rechazar el material. Intenta de nuevo.',
+                    text: 'No se pudo procesar la respuesta. Intenta de nuevo. (' + textStatus + ')',
                     showConfirmButton: true
                 });
             });

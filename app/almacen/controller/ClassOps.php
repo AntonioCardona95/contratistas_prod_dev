@@ -873,6 +873,172 @@
 
             return $this->runQuery($sql, ['folio' => $Folio_Salida]);
         }
+
+        public function ProcesarRespuestaParcial($Folio_Salida, $idContratistas, $seriesAceptadas, $seriesRechazadas, $ajustesCantidad)
+        {
+            $conexion = $this->get_conexion();
+            try {
+                $conexion->beginTransaction();
+
+                // VALIDAR PROPIEDAD DEL FOLIO
+                $stmtCheck = $conexion->prepare("SELECT FK_User_ST FROM temp_transferencias_t 
+                    WHERE Folio_Salida_ST = :folio AND FK_Contra_ST = :contratista 
+                    AND Status_Temp IN ('pendiente','parcial') FOR UPDATE");
+                $stmtCheck->bindValue(':folio', $Folio_Salida, PDO::PARAM_INT);
+                $stmtCheck->bindValue(':contratista', $idContratistas, PDO::PARAM_INT);
+                $stmtCheck->execute();
+                $fila = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+                if (!$fila) {
+                    $conexion->rollBack();
+                    return ['success' => false, 'message' => 'Folio no disponible para procesar.'];
+                }
+                $idUsuarioNass = $fila['FK_User_ST'];
+
+                // 1. MARCAR SERIES ACEPTADAS Y MOVERLAS A LA TABLA DEFINITIVA
+                if (!empty($seriesAceptadas)) {
+                    $inPlaceholders = implode(',', array_fill(0, count($seriesAceptadas), '?'));
+
+                    $stmtUpd = $conexion->prepare("UPDATE temp_material_det_salida 
+                        SET Status_Item = 'aceptado' 
+                        WHERE Folio_Salida_Material_Det_S = ? AND Num_Serie_S IN ($inPlaceholders)");
+                    $stmtUpd->execute(array_merge([$Folio_Salida], $seriesAceptadas));
+
+                    $conexion->exec("INSERT INTO material_det_salida 
+                        (Num_Serie_S, Alfanumerico_S, FK_Material_S, Localidad_Material_S, Folio_Salida_Material_Det_S, 
+                        Fecha_Salida_S, FK_Contratista_Salida, Ubicacion_Material, Estatus_Ubicacion, 
+                        Folio_Ultima_Transferencia, Folio_Ultima_Devolucion)
+                        SELECT Num_Serie_S, Alfanumerico_S, FK_Material_S, Localidad_Material_S, Folio_Salida_Material_Det_S, 
+                            Fecha_Salida_S, FK_Contratista_Salida, Ubicacion_Material, Estatus_Ubicacion, 
+                            Folio_Ultima_Transferencia, Folio_Ultima_Devolucion
+                        FROM temp_material_det_salida
+                        WHERE Folio_Salida_Material_Det_S = " . (int)$Folio_Salida . "
+                        AND Status_Item = 'aceptado'
+                        AND Num_Serie_S NOT IN (
+                            SELECT Num_Serie_S FROM material_det_salida 
+                            WHERE Folio_Salida_Material_Det_S = " . (int)$Folio_Salida . "
+                        )");
+
+                    $stmtEstatus = $conexion->prepare("UPDATE materiales_det SET Estatus_NS = 'ASSIGMENT' 
+                        WHERE Num_Serie IN ($inPlaceholders)");
+                    $stmtEstatus->execute($seriesAceptadas);
+                }
+
+                // 2. MARCAR SERIES RECHAZADAS Y LIBERARLAS
+                foreach ($seriesRechazadas as $r) {
+                    $stmtRech = $conexion->prepare("UPDATE temp_material_det_salida 
+                        SET Status_Item = 'rechazado', Motivo_Rechazo = :motivo 
+                        WHERE Folio_Salida_Material_Det_S = :folio AND Num_Serie_S = :serie");
+                    $stmtRech->execute(['motivo' => $r['motivo'], 'folio' => $Folio_Salida, 'serie' => $r['serie']]);
+
+                    $stmtLiberar = $conexion->prepare("UPDATE materiales_det SET Estatus_NS = NULL WHERE Num_Serie = :serie");
+                    $stmtLiberar->execute(['serie' => $r['serie']]);
+                }
+
+                // 3. AJUSTES DE CANTIDAD (LINEAS SIN NUMERO DE SERIE)
+                foreach ($ajustesCantidad as $a) {
+                    $stmtLinea = $conexion->prepare("SELECT * FROM temp_transferencias WHERE idTransferencias = :id FOR UPDATE");
+                    $stmtLinea->execute(['id' => $a['id']]);
+                    $linea = $stmtLinea->fetch(PDO::FETCH_ASSOC);
+                    if (!$linea) continue;
+
+                    $status = ($a['cantidad_aceptada'] >= $linea['Cantidad_S']) ? 'aceptado' : 'rechazado';
+
+                    $stmtUpdLinea = $conexion->prepare("UPDATE temp_transferencias 
+                        SET Status_Item = :status, Cantidad_Aceptada = :cant, Motivo_Rechazo = :motivo
+                        WHERE idTransferencias = :id");
+                    $stmtUpdLinea->execute([
+                        'status' => $status,
+                        'cant' => $a['cantidad_aceptada'],
+                        'motivo' => $status === 'rechazado' ? $a['motivo'] : null,
+                        'id' => $a['id']
+                    ]);
+
+                    // SI HAY CANTIDAD ACEPTADA, INSERTAR/ACTUALIZAR EN LA DEFINITIVA CON LA CANTIDAD REAL
+                    if ($a['cantidad_aceptada'] > 0) {
+                        $existe = $conexion->prepare("SELECT idTransferencias FROM transferencias WHERE Folio_Salida = :folio AND FK_Producto_S = :prod");
+                        $existe->execute(['folio' => $Folio_Salida, 'prod' => $linea['FK_Producto_S']]);
+                        if (!$existe->fetch()) {
+                            $stmtInsLinea = $conexion->prepare("INSERT INTO transferencias 
+                                (Folio_Salida, FK_Almacen_S, FK_Contratista_S, FK_Producto_S, Fecha_S, Cantidad_S, 
+                                FK_User_S, FK_Tecnico_S, Folio_Telmex_S, FK_UNS, recibe_contratista, Tecnologia, 
+                                Piezas_Sueltas, Total_Piezas, Total_Metros)
+                                VALUES (:folio, :almacen, :contratista, :producto, :fecha, :cantidad, 
+                                        :user, :tecnico, :telmex, :uns, :recibe, :tecnologia, 
+                                        :piezas, :totalpiezas, :totalmetros)");
+                            $stmtInsLinea->execute([
+                                'folio' => $linea['Folio_Salida'], 'almacen' => $linea['FK_Almacen_S'],
+                                'contratista' => $linea['FK_Contratista_S'], 'producto' => $linea['FK_Producto_S'],
+                                'fecha' => $linea['Fecha_S'], 'cantidad' => $a['cantidad_aceptada'],
+                                'user' => $linea['FK_User_S'], 'tecnico' => $linea['FK_Tecnico_S'],
+                                'telmex' => $linea['Folio_Telmex_S'], 'uns' => $linea['FK_UNS'],
+                                'recibe' => $linea['recibe_contratista'], 'tecnologia' => $linea['Tecnologia'],
+                                'piezas' => $linea['Piezas_Sueltas'], 'totalpiezas' => $a['cantidad_aceptada'],
+                                'totalmetros' => $linea['Total_Metros']
+                            ]);
+                        }
+                    }
+                }
+
+                // 4. RECALCULAR STATUS DE CABECERA SEGUN LOS HIJOS
+                $this->RecalcularStatusCabecera($conexion, $Folio_Salida);
+
+                // 5. ASEGURAR QUE EXISTE LA CABECERA EN transferencias_t (SOLO SI YA SE ACEPTO ALGO)
+                $huboAceptados = !empty($seriesAceptadas) || !empty(array_filter($ajustesCantidad, fn($a) => $a['cantidad_aceptada'] > 0));
+                if ($huboAceptados) {
+                    $existeCabecera = $conexion->prepare("SELECT idTransferencias_T FROM transferencias_t WHERE Folio_Salida_ST = :folio");
+                    $existeCabecera->execute(['folio' => $Folio_Salida]);
+                    if (!$existeCabecera->fetch()) {
+                        $conexion->exec("INSERT INTO transferencias_t 
+                            (FK_Almacen_ST, FK_Contra_ST, Fecha_Salida_ST, Cantidad_ST, FK_User_ST, Folio_Salida_ST, 
+                            Solicitante_Salida_T, Solicitante_SalidaA_T, DescripcionSalida_T, Tipo_MovS_T, Folio_Telmex_ST, 
+                            FK_UNS_T, Comprobante_Salida_T, Hash_Archivo_Salidas, Estatus_ComprobanteS_T, 
+                            Ubicacion_Material_ST, recibe_contratista_t, Cantidad_Metros_T)
+                            SELECT FK_Almacen_ST, FK_Contra_ST, Fecha_Salida_ST, Cantidad_ST, FK_User_ST, Folio_Salida_ST, 
+                                Solicitante_Salida_T, Solicitante_SalidaA_T, DescripcionSalida_T, Tipo_MovS_T, Folio_Telmex_ST, 
+                                FK_UNS_T, Comprobante_Salida_T, Hash_Archivo_Salidas, Estatus_ComprobanteS_T, 
+                                Ubicacion_Material_ST, recibe_contratista_t, Cantidad_Metros_T
+                            FROM temp_transferencias_t WHERE Folio_Salida_ST = " . (int)$Folio_Salida);
+                    }
+                }
+
+                $conexion->commit();
+                return ['success' => true, 'idUsuarioNass' => $idUsuarioNass];
+
+            } catch (PDOException $e) {
+                if ($conexion->inTransaction()) $conexion->rollBack();
+                error_log("[ProcesarRespuestaParcial] Error: " . $e->getMessage());
+                return ['success' => false, 'message' => 'Error al procesar la respuesta.'];
+            }
+        }
+
+        // RECALCULA EL STATUS DE LA CABECERA SEGUN EL ESTADO DE TODOS SUS HIJOS
+        private function RecalcularStatusCabecera($conexion, $Folio_Salida)
+        {
+            $stmt = $conexion->prepare("
+                SELECT 
+                    SUM(CASE WHEN Status_Item = 'pendiente' THEN 1 ELSE 0 END) AS pendientes,
+                    SUM(CASE WHEN Status_Item = 'rechazado' THEN 1 ELSE 0 END) AS rechazados,
+                    SUM(CASE WHEN Status_Item = 'aceptado' THEN 1 ELSE 0 END) AS aceptados
+                FROM (
+                    SELECT Status_Item FROM temp_material_det_salida WHERE Folio_Salida_Material_Det_S = :folio AND Status_Item != 'cancelado'
+                    UNION ALL
+                    SELECT Status_Item FROM temp_transferencias WHERE Folio_Salida = :folio
+                ) AS todos
+            ");
+            $stmt->execute(['folio' => $Folio_Salida]);
+            $r = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($r['pendientes'] > 0) {
+                $nuevoStatus = ($r['aceptados'] > 0 || $r['rechazados'] > 0) ? 'parcial' : 'pendiente';
+            } elseif ($r['rechazados'] > 0) {
+                $nuevoStatus = $r['aceptados'] > 0 ? 'parcial' : 'rechazado';
+            } else {
+                $nuevoStatus = 'aceptado';
+            }
+
+            $stmtUpd = $conexion->prepare("UPDATE temp_transferencias_t SET Status_Temp = :status WHERE Folio_Salida_ST = :folio");
+            $stmtUpd->execute(['status' => $nuevoStatus, 'folio' => $Folio_Salida]);
+        }
     }
 
 
