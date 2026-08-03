@@ -934,6 +934,7 @@
                     $stmtLiberar->execute(['serie' => $r['serie']]);
                 }
 
+        
                 // 3. AJUSTES DE CANTIDAD (LINEAS SIN NUMERO DE SERIE)
                 foreach ($ajustesCantidad as $a) {
                     $stmtLinea = $conexion->prepare("SELECT * FROM temp_transferencias WHERE idTransferencias = :id FOR UPDATE");
@@ -941,7 +942,13 @@
                     $linea = $stmtLinea->fetch(PDO::FETCH_ASSOC);
                     if (!$linea) continue;
 
-                    $status = ($a['cantidad_aceptada'] >= $linea['Cantidad_S']) ? 'aceptado' : 'rechazado';
+                    if ($a['cantidad_aceptada'] >= $linea['Total_Piezas']) {
+                        $status = 'aceptado';
+                    } elseif ($a['cantidad_aceptada'] <= 0) {
+                        $status = 'rechazado';
+                    } else {
+                        $status = 'parcial';
+                    }
 
                     $stmtUpdLinea = $conexion->prepare("UPDATE temp_transferencias 
                         SET Status_Item = :status, Cantidad_Aceptada = :cant, Motivo_Rechazo = :motivo
@@ -949,11 +956,10 @@
                     $stmtUpdLinea->execute([
                         'status' => $status,
                         'cant' => $a['cantidad_aceptada'],
-                        'motivo' => $status === 'rechazado' ? $a['motivo'] : null,
+                        'motivo' => $status !== 'aceptado' ? $a['motivo'] : null,
                         'id' => $a['id']
                     ]);
 
-                    // SI HAY CANTIDAD ACEPTADA, INSERTAR/ACTUALIZAR EN LA DEFINITIVA CON LA CANTIDAD REAL
                     if ($a['cantidad_aceptada'] > 0) {
                         $existe = $conexion->prepare("SELECT idTransferencias FROM transferencias WHERE Folio_Salida = :folio AND FK_Producto_S = :prod");
                         $existe->execute(['folio' => $Folio_Salida, 'prod' => $linea['FK_Producto_S']]);
@@ -968,11 +974,13 @@
                             $stmtInsLinea->execute([
                                 'folio' => $linea['Folio_Salida'], 'almacen' => $linea['FK_Almacen_S'],
                                 'contratista' => $linea['FK_Contratista_S'], 'producto' => $linea['FK_Producto_S'],
-                                'fecha' => $linea['Fecha_S'], 'cantidad' => $a['cantidad_aceptada'],
+                                'fecha' => $linea['Fecha_S'],
+                                'cantidad' => $linea['Cantidad_S'],
                                 'user' => $linea['FK_User_S'], 'tecnico' => $linea['FK_Tecnico_S'],
                                 'telmex' => $linea['Folio_Telmex_S'], 'uns' => $linea['FK_UNS'],
                                 'recibe' => $linea['recibe_contratista'], 'tecnologia' => $linea['Tecnologia'],
-                                'piezas' => $linea['Piezas_Sueltas'], 'totalpiezas' => $a['cantidad_aceptada'],
+                                'piezas' => $linea['Piezas_Sueltas'],
+                                'totalpiezas' => $a['cantidad_aceptada'],
                                 'totalmetros' => $linea['Total_Metros']
                             ]);
                         }
