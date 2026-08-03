@@ -142,7 +142,9 @@
                 </thead>
                 <tbody>
                     <?php if (!empty($materiales)): foreach ($materiales as $m): ?>
-                        <tr class="fila-linea" data-id-linea="<?= $m['idTransferencias'] ?>" data-cantidad-solicitada="<?= $m['Total_Piezas'] ?>">
+                        <tr class="fila-linea"
+                            data-id-linea="<?= htmlspecialchars((string)($m['idTransferencias'] ?? 0), ENT_QUOTES, 'UTF-8') ?>"
+                            data-cantidad-solicitada="<?= htmlspecialchars((string)((int)($m['Total_Piezas'] ?? 0)), ENT_QUOTES, 'UTF-8') ?>">
                             <td><?= strtoupper($m['Producto'] ?? '') ?></td>
                             <td><?= strtoupper($m['Modelo'] ?? '') ?></td>
                             <td><?= strtoupper($m['Tecnologia'] ?? '') ?></td>
@@ -169,7 +171,9 @@
         <!-- VERSION MOVIL: CARDS -->
         <div class="detalle-card-container">
             <?php if (!empty($materiales)): foreach ($materiales as $m): ?>
-                <div class="detalle-card fila-linea" data-id-linea="<?= $m['idTransferencias'] ?>" data-cantidad-solicitada="<?= $m['Total_Piezas'] ?>">
+                <div class="detalle-card fila-linea"
+                    data-id-linea="<?= htmlspecialchars((string)($m['idTransferencias'] ?? 0), ENT_QUOTES, 'UTF-8') ?>"
+                    data-cantidad-solicitada="<?= htmlspecialchars((string)((int)($m['Total_Piezas'] ?? 0)), ENT_QUOTES, 'UTF-8') ?>">
                     <div class="detalle-card-header">
                         <span class="titulo"><?= strtoupper($m['Producto'] ?? '') ?></span>
                         <span class="value"><?= strtoupper($m['Modelo'] ?? '') ?></span>
@@ -238,7 +242,7 @@
                     </thead>
                     <tbody>
                         <?php foreach ($series as $s): ?>
-                            <tr class="fila-serie" data-serie="<?= htmlspecialchars($s['Num_Serie_S']) ?>">
+                            <tr class="fila-serie" data-serie="<?= htmlspecialchars((string)($s['Num_Serie_S'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                                 <td><?= strtoupper($s['Num_Serie_S'] ?? '') ?></td>
                                 <td><?= strtoupper($s['Producto'] ?? '') ?></td>
                                 <td><?= strtoupper($s['Modelo'] ?? '') ?></td>
@@ -263,7 +267,7 @@
             <!-- VERSION MOVIL: CARDS -->
             <div class="detalle-card-container">
                 <?php foreach ($series as $s): ?>
-                    <div class="detalle-card fila-serie" data-serie="<?= htmlspecialchars($s['Num_Serie_S']) ?>">
+                    <div class="detalle-card fila-serie" data-serie="<?= htmlspecialchars((string)($s['Num_Serie_S'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         <div class="detalle-card-header">
                             <span class="value"><?= strtoupper($s['Producto'] ?? '') ?></span>
                             <span class="label">SKU: <strong class="value" style="color: #212529;"><?= strtoupper($s['Modelo'] ?? '') ?></strong></span>
