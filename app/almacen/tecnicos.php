@@ -174,77 +174,12 @@
                 <!-- INICIO CONTENIDO PRINCIPAL -->
                 <div class="container-fluid">
 
-                    <!-- ENCABEZADO CON TÍTULO Y TOTAL -->
-                    <div class="prod-hero">
-                        <div class="d-sm-flex align-items-center justify-content-between">
-                            <h1 class="h3 mb-0 font-weight-bold mt-2">TÉCNICOS</h1>
-                            <span class="badge-total">Total: <?php echo $totalTecnicos; ?></span>
+                    <div class="card-body p-0">
+                        <!-- CONTENEDOR DE LA TABLA -->
+                        <div id="LoadTecnicos" class="p-3">
+                            <!-- AQUI SE CARGA LA TABLA DE MATERIALES -->
                         </div>
                     </div>
-
-                    <?php if ($totalTecnicos === 0) : ?>
-                        <div class="alert alert-empty" role="alert">
-                            <i class="fas fa-users"></i>
-                            No se encontraron técnicos activos para este contratista.
-                        </div>
-                    <?php else : ?>
-                        <!-- BÚSQUEDA Y ACCIONES -->
-                        <div class="card shadow mb-4" style="border: none; border-radius: 12px;">
-                            <div class="card-body p-3">
-                                <div class="row align-items-center">
-                                    <div class="col-md-6" id="search-container"></div>
-                                    <div class="col-md-6 d-flex justify-content-end" id="buttons-container"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- GRID DINÁMICO DE TARJETAS -->
-                        <div id="tecnicos-grid-container" class="tecnicos-grid">
-                            <!-- TARJETAS RENDERIZADAS DINÁMICAMENTE -->
-                        </div>
-
-                        <!-- CONTROLES DE PAGINACIÓN -->
-                        <div class="card shadow mt-4" style="border: none; border-radius: 12px;">
-                            <div class="card-body p-3">
-                                <div class="row align-items-center">
-                                    <div class="col-md-6" id="pagination-info"></div>
-                                    <div class="col-md-6 d-flex justify-content-end" id="pagination-container"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- TABLA INVISIBLE PARA DATATABLES -->
-                        <table class="table table-bordered display nowrap datatable-init" style="width:100%; display:none;" id="TecnicosTable">
-                            <thead>
-                                <tr>
-                                    <th>Nombre</th>
-                                    <th>Expediente</th>
-                                    <th>Teléfono</th>
-                                    <th>COPE</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach($tecnicos as $tecnico) : ?>
-                                    <?php
-                                        // DATOS DEL TÉCNICO
-                                        $nombreCompleto = trim(($tecnico['Nombre_T'] ?? '') . ' ' . ($tecnico['Apellidos_T'] ?? ''));
-                                        $telefono = $tecnico['Celular_T'] ?? $tecnico['Telefono'] ?? 'N/A';
-                                        $expediente = $tecnico['NExpediente'] ?? 'N/A';
-                                        $cope = $tecnico['Cope'] ?? 'SIN COPE';
-                                    ?>
-                                    <tr data-nombre="<?= htmlspecialchars($nombreCompleto, ENT_QUOTES, 'UTF-8') ?>"
-                                        data-expediente="<?= htmlspecialchars($expediente, ENT_QUOTES, 'UTF-8') ?>"
-                                        data-telefono="<?= htmlspecialchars($telefono, ENT_QUOTES, 'UTF-8') ?>"
-                                        data-cope="<?= htmlspecialchars($cope, ENT_QUOTES, 'UTF-8') ?>">
-                                        <td><?= htmlspecialchars($nombreCompleto) ?></td>
-                                        <td><?= htmlspecialchars($expediente) ?></td>
-                                        <td><?= htmlspecialchars($telefono) ?></td>
-                                        <td><?= htmlspecialchars($cope) ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    <?php endif; ?>
 
                 </div>
                 <!-- FIN CONTENIDO PRINCIPAL -->
@@ -273,115 +208,22 @@
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
     
     <script>
-        $(document).ready(function() {
-            const dtButtons = [
-                {
-                    extend: 'excelHtml5',
-                    text: '<i class="fas fa-file-excel"></i> Excel',
-                    titleAttr: 'Exportar a Excel',
-                    className: 'btn btn-success btn-sm',
-                    exportOptions: {
-                        columns: ':visible'
-                    }
-                }
-            ];
-
-            // INICIALIZAR DATATABLES
-            const table = new DataTable('#TecnicosTable', {
-                responsive: true,
-                language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
-                ordering: false,
-                searching: true,
-                pageLength: 9,
-                buttons: dtButtons,
-                dom: '<"row"<"col-md-6"f><"col-md-6"B>>' + '<"row"<"col-md-12"t>>' + '<"row"<"col-md-6"i><"col-md-6"p>>',
-                drawCallback: function() {
-                    renderCards();
-                    relocateControls();
+        function LoadTecnicos() {
+            $.ajax({
+                url: 'modal/TablaTecnicos.php',
+                type: 'GET',
+                success: function (html) {
+                    $('#LoadTecnicos').html(html);
+                },
+                error: function (xhr, status) {
+                    console.error('Error al cargar técnicos:', status, xhr);
+                    $('#LoadTecnicos').html('<div class="alert alert-danger">No se pudo cargar la vista de técnicos.</div>');
                 }
             });
+        }
 
-            // MOVER CONTROLES A SUS CONTENEDORES
-            function relocateControls() {
-                const wrapper = $(table.table().container());
-
-                const dtSearch = wrapper.find('.dt-search');
-                const dtButtons = wrapper.find('.dt-buttons');
-                const dtInfo = wrapper.find('.dt-info');
-                const dtPaging = wrapper.find('.dt-paging');
-
-                $('#search-container').empty();
-                $('#buttons-container').empty();
-                $('#pagination-info').empty();
-                $('#pagination-container').empty();
-
-                dtSearch.appendTo('#search-container');
-                dtButtons.appendTo('#buttons-container');
-                dtInfo.appendTo('#pagination-info');
-                dtPaging.appendTo('#pagination-container');
-
-                $('.dt-search input').attr('placeholder', 'Buscar por nombre, expediente o teléfono...');
-                $('.dt-search input').css({
-                    'width': '100% !important',
-                    'max-width': '520px',
-                    'border-radius': '8px',
-                    'padding-left': '15px'
-                });
-            }
-
-            relocateControls();
-
-            // FUNCIÓN PARA RENDERIZAR TARJETAS
-            function renderCards() {
-                const container = $('#tecnicos-grid-container');
-                container.empty();
-
-                const visibleRows = table.rows({ page: 'current' }).nodes();
-
-                if (visibleRows.length === 0) {
-                    container.html('<div class="col-12 text-center"><p>No se encontraron técnicos.</p></div>');
-                    return;
-                }
-
-                $(visibleRows).each(function() {
-                    const row = $(this);
-                    const nombre = row.data('nombre');
-                    const expediente = row.data('expediente');
-                    const telefono = row.data('telefono');
-                    const cope = row.data('cope');
-
-                    const card = `
-                        <div class="tecnico-card">
-                            <div class="card-body">
-                                <div class="tecnico-nombre">${nombre}</div>
-
-                                <div class="tecnico-info-item info-expediente">
-                                    <span class="tecnico-info-label">Expediente</span>
-                                    <span class="tecnico-info-value">${expediente}</span>
-                                </div>
-
-                                <div class="tecnico-info-item info-telefono">
-                                    <span class="tecnico-info-label">Teléfono</span>
-                                    <span class="tecnico-info-value">${telefono}</span>
-                                </div>
-
-                                <div class="tecnico-info-item info-cope">
-                                    <span class="tecnico-info-label">COPE</span>
-                                    <span class="tecnico-info-value">${cope}</span>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    container.append(card);
-                });
-            }
-
-            renderCards();
-
-            table.on('search.dt page.dt', function() {
-                renderCards();
-                relocateControls();
-            });
+        $(document).ready(function () {
+            LoadTecnicos();
         });
     </script>
 
