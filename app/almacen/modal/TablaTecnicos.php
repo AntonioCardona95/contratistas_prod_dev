@@ -14,56 +14,47 @@
 ?>
 
 <style>
-    .prod-hero {
-        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #0f766e 100%);
-        color: #fff;
-        border-radius: 12px;
-        padding: 1rem 1.75rem;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
-        margin: 15px 0;
-    }
-
-    .prod-hero h1 {
-        margin: 0;
-    }
-
-    .badge-total {
-        background: linear-gradient(135deg, #007BFF, #17A2B8);
-        color: white;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.9rem;
-        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
-    }
-
     .dt-search {
-        margin-bottom: 0px;
-        margin-top: 0px;
-        width: 100%;
-    }
-
-    .dt-search label {
-        width: 100%;
-        margin: 0;
+        margin-bottom: 0;
+        margin-top: 0;
     }
 
     .dt-search input {
         width: 100% !important;
-        max-width: 520px !important;
-        padding: 10px 15px !important;
-        border: 1px solid #d6dbe1;
+        max-width: 500px !important;
+        padding-left: 35px;
         border-radius: 8px;
-        font-size: 14px !important;
-        background: #fff;
-        color: #2a2f36;
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03);
     }
 
-    .dt-search input:focus {
-        outline: none;
-        border-color: #1d82f5;
-        box-shadow: 0 0 0 3px rgba(29, 130, 245, 0.1);
+    .dt-paging {
+        margin-top: 10px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .dt-paging .pagination {
+        margin: 0;
+        gap: 5px;
+    }
+
+    .dt-paging .pagination .page-item .page-link {
+        border-radius: 6px;
+        color: #2f3f52;
+        border: 1px solid #dfe3e8;
+        background: #fff;
+    }
+
+    .dt-paging .pagination .page-item.active .page-link {
+        background: #0d6efd;
+        border-color: #0d6efd;
+        color: #fff;
+    }
+
+    .dt-info {
+        padding-top: 0.4rem;
+        color: #495057;
+        font-size: 14px;
+        margin: 0;
     }
 
     .dt-buttons {
@@ -88,43 +79,11 @@
         background: linear-gradient(135deg, #15995f, #1f8e4e);
     }
 
-    .dt-paging {
-        margin-top: 0px;
-        display: flex;
-        justify-content: flex-end;
-    }
-
-    .dt-paging .pagination {
-        margin: 0;
-        gap: 5px;
-    }
-
-    .dt-paging .pagination .page-item .page-link {
-        color: #2f3f52;
-        border-radius: 6px;
-        border: 1px solid #dfe3e8;
-        padding: 0.45rem 0.8rem;
-        background: #fff;
-    }
-
-    .dt-paging .pagination .page-item.active .page-link {
-        background: #0d6efd;
-        border-color: #0d6efd;
-        color: #fff;
-    }
-
-    .dt-info {
-        padding-top: 0.4rem;
-        color: #495057;
-        font-size: 14px;
-        margin: 0;
-    }
-
     #tecnicos-grid-container {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 25px;
-        margin: 20px 0 20px 0;
+        gap: 20px;
+        margin: 20px 0;
     }
 
     @media (max-width: 1200px) {
@@ -168,10 +127,10 @@
     }
 
     .tecnico-nombre {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         font-weight: 800;
         color: #1f2937;
-        margin-bottom: 18px;
+        margin-bottom: 16px;
         display: flex;
         align-items: center;
         gap: 10px;
@@ -185,7 +144,7 @@
         font-family: 'Font Awesome 5 Free';
         font-weight: 900;
         color: #1d82f5;
-        font-size: 1.05rem;
+        font-size: 1rem;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -244,17 +203,19 @@
         No se encontraron técnicos activos para este contratista.
     </div>
 <?php else : ?>
-    <div class="card shadow mb-4" style="border: none; border-radius: 12px;">
-        <div class="card-body p-3">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2" id="tecnicos-top-controls"></div>
+    <div class="dt-container" style="margin-bottom: 15px;">
+        <div class="row align-items-center">
+            <div class="col-md-6" id="botones-detalles"></div>
+            <div class="col-md-6 d-flex justify-content-end" id="search-detalles"></div>
         </div>
     </div>
 
-    <div id="tecnicos-grid-container"></div>
+    <div id="tecnicos-grid-container" class="row g-4"></div>
 
-    <div class="card shadow mt-4" style="border: none; border-radius: 12px;">
-        <div class="card-body p-3">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2" id="tecnicos-bottom-controls"></div>
+    <div class="dt-container" style="margin-top: 20px;">
+        <div class="row align-items-center">
+            <div class="col-md-6" id="info-detalles"></div>
+            <div class="col-md-6 d-flex justify-content-end" id="pagination-detalles"></div>
         </div>
     </div>
 

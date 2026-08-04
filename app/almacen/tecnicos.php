@@ -217,105 +217,14 @@
         let tecnicosLoadInProgress = false;
 
         function relocateControls(table) {
-            const topControls = $('#tecnicos-top-controls').empty().css({
-                'display': 'flex',
-                'justify-content': 'space-between',
-                'align-items': 'center',
-                'gap': '12px',
-                'flex-wrap': 'wrap'
-            });
+            const wrapper = $(table.table().container());
+            wrapper.find('.dt-search').appendTo('#search-detalles');
+            wrapper.find('.dt-buttons').appendTo('#botones-detalles');
+            wrapper.find('.dt-paging').appendTo('#pagination-detalles');
+            wrapper.find('.dt-info').appendTo('#info-detalles');
+            $('.dt-search input').attr('placeholder', 'Buscar por nombre, expediente o teléfono');
 
-            const bottomControls = $('#tecnicos-bottom-controls').empty().css({
-                'display': 'flex',
-                'justify-content': 'space-between',
-                'align-items': 'center',
-                'gap': '12px',
-                'flex-wrap': 'wrap'
-            });
-
-            const searchWrap = $('<div class="d-flex align-items-center gap-2" style="flex: 1 1 280px; min-width: 220px;"></div>');
-            const searchIcon = $('<i class="fas fa-search text-muted"></i>');
-            const searchInput = $('<input type="search" class="form-control form-control-sm" placeholder="Buscar por nombre, expediente o teléfono...">');
-            searchInput.on('input', function () {
-                table.search(this.value).draw();
-            });
-            searchWrap.append(searchIcon, searchInput);
-            topControls.append(searchWrap);
-
-            const actionsWrap = $('<div class="d-flex align-items-center gap-2"></div>');
-            const excelButton = $('<button type="button" class="btn btn-success btn-sm"><i class="fas fa-file-excel"></i> Excel</button>');
-            excelButton.on('click', function () {
-                if (table.button) {
-                    table.button(0).trigger();
-                }
-            });
-            actionsWrap.append(excelButton);
-            topControls.append(actionsWrap);
-
-            const pageSizeSelect = $('<select class="form-control form-control-sm" style="width: auto; min-width: 120px;"></select>');
-            pageSizeSelect.append('<option value="9">9 por página</option>');
-            pageSizeSelect.append('<option value="18">18 por página</option>');
-            pageSizeSelect.append('<option value="27">27 por página</option>');
-            pageSizeSelect.val(table.page.len());
-            pageSizeSelect.on('change', function () {
-                table.page.len(Number(this.value)).draw();
-            });
-            bottomControls.append(pageSizeSelect);
-
-            const infoText = $('<div class="text-muted small"></div>');
-            bottomControls.append(infoText);
-
-            const pager = $('<nav><ul class="pagination pagination-sm mb-0"></ul></nav>');
-            bottomControls.append(pager);
-
-            function refreshControls() {
-                const info = table.page.info();
-                const totalPages = info.pages || 1;
-                const currentPage = info.page + 1;
-                infoText.text(`Mostrando ${info.start + 1} a ${info.end} de ${info.recordsTotal} técnicos`);
-
-                pager.empty();
-                const prevItem = $('<li class="page-item"><a class="page-link" href="#" aria-label="Anterior"><span aria-hidden="true">&laquo;</span></a></li>');
-                prevItem.on('click', function (e) {
-                    e.preventDefault();
-                    if (currentPage > 1) {
-                        table.page('previous').draw(false);
-                    }
-                });
-                pager.find('ul').append(prevItem);
-
-                for (let i = 1; i <= totalPages; i++) {
-                    const isActive = i === currentPage;
-                    const pageItem = $('<li class="page-item' + (isActive ? ' active' : '') + '"></li>');
-                    const pageLink = $('<a class="page-link" href="#">' + i + '</a>');
-                    pageLink.on('click', function (e) {
-                        e.preventDefault();
-                        table.page(i - 1).draw(false);
-                    });
-                    pageItem.append(pageLink);
-                    pager.find('ul').append(pageItem);
-                }
-
-                const nextItem = $('<li class="page-item"><a class="page-link" href="#" aria-label="Siguiente"><span aria-hidden="true">&raquo;</span></a></li>');
-                nextItem.on('click', function (e) {
-                    e.preventDefault();
-                    if (currentPage < totalPages) {
-                        table.page('next').draw(false);
-                    }
-                });
-                pager.find('ul').append(nextItem);
-
-                pager.find('.page-link').css({
-                    'border-radius': '6px',
-                    'padding': '0.45rem 0.8rem',
-                    'font-size': '0.9rem'
-                });
-            }
-
-            refreshControls();
-            table.on('draw.dt search.dt page.dt', refreshControls);
-
-            const dataTablesWrapper = $(table.table().container()).closest('.dataTables_wrapper');
+            const dataTablesWrapper = wrapper.closest('.dataTables_wrapper');
             if (dataTablesWrapper.length) {
                 dataTablesWrapper.hide();
             }
@@ -334,26 +243,23 @@
 
             $(visibleRows).each(function () {
                 const row = $(this);
-                const nombre = row.data('nombre');
-                const expediente = row.data('expediente');
-                const telefono = row.data('telefono');
-                const cope = row.data('cope');
+                const nombre = row.data('nombre') || 'Sin nombre';
+                const expediente = row.data('expediente') || 'N/A';
+                const telefono = row.data('telefono') || 'N/A';
+                const cope = row.data('cope') || 'SIN COPE';
 
                 const card = `
                     <div class="tecnico-card">
                         <div class="card-body">
                             <div class="tecnico-nombre">${nombre}</div>
-
                             <div class="tecnico-info-item">
                                 <span class="tecnico-info-label">Expediente</span>
                                 <span class="tecnico-info-value">${expediente}</span>
                             </div>
-
                             <div class="tecnico-info-item">
                                 <span class="tecnico-info-label">Teléfono</span>
                                 <span class="tecnico-info-value">${telefono}</span>
                             </div>
-
                             <div class="tecnico-info-item">
                                 <span class="tecnico-info-label">COPE</span>
                                 <span class="tecnico-info-value">${cope}</span>
@@ -372,47 +278,50 @@
             }
 
             const $table = $('#TecnicosTable');
-            if (!$table.length || !$.fn.DataTable) {
+            if (!$table.length) {
                 return;
             }
 
-            if ($.fn.DataTable.isDataTable('#TecnicosTable')) {
+            if (window.DataTable && typeof window.DataTable.isDataTable === 'function' && window.DataTable.isDataTable('#TecnicosTable')) {
                 $('#TecnicosTable').DataTable().destroy();
             }
 
-            const table = $('#TecnicosTable').DataTable({
+            const table = new DataTable('#TecnicosTable', {
                 responsive: true,
                 language: {
-                    url: 'https://cdn.datatables.net/plug-ins/2.0.0/i18n/es-ES.json'
+                    url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'
                 },
                 ordering: false,
                 searching: true,
-                pageLength: 9,
-                layout: {
-                    topStart: 'search',
-                    topEnd: 'buttons',
-                    bottomStart: 'info',
-                    bottomEnd: 'paging'
-                },
+                pageLength: 12,
+                dom: '<"row"<"col-md-6"f><"col-md-6"B>>' + '<"row"<"col-md-12"t>>' + '<"row"<"col-md-12"ip>>',
                 buttons: [{
                     extend: 'excelHtml5',
-                    text: '<i class="fas fa-file-excel"></i> Excel',
+                    text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
                     titleAttr: 'Exportar a Excel',
-                    className: 'btn btn-success btn-sm',
-                    exportOptions: {
-                        columns: ':visible'
-                    }
+                    className: 'btn btn-success'
                 }],
                 initComplete: function () {
-                    relocateControls(this.api());
-                    renderCards(this.api());
+                    const api = this.api();
+                    relocateControls(api);
+                    renderCards(api);
                     $('#TecnicosTable').hide();
                     tecnicosTableInitialized = true;
                 }
             });
 
-            table.on('draw.dt search.dt page.dt', function () {
+            let isRendering = false;
+            table.on('search.dt page.dt order.dt', function () {
+                if (isRendering) {
+                    return;
+                }
+
+                isRendering = true;
                 renderCards(table);
+                relocateControls(table);
+                setTimeout(function () {
+                    isRendering = false;
+                }, 100);
             });
         }
 
