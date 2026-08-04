@@ -231,6 +231,11 @@
             dtInfo.appendTo('#tecnicos-bottom-controls');
             dtPaging.appendTo('#tecnicos-bottom-controls');
 
+            const dataTablesWrapper = $(table.table().container()).closest('.dataTables_wrapper');
+            if (dataTablesWrapper.length) {
+                dataTablesWrapper.hide();
+            }
+
             $('#tecnicos-top-controls').css({
                 'display': 'flex',
                 'justify-content': 'space-between',
