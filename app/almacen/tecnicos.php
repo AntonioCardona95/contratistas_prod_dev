@@ -188,12 +188,12 @@
                             No se encontraron técnicos activos para este contratista.
                         </div>
                     <?php else : ?>
-                        <!-- BÚSQUEDA Y INFORMACIÓN -->
+                        <!-- BÚSQUEDA Y ACCIONES -->
                         <div class="card shadow mb-4" style="border: none; border-radius: 12px;">
                             <div class="card-body p-3">
                                 <div class="row align-items-center">
                                     <div class="col-md-6" id="search-container"></div>
-                                    <div class="col-md-6 d-flex justify-content-end" id="info-container"></div>
+                                    <div class="col-md-6 d-flex justify-content-end" id="buttons-container"></div>
                                 </div>
                             </div>
                         </div>
@@ -274,6 +274,18 @@
     
     <script>
         $(document).ready(function() {
+            const dtButtons = [
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i> Excel',
+                    titleAttr: 'Exportar a Excel',
+                    className: 'btn btn-success btn-sm',
+                    exportOptions: {
+                        columns: ':visible'
+                    }
+                }
+            ];
+
             // INICIALIZAR DATATABLES
             const table = new DataTable('#TecnicosTable', {
                 responsive: true,
@@ -281,36 +293,39 @@
                 ordering: false,
                 searching: true,
                 pageLength: 9,
-                dom: '<"row"<"col-md-6"f><"col-md-6">>',
+                buttons: dtButtons,
+                dom: '<"row"<"col-md-6"f><"col-md-6"B>>' + '<"row"<"col-md-12"t>>' + '<"row"<"col-md-6"i><"col-md-6"p>>',
                 drawCallback: function() {
                     renderCards();
+                    relocateControls();
                 }
             });
 
             // MOVER CONTROLES A SUS CONTENEDORES
             function relocateControls() {
                 const wrapper = $(table.table().container());
-                
-                // BUSCAR Y MOVER ELEMENTOS DE DATATABLES
+
                 const dtSearch = wrapper.find('.dt-search');
+                const dtButtons = wrapper.find('.dt-buttons');
                 const dtInfo = wrapper.find('.dt-info');
                 const dtPaging = wrapper.find('.dt-paging');
-                
-                // LIMPIAR CONTENEDORES ANTES DE MOVER
+
                 $('#search-container').empty();
+                $('#buttons-container').empty();
                 $('#pagination-info').empty();
                 $('#pagination-container').empty();
-                
-                // MOVER ELEMENTOS
+
                 dtSearch.appendTo('#search-container');
+                dtButtons.appendTo('#buttons-container');
                 dtInfo.appendTo('#pagination-info');
                 dtPaging.appendTo('#pagination-container');
-                
-                // AGREGAR PLACEHOLDER AL BUSCADOR
+
                 $('.dt-search input').attr('placeholder', 'Buscar por nombre, expediente o teléfono...');
                 $('.dt-search input').css({
                     'width': '100% !important',
-                    'max-width': '500px'
+                    'max-width': '520px',
+                    'border-radius': '8px',
+                    'padding-left': '15px'
                 });
             }
 
@@ -321,7 +336,6 @@
                 const container = $('#tecnicos-grid-container');
                 container.empty();
 
-                // OBTENER FILAS VISIBLES DE LA PÁGINA ACTUAL
                 const visibleRows = table.rows({ page: 'current' }).nodes();
 
                 if (visibleRows.length === 0) {
@@ -329,8 +343,7 @@
                     return;
                 }
 
-                // CREAR TARJETA PARA CADA FILA VISIBLE
-                $(visibleRows).each(function(index) {
+                $(visibleRows).each(function() {
                     const row = $(this);
                     const nombre = row.data('nombre');
                     const expediente = row.data('expediente');
@@ -341,17 +354,17 @@
                         <div class="tecnico-card">
                             <div class="card-body">
                                 <div class="tecnico-nombre">${nombre}</div>
-                                
+
                                 <div class="tecnico-info-item info-expediente">
                                     <span class="tecnico-info-label">Expediente</span>
                                     <span class="tecnico-info-value">${expediente}</span>
                                 </div>
-                                
+
                                 <div class="tecnico-info-item info-telefono">
                                     <span class="tecnico-info-label">Teléfono</span>
                                     <span class="tecnico-info-value">${telefono}</span>
                                 </div>
-                                
+
                                 <div class="tecnico-info-item info-cope">
                                     <span class="tecnico-info-label">COPE</span>
                                     <span class="tecnico-info-value">${cope}</span>
@@ -363,15 +376,11 @@
                 });
             }
 
-            // RENDERIZAR AL CARGAR
             renderCards();
 
-            // RENDERIZAR TARJETAS AL CAMBIAR PÁGINA O BÚSQUEDA
             table.on('search.dt page.dt', function() {
-                // LIMPIAR Y REUBICAR CONTROLES
-                relocateControls();
-                // RENDERIZAR NUEVAS TARJETAS
                 renderCards();
+                relocateControls();
             });
         });
     </script>

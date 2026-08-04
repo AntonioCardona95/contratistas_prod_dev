@@ -329,7 +329,7 @@
         $('#detalle-rechazado-contenido').html('<div class="text-center"><div class="spinner-border text-primary"></div></div>');
         $('#detalleRechazadoModal').modal('show');
 
-        $.get('modal/DetalleSalidaTemp.php', { folio: folio }, function(html){
+        $.get('modal/DetalleSalidaTemp.php', { folio: folio, solo_lectura: 1 }, function(html){
             $('#detalle-rechazado-contenido').html(html);
         }).fail(function(){
             $('#detalle-rechazado-contenido').html('<div class="text-danger text-center">Error al cargar el detalle.</div>');
