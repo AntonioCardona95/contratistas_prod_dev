@@ -233,7 +233,13 @@
 
             const dataTablesWrapper = $(table.table().container()).closest('.dataTables_wrapper');
             if (dataTablesWrapper.length) {
-                dataTablesWrapper.hide();
+                dataTablesWrapper.css({
+                    'display': 'none',
+                    'height': '0',
+                    'overflow': 'hidden',
+                    'margin': '0',
+                    'padding': '0'
+                });
             }
 
             $('#tecnicos-top-controls').css({
@@ -377,12 +383,9 @@
                 }
             });
 
-            table.on('draw', function () {
+            table.on('draw.dt search.dt page.dt', function () {
                 renderCards(table);
-            });
-
-            table.on('search.dt page.dt', function () {
-                renderCards(table);
+                relocateControls(table);
             });
         }
 
