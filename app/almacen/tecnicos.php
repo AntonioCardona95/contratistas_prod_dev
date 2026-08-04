@@ -217,80 +217,108 @@
         let tecnicosLoadInProgress = false;
 
         function relocateControls(table) {
-            const wrapper = $(table.table().container());
-            const dtSearch = wrapper.find('.dt-search');
-            const dtButtons = wrapper.find('.dt-buttons');
-            const dtInfo = wrapper.find('.dt-info');
-            const dtPaging = wrapper.find('.dt-paging');
+            const topControls = $('#tecnicos-top-controls').empty().css({
+                'display': 'flex',
+                'justify-content': 'space-between',
+                'align-items': 'center',
+                'gap': '12px',
+                'flex-wrap': 'wrap'
+            });
 
-            $('#tecnicos-top-controls').empty();
-            $('#tecnicos-bottom-controls').empty();
+            const bottomControls = $('#tecnicos-bottom-controls').empty().css({
+                'display': 'flex',
+                'justify-content': 'space-between',
+                'align-items': 'center',
+                'gap': '12px',
+                'flex-wrap': 'wrap'
+            });
 
-            dtSearch.appendTo('#tecnicos-top-controls');
-            dtButtons.appendTo('#tecnicos-top-controls');
-            dtInfo.appendTo('#tecnicos-bottom-controls');
-            dtPaging.appendTo('#tecnicos-bottom-controls');
+            const searchWrap = $('<div class="d-flex align-items-center gap-2" style="flex: 1 1 280px; min-width: 220px;"></div>');
+            const searchIcon = $('<i class="fas fa-search text-muted"></i>');
+            const searchInput = $('<input type="search" class="form-control form-control-sm" placeholder="Buscar por nombre, expediente o teléfono...">');
+            searchInput.on('input', function () {
+                table.search(this.value).draw();
+            });
+            searchWrap.append(searchIcon, searchInput);
+            topControls.append(searchWrap);
 
-            const dataTablesWrapper = $(table.table().container()).closest('.dataTables_wrapper');
-            if (dataTablesWrapper.length) {
-                dataTablesWrapper.css({
-                    'display': 'none',
-                    'height': '0',
-                    'overflow': 'hidden',
-                    'margin': '0',
-                    'padding': '0'
+            const actionsWrap = $('<div class="d-flex align-items-center gap-2"></div>');
+            const excelButton = $('<button type="button" class="btn btn-success btn-sm"><i class="fas fa-file-excel"></i> Excel</button>');
+            excelButton.on('click', function () {
+                if (table.button) {
+                    table.button(0).trigger();
+                }
+            });
+            actionsWrap.append(excelButton);
+            topControls.append(actionsWrap);
+
+            const pageSizeSelect = $('<select class="form-control form-control-sm" style="width: auto; min-width: 120px;"></select>');
+            pageSizeSelect.append('<option value="9">9 por página</option>');
+            pageSizeSelect.append('<option value="18">18 por página</option>');
+            pageSizeSelect.append('<option value="27">27 por página</option>');
+            pageSizeSelect.val(table.page.len());
+            pageSizeSelect.on('change', function () {
+                table.page.len(Number(this.value)).draw();
+            });
+            bottomControls.append(pageSizeSelect);
+
+            const infoText = $('<div class="text-muted small"></div>');
+            bottomControls.append(infoText);
+
+            const pager = $('<nav><ul class="pagination pagination-sm mb-0"></ul></nav>');
+            bottomControls.append(pager);
+
+            function refreshControls() {
+                const info = table.page.info();
+                const totalPages = info.pages || 1;
+                const currentPage = info.page + 1;
+                infoText.text(`Mostrando ${info.start + 1} a ${info.end} de ${info.recordsTotal} técnicos`);
+
+                pager.empty();
+                const prevItem = $('<li class="page-item"><a class="page-link" href="#" aria-label="Anterior"><span aria-hidden="true">&laquo;</span></a></li>');
+                prevItem.on('click', function (e) {
+                    e.preventDefault();
+                    if (currentPage > 1) {
+                        table.page('previous').draw(false);
+                    }
+                });
+                pager.find('ul').append(prevItem);
+
+                for (let i = 1; i <= totalPages; i++) {
+                    const isActive = i === currentPage;
+                    const pageItem = $('<li class="page-item' + (isActive ? ' active' : '') + '"></li>');
+                    const pageLink = $('<a class="page-link" href="#">' + i + '</a>');
+                    pageLink.on('click', function (e) {
+                        e.preventDefault();
+                        table.page(i - 1).draw(false);
+                    });
+                    pageItem.append(pageLink);
+                    pager.find('ul').append(pageItem);
+                }
+
+                const nextItem = $('<li class="page-item"><a class="page-link" href="#" aria-label="Siguiente"><span aria-hidden="true">&raquo;</span></a></li>');
+                nextItem.on('click', function (e) {
+                    e.preventDefault();
+                    if (currentPage < totalPages) {
+                        table.page('next').draw(false);
+                    }
+                });
+                pager.find('ul').append(nextItem);
+
+                pager.find('.page-link').css({
+                    'border-radius': '6px',
+                    'padding': '0.45rem 0.8rem',
+                    'font-size': '0.9rem'
                 });
             }
 
-            $('#tecnicos-top-controls').css({
-                'display': 'flex',
-                'justify-content': 'space-between',
-                'align-items': 'center',
-                'gap': '12px',
-                'flex-wrap': 'wrap'
-            });
+            refreshControls();
+            table.on('draw.dt search.dt page.dt', refreshControls);
 
-            $('#tecnicos-bottom-controls').css({
-                'display': 'flex',
-                'justify-content': 'space-between',
-                'align-items': 'center',
-                'gap': '12px',
-                'flex-wrap': 'wrap'
-            });
-
-            $('#tecnicos-top-controls .dt-search').css({
-                'flex': '1 1 300px',
-                'min-width': '220px'
-            });
-
-            $('#tecnicos-top-controls .dt-buttons').css({
-                'margin-left': 'auto'
-            });
-
-            $('#tecnicos-bottom-controls .dt-info').css({
-                'margin-right': 'auto'
-            });
-
-            $('.dt-search input').attr('placeholder', 'Buscar por nombre, expediente o teléfono...');
-            $('.dt-search input').css({
-                'width': '100% !important',
-                'max-width': '520px',
-                'border-radius': '8px',
-                'padding-left': '15px'
-            });
-
-            $('.dt-paging .pagination').css({
-                'margin': '0',
-                'gap': '6px'
-            });
-
-            $('.dt-paging .page-link').css({
-                'border-radius': '6px',
-                'padding': '0.45rem 0.8rem',
-                'font-size': '0.9rem'
-            });
-
-            $('.dt-buttons .btn').addClass('btn-sm');
+            const dataTablesWrapper = $(table.table().container()).closest('.dataTables_wrapper');
+            if (dataTablesWrapper.length) {
+                dataTablesWrapper.hide();
+            }
         }
 
         function renderCards(table) {
@@ -385,7 +413,6 @@
 
             table.on('draw.dt search.dt page.dt', function () {
                 renderCards(table);
-                relocateControls(table);
             });
         }
 
