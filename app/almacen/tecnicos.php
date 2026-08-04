@@ -174,11 +174,17 @@
                 <!-- INICIO CONTENIDO PRINCIPAL -->
                 <div class="container-fluid">
 
-                    <div class="card-body p-0">
-                        <!-- CONTENEDOR DE LA TABLA -->
-                        <div id="LoadTecnicos" class="p-3">
-                            <!-- AQUI SE CARGA LA TABLA DE MATERIALES -->
+                    <!-- TARJETA PRINCIPAL DE LISTADO -->
+                    <div class="card shadow mb-4 table-container">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h2 class="m-0 font-weight-bold text-gray-800">TECNICOS</h2>
                         </div>
+                        <div class="card-body p-0">
+                            <!-- CONTENEDOR DONDE SE CARGA LA TABLA DINÁMICAMENTE -->
+                            <div id="LoadTecnicos" class="p-3">
+                                <!-- Aquí se renderiza el contenido con AJAX -->
+                            </div>
+                        </div> 
                     </div>
 
                 </div>
@@ -207,6 +213,9 @@
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
 
     <script>
+        let tecnicosTableInitialized = false;
+        let tecnicosLoadInProgress = false;
+
         function relocateControls(table) {
             const wrapper = $(table.table().container());
             const dtSearch = wrapper.find('.dt-search');
@@ -279,6 +288,10 @@
         }
 
         function initTecnicosTable() {
+            if (tecnicosTableInitialized) {
+                return;
+            }
+
             const $table = $('#TecnicosTable');
             if (!$table.length || !$.fn.DataTable) {
                 return;
@@ -314,6 +327,8 @@
                 initComplete: function () {
                     relocateControls(this.api());
                     renderCards(this.api());
+                    $('#TecnicosTable').hide();
+                    tecnicosTableInitialized = true;
                 }
             });
 
@@ -327,6 +342,12 @@
         }
 
         function LoadTecnicos() {
+            if (tecnicosLoadInProgress) {
+                return;
+            }
+
+            tecnicosLoadInProgress = true;
+
             $.ajax({
                 url: 'modal/TablaTecnicos.php',
                 type: 'GET',
@@ -337,6 +358,9 @@
                 error: function (xhr, status) {
                     console.error('Error al cargar técnicos:', status, xhr);
                     $('#LoadTecnicos').html('<div class="alert alert-danger">No se pudo cargar la vista de técnicos.</div>');
+                },
+                complete: function () {
+                    tecnicosLoadInProgress = false;
                 }
             });
         }
