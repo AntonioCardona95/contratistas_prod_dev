@@ -238,7 +238,7 @@
         </div>
     </div>
 
-    <table class="table table-bordered display nowrap datatable-init" style="width:100%; display:none;" id="TecnicosTable">
+    <table class="table table-bordered display nowrap datatable-init" style="width:100%;" id="TecnicosTable">
         <thead>
             <tr>
                 <th>Nombre</th>

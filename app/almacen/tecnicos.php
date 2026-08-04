@@ -281,16 +281,28 @@
 
         function initTecnicosTable() {
             const $table = $('#TecnicosTable');
-            if (!$table.length || $.fn.DataTable === undefined) {
+            if (!$table.length || !$.fn.DataTable) {
                 return;
             }
 
-            const table = new DataTable('#TecnicosTable', {
+            if ($.fn.DataTable.isDataTable('#TecnicosTable')) {
+                $('#TecnicosTable').DataTable().destroy();
+            }
+
+            const table = $('#TecnicosTable').DataTable({
                 responsive: true,
-                language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/2.0.0/i18n/es-ES.json'
+                },
                 ordering: false,
                 searching: true,
                 pageLength: 9,
+                layout: {
+                    topStart: 'search',
+                    topEnd: 'buttons',
+                    bottomStart: 'info',
+                    bottomEnd: 'paging'
+                },
                 buttons: [{
                     extend: 'excelHtml5',
                     text: '<i class="fas fa-file-excel"></i> Excel',
@@ -300,19 +312,18 @@
                         columns: ':visible'
                     }
                 }],
-                dom: '<"row"<"col-md-6"f><"col-md-6"B>>' + '<"row"<"col-md-12"t>>' + '<"row"<"col-md-6"i><"col-md-6"p>>',
-                drawCallback: function () {
-                    renderCards(table);
-                    relocateControls(table);
+                initComplete: function () {
+                    relocateControls(this.api());
+                    renderCards(this.api());
                 }
             });
 
-            relocateControls(table);
-            renderCards(table);
+            table.on('draw', function () {
+                renderCards(table);
+            });
 
             table.on('search.dt page.dt', function () {
                 renderCards(table);
-                relocateControls(table);
             });
         }
 
