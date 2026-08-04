@@ -204,9 +204,8 @@
     <!-- MODAL CERRAR SESIÓN -->
     <?php include_once(__DIR__ . '/../components/ModalCierreSesion.php'); ?>
 
-    <!-- IMPORTAR SCRIPTS Y DATATABLES -->
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
-    
+
     <script>
         function relocateControls(table) {
             const wrapper = $(table.table().container());
