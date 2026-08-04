@@ -223,15 +223,42 @@
             const dtInfo = wrapper.find('.dt-info');
             const dtPaging = wrapper.find('.dt-paging');
 
-            $('#search-container').empty();
-            $('#buttons-container').empty();
-            $('#pagination-info').empty();
-            $('#pagination-container').empty();
+            $('#tecnicos-top-controls').empty();
+            $('#tecnicos-bottom-controls').empty();
 
-            dtSearch.appendTo('#search-container');
-            dtButtons.appendTo('#buttons-container');
-            dtInfo.appendTo('#pagination-info');
-            dtPaging.appendTo('#pagination-container');
+            dtSearch.appendTo('#tecnicos-top-controls');
+            dtButtons.appendTo('#tecnicos-top-controls');
+            dtInfo.appendTo('#tecnicos-bottom-controls');
+            dtPaging.appendTo('#tecnicos-bottom-controls');
+
+            $('#tecnicos-top-controls').css({
+                'display': 'flex',
+                'justify-content': 'space-between',
+                'align-items': 'center',
+                'gap': '12px',
+                'flex-wrap': 'wrap'
+            });
+
+            $('#tecnicos-bottom-controls').css({
+                'display': 'flex',
+                'justify-content': 'space-between',
+                'align-items': 'center',
+                'gap': '12px',
+                'flex-wrap': 'wrap'
+            });
+
+            $('#tecnicos-top-controls .dt-search').css({
+                'flex': '1 1 300px',
+                'min-width': '220px'
+            });
+
+            $('#tecnicos-top-controls .dt-buttons').css({
+                'margin-left': 'auto'
+            });
+
+            $('#tecnicos-bottom-controls .dt-info').css({
+                'margin-right': 'auto'
+            });
 
             $('.dt-search input').attr('placeholder', 'Buscar por nombre, expediente o teléfono...');
             $('.dt-search input').css({
@@ -240,6 +267,19 @@
                 'border-radius': '8px',
                 'padding-left': '15px'
             });
+
+            $('.dt-paging .pagination').css({
+                'margin': '0',
+                'gap': '6px'
+            });
+
+            $('.dt-paging .page-link').css({
+                'border-radius': '6px',
+                'padding': '0.45rem 0.8rem',
+                'font-size': '0.9rem'
+            });
+
+            $('.dt-buttons .btn').addClass('btn-sm');
         }
 
         function renderCards(table) {

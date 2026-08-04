@@ -140,32 +140,44 @@
     }
 
     .tecnico-card {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
         overflow: hidden;
-        transition: all 0.3s ease;
-        border: 2px solid rgba(29, 130, 245, 0.9);
-        border-top: 4px solid rgba(29, 130, 245, 0.9);
+        transition: all 0.25s ease;
+        border: 1px solid rgba(59, 130, 246, 0.35);
+        position: relative;
+    }
+
+    .tecnico-card::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto 0;
+        height: 5px;
+        background: linear-gradient(90deg, #1d82f5 0%, #2ec4b6 100%);
     }
 
     .tecnico-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        transform: translateY(-6px);
+        box-shadow: 0 18px 35px rgba(37, 99, 235, 0.12);
+        border-color: rgba(29, 130, 245, 0.7);
     }
 
     .tecnico-card .card-body {
-        padding: 25px;
+        padding: 22px 20px 18px;
     }
 
     .tecnico-nombre {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: #2c3e50;
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #1f2937;
         margin-bottom: 18px;
         display: flex;
         align-items: center;
         gap: 10px;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        line-height: 1.3;
     }
 
     .tecnico-nombre::before {
@@ -173,42 +185,56 @@
         font-family: 'Font Awesome 5 Free';
         font-weight: 900;
         color: #1d82f5;
+        font-size: 1.05rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(29, 130, 245, 0.1);
     }
 
     .tecnico-info-item {
         display: flex;
         align-items: center;
-        margin-bottom: 14px;
-        padding: 10px 10px 10px 12px;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        border-left: 3px solid #17a2b8;
+        margin-bottom: 12px;
+        padding: 10px 12px;
+        background: linear-gradient(180deg, #f8fafc 0%, #eef3f8 100%);
+        border-radius: 10px;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        gap: 10px;
     }
 
     .tecnico-info-item:nth-child(2n) {
-        border-left-color: #28a745;
+        border-left: 3px solid #18a957;
     }
 
     .tecnico-info-item:nth-child(3n) {
-        border-left-color: #ffc107;
+        border-left: 3px solid #f59e0b;
+    }
+
+    .tecnico-info-item:first-of-type {
+        border-left: 3px solid #1d82f5;
     }
 
     .tecnico-info-label {
-        font-weight: 600;
-        color: #495057;
-        min-width: 110px;
-        font-size: 0.85rem;
+        font-weight: 700;
+        color: #475569;
+        min-width: 102px;
+        font-size: 0.72rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.06em;
     }
 
     .tecnico-info-value {
-        color: #2c3e50;
-        font-weight: 500;
+        color: #1e293b;
+        font-weight: 600;
         flex: 1;
-        margin-left: 10px;
-        font-size: 0.95rem;
+        margin-left: 6px;
+        font-size: 0.92rem;
         word-break: break-word;
+        text-align: right;
     }
 </style>
 
@@ -220,10 +246,7 @@
 <?php else : ?>
     <div class="card shadow mb-4" style="border: none; border-radius: 12px;">
         <div class="card-body p-3">
-            <div class="row align-items-center">
-                <div class="col-md-6" id="search-container"></div>
-                <div class="col-md-6 d-flex justify-content-end" id="buttons-container"></div>
-            </div>
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2" id="tecnicos-top-controls"></div>
         </div>
     </div>
 
@@ -231,10 +254,7 @@
 
     <div class="card shadow mt-4" style="border: none; border-radius: 12px;">
         <div class="card-body p-3">
-            <div class="row align-items-center">
-                <div class="col-md-6" id="pagination-info"></div>
-                <div class="col-md-6 d-flex justify-content-end" id="pagination-container"></div>
-            </div>
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2" id="tecnicos-bottom-controls"></div>
         </div>
     </div>
 
