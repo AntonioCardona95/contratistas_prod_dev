@@ -198,5 +198,17 @@
     <!-- MODAL DE CIERRE DE SESIÓN -->
     <?php include_once(__DIR__ . '/../components/ModalCierreSesion.php'); ?>
 
-    <!-- SCRIPTS GENERALES DEL PORTAL -->
+ <!-- SCRIPTS DE CONTRATISTAS -->
+    <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
+
+    <script>
+        $(document).ready(function(){
+            LoadSalidas();
+        });
+    </script>
+
+</body>
+
+</html>
+
 
