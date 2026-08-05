@@ -127,6 +127,7 @@ function activarAudioNotificacion() {
         if (!AudioContextClass) return;
 
         audioContext = new AudioContextClass();
+        console.log('Estado del AudioContext:', audioContext.state);
         if (audioContext.state === 'suspended') {
             audioContext.resume();
         }
@@ -144,18 +145,22 @@ function reproducirSonidoNotificacion() {
 
     if (!audioContext) return;
 
+    console.log('Disponible:', audioDisponible);
+    console.log('Estado del AudioContext:', audioContext.state);
+
     try {
-        const playTone = (freq, start, duration, gainValue) => {
+        const playTone = (freq, delay, duration, gainValue) => {
+            const now = audioContext.currentTime;
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
             oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(freq, start);
-            gainNode.gain.setValueAtTime(gainValue, start);
-            gainNode.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+            oscillator.frequency.setValueAtTime(freq, now + delay);
+            gainNode.gain.setValueAtTime(gainValue, now + delay);
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, now + delay + duration);
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
-            oscillator.start(start);
-            oscillator.stop(start + duration);
+            oscillator.start(now + delay);
+            oscillator.stop(now + delay + duration);
         };
 
         playTone(880, 0, 0.15, 0.08);
