@@ -23,8 +23,10 @@
         $Fecha2 = $Fecha2 . " 23:59:59";
     }
 
+    // OBTIENE LAS SALIDAS PENDIENTES ASOCIADAS AL CONTRATISTA ACTUAL.
     $filas = $modal->ObtenerPendientes($idContratistas, $Fecha1, $Fecha2);
 
+    // SI SE RECIBIO UN FOLIO, SE FILTRAN LOS RESULTADOS PARA MOSTRAR SOLO LA SALIDA RELEVANTE.
     if ($folioFiltro !== '') {
         $filas = array_filter($filas, function($row) use ($folioFiltro) {
             return strpos((string)$row['Folio_Salida_ST'], $folioFiltro) !== false;
@@ -142,6 +144,7 @@
     }
 </style>
 
+<!-- CONTENEDOR DE CARGA QUE SE MUESTRA MIENTRAS SE PREPARAN LOS DATOS. -->
 <div id="pendientes-loading" style="text-align: center; padding: 20px;">
     <div class="spinner-border text-primary" role="status">
         <span class="sr-only">Cargando...</span>
@@ -149,6 +152,7 @@
     <p>Cargando datos, por favor espere...</p>
 </div>
 
+<!-- CONTENEDOR PRINCIPAL DE LA TABLA Y LAS TARJETAS RESPONSIVAS. -->
 <div id="contenedor-tabla-pendientes" style="opacity: 0; transition: opacity 0.3s ease;">
     <div id="pendientes-table-wrapper">
         <table class="table table-bordered display nowrap" style="width:100%" id="pendientes">
@@ -214,6 +218,7 @@
 </div>
 
 <!-- MODAL DE DETALLES + RESPUESTA PARCIAL -->
+<!-- AL HACER CLIC EN VER DETALLES, SE ABRE ESTE MODAL PARA MOSTRAR EL CONTENIDO DE LA SALIDA Y PERMITIR LA RESPUESTA -->
 <div class="modal fade" id="detallePendienteModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -237,6 +242,7 @@
 </div>
 
 <script>
+    // ESTO INICIALIZA LA TABLA DE PENDIENTES CON DATATABLES Y LA HACE RESPONSIVA.
     $(document).ready(function(){
         var table = new DataTable('#pendientes', {
             responsive: true,
@@ -248,16 +254,35 @@
             initComplete: function(settings, json) {
                 $('#pendientes-loading').hide();
                 $('#contenedor-tabla-pendientes').css('opacity', '1');
+                setTimeout(aplicarFiltroDesdeUrl, 50);
             }
         });
 
-        // AUTOFILTRAR SI SE LLEGO DESDE UNA NOTIFICACION
-        const urlParams = new URLSearchParams(window.location.search);
-        const folioBuscar = urlParams.get('folio');
-        if (folioBuscar) {
-            table.search(folioBuscar).draw();
+        var filtroAplicado = false;
+
+        // APLICA EL FILTRO POR FOLIO CUANDO LA VISTA LLEGA DESDE UNA NOTIFICACION.
+        function aplicarFiltroDesdeUrl() {
+            if (filtroAplicado) return;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const folioBuscar = urlParams.get('folio');
+            if (!folioBuscar) return;
+
+            const folioNumerico = folioBuscar.replace(/\D/g, '');
+            if (!folioNumerico.length) return;
+
+            filtroAplicado = true;
+            table.search(folioNumerico).draw();
+
+            setTimeout(function() {
+                const hayResultado = table.rows({ search: 'applied' }).data().length > 0;
+                if (!hayResultado) {
+                    table.search(folioBuscar).draw();
+                }
+            }, 100);
         }
 
+        // GENERA LAS TARJETAS VISIBLES EN DISPOSITIVOS MOVILES A PARTIR DE LOS RESULTADOS FILTRADOS.
         function renderPendienteCards() {
             const container = $('#pendientes-cards-container');
             container.empty();
@@ -343,7 +368,7 @@
 
     var folioActivoPendiente = null;
 
-    // ABRIR EL MODAL Y CARGAR EL DETALLE
+    // CUANDO EL USUARIO PRESIONA VER DETALLES, SE GUARDA EL FOLIO ACTIVO Y SE CARGA EL MODAL CON LA INFORMACION DE LA SALIDA.
     $(document).off('click', '.ver-detalle-pendiente').on('click', '.ver-detalle-pendiente', function(){
         var folio = $(this).data('folio');
         folioActivoPendiente = folio;
@@ -359,7 +384,7 @@
         });
     });
 
-    // CONFIRMAR RESPUESTA (ACEPTACION TOTAL, PARCIAL O RECHAZO TOTAL)
+    // AL CONFIRMAR LA RESPUESTA, SE RECOGEN LAS SERIES Y CANTIDADES ACEPTADAS O RECHAZADAS PARA PROCESARLA.
     $(document).off('click', '#btn-confirmar-respuesta').on('click', '#btn-confirmar-respuesta', function(){
         if (!folioActivoPendiente) return;
 
