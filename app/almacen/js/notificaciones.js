@@ -106,7 +106,37 @@ function irANotificacion(id, url) {
     });
 }
 
+function reproducirSonidoNotificacion() {
+    try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+
+        const audioContext = new AudioContext();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(1320, audioContext.currentTime + 0.12);
+
+        gainNode.gain.setValueAtTime(0.03, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.2);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.2);
+
+        setTimeout(() => audioContext.close(), 250);
+    } catch (e) {
+        console.log('No se pudo reproducir el sonido de la notificación', e);
+    }
+}
+
 function mostrarToast(n) {
+    reproducirSonidoNotificacion();
+
     // ICONO Y COLOR SEGUN EL TIPO DE NOTIFICACION
     var iconoTipo = 'info';
     var colorBorde = '#4462e7';
