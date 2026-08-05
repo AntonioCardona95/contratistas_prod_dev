@@ -1,7 +1,15 @@
+// ALMACENA EL ULTIMO ID DE NOTIFICACION QUE YA SE HA PROCESADO.
 let ultimoIdVisto = 0;
+// CONTEXTO DE AUDIO REUTILIZABLE PARA REPRODUCIR EL SONIDO DE LAS ALERTAS.
+let audioContext = null;
+// INDICA SI EL AUDIO YA FUE ACTIVADO Y PUEDE USARSE.
+let audioDisponible = false;
 
 $(document).ready(function() {
-    // 1. CARGA INICIAL: SOLO POBLAR EL DROPDOWN, SIN TOAST
+    // DESBLOQUEA EL AUDIO AL PRIMER CLICK O TECLA DEL USUARIO, QUE ES LO QUE NECESITAN LA MAYORIA DE NAVEGADORES.
+    document.addEventListener('click', activarAudioNotificacion, { once: true });
+    document.addEventListener('keydown', activarAudioNotificacion, { once: true });
+    // 1. CARGA INICIAL: OBTIENE LAS NOTIFICACIONES RECIENTES Y LAS MUESTRA EN EL DROPDOWN SIN MOSTRAR TOAST.
     $.getJSON('Ajax_Notificaciones.php', { solo_dropdown: 1 }, function(data) {
         $('#alertsCount').text(data.count_total);
 
@@ -11,10 +19,11 @@ $(document).ready(function() {
         }
     });
 
-    // 2. A PARTIR DE AQUI, EL POLLING SI DISPARA TOAST PARA LO REALMENTE NUEVO
+    // 2. A PARTIR DE AQUI, EL POLLING REVISA SI HAY NOTIFICACIONES NUEVAS Y LAS MUESTRA COMO TOAST.
     setInterval(revisarNotificaciones, 20000);
 });
 
+// CONSULTA PERIODICAMENTE SI LLEGARON NUEVAS NOTIFICACIONES DESDE EL ULTIMO ID VISTO.
 function revisarNotificaciones() {
     $.getJSON('Ajax_Notificaciones.php', { desde_id: ultimoIdVisto }, function(data) {
         $('#alertsCount').text(data.count_total);
@@ -27,6 +36,7 @@ function revisarNotificaciones() {
     });
 }
 
+// INSERTA UNA NOTIFICACION EN EL DROPDOWN DEL BELL Y LE ASIGNA ICONO Y COLOR SEGUN SU TIPO.
 function agregarNotificacionAlDropdown(n) {
     if ($('#alertsList .text-gray-500').closest('.notif-item, div').length && $('#alertsList').find('.notif-item').length === 0) {
         $('#alertsList').empty();
@@ -69,7 +79,7 @@ function agregarNotificacionAlDropdown(n) {
     $('#alertsList').prepend(item);
 }
 
-// FORMATEA FECHA A "hace X min/horas/días" - simple, sin librerias externas
+// FORMATEA LA FECHA PARA MOSTRARLA COMO "HACE X MINUTOS", "HACE X HORAS" O "HACE X DIAS".
 function formatearFechaRelativa(fechaStr) {
     var fecha = new Date(fechaStr.replace(' ', 'T'));
     var ahora = new Date();
@@ -84,6 +94,7 @@ function formatearFechaRelativa(fechaStr) {
     return 'Hace ' + diffDias + ' d';
 }
 
+// MARCA UNA NOTIFICACION COMO LEIDA EN EL SERVIDOR Y LA ELIMINA DEL DROPDOWN VISUALMENTE.
 function marcarComoVisto(id) {
     $.post('Ajax_Notificaciones.php', { accion: 'marcar_leido', id: id }, function() {
         $(`#alertsList .notif-item[data-id="${id}"]`).fadeOut(200, function() { $(this).remove(); });
@@ -100,40 +111,61 @@ function marcarComoVisto(id) {
     });
 }
 
+// REDIRIGE A LA URL DE LA NOTIFICACION Y LA MARCA COMO LEIDA ANTES DE NAVEGAR.
 function irANotificacion(id, url) {
     $.post('Ajax_Notificaciones.php', { accion: 'marcar_leido', id: id }, function() {
         window.location.href = url;
     });
 }
 
-function reproducirSonidoNotificacion() {
+// DESBLOQUEA EL AUDIO AL PRIMER INTERACTUAR DEL USUARIO PARA QUE LOS NAVEGADORES LO PERMITAN.
+function activarAudioNotificacion() {
+    if (audioDisponible) return;
+
     try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContext) return;
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
 
-        const audioContext = new AudioContext();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
+        audioContext = new AudioContextClass();
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+        audioDisponible = true;
+    } catch (e) {
+        console.log('No se pudo inicializar el audio de notificaciones', e);
+    }
+}
 
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
-        oscillator.frequency.exponentialRampToValueAtTime(1320, audioContext.currentTime + 0.12);
+// REPRODUCE UN SONIDO CORTO CUANDO LLEGA UNA NUEVA NOTIFICACION.
+function reproducirSonidoNotificacion() {
+    if (!audioDisponible) {
+        activarAudioNotificacion();
+    }
 
-        gainNode.gain.setValueAtTime(0.03, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.2);
+    if (!audioContext) return;
 
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
+    try {
+        const playTone = (freq, start, duration, gainValue) => {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(freq, start);
+            gainNode.gain.setValueAtTime(gainValue, start);
+            gainNode.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.start(start);
+            oscillator.stop(start + duration);
+        };
 
-        oscillator.start();
-        oscillator.stop(audioContext.currentTime + 0.2);
-
-        setTimeout(() => audioContext.close(), 250);
+        playTone(880, 0, 0.15, 0.08);
+        playTone(1180, 0.14, 0.16, 0.06);
     } catch (e) {
         console.log('No se pudo reproducir el sonido de la notificación', e);
     }
 }
 
+// MUESTRA EL TOAST DE SWEETALERT CON EL MENSAJE Y EL SONIDO ASOCIADO.
 function mostrarToast(n) {
     reproducirSonidoNotificacion();
 
