@@ -172,7 +172,9 @@ function reproducirSonidoNotificacion() {
 
 // MUESTRA EL TOAST DE SWEETALERT CON EL MENSAJE Y EL SONIDO ASOCIADO.
 function mostrarToast(n) {
-    reproducirSonidoNotificacion();
+    setTimeout(function() {
+        reproducirSonidoNotificacion();
+    }, 120);
 
     // ICONO Y COLOR SEGUN EL TIPO DE NOTIFICACION
     var iconoTipo = 'info';
