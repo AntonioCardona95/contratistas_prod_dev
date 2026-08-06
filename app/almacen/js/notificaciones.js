@@ -4,9 +4,6 @@ let ultimoIdVisto = 0;
 let audioContext = null;
 // INDICA SI EL AUDIO YA FUE ACTIVADO Y PUEDE USARSE.
 let audioDisponible = false;
-// ELEMENTO DE AUDIO QUE REPRODUCE EL SONIDO REAL DE LA NOTIFICACION.
-let audioElemento = null;
-let audioUrl = null;
 
 $(document).ready(function() {
     // DESBLOQUEA EL AUDIO AL PRIMER CLICK O TECLA DEL USUARIO, QUE ES LO QUE NECESITAN LA MAYORIA DE NAVEGADORES.
@@ -123,22 +120,18 @@ function irANotificacion(id, url) {
 
 // DESBLOQUEA EL AUDIO AL PRIMER INTERACTUAR DEL USUARIO PARA QUE LOS NAVEGADORES LO PERMITAN.
 function activarAudioNotificacion() {
-    if (audioDisponible) return;
-
     try {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioContextClass) {
+        if (!AudioContextClass) return;
+
+        if (!audioContext || audioContext.state === 'closed') {
             audioContext = new AudioContextClass();
-            if (audioContext.state === 'suspended') {
-                audioContext.resume();
-            }
         }
 
-        if (!audioElemento) {
-            const src = crearSonidoNotificacionUrl();
-            audioElemento = new Audio(src);
-            audioElemento.preload = 'auto';
-            audioElemento.volume = 0.6;
+        if (audioContext.state === 'suspended') {
+            audioContext.resume().catch(function(e) {
+                console.log('No se pudo reanudar el AudioContext', e);
+            });
         }
 
         audioDisponible = true;
@@ -147,72 +140,34 @@ function activarAudioNotificacion() {
     }
 }
 
-function crearSonidoNotificacionUrl() {
-    if (audioUrl) return audioUrl;
-
-    const sampleRate = 22050;
-    const duration = 0.28;
-    const totalSamples = Math.floor(sampleRate * duration);
-    const buffer = new ArrayBuffer(44 + totalSamples * 2);
-    const view = new DataView(buffer);
-
-    const writeString = (offset, value) => {
-        for (let i = 0; i < value.length; i++) {
-            view.setUint8(offset + i, value.charCodeAt(i));
-        }
-    };
-
-    const writeInt16 = (offset, value) => {
-        view.setInt16(offset, value, true);
-    };
-
-    const writeInt32 = (offset, value) => {
-        view.setInt32(offset, value, true);
-    };
-
-    writeString(0, 'RIFF');
-    writeInt32(4, 36 + totalSamples * 2);
-    writeString(8, 'WAVE');
-    writeString(12, 'fmt ');
-    writeInt32(16, 16);
-    writeInt16(20, 1);
-    writeInt16(22, 1);
-    writeInt32(24, sampleRate);
-    writeInt32(28, sampleRate * 2);
-    writeInt16(32, 2);
-    writeInt16(34, 16);
-    writeString(36, 'data');
-    writeInt32(40, totalSamples * 2);
-
-    let offset = 44;
-    for (let i = 0; i < totalSamples; i++) {
-        const t = i / sampleRate;
-        const envelope = Math.exp(-4 * (i / totalSamples));
-        const tone = Math.sin(2 * Math.PI * 880 * t) * 0.6 + Math.sin(2 * Math.PI * 1180 * t) * 0.3;
-        const sample = Math.max(-1, Math.min(1, tone * envelope));
-        writeInt16(offset, Math.floor(sample * 0x7fff));
-        offset += 2;
-    }
-
-    const blob = new Blob([buffer], { type: 'audio/wav' });
-    audioUrl = URL.createObjectURL(blob);
-    return audioUrl;
-}
-
 // REPRODUCE UN SONIDO CORTO CUANDO LLEGA UNA NUEVA NOTIFICACION.
 function reproducirSonidoNotificacion() {
     if (!audioDisponible) {
         activarAudioNotificacion();
     }
 
-    if (!audioElemento) return;
+    if (!audioContext) return;
+    if (audioContext.state === 'suspended') {
+        audioContext.resume().catch(function(e) {
+            console.log('No se pudo reanudar el AudioContext antes del sonido', e);
+        });
+    }
+    if (audioContext.state === 'closed') {
+        audioDisponible = false;
+        activarAudioNotificacion();
+    }
 
     try {
-        audioElemento.pause();
-        audioElemento.currentTime = 0;
-        audioElemento.play().catch(function(err) {
-            console.log('No se pudo reproducir el sonido de la notificación', err);
-        });
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, audioContext.currentTime);
+        gain.gain.setValueAtTime(0.28, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.9);
+        osc.start(audioContext.currentTime);
+        osc.stop(audioContext.currentTime + 0.9);
     } catch (e) {
         console.log('No se pudo reproducir el sonido de la notificación', e);
     }
