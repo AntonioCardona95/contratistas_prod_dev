@@ -384,63 +384,6 @@
         });
     });
 
-    function obtenerFilasSeries() {
-        var rows = $('#detalle-pendiente-contenido').find('.fila-serie');
-        var selectedBySerie = {};
-
-        rows.each(function(){
-            var serie = $(this).data('serie');
-            if (!serie) return;
-
-            var existing = selectedBySerie[serie];
-            if (!existing) {
-                selectedBySerie[serie] = this;
-                return;
-            }
-
-            var $current = $(this);
-            var $existing = $(existing);
-            var currentVisible = $current.is(':visible');
-            var existingVisible = $existing.is(':visible');
-            var currentChecked = $current.find('input[type="radio"]:checked').length > 0;
-            var existingChecked = $existing.find('input[type="radio"]:checked').length > 0;
-
-            if (existingVisible) return;
-            if (currentVisible || (currentChecked && !existingChecked)) {
-                selectedBySerie[serie] = this;
-            }
-        });
-
-        return $(Object.values(selectedBySerie));
-    }
-
-    function obtenerFilasLineas() {
-        var rows = $('#detalle-pendiente-contenido').find('.fila-linea');
-        var selectedByLinea = {};
-
-        rows.each(function(){
-            var idLinea = $(this).data('id-linea');
-            if (!idLinea) return;
-
-            var existing = selectedByLinea[idLinea];
-            if (!existing) {
-                selectedByLinea[idLinea] = this;
-                return;
-            }
-
-            var $current = $(this);
-            var $existing = $(existing);
-            var currentVisible = $current.is(':visible');
-            var existingVisible = $existing.is(':visible');
-
-            if (!existingVisible && currentVisible) {
-                selectedByLinea[idLinea] = this;
-            }
-        });
-
-        return $(Object.values(selectedByLinea));
-    }
-
     // AL CONFIRMAR LA RESPUESTA, SE RECOGEN LAS SERIES Y CANTIDADES ACEPTADAS O RECHAZADAS PARA PROCESARLA.
     $(document).off('click', '#btn-confirmar-respuesta').on('click', '#btn-confirmar-respuesta', function(){
         if (!folioActivoPendiente) return;
@@ -448,27 +391,59 @@
         var seriesAceptadas = [];
         var seriesRechazadas = [];
         var ajustesCantidad = [];
+        var seenSeries = {};
+        var seenLineas = {};
 
-        obtenerFilasSeries().each(function(){
-            var serie = $(this).data('serie');
-            var valor = $(this).find('input[type="radio"]:checked').val();
+        var rowsSerie = $('#detalle-pendiente-contenido').find('.fila-serie').toArray();
+        rowsSerie.forEach(function(row){
+            var $row = $(row);
+            var serie = $row.data('serie');
+            if (!serie || seenSeries[serie]) return;
+
+            var sameSerieRows = rowsSerie.filter(function(r){
+                return $(r).data('serie') === serie;
+            });
+            var $selectedRow = $(sameSerieRows.find(function(r){
+                return $(r).is(':visible');
+            }) || sameSerieRows[0]);
+
+            var valor = $selectedRow.find('input[type="radio"]:checked').val();
+            if (!valor) {
+                valor = $selectedRow.find('input[type="radio"]').first().val() || 'aceptado';
+            }
+
             if (valor === 'aceptado') {
                 seriesAceptadas.push(serie);
             } else if (valor === 'rechazado') {
                 seriesRechazadas.push({ serie: serie, motivo: 'numero_serie_incorrecto' });
             }
+
+            seenSeries[serie] = true;
         });
 
-        obtenerFilasLineas().each(function(){
-            var idLinea = $(this).data('id-linea');
-            var solicitada = parseInt($(this).data('cantidad-solicitada'), 10);
-            var aceptada = parseInt($(this).find('.input-cantidad-aceptada').val(), 10) || 0;
+        var rowsLinea = $('#detalle-pendiente-contenido').find('.fila-linea').toArray();
+        rowsLinea.forEach(function(row){
+            var $row = $(row);
+            var idLinea = $row.data('id-linea');
+            if (!idLinea || seenLineas[idLinea]) return;
+
+            var sameLineaRows = rowsLinea.filter(function(r){
+                return $(r).data('id-linea') === idLinea;
+            });
+            var $selectedRow = $(sameLineaRows.find(function(r){
+                return $(r).is(':visible');
+            }) || sameLineaRows[0]);
+
+            var solicitada = parseInt($selectedRow.data('cantidad-solicitada'), 10);
+            var aceptada = parseInt($selectedRow.find('.input-cantidad-aceptada').val(), 10) || 0;
             ajustesCantidad.push({
                 id: idLinea,
                 cantidad_solicitada: solicitada,
                 cantidad_aceptada: aceptada,
                 motivo: aceptada < solicitada ? 'cantidad_incorrecta' : null
             });
+
+            seenLineas[idLinea] = true;
         });
 
         var hayDiferencias = seriesRechazadas.length > 0 || ajustesCantidad.some(a => a.cantidad_aceptada < a.cantidad_solicitada);
@@ -494,7 +469,7 @@
                 dataType: 'json',
                 data: {
                     folio: folioActivoPendiente,
-                    seriesAceptadas: seriesAceptadas,
+                    seriesAceptadas: JSON.stringify(seriesAceptadas),
                     seriesRechazadas: JSON.stringify(seriesRechazadas),
                     ajustesCantidad: JSON.stringify(ajustesCantidad)
                 }
