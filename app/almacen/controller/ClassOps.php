@@ -794,6 +794,78 @@
                     $stmtEstatus = $conexion->prepare("UPDATE materiales_det SET Estatus_NS = 'ASSIGMENT' 
                         WHERE Num_Serie IN ($inPlaceholders)");
                     $stmtEstatus->execute($seriesAceptadas);
+
+                    $stmtSeriesByProduct = $conexion->prepare("SELECT FK_Material_S, COUNT(*) AS cantidad_aceptada
+                        FROM temp_material_det_salida
+                        WHERE Folio_Salida_Material_Det_S = ?
+                          AND Num_Serie_S IN ($inPlaceholders)
+                          AND Status_Item = 'aceptado'
+                        GROUP BY FK_Material_S");
+                    $stmtSeriesByProduct->execute(array_merge([$Folio_Salida], $seriesAceptadas));
+                    $seriesProducts = $stmtSeriesByProduct->fetchAll(PDO::FETCH_ASSOC);
+
+                    foreach ($seriesProducts as $productSeries) {
+                        $stmtLineaSerie = $conexion->prepare("SELECT * FROM temp_transferencias 
+                            WHERE Folio_Salida = :folio AND FK_Producto_S = :prod FOR UPDATE");
+                        $stmtLineaSerie->execute(['folio' => $Folio_Salida, 'prod' => $productSeries['FK_Material_S']]);
+                        $lineaSerie = $stmtLineaSerie->fetch(PDO::FETCH_ASSOC);
+
+                        if (!$lineaSerie) {
+                            continue;
+                        }
+
+                        $cantidadAceptadaSeries = (int)$productSeries['cantidad_aceptada'];
+                        if ($cantidadAceptadaSeries >= $lineaSerie['Total_Piezas']) {
+                            $statusSerie = 'aceptado';
+                        } elseif ($cantidadAceptadaSeries <= 0) {
+                            $statusSerie = 'rechazado';
+                        } else {
+                            $statusSerie = 'parcial';
+                        }
+
+                        $stmtUpdLineaSerie = $conexion->prepare("UPDATE temp_transferencias 
+                            SET Status_Item = :status, Cantidad_Aceptada = :cant, Motivo_Rechazo = :motivo
+                            WHERE idTransferencias = :id");
+                        $stmtUpdLineaSerie->execute([
+                            'status' => $statusSerie,
+                            'cant' => $cantidadAceptadaSeries,
+                            'motivo' => $statusSerie !== 'aceptado' ? 'cantidad_incorrecta' : null,
+                            'id' => $lineaSerie['idTransferencias']
+                        ]);
+
+                        if ($cantidadAceptadaSeries > 0) {
+                            $existeSerie = $conexion->prepare("SELECT idTransferencias FROM transferencias 
+                                WHERE Folio_Salida = :folio AND FK_Producto_S = :prod");
+                            $existeSerie->execute(['folio' => $Folio_Salida, 'prod' => $productSeries['FK_Material_S']]);
+
+                            if (!$existeSerie->fetch()) {
+                                $stmtInsLineaSerie = $conexion->prepare("INSERT INTO transferencias 
+                                    (Folio_Salida, FK_Almacen_S, FK_Contratista_S, FK_Producto_S, Fecha_S, Cantidad_S, 
+                                    FK_User_S, FK_Tecnico_S, Folio_Telmex_S, FK_UNS, recibe_contratista, Tecnologia, 
+                                    Piezas_Sueltas, Total_Piezas, Total_Metros)
+                                    VALUES (:folio, :almacen, :contratista, :producto, :fecha, :cantidad, 
+                                            :user, :tecnico, :telmex, :uns, :recibe, :tecnologia, 
+                                            :piezas, :totalpiezas, :totalmetros)");
+                                $stmtInsLineaSerie->execute([
+                                    'folio' => $lineaSerie['Folio_Salida'],
+                                    'almacen' => $lineaSerie['FK_Almacen_S'],
+                                    'contratista' => $lineaSerie['FK_Contratista_S'],
+                                    'producto' => $lineaSerie['FK_Producto_S'],
+                                    'fecha' => $lineaSerie['Fecha_S'],
+                                    'cantidad' => $cantidadAceptadaSeries,
+                                    'user' => $lineaSerie['FK_User_S'],
+                                    'tecnico' => $lineaSerie['FK_Tecnico_S'],
+                                    'telmex' => $lineaSerie['Folio_Telmex_S'],
+                                    'uns' => $lineaSerie['FK_UNS'],
+                                    'recibe' => $lineaSerie['recibe_contratista'],
+                                    'tecnologia' => $lineaSerie['Tecnologia'],
+                                    'piezas' => $lineaSerie['Piezas_Sueltas'],
+                                    'totalpiezas' => $cantidadAceptadaSeries,
+                                    'totalmetros' => $lineaSerie['Total_Metros']
+                                ]);
+                            }
+                        }
+                    }
                 }
 
                 // 2. MARCAR SERIES RECHAZADAS Y LIBERARLAS
