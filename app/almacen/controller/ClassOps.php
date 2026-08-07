@@ -725,7 +725,12 @@
         public function ObtenerDetalleMateriales($Folio_Salida)
         {
             $sql = "SELECT p.Producto, p.Modelo, t.Tecnologia, p.UM, p.Presentacion,
-                        t.Cantidad_S, t.Piezas_Sueltas, t.Total_Piezas, t.Total_Metros
+                        t.Cantidad_S, t.Piezas_Sueltas, t.Total_Piezas, t.Total_Metros,
+                        t.FK_Producto_S,
+                        (SELECT COUNT(*) FROM temp_material_det_salida m
+                            WHERE m.Folio_Salida_Material_Det_S = :folio
+                              AND m.FK_Material_S = t.FK_Producto_S
+                              AND m.Status_Item != 'cancelado') AS series_total
                     FROM temp_transferencias t
                     INNER JOIN producto p ON t.FK_Producto_S = p.idProducto
                     WHERE t.Folio_Salida = :folio";

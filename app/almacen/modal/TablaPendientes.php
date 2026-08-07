@@ -430,7 +430,8 @@
         rowsLinea.forEach(function(row){
             var $row = $(row);
             var idLinea = $row.data('id-linea');
-            if (!idLinea || seenLineas[idLinea]) return;
+            var seriesTotal = parseInt($row.data('series-total'), 10) || 0;
+            if (!idLinea || seenLineas[idLinea] || seriesTotal > 0) return;
 
             var sameLineaRows = rowsLinea.filter(function(r){
                 return $(r).data('id-linea') === idLinea;

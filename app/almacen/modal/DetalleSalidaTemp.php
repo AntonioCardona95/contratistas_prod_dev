@@ -144,7 +144,8 @@
                     <?php if (!empty($materiales)): foreach ($materiales as $m): ?>
                         <tr class="fila-linea"
                             data-id-linea="<?= htmlspecialchars((string)($m['idTransferencias'] ?? 0), ENT_QUOTES, 'UTF-8') ?>"
-                            data-cantidad-solicitada="<?= htmlspecialchars((string)((int)($m['Total_Piezas'] ?? 0)), ENT_QUOTES, 'UTF-8') ?>">
+                            data-cantidad-solicitada="<?= htmlspecialchars((string)((int)($m['Total_Piezas'] ?? 0)), ENT_QUOTES, 'UTF-8') ?>"
+                            data-series-total="<?= htmlspecialchars((string)((int)($m['series_total'] ?? 0)), ENT_QUOTES, 'UTF-8') ?>">
                             <td><?= strtoupper($m['Producto'] ?? '') ?></td>
                             <td><?= strtoupper($m['Modelo'] ?? '') ?></td>
                             <td><?= strtoupper($m['Tecnologia'] ?? '') ?></td>
@@ -153,11 +154,15 @@
                             <td><?= $m['Total_Metros'] ?? 0 ?></td>
                             <?php if (!$soloLectura): ?>
                             <td>
-                                <input type="number" class="form-control form-control-sm input-cantidad-aceptada"
-                                    min="0" max="<?= $m['Total_Piezas'] ?>" value="<?= $m['Total_Piezas'] ?>">
-                                <select class="form-control form-control-sm motivo-select-cantidad motivo-select">
-                                    <option value="cantidad_incorrecta">Cantidad incorrecta / faltante</option>
-                                </select>
+                                <?php if (!empty($m['series_total'])): ?>
+                                    <span class="badge badge-secondary">Gestionado por serie</span>
+                                <?php else: ?>
+                                    <input type="number" class="form-control form-control-sm input-cantidad-aceptada"
+                                        min="0" max="<?= $m['Total_Piezas'] ?>" value="<?= $m['Total_Piezas'] ?>">
+                                    <select class="form-control form-control-sm motivo-select-cantidad motivo-select">
+                                        <option value="cantidad_incorrecta">Cantidad incorrecta / faltante</option>
+                                    </select>
+                                <?php endif; ?>
                             </td>
                             <?php endif; ?>
                         </tr>
@@ -173,7 +178,8 @@
             <?php if (!empty($materiales)): foreach ($materiales as $m): ?>
                 <div class="detalle-card fila-linea"
                     data-id-linea="<?= htmlspecialchars((string)($m['idTransferencias'] ?? 0), ENT_QUOTES, 'UTF-8') ?>"
-                    data-cantidad-solicitada="<?= htmlspecialchars((string)((int)($m['Total_Piezas'] ?? 0)), ENT_QUOTES, 'UTF-8') ?>">
+                    data-cantidad-solicitada="<?= htmlspecialchars((string)((int)($m['Total_Piezas'] ?? 0)), ENT_QUOTES, 'UTF-8') ?>"
+                    data-series-total="<?= htmlspecialchars((string)((int)($m['series_total'] ?? 0)), ENT_QUOTES, 'UTF-8') ?>">
                     <div class="detalle-card-header">
                         <span class="titulo"><?= strtoupper($m['Producto'] ?? '') ?></span>
                         <span class="value"><?= strtoupper($m['Modelo'] ?? '') ?></span>
@@ -199,11 +205,15 @@
                         <div class="detalle-card-field">
                             <span class="label">Cantidad Recibida</span>
                             <div class="text-right">
-                                <input type="number" class="form-control form-control-sm input-cantidad-aceptada"
-                                    min="0" max="<?= $m['Total_Piezas'] ?>" value="<?= $m['Total_Piezas'] ?>">
-                                <select class="form-control form-control-sm motivo-select-cantidad motivo-select mt-1">
-                                    <option value="cantidad_incorrecta">Cantidad incorrecta / faltante</option>
-                                </select>
+                                <?php if (!empty($m['series_total'])): ?>
+                                    <span class="badge badge-secondary">Gestionado por serie</span>
+                                <?php else: ?>
+                                    <input type="number" class="form-control form-control-sm input-cantidad-aceptada"
+                                        min="0" max="<?= $m['Total_Piezas'] ?>" value="<?= $m['Total_Piezas'] ?>">
+                                    <select class="form-control form-control-sm motivo-select-cantidad motivo-select mt-1">
+                                        <option value="cantidad_incorrecta">Cantidad incorrecta / faltante</option>
+                                    </select>
+                                <?php endif; ?>
                             </div>
                         </div>
                         <?php endif; ?>
