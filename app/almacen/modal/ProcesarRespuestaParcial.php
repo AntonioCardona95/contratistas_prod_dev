@@ -28,15 +28,15 @@ if ($resultado['success']) {
 
     if ($huboRechazo && $huboAceptado) {
         $tipo = 'salida_parcial';
-        $mensaje = "El contratista aceptó parcialmente la salida folio #{$folio}. Requiere corrección.";
+        $mensaje = "El contratista acepto parcialmente la salida folio #{$folio}. Requiere correccion.";
         $url = 'Salidas_Parciales.php?folio=' . $folio;
     } elseif ($huboRechazo) {
         $tipo = 'salida_rechazada';
-        $mensaje = "El contratista rechazó la salida de material folio #{$folio}.";
+        $mensaje = "El contratista rechazo la salida de material folio #{$folio}.";
         $url = 'Salidas_Rechazadas.php?folio=' . $folio;
     } else {
         $tipo = 'salida_aceptada';
-        $mensaje = "El contratista aceptó la salida de material folio #{$folio}.";
+        $mensaje = "El contratista acepto la salida de material folio #{$folio}.";
         $url = 'Salidas.php?folio=' . $folio;
     }
 
