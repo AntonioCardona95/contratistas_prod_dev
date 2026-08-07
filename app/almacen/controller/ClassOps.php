@@ -734,13 +734,17 @@
         }
 
         // DETALLE DE NUMEROS DE SERIE DE UNA SALIDA TEMPORAL (PARA EL MODAL)
-        public function ObtenerDetalleSeries($Folio_Salida)
+        public function ObtenerDetalleSeries($Folio_Salida, $soloLectura = false)
         {
             $sql = "SELECT m.Num_Serie_S, m.Status_Item, m.Motivo_Rechazo, p.Producto, p.Modelo
                     FROM temp_material_det_salida m
                     INNER JOIN producto p ON m.FK_Material_S = p.idProducto
                     WHERE m.Folio_Salida_Material_Det_S = :folio
                       AND m.Status_Item != 'cancelado'";
+
+            if (!$soloLectura) {
+                $sql .= " AND m.Status_Item != 'aceptado'";
+            }
 
             return $this->runQuery($sql, ['folio' => $Folio_Salida]);
         }
@@ -829,7 +833,7 @@
                         $stmtUpdLineaSerie->execute([
                             'status' => $statusSerie,
                             'cant' => $cantidadAceptadaSeries,
-                            'motivo' => $statusSerie !== 'aceptado' ? 'cantidad_incorrecta' : null,
+                            'motivo' => $statusSerie !== 'aceptado' ? 'numero_serie_incorrecto' : null,
                             'id' => $lineaSerie['idTransferencias']
                         ]);
 

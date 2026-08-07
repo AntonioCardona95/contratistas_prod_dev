@@ -11,7 +11,7 @@
     $soloLectura = isset($_GET['solo_lectura']) && $_GET['solo_lectura'] == 1;
 
     $materiales = $modal->ObtenerDetalleMateriales($folio);
-    $series = $modal->ObtenerDetalleSeries($folio);
+    $series = $modal->ObtenerDetalleSeries($folio, $soloLectura);
 ?>
 
 <style>
