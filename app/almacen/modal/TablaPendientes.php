@@ -384,6 +384,13 @@
         });
     });
 
+    // AUXILIAR: ELIGE FILAS DE SERIES O LINEAS SEGUN EL LAYOUT RESPONSIVO REAL, NO SEGUN EL TAB ACTIVO.
+    function obtenerFilasResponsivas(selector) {
+        var esMovil = window.matchMedia('(max-width: 768px)').matches;
+        var contenedor = esMovil ? '.detalle-card-container' : '.detalle-table-wrapper';
+        return $('#detalle-pendiente-contenido').find(contenedor + ' ' + selector);
+    }
+
     // AL CONFIRMAR LA RESPUESTA, SE RECOGEN LAS SERIES Y CANTIDADES ACEPTADAS O RECHAZADAS PARA PROCESARLA.
     $(document).off('click', '#btn-confirmar-respuesta').on('click', '#btn-confirmar-respuesta', function(){
         if (!folioActivoPendiente) return;
@@ -392,9 +399,7 @@
         var seriesRechazadas = [];
         var ajustesCantidad = [];
 
-        // SOLO SE LEE LA VERSION REALMENTE VISIBLE (TABLA EN DESKTOP, CARD EN MOVIL)
-        // ASI SE EVITA LEER VALORES DE LA VERSION OCULTA QUE EL USUARIO NUNCA TOCO
-        $('.fila-serie:visible').each(function(){
+        obtenerFilasResponsivas('.fila-serie').each(function(){
             var serie = $(this).data('serie');
             var valor = $(this).find('input[type="radio"]:checked').val();
             if (valor === 'aceptado') {
@@ -404,7 +409,7 @@
             }
         });
 
-        $('.fila-linea:visible').each(function(){
+        obtenerFilasResponsivas('.fila-linea').each(function(){
             var idLinea = $(this).data('id-linea');
             var solicitada = parseInt($(this).data('cantidad-solicitada'), 10);
             var aceptada = parseInt($(this).find('.input-cantidad-aceptada').val(), 10) || 0;

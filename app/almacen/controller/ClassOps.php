@@ -736,10 +736,11 @@
         // DETALLE DE NUMEROS DE SERIE DE UNA SALIDA TEMPORAL (PARA EL MODAL)
         public function ObtenerDetalleSeries($Folio_Salida)
         {
-            $sql = "SELECT m.Num_Serie_S, p.Producto, p.Modelo
+            $sql = "SELECT m.Num_Serie_S, m.Status_Item, m.Motivo_Rechazo, p.Producto, p.Modelo
                     FROM temp_material_det_salida m
                     INNER JOIN producto p ON m.FK_Material_S = p.idProducto
-                    WHERE m.Folio_Salida_Material_Det_S = :folio";
+                    WHERE m.Folio_Salida_Material_Det_S = :folio
+                      AND m.Status_Item != 'cancelado'";
 
             return $this->runQuery($sql, ['folio' => $Folio_Salida]);
         }
@@ -771,7 +772,8 @@
 
                     $stmtUpd = $conexion->prepare("UPDATE temp_material_det_salida 
                         SET Status_Item = 'aceptado' 
-                        WHERE Folio_Salida_Material_Det_S = ? AND Num_Serie_S IN ($inPlaceholders)");
+                        WHERE Folio_Salida_Material_Det_S = ? AND Num_Serie_S IN ($inPlaceholders)
+                          AND Status_Item != 'cancelado'");
                     $stmtUpd->execute(array_merge([$Folio_Salida], $seriesAceptadas));
 
                     $conexion->exec("INSERT INTO material_det_salida 

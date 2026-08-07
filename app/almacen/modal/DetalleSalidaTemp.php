@@ -248,12 +248,19 @@
                                 <td><?= strtoupper($s['Modelo'] ?? '') ?></td>
                                 <?php if (!$soloLectura): ?>
                                 <td>
+                                    <?php
+                                        $statusSerie = $s['Status_Item'] ?? 'pendiente';
+                                        $aceptadoChecked = $statusSerie !== 'rechazado' ? 'checked' : '';
+                                        $rechazadoChecked = $statusSerie === 'rechazado' ? 'checked' : '';
+                                        $activeAceptado = $statusSerie !== 'rechazado' ? 'active' : '';
+                                        $activeRechazado = $statusSerie === 'rechazado' ? 'active' : '';
+                                    ?>
                                     <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
-                                        <label class="btn btn-outline-success btn-sm active">
-                                            <input type="radio" name="serie_<?= md5($s['Num_Serie_S']) ?>" value="aceptado" checked> Correcta
+                                        <label class="btn btn-outline-success btn-sm <?= $activeAceptado ?>">
+                                            <input type="radio" name="serie_<?= md5($s['Num_Serie_S']) ?>" value="aceptado" <?= $aceptadoChecked ?>> Correcta
                                         </label>
-                                        <label class="btn btn-outline-danger btn-sm">
-                                            <input type="radio" name="serie_<?= md5($s['Num_Serie_S']) ?>" value="rechazado"> No coincide
+                                        <label class="btn btn-outline-danger btn-sm <?= $activeRechazado ?>">
+                                            <input type="radio" name="serie_<?= md5($s['Num_Serie_S']) ?>" value="rechazado" <?= $rechazadoChecked ?>> No coincide
                                         </label>
                                     </div>
                                 </td>
