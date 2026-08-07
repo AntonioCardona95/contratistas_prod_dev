@@ -400,16 +400,21 @@
             var serie = $row.data('serie');
             if (!serie || seenSeries[serie]) return;
 
-            var sameSerieRows = rowsSerie.filter(function(r){
-                return $(r).data('serie') === serie;
-            });
-            var $selectedRow = $(sameSerieRows.find(function(r){
-                return $(r).is(':visible');
-            }) || sameSerieRows[0]);
+            var inputName = $row.find('input[type="radio"]').attr('name');
+            var valor = null;
+            if (inputName) {
+                valor = $('#detalle-pendiente-contenido').find('input[name="' + inputName + '"]:checked').val();
+            }
 
-            var valor = $selectedRow.find('input[type="radio"]:checked').val();
             if (!valor) {
-                valor = $selectedRow.find('input[type="radio"]').first().val() || 'aceptado';
+                var $activeLabel = $row.find('label.active');
+                if ($activeLabel.length) {
+                    valor = $activeLabel.find('input[type="radio"]').val();
+                }
+            }
+
+            if (!valor) {
+                valor = $row.find('input[type="radio"]').first().val() || 'aceptado';
             }
 
             if (valor === 'aceptado') {
