@@ -8,6 +8,9 @@ header('Content-Type: application/json');
 $idContratistas = $_SESSION['idContratistas'];
 $folio = (int)($_POST['folio'] ?? 0);
 $seriesAceptadas = $_POST['seriesAceptadas'] ?? [];
+if (is_string($seriesAceptadas)) {
+    $seriesAceptadas = json_decode($seriesAceptadas, true) ?: [];
+}
 $seriesRechazadas = json_decode($_POST['seriesRechazadas'] ?? '[]', true) ?: [];
 $ajustesCantidad = json_decode($_POST['ajustesCantidad'] ?? '[]', true) ?: [];
 
