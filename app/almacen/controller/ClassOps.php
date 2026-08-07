@@ -847,7 +847,17 @@
                                 WHERE Folio_Salida = :folio AND FK_Producto_S = :prod");
                             $existeSerie->execute(['folio' => $Folio_Salida, 'prod' => $productSeries['FK_Material_S']]);
 
-                            if (!$existeSerie->fetch()) {
+                            if ($existeSerie->fetch()) {
+                                $stmtUpdTransferenciaSerie = $conexion->prepare("UPDATE transferencias
+                                    SET Cantidad_S = :cantidad, Total_Piezas = :totalpiezas
+                                    WHERE Folio_Salida = :folio AND FK_Producto_S = :prod");
+                                $stmtUpdTransferenciaSerie->execute([
+                                    'cantidad' => $cantidadAceptadaSeries,
+                                    'totalpiezas' => $cantidadAceptadaSeries,
+                                    'folio' => $lineaSerie['Folio_Salida'],
+                                    'prod' => $lineaSerie['FK_Producto_S']
+                                ]);
+                            } else {
                                 $stmtInsLineaSerie = $conexion->prepare("INSERT INTO transferencias 
                                     (Folio_Salida, FK_Almacen_S, FK_Contratista_S, FK_Producto_S, Fecha_S, Cantidad_S, 
                                     FK_User_S, FK_Tecnico_S, Folio_Telmex_S, FK_UNS, recibe_contratista, Tecnologia, 
@@ -945,17 +955,23 @@
                 $this->RecalcularStatusCabecera($conexion, $Folio_Salida);
 
                 // 5. ASEGURAR QUE EXISTE LA CABECERA EN transferencias_t (SOLO SI YA SE ACEPTO ALGO)
-                $acceptedSeriesCount = count($seriesAceptadas);
-                $acceptedLineCount = array_reduce($ajustesCantidad, function($carry, $item) {
-                    return $carry + max(0, (int)$item['cantidad_aceptada']);
-                }, 0);
+                $stmtSeriesAceptadas = $conexion->prepare("SELECT COUNT(*) AS cantidad FROM temp_material_det_salida 
+                    WHERE Folio_Salida_Material_Det_S = :folio AND Status_Item = 'aceptado'");
+                $stmtSeriesAceptadas->execute(['folio' => $Folio_Salida]);
+                $acceptedSeriesCount = (int)$stmtSeriesAceptadas->fetchColumn();
+
+                $stmtLineasAceptadas = $conexion->prepare("SELECT COALESCE(SUM(Cantidad_Aceptada),0) AS cantidad 
+                    FROM temp_transferencias WHERE Folio_Salida = :folio AND Status_Item = 'aceptado'");
+                $stmtLineasAceptadas->execute(['folio' => $Folio_Salida]);
+                $acceptedLineCount = (int)$stmtLineasAceptadas->fetchColumn();
+
                 $acceptedTotalCount = $acceptedSeriesCount + $acceptedLineCount;
 
                 $huboAceptados = $acceptedTotalCount > 0;
                 if ($huboAceptados) {
                     $existeCabecera = $conexion->prepare("SELECT idTransferencias_T FROM transferencias_t WHERE Folio_Salida_ST = :folio");
                     $existeCabecera->execute(['folio' => $Folio_Salida]);
-                    $cantidadInsert = (int)$acceptedTotalCount;
+                    $cantidadInsert = $acceptedTotalCount;
 
                     if (!$existeCabecera->fetch()) {
                         $conexion->exec("INSERT INTO transferencias_t 
