@@ -232,6 +232,9 @@
                 <div class="text-center"><div class="spinner-border text-primary"></div></div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="btn-rechazar-todo">
+                    <i class="fas fa-ban"></i> Rechazar todo
+                </button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-primary" id="btn-confirmar-respuesta">
                     <i class="fas fa-paper-plane"></i> Confirmar Respuesta
@@ -367,6 +370,7 @@
     });
 
     var folioActivoPendiente = null;
+    var rechazarTodo = false;
 
     // CUANDO EL USUARIO PRESIONA VER DETALLES, SE GUARDA EL FOLIO ACTIVO Y SE CARGA EL MODAL CON LA INFORMACION DE LA SALIDA.
     $(document).off('click', '.ver-detalle-pendiente').on('click', '.ver-detalle-pendiente', function(){
@@ -376,12 +380,20 @@
         $('#detalle-pendiente-folio').text('SD-A-' + folio);
         $('#detalle-pendiente-contenido').html('<div class="text-center"><div class="spinner-border text-primary"></div></div>');
         $('#detallePendienteModal').modal('show');
+        rechazarTodo = false;
 
         $.get('modal/DetalleSalidaTemp.php', { folio: folio }, function(html){
             $('#detalle-pendiente-contenido').html(html);
         }).fail(function(){
             $('#detalle-pendiente-contenido').html('<div class="text-danger text-center">Error al cargar el detalle.</div>');
         });
+    });
+
+    // RECHAZAR TODO COMO NO SOLICITADO.
+    $(document).off('click', '#btn-rechazar-todo').on('click', '#btn-rechazar-todo', function(){
+        if (!folioActivoPendiente) return;
+        rechazarTodo = true;
+        $('#btn-confirmar-respuesta').trigger('click');
     });
 
     // AL CONFIRMAR LA RESPUESTA, SE RECOGEN LAS SERIES Y CANTIDADES ACEPTADAS O RECHAZADAS PARA PROCESARLA.
@@ -393,6 +405,7 @@
         var ajustesCantidad = [];
         var seenSeries = {};
         var seenLineas = {};
+        var motivoGeneral = rechazarTodo ? 'no_solicitado' : null;
 
         var rowsSerie = $('#detalle-pendiente-contenido').find('.fila-serie').toArray();
         rowsSerie.forEach(function(row){
@@ -400,27 +413,31 @@
             var serie = $row.data('serie');
             if (!serie || seenSeries[serie]) return;
 
-            var inputName = $row.find('input[type="radio"]').attr('name');
-            var valor = null;
-            if (inputName) {
-                valor = $('#detalle-pendiente-contenido').find('input[name="' + inputName + '"]:checked').val();
-            }
-
-            if (!valor) {
-                var $activeLabel = $row.find('label.active');
-                if ($activeLabel.length) {
-                    valor = $activeLabel.find('input[type="radio"]').val();
+            if (rechazarTodo) {
+                seriesRechazadas.push({ serie: serie, motivo: motivoGeneral });
+            } else {
+                var inputName = $row.find('input[type="radio"]').attr('name');
+                var valor = null;
+                if (inputName) {
+                    valor = $('#detalle-pendiente-contenido').find('input[name="' + inputName + '"]:checked').val();
                 }
-            }
 
-            if (!valor) {
-                valor = $row.find('input[type="radio"]').first().val() || 'aceptado';
-            }
+                if (!valor) {
+                    var $activeLabel = $row.find('label.active');
+                    if ($activeLabel.length) {
+                        valor = $activeLabel.find('input[type="radio"]').val();
+                    }
+                }
 
-            if (valor === 'aceptado') {
-                seriesAceptadas.push(serie);
-            } else if (valor === 'rechazado') {
-                seriesRechazadas.push({ serie: serie, motivo: 'numero_serie_incorrecto' });
+                if (!valor) {
+                    valor = $row.find('input[type="radio"]').first().val() || 'aceptado';
+                }
+
+                if (valor === 'aceptado') {
+                    seriesAceptadas.push(serie);
+                } else if (valor === 'rechazado') {
+                    seriesRechazadas.push({ serie: serie, motivo: 'numero_serie_incorrecto' });
+                }
             }
 
             seenSeries[serie] = true;
@@ -441,21 +458,23 @@
             }) || sameLineaRows[0]);
 
             var solicitada = parseInt($selectedRow.data('cantidad-solicitada'), 10);
-            var aceptada = parseInt($selectedRow.find('.input-cantidad-aceptada').val(), 10) || 0;
+            var aceptada = rechazarTodo ? 0 : parseInt($selectedRow.find('.input-cantidad-aceptada').val(), 10) || 0;
             ajustesCantidad.push({
                 id: idLinea,
                 cantidad_solicitada: solicitada,
                 cantidad_aceptada: aceptada,
-                motivo: aceptada < solicitada ? 'cantidad_incorrecta' : null
+                motivo: rechazarTodo ? motivoGeneral : (aceptada < solicitada ? 'cantidad_incorrecta' : null)
             });
 
             seenLineas[idLinea] = true;
         });
 
-        var hayDiferencias = seriesRechazadas.length > 0 || ajustesCantidad.some(a => a.cantidad_aceptada < a.cantidad_solicitada);
-        var descripcion = hayDiferencias
-            ? 'Vas a confirmar lo correcto y rechazar/ajustar el resto. El almacén será notificado de las diferencias.'
-            : 'Vas a confirmar todo el material como correcto.';
+        var hayDiferencias = rechazarTodo || seriesRechazadas.length > 0 || ajustesCantidad.some(a => a.cantidad_aceptada < a.cantidad_solicitada);
+        var descripcion = rechazarTodo
+            ? 'Vas a rechazar toda la salida como no solicitada. El almacén será notificado del rechazo.'
+            : (hayDiferencias
+                ? 'Vas a confirmar lo correcto y rechazar/ajustar el resto. El almacén será notificado de las diferencias.'
+                : 'Vas a confirmar todo el material como correcto.');
 
         Swal.fire({
             position: 'top',
@@ -467,7 +486,10 @@
             cancelButtonText: 'Cancelar',
             confirmButtonColor: '#1cc88a'
         }).then(function(result){
-            if (!result.isConfirmed) return;
+            if (!result.isConfirmed) {
+                rechazarTodo = false;
+                return;
+            }
 
             $.ajax({
                 url: 'modal/ProcesarRespuestaParcial.php',
