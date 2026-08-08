@@ -986,24 +986,23 @@
 
                 $acceptedTotalCount = $acceptedSeriesCount + $acceptedLineCount;
 
-                $existeCabecera = $conexion->prepare("SELECT idTransferencias_T FROM transferencias_t WHERE Folio_Salida_ST = :folio");
-                $existeCabecera->execute(['folio' => $Folio_Salida]);
                 $cantidadInsert = $acceptedTotalCount;
 
-                if ($existeCabecera->fetch()) {
-                    $stmtUpdCab = $conexion->prepare("UPDATE transferencias_t SET Cantidad_ST = :cantidad WHERE Folio_Salida_ST = :folio");
-                    $stmtUpdCab->execute(['cantidad' => $cantidadInsert, 'folio' => $Folio_Salida]);
-                } elseif ($cantidadInsert > 0) {
-                    $conexion->exec("INSERT INTO transferencias_t 
+                if ($cantidadInsert > 0) {
+                    $sqlInsert = "INSERT INTO transferencias_t 
                         (FK_Almacen_ST, FK_Contra_ST, Fecha_Salida_ST, Cantidad_ST, FK_User_ST, Folio_Salida_ST, 
                         Solicitante_Salida_T, Solicitante_SalidaA_T, DescripcionSalida_T, Tipo_MovS_T, Folio_Telmex_ST, 
                         FK_UNS_T, Comprobante_Salida_T, Hash_Archivo_Salidas, Estatus_ComprobanteS_T, 
                         Ubicacion_Material_ST, recibe_contratista_t, Cantidad_Metros_T)
-                        SELECT FK_Almacen_ST, FK_Contra_ST, Fecha_Salida_ST, " . $cantidadInsert . ", FK_User_ST, Folio_Salida_ST, 
+                        SELECT FK_Almacen_ST, FK_Contra_ST, Fecha_Salida_ST, :cantidad, FK_User_ST, Folio_Salida_ST, 
                             Solicitante_Salida_T, Solicitante_SalidaA_T, DescripcionSalida_T, Tipo_MovS_T, Folio_Telmex_ST, 
                             FK_UNS_T, Comprobante_Salida_T, Hash_Archivo_Salidas, Estatus_ComprobanteS_T, 
                             Ubicacion_Material_ST, recibe_contratista_t, Cantidad_Metros_T
-                        FROM temp_transferencias_t WHERE Folio_Salida_ST = " . (int)$Folio_Salida);
+                        FROM temp_transferencias_t WHERE Folio_Salida_ST = :folio
+                        ON DUPLICATE KEY UPDATE Cantidad_ST = VALUES(Cantidad_ST)";
+
+                    $stmtInsert = $conexion->prepare($sqlInsert);
+                    $stmtInsert->execute(['cantidad' => $cantidadInsert, 'folio' => $Folio_Salida]);
                 }
 
                 $conexion->commit();
