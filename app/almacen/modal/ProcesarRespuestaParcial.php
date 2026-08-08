@@ -13,6 +13,7 @@ if (is_string($seriesAceptadas)) {
 }
 $seriesRechazadas = json_decode($_POST['seriesRechazadas'] ?? '[]', true) ?: [];
 $ajustesCantidad = json_decode($_POST['ajustesCantidad'] ?? '[]', true) ?: [];
+$rechazarTodo = filter_var($_POST['rechazarTodo'] ?? false, FILTER_VALIDATE_BOOLEAN);
 
 if (!$folio) {
     echo json_encode(['success' => false, 'message' => 'Folio inválido.']);
@@ -20,7 +21,7 @@ if (!$folio) {
 }
 
 $modal = new Ops();
-$resultado = $modal->ProcesarRespuestaParcial($folio, $idContratistas, $seriesAceptadas, $seriesRechazadas, $ajustesCantidad);
+$resultado = $modal->ProcesarRespuestaParcial($folio, $idContratistas, $seriesAceptadas, $seriesRechazadas, $ajustesCantidad, $rechazarTodo);
 
 if ($resultado['success']) {
     $huboRechazo = !empty($seriesRechazadas) || !empty(array_filter($ajustesCantidad, fn($a) => $a['cantidad_aceptada'] < $a['cantidad_solicitada']));

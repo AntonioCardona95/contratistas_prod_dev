@@ -499,7 +499,8 @@
                     folio: folioActivoPendiente,
                     seriesAceptadas: JSON.stringify(seriesAceptadas),
                     seriesRechazadas: JSON.stringify(seriesRechazadas),
-                    ajustesCantidad: JSON.stringify(ajustesCantidad)
+                    ajustesCantidad: JSON.stringify(ajustesCantidad),
+                    rechazarTodo: rechazarTodo
                 }
             }).done(function(response){
                 if (response.success) {

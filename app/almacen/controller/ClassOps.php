@@ -755,7 +755,7 @@
         }
 
         // PROCESAR RESPUESTA
-        public function ProcesarRespuestaParcial($Folio_Salida, $idContratistas, $seriesAceptadas, $seriesRechazadas, $ajustesCantidad)
+        public function ProcesarRespuestaParcial($Folio_Salida, $idContratistas, $seriesAceptadas, $seriesRechazadas, $ajustesCantidad, $rechazarTodo = false)
         {
             $conexion = $this->get_conexion();
             try {
@@ -775,8 +775,27 @@
                 }
                 $idUsuarioNass = $fila['FK_User_ST'];
 
+                // SI RECHAZA TODO, FORZAR TODOS LOS ELEMENTOS TEMPORALES A RECHAZADO
+                if ($rechazarTodo) {
+                    $stmtRejectAllSeries = $conexion->prepare("UPDATE temp_material_det_salida
+                        SET Status_Item = 'rechazado', Motivo_Rechazo = 'no_solicitado'
+                        WHERE Folio_Salida_Material_Det_S = :folio
+                          AND Status_Item != 'cancelado'");
+                    $stmtRejectAllSeries->execute(['folio' => $Folio_Salida]);
+
+                    $stmtRejectAllLines = $conexion->prepare("UPDATE temp_transferencias
+                        SET Status_Item = 'rechazado', Cantidad_Aceptada = 0, Motivo_Rechazo = 'no_solicitado'
+                        WHERE Folio_Salida = :folio");
+                    $stmtRejectAllLines->execute(['folio' => $Folio_Salida]);
+
+                    $stmtRejectAllHeader = $conexion->prepare("UPDATE temp_transferencias_t
+                        SET Status_Temp = 'rechazado'
+                        WHERE Folio_Salida_ST = :folio");
+                    $stmtRejectAllHeader->execute(['folio' => $Folio_Salida]);
+                }
+
                 // 1. MARCAR SERIES ACEPTADAS Y MOVERLAS A LA TABLA DEFINITIVA
-                if (!empty($seriesAceptadas)) {
+                if (!empty($seriesAceptadas) && !$rechazarTodo) {
                     $inPlaceholders = implode(',', array_fill(0, count($seriesAceptadas), '?'));
 
                     $stmtUpd = $conexion->prepare("UPDATE temp_material_det_salida 
