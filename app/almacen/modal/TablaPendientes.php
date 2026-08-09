@@ -45,6 +45,11 @@
         overflow-x: auto;
     }
 
+    .modal-dialog.modal-extra-wide {
+    max-width: 60vw !important;
+    width: 60vw !important;
+    }
+
     #pendientes-cards-container {
         display: none;
         grid-template-columns: repeat(3, 1fr);
@@ -220,7 +225,7 @@
 <!-- MODAL DE DETALLES + RESPUESTA PARCIAL -->
 <!-- AL HACER CLIC EN VER DETALLES, SE ABRE ESTE MODAL PARA MOSTRAR EL CONTENIDO DE LA SALIDA Y PERMITIR LA RESPUESTA -->
 <div class="modal fade" id="detallePendienteModal" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-extra-wide modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header modal-header-gradient text-white border-0 align-items-center">
                 <h5 class="modal-title"><i class="fas fa-box-open"></i> Detalle de Salida <span id="detalle-pendiente-folio"></span></h5>
