@@ -851,7 +851,8 @@
                             continue;
                         }
 
-                        $cantidadAceptadaSeries = (int)$productSeries['cantidad_aceptada'];
+                        $productId = (int)$productSeries['FK_Material_S'];
+                        $cantidadAceptadaSeries = $acceptedSeriesByProduct[$productId] ?? 0;
                         if ($cantidadAceptadaSeries >= $lineaSerie['Total_Piezas']) {
                             $statusSerie = 'aceptado';
                         } elseif ($cantidadAceptadaSeries <= 0) {
