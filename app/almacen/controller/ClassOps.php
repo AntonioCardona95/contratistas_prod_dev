@@ -823,12 +823,21 @@
                         WHERE Num_Serie IN ($inPlaceholders)");
                     $stmtEstatus->execute($seriesAceptadas);
 
-                    $stmtSeriesByProduct = $conexion->prepare("SELECT FK_Material_S, COUNT(*) AS cantidad_aceptada
+                    $stmtAcceptedTotals = $conexion->prepare("SELECT FK_Material_S, COUNT(*) AS cantidad_aceptada
                         FROM temp_material_det_salida
                         WHERE Folio_Salida_Material_Det_S = ?
-                          AND Num_Serie_S IN ($inPlaceholders)
                           AND Status_Item = 'aceptado'
                         GROUP BY FK_Material_S");
+                    $stmtAcceptedTotals->execute([$Folio_Salida]);
+                    $acceptedSeriesByProduct = [];
+                    while ($row = $stmtAcceptedTotals->fetch(PDO::FETCH_ASSOC)) {
+                        $acceptedSeriesByProduct[(int)$row['FK_Material_S']] = (int)$row['cantidad_aceptada'];
+                    }
+
+                    $stmtSeriesByProduct = $conexion->prepare("SELECT DISTINCT FK_Material_S
+                        FROM temp_material_det_salida
+                        WHERE Folio_Salida_Material_Det_S = ?
+                          AND Num_Serie_S IN ($inPlaceholders)");
                     $stmtSeriesByProduct->execute(array_merge([$Folio_Salida], $seriesAceptadas));
                     $seriesProducts = $stmtSeriesByProduct->fetchAll(PDO::FETCH_ASSOC);
 
