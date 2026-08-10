@@ -679,8 +679,7 @@
                     a.Almacen, uNeg.UN AS Unidad_Negocio,
                     (SELECT COALESCE(SUM(
                         CASE
-                            WHEN tt.Status_Item = 'pendiente' THEN tt.Total_Piezas
-                            WHEN tt.Status_Item = 'parcial' THEN tt.Total_Piezas - COALESCE(tt.Cantidad_Aceptada, 0)
+                            WHEN tt.Status_Item IN ('pendiente', 'parcial') THEN GREATEST(tt.Total_Piezas - COALESCE(tt.Cantidad_Aceptada, 0), 0)
                             ELSE 0
                         END
                     ), 0)
