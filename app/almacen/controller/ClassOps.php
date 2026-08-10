@@ -1001,15 +1001,11 @@
                     $totalPiezas = $cantidadS * $unidadPresentacion + $piezasSueltas;
 
                     $stmtUpdLinea = $conexion->prepare("UPDATE temp_transferencias 
-                        SET Status_Item = :status, Cantidad_Aceptada = :cant, Cantidad_S = :cantidad_s,
-                            Piezas_Sueltas = :piezas, Total_Piezas = :total, Motivo_Rechazo = :motivo
+                        SET Status_Item = :status, Cantidad_Aceptada = :cant, Motivo_Rechazo = :motivo
                         WHERE idTransferencias = :id");
                     $stmtUpdLinea->execute([
                         'status' => $status,
                         'cant' => $cantidadAceptada,
-                        'cantidad_s' => $cantidadS,
-                        'piezas' => $piezasSueltas,
-                        'total' => $totalPiezas,
                         'motivo' => $status !== 'aceptado' ? $a['motivo'] : null,
                         'id' => $a['id']
                     ]);
@@ -1055,19 +1051,20 @@
                 // 4. RECALCULAR STATUS DE CABECERA SEGUN LOS HIJOS
                 $this->RecalcularStatusCabecera($conexion, $Folio_Salida);
 
-                // 5. ASEGURAR LA CANTIDAD DEFINITIVA EN transferencias_t DESDE LOS ACEPTADOS
-                // Para evitar contar dos veces series aceptadas y la fila de transferencia de serie,
-                // usamos solo la suma de Cantidad_Aceptada en temp_transferencias.
-                $stmtLineasAceptadas = $conexion->prepare("SELECT COALESCE(SUM(Cantidad_Aceptada),0) AS cantidad 
-                    FROM temp_transferencias WHERE Folio_Salida = :folio");
+                // 5. ASEGURAR LA CANTIDAD DEFINITIVA EN transferencias_t DESDE LOS TOTALES REALES
+                // No usamos la suma de Cantidad_Aceptada en temp_transferencias, porque las líneas misc
+                // necesitan convertir a empaquetado antes de guardarse en el definitvo.
+                $stmtLineasAceptadas = $conexion->prepare("SELECT COALESCE(SUM(Total_Piezas),0) AS cantidad 
+                    FROM transferencias WHERE Folio_Salida = :folio");
                 $stmtLineasAceptadas->execute(['folio' => $Folio_Salida]);
                 $acceptedTotalCount = (int)$stmtLineasAceptadas->fetchColumn();
 
-                $cantidadInsert = $acceptedTotalCount;
+                if ($acceptedTotalCount > 0) {
+                    $stmtUpdTempCab = $conexion->prepare("UPDATE temp_transferencias_t SET Cantidad_ST = :cantidad WHERE Folio_Salida_ST = :folio");
+                    $stmtUpdTempCab->execute(['cantidad' => $acceptedTotalCount, 'folio' => $Folio_Salida]);
 
-                if ($cantidadInsert > 0) {
                     $stmtUpdCab = $conexion->prepare("UPDATE transferencias_t SET Cantidad_ST = :cantidad WHERE Folio_Salida_ST = :folio");
-                    $stmtUpdCab->execute(['cantidad' => $cantidadInsert, 'folio' => $Folio_Salida]);
+                    $stmtUpdCab->execute(['cantidad' => $acceptedTotalCount, 'folio' => $Folio_Salida]);
 
                     if ($stmtUpdCab->rowCount() === 0) {
                         $conexion->exec("INSERT INTO transferencias_t 
@@ -1075,7 +1072,7 @@
                             Solicitante_Salida_T, Solicitante_SalidaA_T, DescripcionSalida_T, Tipo_MovS_T, Folio_Telmex_ST, 
                             FK_UNS_T, Comprobante_Salida_T, Hash_Archivo_Salidas, Estatus_ComprobanteS_T, 
                             Ubicacion_Material_ST, recibe_contratista_t, Cantidad_Metros_T)
-                            SELECT FK_Almacen_ST, FK_Contra_ST, Fecha_Salida_ST, " . $cantidadInsert . ", FK_User_ST, Folio_Salida_ST, 
+                            SELECT FK_Almacen_ST, FK_Contra_ST, Fecha_Salida_ST, " . $acceptedTotalCount . ", FK_User_ST, Folio_Salida_ST, 
                                 Solicitante_Salida_T, Solicitante_SalidaA_T, DescripcionSalida_T, Tipo_MovS_T, Folio_Telmex_ST, 
                                 FK_UNS_T, Comprobante_Salida_T, Hash_Archivo_Salidas, Estatus_ComprobanteS_T, 
                                 Ubicacion_Material_ST, recibe_contratista_t, Cantidad_Metros_T
