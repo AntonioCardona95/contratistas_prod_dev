@@ -277,7 +277,7 @@
                                             <input type="radio" name="serie_<?= md5($s['Num_Serie_S']) ?>" value="rechazado" <?= $rechazadoChecked ?>> No coincide
                                         </label>
                                         <label class="btn btn-outline-warning btn-sm <?= $activeCantidadIncorrecta ?>">
-                                            <input type="radio" name="serie_<?= md5($s['Num_Serie_S']) ?>" value="cantidad_incorrecta" <?= $cantidadIncorrectaChecked ?>> Cantidad incorrecta
+                                            <input type="radio" name="serie_<?= md5($s['Num_Serie_S']) ?>" value="cantidad_incorrecta" <?= $cantidadIncorrectaChecked ?>> No recibido
                                         </label>
                                     </div>
                                 </td>
@@ -310,7 +310,7 @@
                                         <input type="radio" name="serie_<?= md5($s['Num_Serie_S']) ?>" value="rechazado"> No coincide
                                     </label>
                                     <label class="btn btn-outline-warning btn-sm">
-                                        <input type="radio" name="serie_<?= md5($s['Num_Serie_S']) ?>" value="cantidad_incorrecta"> Cantidad incorrecta
+                                        <input type="radio" name="serie_<?= md5($s['Num_Serie_S']) ?>" value="cantidad_incorrecta"> No recibido
                                     </label>
                                 </div>
                             </div>
