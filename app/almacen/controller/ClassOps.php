@@ -1099,6 +1099,7 @@
             $stmt = $conexion->prepare("
                 SELECT 
                     SUM(CASE WHEN Status_Item = 'pendiente' THEN 1 ELSE 0 END) AS pendientes,
+                    SUM(CASE WHEN Status_Item = 'parcial' THEN 1 ELSE 0 END) AS parciales,
                     SUM(CASE WHEN Status_Item = 'rechazado' THEN 1 ELSE 0 END) AS rechazados,
                     SUM(CASE WHEN Status_Item = 'aceptado' THEN 1 ELSE 0 END) AS aceptados
                 FROM (
@@ -1110,8 +1111,8 @@
             $stmt->execute(['folio' => $Folio_Salida]);
             $r = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($r['pendientes'] > 0) {
-                $nuevoStatus = ($r['aceptados'] > 0 || $r['rechazados'] > 0) ? 'parcial' : 'pendiente';
+            if ($r['pendientes'] > 0 || $r['parciales'] > 0) {
+                $nuevoStatus = 'parcial';
             } elseif ($r['rechazados'] > 0) {
                 $nuevoStatus = $r['aceptados'] > 0 ? 'parcial' : 'rechazado';
             } else {
