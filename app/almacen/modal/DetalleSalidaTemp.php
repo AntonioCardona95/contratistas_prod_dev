@@ -86,6 +86,18 @@
     .detalle-card.card-aceptada-parcial { border-color: #f6c23e; }
 
     .input-cantidad-aceptada { max-width: 90px; display: inline-block; }
+    .detalle-table-wrapper .btn-group-toggle {
+        display: flex;
+        gap: 6px;
+    }
+    .detalle-table-wrapper .btn-group-toggle .btn {
+        flex: 1 1 auto;
+        min-width: 110px;
+    }
+    .detalle-table-wrapper th[data-col="respuesta"],
+    .detalle-table-wrapper td[data-col="respuesta"] {
+        min-width: 260px;
+    }
 
     @media (max-width: 768px) {
         .detalle-table-wrapper {
@@ -247,7 +259,7 @@
                             <th>Número de Serie</th>
                             <th>Producto</th>
                             <th>Modelo</th>
-                            <?php if (!$soloLectura): ?><th style="width:200px;">Respuesta</th><?php endif; ?>
+                            <?php if (!$soloLectura): ?><th style="width:260px;" data-col="respuesta">Respuesta</th><?php endif; ?>
                         </tr>
                     </thead>
                     <tbody>
