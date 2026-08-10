@@ -739,7 +739,20 @@
             $sql = "SELECT t.idTransferencias, p.Producto, p.Modelo, t.Tecnologia, p.UM, p.Presentacion,
                         t.Cantidad_S, t.Piezas_Sueltas, t.Total_Piezas, t.Total_Metros,
                         COALESCE(t.Cantidad_Aceptada, 0) AS Cantidad_Aceptada,
-                        GREATEST(t.Total_Piezas - COALESCE(t.Cantidad_Aceptada, 0), 0) AS Cantidad_Pendiente,
+                        CASE WHEN EXISTS (
+                                SELECT 1 FROM temp_material_det_salida m
+                                WHERE m.Folio_Salida_Material_Det_S = :folio
+                                  AND m.FK_Material_S = t.FK_Producto_S
+                                  AND m.Status_Item != 'cancelado'
+                            )
+                            THEN COALESCE((
+                                SELECT COUNT(*) FROM temp_material_det_salida m
+                                WHERE m.Folio_Salida_Material_Det_S = :folio
+                                  AND m.FK_Material_S = t.FK_Producto_S
+                                  AND m.Status_Item = 'pendiente'
+                            ), 0)
+                            ELSE GREATEST(t.Total_Piezas - COALESCE(t.Cantidad_Aceptada, 0), 0)
+                        END AS Cantidad_Pendiente,
                         t.FK_Producto_S,
                         (SELECT COUNT(*) FROM temp_material_det_salida m
                             WHERE m.Folio_Salida_Material_Det_S = :folio
