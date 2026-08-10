@@ -676,7 +676,16 @@
         {
             $sql = "SELECT t.idTransferencias_T, t.Folio_Salida_ST, t.Folio_Telmex_ST, t.Fecha_Salida_ST,
                     t.Cantidad_ST, t.Cantidad_Metros_T, t.Solicitante_Salida_T, t.DescripcionSalida_T,
-                    a.Almacen, uNeg.UN AS Unidad_Negocio
+                    a.Almacen, uNeg.UN AS Unidad_Negocio,
+                    (SELECT COALESCE(SUM(
+                        CASE
+                            WHEN tt.Status_Item = 'pendiente' THEN tt.Total_Piezas
+                            WHEN tt.Status_Item = 'parcial' THEN tt.Total_Piezas - COALESCE(tt.Cantidad_Aceptada, 0)
+                            ELSE 0
+                        END
+                    ), 0)
+                    FROM temp_transferencias tt
+                    WHERE tt.Folio_Salida = t.Folio_Salida_ST) AS Cantidad_Pendiente
                     FROM temp_transferencias_t t
                     INNER JOIN almacenes a ON t.FK_Almacen_ST = a.idAlmacenes
                     LEFT JOIN unegocio uNeg ON t.FK_UNS_T = uNeg.idUN

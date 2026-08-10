@@ -189,13 +189,13 @@
                         data-almacen="<?= htmlspecialchars(strtoupper($row['Almacen'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
                         data-unidad="<?= htmlspecialchars(strtoupper($row['Unidad_Negocio'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
                         data-solicitante="<?= htmlspecialchars(strtoupper($row['Solicitante_Salida_T'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
-                        data-cantidad="<?= number_format($row['Cantidad_ST']) ?>"
+                        data-cantidad="<?= number_format($row['Cantidad_Pendiente']) ?>"
                         data-fecha="<?= htmlspecialchars(strtoupper($row['Fecha_Salida_ST'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                         <td><span class="badge badge-warning">SD-A-<?= $row['Folio_Salida_ST'] ?></span></td>
                         <td><?= strtoupper($row['Almacen'] ?? '') ?></td>
                         <td><?= strtoupper($row['Unidad_Negocio'] ?? '') ?></td>
                         <td><?= strtoupper($row['Solicitante_Salida_T'] ?? '') ?></td>
-                        <td><?= number_format($row['Cantidad_ST']) ?></td>
+                        <td><?= number_format($row['Cantidad_Pendiente']) ?></td>
                         <td><?= strtoupper($row['Fecha_Salida_ST'] ?? '') ?></td>
                         <td class="text-center">
                             <button type="button" class="btn btn-info btn-sm ver-detalle-pendiente"
