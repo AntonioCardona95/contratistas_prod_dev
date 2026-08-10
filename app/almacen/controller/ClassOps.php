@@ -758,7 +758,7 @@
                       AND m.Status_Item != 'cancelado'";
 
             if (!$soloLectura) {
-                $sql .= " AND m.Status_Item != 'aceptado'";
+                $sql .= " AND m.Status_Item = 'pendiente'";
             }
 
             return $this->runQuery($sql, ['folio' => $Folio_Salida]);
