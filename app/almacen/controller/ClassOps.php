@@ -677,12 +677,16 @@
             $sql = "SELECT t.idTransferencias_T, t.Folio_Salida_ST, t.Folio_Telmex_ST, t.Fecha_Salida_ST,
                     t.Cantidad_ST, t.Cantidad_Metros_T, t.Solicitante_Salida_T, t.DescripcionSalida_T,
                     a.Almacen, uNeg.UN AS Unidad_Negocio,
-                    (SELECT COALESCE(SUM(
-                        CASE
-                            WHEN tt.Status_Item IN ('pendiente', 'parcial') THEN GREATEST(tt.Total_Piezas - COALESCE(tt.Cantidad_Aceptada, 0), 0)
-                            ELSE 0
+                    (SELECT CASE
+                            WHEN EXISTS (SELECT 1 FROM temp_material_det_salida m WHERE m.Folio_Salida_Material_Det_S = t.Folio_Salida_ST AND m.Status_Item != 'cancelado')
+                                THEN COALESCE((SELECT COUNT(*) FROM temp_material_det_salida m WHERE m.Folio_Salida_Material_Det_S = t.Folio_Salida_ST AND m.Status_Item = 'pendiente'), 0)
+                                ELSE COALESCE(SUM(
+                                    CASE
+                                        WHEN tt.Status_Item IN ('pendiente','parcial') THEN GREATEST(tt.Total_Piezas - COALESCE(tt.Cantidad_Aceptada,0),0)
+                                        ELSE 0
+                                    END
+                                ),0)
                         END
-                    ), 0)
                     FROM temp_transferencias tt
                     WHERE tt.Folio_Salida = t.Folio_Salida_ST) AS Cantidad_Pendiente
                     FROM temp_transferencias_t t
