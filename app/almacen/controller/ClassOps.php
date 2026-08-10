@@ -987,20 +987,48 @@
                         $status = 'parcial';
                     }
 
+                    $unidadPresentacion = 1;
+                    $stmtProd = $conexion->prepare("SELECT Presentacion FROM producto WHERE idProducto = ?");
+                    $stmtProd->execute([$linea['FK_Producto_S']]);
+                    $presentacionTexto = $stmtProd->fetchColumn();
+                    if (preg_match('/(\d+)/', $presentacionTexto, $matches)) {
+                        $unidadPresentacion = max(1, (int)$matches[1]);
+                    }
+
+                    $cantidadAceptada = max(0, (int)$a['cantidad_aceptada']);
+                    $cantidadS = intdiv($cantidadAceptada, $unidadPresentacion);
+                    $piezasSueltas = $cantidadAceptada % $unidadPresentacion;
+                    $totalPiezas = $cantidadS * $unidadPresentacion + $piezasSueltas;
+
                     $stmtUpdLinea = $conexion->prepare("UPDATE temp_transferencias 
-                        SET Status_Item = :status, Cantidad_Aceptada = :cant, Motivo_Rechazo = :motivo
+                        SET Status_Item = :status, Cantidad_Aceptada = :cant, Cantidad_S = :cantidad_s,
+                            Piezas_Sueltas = :piezas, Total_Piezas = :total, Motivo_Rechazo = :motivo
                         WHERE idTransferencias = :id");
                     $stmtUpdLinea->execute([
                         'status' => $status,
-                        'cant' => $a['cantidad_aceptada'],
+                        'cant' => $cantidadAceptada,
+                        'cantidad_s' => $cantidadS,
+                        'piezas' => $piezasSueltas,
+                        'total' => $totalPiezas,
                         'motivo' => $status !== 'aceptado' ? $a['motivo'] : null,
                         'id' => $a['id']
                     ]);
 
-                    if ($a['cantidad_aceptada'] > 0) {
+                    if ($cantidadAceptada > 0) {
                         $existe = $conexion->prepare("SELECT idTransferencias FROM transferencias WHERE Folio_Salida = :folio AND FK_Producto_S = :prod");
                         $existe->execute(['folio' => $Folio_Salida, 'prod' => $linea['FK_Producto_S']]);
-                        if (!$existe->fetch()) {
+                        if ($existing = $existe->fetch(PDO::FETCH_ASSOC)) {
+                            $stmtUpdTransferencia = $conexion->prepare("UPDATE transferencias
+                                SET Cantidad_S = :cantidad, Piezas_Sueltas = :piezas, Total_Piezas = :totalpiezas, Total_Metros = :totalmetros
+                                WHERE idTransferencias = :id");
+                            $stmtUpdTransferencia->execute([
+                                'cantidad' => $cantidadS,
+                                'piezas' => $piezasSueltas,
+                                'totalpiezas' => $totalPiezas,
+                                'totalmetros' => $linea['Total_Metros'],
+                                'id' => $existing['idTransferencias']
+                            ]);
+                        } else {
                             $stmtInsLinea = $conexion->prepare("INSERT INTO transferencias 
                                 (Folio_Salida, FK_Almacen_S, FK_Contratista_S, FK_Producto_S, Fecha_S, Cantidad_S, 
                                 FK_User_S, FK_Tecnico_S, Folio_Telmex_S, FK_UNS, recibe_contratista, Tecnologia, 
@@ -1012,12 +1040,12 @@
                                 'folio' => $linea['Folio_Salida'], 'almacen' => $linea['FK_Almacen_S'],
                                 'contratista' => $linea['FK_Contratista_S'], 'producto' => $linea['FK_Producto_S'],
                                 'fecha' => $linea['Fecha_S'],
-                                'cantidad' => $a['cantidad_aceptada'],
+                                'cantidad' => $cantidadS,
                                 'user' => $linea['FK_User_S'], 'tecnico' => $linea['FK_Tecnico_S'],
                                 'telmex' => $linea['Folio_Telmex_S'], 'uns' => $linea['FK_UNS'],
                                 'recibe' => $linea['recibe_contratista'], 'tecnologia' => $linea['Tecnologia'],
-                                'piezas' => $linea['Piezas_Sueltas'],
-                                'totalpiezas' => $a['cantidad_aceptada'],
+                                'piezas' => $piezasSueltas,
+                                'totalpiezas' => $totalPiezas,
                                 'totalmetros' => $linea['Total_Metros']
                             ]);
                         }
