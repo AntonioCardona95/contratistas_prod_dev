@@ -732,7 +732,7 @@
         // DETALLE DE MATERIALES DE UNA SALIDA TEMPORAL (PARA EL MODAL)
         public function ObtenerDetalleMateriales($Folio_Salida)
         {
-            $sql = "SELECT p.Producto, p.Modelo, t.Tecnologia, p.UM, p.Presentacion,
+            $sql = "SELECT t.idTransferencias, p.Producto, p.Modelo, t.Tecnologia, p.UM, p.Presentacion,
                         t.Cantidad_S, t.Piezas_Sueltas, t.Total_Piezas, t.Total_Metros,
                         COALESCE(t.Cantidad_Aceptada, 0) AS Cantidad_Aceptada,
                         GREATEST(t.Total_Piezas - COALESCE(t.Cantidad_Aceptada, 0), 0) AS Cantidad_Pendiente,
@@ -785,16 +785,18 @@
                 }
                 $idUsuarioNass = $fila['FK_User_ST'];
 
-                // SI RECHAZA TODO, FORZAR TODOS LOS ELEMENTOS TEMPORALES A RECHAZADO
+                // SI RECHAZA TODO, RECHAZAR SOLO EL MATERIAL PENDIENTE.
+                // No debemos borrar ni reiniciar cantidades ya aceptadas.
                 if ($rechazarTodo) {
                     $stmtRejectAllSeries = $conexion->prepare("UPDATE temp_material_det_salida
                         SET Status_Item = 'rechazado', Motivo_Rechazo = 'no_solicitado'
                         WHERE Folio_Salida_Material_Det_S = :folio
-                          AND Status_Item != 'cancelado'");
+                          AND Status_Item NOT IN ('cancelado', 'aceptado')");
                     $stmtRejectAllSeries->execute(['folio' => $Folio_Salida]);
 
                     $stmtRejectAllLines = $conexion->prepare("UPDATE temp_transferencias
-                        SET Status_Item = 'rechazado', Cantidad_Aceptada = 0, Motivo_Rechazo = 'no_solicitado'
+                        SET Status_Item = CASE WHEN Cantidad_Aceptada > 0 THEN 'parcial' ELSE 'rechazado' END,
+                            Motivo_Rechazo = 'no_solicitado'
                         WHERE Folio_Salida = :folio");
                     $stmtRejectAllLines->execute(['folio' => $Folio_Salida]);
 

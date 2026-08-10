@@ -442,6 +442,8 @@
                     seriesAceptadas.push(serie);
                 } else if (valor === 'rechazado') {
                     seriesRechazadas.push({ serie: serie, motivo: 'numero_serie_incorrecto' });
+                } else if (valor === 'cantidad_incorrecta') {
+                    seriesRechazadas.push({ serie: serie, motivo: 'cantidad_incorrecta' });
                 }
             }
 

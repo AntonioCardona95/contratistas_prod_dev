@@ -260,10 +260,13 @@
                                 <td>
                                     <?php
                                         $statusSerie = $s['Status_Item'] ?? 'pendiente';
+                                        $motivoSerie = $s['Motivo_Rechazo'] ?? null;
                                         $aceptadoChecked = $statusSerie !== 'rechazado' ? 'checked' : '';
-                                        $rechazadoChecked = $statusSerie === 'rechazado' ? 'checked' : '';
+                                        $rechazadoChecked = ($statusSerie === 'rechazado' && $motivoSerie !== 'cantidad_incorrecta') ? 'checked' : '';
+                                        $cantidadIncorrectaChecked = ($statusSerie === 'rechazado' && $motivoSerie === 'cantidad_incorrecta') ? 'checked' : '';
                                         $activeAceptado = $statusSerie !== 'rechazado' ? 'active' : '';
-                                        $activeRechazado = $statusSerie === 'rechazado' ? 'active' : '';
+                                        $activeRechazado = ($statusSerie === 'rechazado' && $motivoSerie !== 'cantidad_incorrecta') ? 'active' : '';
+                                        $activeCantidadIncorrecta = ($statusSerie === 'rechazado' && $motivoSerie === 'cantidad_incorrecta') ? 'active' : '';
                                     ?>
                                     <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
                                         <label class="btn btn-outline-success btn-sm <?= $activeAceptado ?>">
@@ -271,6 +274,9 @@
                                         </label>
                                         <label class="btn btn-outline-danger btn-sm <?= $activeRechazado ?>">
                                             <input type="radio" name="serie_<?= md5($s['Num_Serie_S']) ?>" value="rechazado" <?= $rechazadoChecked ?>> No coincide
+                                        </label>
+                                        <label class="btn btn-outline-warning btn-sm <?= $activeCantidadIncorrecta ?>">
+                                            <input type="radio" name="serie_<?= md5($s['Num_Serie_S']) ?>" value="cantidad_incorrecta" <?= $cantidadIncorrectaChecked ?>> Cantidad incorrecta
                                         </label>
                                     </div>
                                 </td>
@@ -301,6 +307,9 @@
                                     </label>
                                     <label class="btn btn-outline-danger btn-sm">
                                         <input type="radio" name="serie_<?= md5($s['Num_Serie_S']) ?>" value="rechazado"> No coincide
+                                    </label>
+                                    <label class="btn btn-outline-warning btn-sm">
+                                        <input type="radio" name="serie_<?= md5($s['Num_Serie_S']) ?>" value="cantidad_incorrecta"> Cantidad incorrecta
                                     </label>
                                 </div>
                             </div>
