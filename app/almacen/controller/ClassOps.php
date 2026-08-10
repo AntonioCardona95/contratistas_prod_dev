@@ -866,8 +866,8 @@
                     $stmtSeriesByProduct = $conexion->prepare("SELECT DISTINCT FK_Material_S
                         FROM temp_material_det_salida
                         WHERE Folio_Salida_Material_Det_S = ?
-                          AND Num_Serie_S IN ($inPlaceholders)");
-                    $stmtSeriesByProduct->execute(array_merge([$Folio_Salida], $seriesAceptadas));
+                          AND Status_Item != 'cancelado'");
+                    $stmtSeriesByProduct->execute([$Folio_Salida]);
                     $seriesProducts = $stmtSeriesByProduct->fetchAll(PDO::FETCH_ASSOC);
 
                     foreach ($seriesProducts as $productSeries) {
@@ -880,14 +880,29 @@
                             continue;
                         }
 
-                        $productId = (int)$productSeries['FK_Material_S'];
-                        $cantidadAceptadaSeries = $acceptedSeriesByProduct[$productId] ?? 0;
-                        if ($cantidadAceptadaSeries >= $lineaSerie['Total_Piezas']) {
-                            $statusSerie = 'aceptado';
-                        } elseif ($cantidadAceptadaSeries <= 0) {
+                        $stmtSeriesStatus = $conexion->prepare("SELECT
+                                SUM(CASE WHEN Status_Item = 'aceptado' THEN 1 ELSE 0 END) AS aceptadas,
+                                SUM(CASE WHEN Status_Item = 'rechazado' THEN 1 ELSE 0 END) AS rechazadas,
+                                SUM(CASE WHEN Status_Item = 'pendiente' THEN 1 ELSE 0 END) AS pendientes
+                            FROM temp_material_det_salida
+                            WHERE Folio_Salida_Material_Det_S = ?
+                              AND FK_Material_S = ?
+                              AND Status_Item != 'cancelado'");
+                        $stmtSeriesStatus->execute([$Folio_Salida, $productSeries['FK_Material_S']]);
+                        $seriesStatus = $stmtSeriesStatus->fetch(PDO::FETCH_ASSOC);
+
+                        $aceptadas = (int)($seriesStatus['aceptadas'] ?? 0);
+                        $rechazadas = (int)($seriesStatus['rechazadas'] ?? 0);
+                        $pendientes = (int)($seriesStatus['pendientes'] ?? 0);
+
+                        if ($pendientes > 0) {
+                            $statusSerie = ($aceptadas > 0 || $rechazadas > 0) ? 'parcial' : 'pendiente';
+                        } elseif ($aceptadas > 0 && $rechazadas > 0) {
+                            $statusSerie = 'parcial';
+                        } elseif ($rechazadas > 0) {
                             $statusSerie = 'rechazado';
                         } else {
-                            $statusSerie = 'parcial';
+                            $statusSerie = 'aceptado';
                         }
 
                         $stmtUpdLineaSerie = $conexion->prepare("UPDATE temp_transferencias 
@@ -895,12 +910,12 @@
                             WHERE idTransferencias = :id");
                         $stmtUpdLineaSerie->execute([
                             'status' => $statusSerie,
-                            'cant' => $cantidadAceptadaSeries,
+                            'cant' => $aceptadas,
                             'motivo' => $statusSerie !== 'aceptado' ? 'numero_serie_incorrecto' : null,
                             'id' => $lineaSerie['idTransferencias']
                         ]);
 
-                        if ($cantidadAceptadaSeries > 0) {
+                        if ($aceptadas > 0) {
                             $existeSerie = $conexion->prepare("SELECT idTransferencias FROM transferencias 
                                 WHERE Folio_Salida = :folio AND FK_Producto_S = :prod");
                             $existeSerie->execute(['folio' => $Folio_Salida, 'prod' => $productSeries['FK_Material_S']]);
@@ -910,8 +925,8 @@
                                     SET Cantidad_S = :cantidad, Total_Piezas = :totalpiezas
                                     WHERE Folio_Salida = :folio AND FK_Producto_S = :prod");
                                 $stmtUpdTransferenciaSerie->execute([
-                                    'cantidad' => $cantidadAceptadaSeries,
-                                    'totalpiezas' => $cantidadAceptadaSeries,
+                                    'cantidad' => $aceptadas,
+                                    'totalpiezas' => $aceptadas,
                                     'folio' => $lineaSerie['Folio_Salida'],
                                     'prod' => $lineaSerie['FK_Producto_S']
                                 ]);
@@ -929,7 +944,7 @@
                                     'contratista' => $lineaSerie['FK_Contratista_S'],
                                     'producto' => $lineaSerie['FK_Producto_S'],
                                     'fecha' => $lineaSerie['Fecha_S'],
-                                    'cantidad' => $cantidadAceptadaSeries,
+                                    'cantidad' => $aceptadas,
                                     'user' => $lineaSerie['FK_User_S'],
                                     'tecnico' => $lineaSerie['FK_Tecnico_S'],
                                     'telmex' => $lineaSerie['Folio_Telmex_S'],
@@ -937,7 +952,7 @@
                                     'recibe' => $lineaSerie['recibe_contratista'],
                                     'tecnologia' => $lineaSerie['Tecnologia'],
                                     'piezas' => $lineaSerie['Piezas_Sueltas'],
-                                    'totalpiezas' => $cantidadAceptadaSeries,
+                                    'totalpiezas' => $aceptadas,
                                     'totalmetros' => $lineaSerie['Total_Metros']
                                 ]);
                             }
