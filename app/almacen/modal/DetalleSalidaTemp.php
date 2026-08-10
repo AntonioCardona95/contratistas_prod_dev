@@ -150,7 +150,7 @@
                             <td><?= strtoupper($m['Modelo'] ?? '') ?></td>
                             <td><?= strtoupper($m['Tecnologia'] ?? '') ?></td>
                             <td><?= strtoupper($m['Presentacion'] ?? '') ?></td>
-                            <td><?= $m['Total_Piezas'] ?? 0 ?></td>
+                            <td><?= $m['Cantidad_Pendiente'] ?? $m['Total_Piezas'] ?? 0 ?></td>
                             <td><?= $m['Total_Metros'] ?? 0 ?></td>
                             <?php if (!$soloLectura): ?>
                             <td>
@@ -158,7 +158,7 @@
                                     <span class="badge badge-secondary">Gestionado por serie</span>
                                 <?php else: ?>
                                     <input type="number" class="form-control form-control-sm input-cantidad-aceptada"
-                                        min="0" max="<?= $m['Total_Piezas'] ?>" value="<?= $m['Total_Piezas'] ?>">
+                                        min="0" max="<?= $m['Cantidad_Pendiente'] ?? $m['Total_Piezas'] ?>" value="<?= $m['Cantidad_Pendiente'] ?? $m['Total_Piezas'] ?>">
                                     <select class="form-control form-control-sm motivo-select-cantidad motivo-select">
                                         <option value="cantidad_incorrecta">Cantidad incorrecta / faltante</option>
                                     </select>
