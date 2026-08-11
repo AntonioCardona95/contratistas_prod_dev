@@ -818,7 +818,7 @@
                     $stmtRejectAllLines->execute(['folio' => $Folio_Salida]);
 
                     $stmtRejectAllHeader = $conexion->prepare("UPDATE temp_transferencias_t
-                        SET Status_Temp = 'rechazado'
+                        SET Status_Temp = 'rechazado', Fecha_Respuesta = NOW()
                         WHERE Folio_Salida_ST = :folio");
                     $stmtRejectAllHeader->execute(['folio' => $Folio_Salida]);
                 }
