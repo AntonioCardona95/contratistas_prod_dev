@@ -153,7 +153,34 @@
         h2{
             font-size: 15px !important;
         }
+    }
 
+    .modal-footer.modal-footer-custom {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+
+    .detalle-footer-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .detalle-footer-row button {
+        flex: 1 1 auto;
+        min-width: 120px;
+    }
+
+    .detalle-footer-bottom {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .detalle-footer-bottom .btn {
+        min-width: 120px;
     }
 </style>
 
@@ -244,14 +271,18 @@
             <div class="modal-body" id="detalle-pendiente-contenido">
                 <div class="text-center"><div class="spinner-border text-primary"></div></div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" id="btn-rechazar-todo">
-                    <i class="fas fa-ban"></i> Rechazar todo
-                </button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" id="btn-confirmar-respuesta">
-                    <i class="fas fa-paper-plane"></i> Confirmar Respuesta
-                </button>
+            <div class="modal-footer modal-footer-custom">
+                <div class="detalle-footer-row">
+                    <button type="button" class="btn btn-danger" id="btn-rechazar-todo">
+                        <i class="fas fa-ban"></i> Rechazar todo
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btn-confirmar-respuesta">
+                        <i class="fas fa-paper-plane"></i> Confirmar Respuesta
+                    </button>
+                </div>
+                <div class="detalle-footer-bottom">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
             </div>
         </div>
     </div>
