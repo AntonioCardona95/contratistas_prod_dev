@@ -165,7 +165,7 @@
     .detalle-footer-row {
         display: flex;
         justify-content: space-between;
-        gap: 0.75rem;
+        gap: 5rem;
         flex-wrap: wrap;
     }
 
