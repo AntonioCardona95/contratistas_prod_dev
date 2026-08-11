@@ -152,13 +152,29 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
 <script>
 (function(){
     // Ajusta el margin-left de #content-wrapper según el ancho actual de la sidebar
+    // Evita forzar un margin inline cuando la sidebar está explícitamente colapsada
     function adjustContentForSidebar(){
         var sidebar = document.querySelector('.sidebar');
         var content = document.getElementById('content-wrapper');
         if(!sidebar || !content) return;
+
+        // En pantallas grandes, tomar el ancho real de la sidebar, excepto
+        // cuando la sidebar esté colapsada (clase "toggled") o el body tenga
+        // la clase `sidebar-toggled`. En esos casos dejamos que las reglas CSS
+        // manejen el espacio (no aplicar margin inline).
         if(window.innerWidth >= 768){
+            if (sidebar.classList.contains('toggled') || document.body.classList.contains('sidebar-toggled')) {
+                content.style.marginLeft = '';
+                return;
+            }
+
             var w = Math.round(sidebar.getBoundingClientRect().width) || 0;
-            content.style.marginLeft = w + 'px';
+            // si el ancho es muy pequeño (0) dejamos que CSS controle el layout
+            if (w <= 0) {
+                content.style.marginLeft = '';
+            } else {
+                content.style.marginLeft = w + 'px';
+            }
         } else {
             content.style.marginLeft = '';
         }
