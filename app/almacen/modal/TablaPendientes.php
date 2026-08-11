@@ -46,8 +46,16 @@
     }
 
     .modal-dialog.modal-extra-wide {
-    max-width: 60vw !important;
-    width: 60vw !important;
+        max-width: 60vw !important;
+        width: 60vw !important;
+    }
+
+    @media (max-width: 768px) {
+        .modal-dialog.modal-extra-wide {
+            max-width: 100% !important;
+            width: auto !important;
+            margin: 0 10px;
+        }
     }
 
     #pendientes-cards-container {
