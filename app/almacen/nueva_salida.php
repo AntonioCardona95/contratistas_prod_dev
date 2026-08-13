@@ -256,7 +256,7 @@ if (empty($idContratistas)) {
 
                             <!-- Botón para agregar series -->
                             <div class="form-group text-center">
-                                <button id="addRow" type="button" class="btn btn-info">
+                                <button id="addRow" type="button" class="btn btn-primary">
                                     <i class="fas fa-plus"></i> Agregar Serie
                                 </button>
                             </div>
@@ -286,7 +286,7 @@ if (empty($idContratistas)) {
 
                             <!-- Botón para procesar -->
                             <div class="form-group text-center">
-                                <button type="submit" class="btn btn-success">
+                                <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-check"></i> Procesar Salida
                                 </button>
                             </div>
