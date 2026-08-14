@@ -95,46 +95,6 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
 </nav>
 <!-- End of Topbar -->
 
-<style>
-@media (max-width: 767.98px) {
-    .topbar {
-        flex-wrap: wrap;
-    }
-    .topbar #sidebarToggleTop {
-        order: 1;
-    }
-    .topbar .topbar-icons {
-        order: 2;
-        margin-left: auto !important;
-    }
-    .topbar .topbar-search-form {
-        order: 3;
-        width: 100%;
-        flex-wrap: wrap;
-        margin-top: 0.75rem;
-        margin-left: 0 !important;
-    }
-    .topbar .topbar-date-group {
-        flex: 1 1 100%;
-        flex-wrap: wrap;
-        margin-bottom: 0.5rem;
-    }
-    .topbar .topbar-date-input {
-        flex: 1 1 40%;
-        min-width: 0;
-        margin-bottom: 0.25rem;
-    }
-    .topbar .topbar-actions-container {
-        width: 100%;
-        margin-left: 0 !important;
-    }
-    .topbar .topbar-actions-container a.btn {
-        width: 100%;
-        text-align: center;
-    }
-}
-</style>
-
 <script>
 
 (function(){

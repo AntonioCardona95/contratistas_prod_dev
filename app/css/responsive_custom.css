@@ -247,10 +247,50 @@ html, body {
         z-index: 1040;
     }
 
-    /* OCULTAR BÚSQUEDA Y REDUCIR ESPACIOS PARA MÓVIL */
-    .navbar-search { display: none !important; }
+    /* MOSTRAR BÚSQUEDA/FECHAS EN MÓVIL, EN SEGUNDA FILA DEBAJO DE LOS ICONOS */
+    .topbar {
+        flex-wrap: wrap !important;
+        padding: .5rem 1rem;
+    }
+    .topbar #sidebarToggleTop {
+        order: 1;
+    }
+    .topbar .topbar-icons {
+        order: 2;
+        margin-left: auto !important;
+    }
+    .navbar-search {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        order: 3;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-top: .75rem;
+        margin-left: 0 !important;
+    }
+    .navbar-search .input-group {
+        flex-wrap: wrap !important;
+        width: 100% !important;
+        flex: 1 1 100%;
+        margin-bottom: .5rem;
+    }
+    .navbar-search .topbar-date-input {
+        flex: 1 1 40%;
+        min-width: 0 !important;
+        width: auto !important;
+        max-width: none !important;
+        margin-bottom: .25rem;
+    }
+    .topbar-actions-container {
+        width: 100% !important;
+        margin-left: 0 !important;
+    }
+    .topbar-actions-container a.btn {
+        width: 100%;
+        text-align: center;
+    }
+
     .img-profile { width: 32px !important; height: 32px !important; }
-    .topbar { padding: .5rem 1rem; }
     .container-fluid { padding-left: .5rem; padding-right: .5rem; }
     #content-wrapper { margin-left: 0 !important; }
 
@@ -365,4 +405,3 @@ html, body {
 @media (min-width: 992px) {
     .navbar-search .input-group { min-width: 620px; }
 }
-
