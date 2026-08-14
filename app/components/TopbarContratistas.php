@@ -34,17 +34,31 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
         min-width: 140px !important;
     }
 
+    /* FORMULARIO DESKTOP - SIEMPRE VISIBLE EN DESKTOP */
+    #FormQueryUnidades {
+        display: flex !important;
+        width: 100%;
+        margin-right: auto;
+        gap: 8px;
+        align-items: center;
+    }
+
     /* FILTROS DESKTOP */
     .topbar-filters-desktop {
-        display: flex;
+        display: flex !important;
         gap: 8px;
         align-items: center;
         flex-wrap: wrap;
     }
 
-    /* FILTROS MÓVIL */
+    /* FORMULARIO MOBILE - OCULTO EN DESKTOP */
+    #FormQueryUnidadesMobile {
+        display: none !important;
+    }
+
+    /* FILTROS MÓVIL - OCULTOS POR DEFECTO */
     .topbar-filters-mobile {
-        display: none;
+        display: none !important;
         width: 100%;
         padding: 12px;
         background: #f8f9fa;
@@ -54,9 +68,9 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
         align-items: center;
     }
 
-    /* BOTÓN TOGGLE FILTROS MÓVIL */
+    /* BOTÓN TOGGLE FILTROS MÓVIL - OCULTO EN DESKTOP */
     .btn-toggle-filters {
-        display: none;
+        display: none !important;
         padding: 0.375rem 0.75rem;
         font-size: 0.9rem;
     }
@@ -76,53 +90,37 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
         padding: 0.375rem 0.75rem;
     }
 
-    /* MEDIA QUERIES - DISPOSITIVOS MEDIANOS Y GRANDES */
-    @media (min-width: 576px) {
-        .topbar-filters-desktop {
-            display: flex;
-        }
-        .btn-toggle-filters {
-            display: none;
-        }
-        .topbar-filters-mobile {
+    /* MEDIA QUERIES - DISPOSITIVOS PEQUEÑOS (MÓVIL) */
+    @media (max-width: 575px) {
+        /* Ocultar formulario desktop en móvil */
+        #FormQueryUnidades {
             display: none !important;
         }
-    }
 
-    /* MEDIA QUERIES - DISPOSITIVOS PEQUEÑOS */
-    @media (max-width: 575px) {
-        /* En móvil, mostrar solo un toggle para filtros */
-        .topbar-search {
+        /* Mostrar formulario mobile en móvil */
+        #FormQueryUnidadesMobile {
+            display: flex !important;
             width: 100%;
-            margin: 0 !important;
-            padding: 0.5rem;
             gap: 8px;
+            align-items: center;
         }
 
-        .topbar-filters-desktop {
-            display: none;
-        }
-
+        /* Mostrar botón toggle en móvil */
         .btn-toggle-filters {
-            display: inline-flex;
+            display: inline-flex !important;
             gap: 4px;
             align-items: center;
             padding: 0.375rem 0.75rem;
             font-size: 0.85rem;
         }
 
-        .topbar-filters-mobile {
-            display: none;
-            flex-wrap: wrap;
-            gap: 8px;
-            width: 100%;
-            padding: 10px 0.5rem;
-            background: #f8f9fa;
-            border-top: 1px solid #e3e6f0;
-        }
-
+        /* Mostrar panel de filtros cuando tiene clase show */
         .topbar-filters-mobile.show {
             display: flex !important;
+        }
+
+        .topbar-filters-mobile {
+            display: none !important;
         }
 
         .topbar-filters-mobile .form-control {
@@ -150,10 +148,6 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
             font-size: 0.75rem;
             padding: 0.25rem 0.5rem;
         }
-
-        .navbar-search {
-            margin-right: 0 !important;
-        }
     }
 </style>
 
@@ -166,7 +160,7 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
     </button>
 
     <!-- Topbar Search (Desktop) -->
-    <form id="FormQueryUnidades" class="d-none d-sm-flex form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+    <form id="FormQueryUnidades" class="form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
         <div class="topbar-filters-desktop">
             <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" class="form-control bg-light border-0 small topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="Desde" aria-describedby="basic-addon2">
             <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" class="form-control bg-light border-0 small topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="Hasta" aria-describedby="basic-addon2">
@@ -182,8 +176,8 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
     </form>
 
     <!-- Topbar Search (Mobile) -->
-    <form id="FormQueryUnidadesMobile" class="d-sm-none d-flex form-inline navbar-search" style="width: 100%; gap: 8px;">
-        <button type="button" class="btn-toggle-filters" onclick="toggleMobileFilters();">
+    <form id="FormQueryUnidadesMobile" class="form-inline navbar-search" style="width: 100%; gap: 8px;">
+        <button type="button" class="btn-toggle-filters btn btn-outline-secondary" onclick="toggleMobileFilters();">
             <i class="fas fa-filter"></i>
             <span>Filtros</span>
         </button>
