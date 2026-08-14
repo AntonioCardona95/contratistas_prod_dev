@@ -19,116 +19,6 @@ if (empty($tbFecha2)) $tbFecha2 = $defaultFecha2 ?? ($_POST['Fecha2'] ?? '');
 $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
 ?>
 
-<!-- ESTILOS RESPONSIVOS PARA TOPBAR MEJORADA EN MÓVILES -->
-<style>
-    .topbar {
-        padding: 0.75rem 1rem;
-    }
-
-    .topbar-search-wrapper {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        width: 100%;
-        align-items: center;
-    }
-
-    .topbar-date-input {
-        min-width: 140px;
-        padding: 0.5rem 0.75rem !important;
-        font-size: 0.875rem;
-    }
-
-    .topbar-search-btn {
-        padding: 0.5rem 0.75rem !important;
-        font-size: 0.875rem;
-    }
-
-    .topbar-actions-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        width: 100%;
-    }
-
-    /* DESKTOP: TODO EN UNA LÍNEA */
-    @media (min-width: 992px) {
-        .topbar-search-wrapper {
-            flex-wrap: nowrap;
-            width: auto;
-            margin-right: auto;
-            margin-left: 1rem;
-        }
-
-        .topbar-actions-container {
-            width: auto;
-            margin-left: 0.5rem;
-        }
-
-        .topbar-date-input {
-            min-width: 150px;
-            font-size: 0.9rem;
-        }
-    }
-
-    /* TABLET: DOS LÍNEAS */
-    @media (min-width: 768px) and (max-width: 991px) {
-        .topbar-search-wrapper {
-            margin-left: 1rem;
-            flex-basis: 100%;
-        }
-
-        .topbar-actions-container {
-            flex-basis: 100%;
-        }
-
-        .topbar {
-            padding: 1rem;
-        }
-    }
-
-    /* MÓVIL: MÚLTIPLES LÍNEAS */
-    @media (max-width: 767px) {
-        .topbar {
-            padding: 1rem 0.75rem;
-            flex-wrap: wrap;
-        }
-
-        .navbar {
-            flex-wrap: wrap !important;
-        }
-
-        .topbar-search-wrapper {
-            order: 2;
-            flex-basis: 100%;
-            margin-top: 0.75rem;
-        }
-
-        .topbar .navbar-nav {
-            order: 3;
-            flex-basis: 100%;
-            flex-direction: row;
-            justify-content: flex-end;
-            margin-top: 0.75rem;
-        }
-
-        .topbar-date-input {
-            min-width: 120px;
-            font-size: 0.8rem;
-            flex: 1 1 calc(50% - 0.25rem);
-        }
-
-        .topbar-actions-container {
-            flex-basis: 100%;
-            margin-top: 0.5rem;
-        }
-
-        .topbar-search-btn {
-            flex: 1;
-        }
-    }
-</style>
-
 <!-- Topbar -->
 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
@@ -137,17 +27,19 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
         <i class="fa fa-bars"></i>
     </button>
 
-    <!-- Topbar Search / Filters -->
-    <form id="FormQueryUnidades" class="topbar-search-wrapper w-100 w-lg-auto">
-        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; flex: 1; align-items: center;">
-            <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" class="form-control bg-light border-0 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="Desde" title="Desde">
-            <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" class="form-control bg-light border-0 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="Hasta" title="Hasta">
-            <button class="btn btn-primary topbar-search-btn" type="button" onclick="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" title="Buscar">
-                <i class="fas fa-search fa-sm"></i>
-            </button>
+    <!-- Topbar Search -->
+    <form id="FormQueryUnidades" class="d-none d-sm-flex form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+        <div class="input-group">
+            <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
+            <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
+            <div class="input-group-append mr-2">
+                <button class="btn btn-primary" type="button" onclick="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
+                    <i class="fas fa-search fa-sm"></i>
+                </button>
+            </div>
         </div>
         <?php if(!empty($topbar_actions)): ?>
-            <div class="topbar-actions-container">
+            <div class="topbar-actions-container d-flex align-items-center ml-2">
                 <?= $topbar_actions ?>
             </div>
         <?php endif; ?>
