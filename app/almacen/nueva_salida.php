@@ -59,6 +59,14 @@ if (empty($idContratistas)) {
         .modal-header-gradient {
             background: linear-gradient(90deg, #007BFF 0%, #007 100%) !important;
         }
+        @media (max-width: 768px) {
+
+           h1{
+            text-align: center;
+            font-size: 20px;
+           }
+            
+        }
     </style>
 </head>
 

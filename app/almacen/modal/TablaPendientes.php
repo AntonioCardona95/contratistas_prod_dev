@@ -135,23 +135,22 @@
         #pendientes-table-wrapper {
             display: none;
         }
-
         #pendientes-cards-container {
             display: grid;
             grid-template-columns: 1fr;
         }
-
         #pendientes-mobile-search {
             display: block;
             margin-bottom: 14px;
         }
-
         .modal-title{
             font-size: 15px !important;
         }
-
         h2{
             font-size: 15px !important;
+        }
+        .detalle-footer-row {
+            gap: 1rem;
         }
     }
 

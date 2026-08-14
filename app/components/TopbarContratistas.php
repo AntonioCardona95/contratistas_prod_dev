@@ -19,6 +19,144 @@ if (empty($tbFecha2)) $tbFecha2 = $defaultFecha2 ?? ($_POST['Fecha2'] ?? '');
 $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
 ?>
 
+<style>
+    /* ESTILOS RESPONSIVOS PARA TOPBAR */
+    .topbar {
+        padding: 0 !important;
+    }
+
+    .topbar-search {
+        flex-wrap: wrap;
+    }
+
+    .topbar-date-input {
+        flex: 0 1 auto;
+        min-width: 140px !important;
+    }
+
+    /* FILTROS DESKTOP */
+    .topbar-filters-desktop {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    /* FILTROS MÓVIL */
+    .topbar-filters-mobile {
+        display: none;
+        width: 100%;
+        padding: 12px;
+        background: #f8f9fa;
+        border-top: 1px solid #e3e6f0;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    /* BOTÓN TOGGLE FILTROS MÓVIL */
+    .btn-toggle-filters {
+        display: none;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    /* ACCIONES DEL TOPBAR */
+    .topbar-actions-container {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-left: auto;
+    }
+
+    .topbar-actions-container .btn {
+        white-space: nowrap;
+        font-size: 0.85rem;
+        padding: 0.375rem 0.75rem;
+    }
+
+    /* MEDIA QUERIES - DISPOSITIVOS MEDIANOS Y GRANDES */
+    @media (min-width: 576px) {
+        .topbar-filters-desktop {
+            display: flex;
+        }
+        .btn-toggle-filters {
+            display: none;
+        }
+        .topbar-filters-mobile {
+            display: none !important;
+        }
+    }
+
+    /* MEDIA QUERIES - DISPOSITIVOS PEQUEÑOS */
+    @media (max-width: 575px) {
+        /* En móvil, mostrar solo un toggle para filtros */
+        .topbar-search {
+            width: 100%;
+            margin: 0 !important;
+            padding: 0.5rem;
+            gap: 8px;
+        }
+
+        .topbar-filters-desktop {
+            display: none;
+        }
+
+        .btn-toggle-filters {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .topbar-filters-mobile {
+            display: none;
+            flex-wrap: wrap;
+            gap: 8px;
+            width: 100%;
+            padding: 10px 0.5rem;
+            background: #f8f9fa;
+            border-top: 1px solid #e3e6f0;
+        }
+
+        .topbar-filters-mobile.show {
+            display: flex !important;
+        }
+
+        .topbar-filters-mobile .form-control {
+            flex: 0 1 auto;
+            min-width: 100px;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .topbar-filters-mobile .btn {
+            flex: 0 1 auto;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .topbar-actions-container {
+            display: flex;
+            gap: 6px;
+            margin-left: auto;
+            margin-right: 0.5rem;
+        }
+
+        .topbar-actions-container .btn {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .navbar-search {
+            margin-right: 0 !important;
+        }
+    }
+</style>
+
 <!-- Topbar -->
 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
@@ -27,26 +165,47 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
         <i class="fa fa-bars"></i>
     </button>
 
-    <!-- Topbar Search -->
+    <!-- Topbar Search (Desktop) -->
     <form id="FormQueryUnidades" class="d-none d-sm-flex form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-        <div class="input-group">
-            <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
-            <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
-            <div class="input-group-append mr-2">
-                <button class="btn btn-primary" type="button" onclick="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
-                    <i class="fas fa-search fa-sm"></i>
-                </button>
-            </div>
+        <div class="topbar-filters-desktop">
+            <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" class="form-control bg-light border-0 small topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="Desde" aria-describedby="basic-addon2">
+            <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" class="form-control bg-light border-0 small topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="Hasta" aria-describedby="basic-addon2">
+            <button class="btn btn-primary btn-sm" type="button" onclick="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
+                <i class="fas fa-search fa-sm"></i>
+            </button>
         </div>
         <?php if(!empty($topbar_actions)): ?>
-            <div class="topbar-actions-container d-flex align-items-center ml-2">
+            <div class="topbar-actions-container d-flex align-items-center">
                 <?= $topbar_actions ?>
             </div>
         <?php endif; ?>
     </form>
 
-    <!-- Topbar Navbar -->
-    <ul class="navbar-nav ml-auto align-items-center">
+    <!-- Topbar Search (Mobile) -->
+    <form id="FormQueryUnidadesMobile" class="d-sm-none d-flex form-inline navbar-search" style="width: 100%; gap: 8px;">
+        <button type="button" class="btn-toggle-filters" onclick="toggleMobileFilters();">
+            <i class="fas fa-filter"></i>
+            <span>Filtros</span>
+        </button>
+        
+        <?php if(!empty($topbar_actions)): ?>
+            <div class="topbar-actions-container">
+                <?= $topbar_actions ?>
+            </div>
+        <?php endif; ?>
+    </form>
+
+    <!-- Filtros Móvil (Colapsables) -->
+    <div class="topbar-filters-mobile" id="mobileFiltersPanel">
+        <input type="date" name="Fecha1Mobile" id="Fecha1Mobile" value="<?= htmlspecialchars($tbFecha1) ?>" class="form-control bg-light border-0 small topbar-date-input" aria-label="Desde">
+        <input type="date" name="Fecha2Mobile" id="Fecha2Mobile" value="<?= htmlspecialchars($tbFecha2) ?>" class="form-control bg-light border-0 small topbar-date-input" aria-label="Hasta">
+        <button class="btn btn-primary btn-sm" type="button" onclick="aplicarFiltrosMobile();">
+            <i class="fas fa-search fa-sm"></i> Buscar
+        </button>
+    </div>
+
+    <!-- Topbar Navbar (Derecha) -->
+    <ul class="navbar-nav ml-auto align-items-center d-none d-sm-flex">
 
         <!-- NOTIFICACIONES (CAMPANA) -->
         <li class="nav-item dropdown no-arrow mx-1">
@@ -94,6 +253,149 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
 
 </nav>
 <!-- End of Topbar -->
+
+<script>
+function toggleMobileFilters() {
+    const panel = document.getElementById('mobileFiltersPanel');
+    if (panel) {
+        panel.classList.toggle('show');
+    }
+}
+
+function aplicarFiltrosMobile() {
+    const fecha1Mobile = document.getElementById('Fecha1Mobile');
+    const fecha2Mobile = document.getElementById('Fecha2Mobile');
+    const fecha1 = document.getElementById('Fecha1');
+    const fecha2 = document.getElementById('Fecha2');
+    
+    if (fecha1Mobile && fecha1) {
+        fecha1.value = fecha1Mobile.value;
+    }
+    if (fecha2Mobile && fecha2) {
+        fecha2.value = fecha2Mobile.value;
+    }
+    
+    const funcName = '<?= $onchange_fn ?>';
+    if (typeof window[funcName] === 'function') {
+        window[funcName]();
+    }
+    
+    // Cerrar panel
+    toggleMobileFilters();
+}
+
+// Cerrar filtros al hacer clic fuera
+document.addEventListener('click', function(e) {
+    const panel = document.getElementById('mobileFiltersPanel');
+    const btnToggle = document.querySelector('.btn-toggle-filters');
+    if (panel && panel.classList.contains('show')) {
+        if (!panel.contains(e.target) && !btnToggle.contains(e.target)) {
+            panel.classList.remove('show');
+        }
+    }
+});
+</script>
+
+<script>
+
+(function(){
+    function closeMobileSidebar(){
+        var sidebar = document.querySelector('.sidebar');
+        if (!sidebar) return;
+        document.body.classList.remove('mobile-sidebar-open');
+        sidebar.classList.remove('mobile-open');
+    }
+
+    document.addEventListener('click', function(event){
+        if (!document.body.classList.contains('mobile-sidebar-open')) return;
+        var sidebar = document.querySelector('.sidebar');
+        var sidebarToggleTop = document.getElementById('sidebarToggleTop');
+        if (!sidebar) return;
+        if (sidebar.contains(event.target)) return;
+        if (sidebarToggleTop && sidebarToggleTop.contains(event.target)) return;
+        closeMobileSidebar();
+    });
+
+    function attachMobileSidebarHandler() {
+        var sidebarToggleTop = document.getElementById('sidebarToggleTop');
+        var sidebar = document.querySelector('.sidebar');
+        if (!sidebarToggleTop || !sidebar) return;
+        sidebarToggleTop.addEventListener('click', function(event){
+            if (window.innerWidth >= 768) return;
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+            if (document.body.classList.contains('mobile-sidebar-open')) {
+                closeMobileSidebar();
+            } else {
+                document.body.classList.add('mobile-sidebar-open');
+                sidebar.classList.add('mobile-open');
+            }
+        });
+
+        var sidebarCloseBtn = document.getElementById('sidebarToggle');
+        if (sidebarCloseBtn) {
+            sidebarCloseBtn.addEventListener('click', function(event){
+                if (window.innerWidth >= 768) return;
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+                closeMobileSidebar();
+            });
+        }
+    }
+
+    attachMobileSidebarHandler();
+    document.addEventListener('DOMContentLoaded', attachMobileSidebarHandler);
+})();
+</script>
+
+<script>
+(function(){
+    // Ajusta el margin-left de #content-wrapper según el ancho actual de la sidebar
+    // Evita forzar un margin inline cuando la sidebar está explícitamente colapsada
+    function adjustContentForSidebar(){
+        var sidebar = document.querySelector('.sidebar');
+        var content = document.getElementById('content-wrapper');
+        if(!sidebar || !content) return;
+
+        // En pantallas grandes, tomar el ancho real de la sidebar, excepto
+        // cuando la sidebar esté colapsada (clase "toggled") o el body tenga
+        // la clase `sidebar-toggled`. En esos casos dejamos que las reglas CSS
+        // manejen el espacio (no aplicar margin inline).
+        if(window.innerWidth >= 768){
+            if (sidebar.classList.contains('toggled') || document.body.classList.contains('sidebar-toggled')) {
+                content.style.marginLeft = '';
+                return;
+            }
+
+            var w = Math.round(sidebar.getBoundingClientRect().width) || 0;
+            // si el ancho es muy pequeño (0) dejamos que CSS controle el layout
+            if (w <= 0) {
+                content.style.marginLeft = '';
+            } else {
+                content.style.marginLeft = w + 'px';
+            }
+        } else {
+            content.style.marginLeft = '';
+        }
+    }
+
+    // Ejecutar en eventos relevantes
+    window.addEventListener('resize', adjustContentForSidebar);
+    document.addEventListener('DOMContentLoaded', adjustContentForSidebar);
+    setTimeout(adjustContentForSidebar, 80);
+
+    // Observar cambios de tamaño de la sidebar (cuando existan)
+    try{
+        var sidebarEl = document.querySelector('.sidebar');
+        if(window.ResizeObserver && sidebarEl){
+            var ro = new ResizeObserver(function(){ adjustContentForSidebar(); });
+            ro.observe(sidebarEl);
+        }
+    }catch(e){ /* ignore */ }
+})();
+</script>
 
 <script>
 
