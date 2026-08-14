@@ -94,7 +94,7 @@
             </li>
 
             <!-- MATERIAL RECIBIDO -->
-            <li class="nav-item">
+            <li class="nav-item active">
                 <a class="nav-link" href="entradas.php">
                     <i class="fa-solid fa-clipboard-check"></i>
                     <span>MATERIAL RECIBIDO</span>
@@ -102,8 +102,8 @@
             </li>
 
             <!-- ACEPTAR MATERIAL -->
-             <li class="nav-item active">
-                <a class="nav-link active" href="aceptarMaterial.php">
+             <li class="nav-item">
+                <a class="nav-link" href="aceptarMaterial.php">
                     <i class="fa-solid fa-feather-pointed"></i>
                     <span>ACEPTAR MATERIAL</span>
                 </a>

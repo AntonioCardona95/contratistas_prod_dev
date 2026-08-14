@@ -78,11 +78,12 @@ if (empty($idContratistas)) {
             <!-- Divider -->
             <hr class="sidebar-divider my-0">
 
-            <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
+            <!-- DASHBOARD -->
+            <li class="nav-item">
                 <a class="nav-link" href="index.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span></a>
+                    <span>Dashboard</span>
+                </a>
             </li>
 
             <!-- Divider -->
@@ -125,8 +126,8 @@ if (empty($idContratistas)) {
                 </a>
             </li>
 
-            <!-- MATERIAL RECHAZADO -->
-            <li class="nav-item active">
+            <!-- MÓDULO: MATERIAL RECHAZADO -->
+            <li class="nav-item">
                 <a class="nav-link" href="materialRechazado.php">
                     <i class="fa-solid fa-circle-xmark"></i>
                     <span>MATERIAL RECHAZADO</span>
@@ -134,7 +135,7 @@ if (empty($idContratistas)) {
             </li>
 
             <!-- ASIGNAR MATERIAL -->
-            <li class="nav-item">
+            <li class="nav-item active">
                 <a class="nav-link" href="salidas.php">
                     <i class="fa-solid fa-circle-plus"></i>
                     <span>ASIGNAR MATERIAL</span>

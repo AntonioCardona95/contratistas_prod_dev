@@ -112,7 +112,7 @@
                 </a>
             </li>
 
-            <!-- MÓDULO ACTIVO: MATERIAL RECHAZADO -->
+            <!-- MÓDULO: MATERIAL RECHAZADO -->
             <li class="nav-item active">
                 <a class="nav-link" href="materialRechazado.php">
                     <i class="fa-solid fa-circle-xmark"></i>

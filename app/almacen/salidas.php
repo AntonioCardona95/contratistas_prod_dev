@@ -119,9 +119,9 @@
                 </a>
             </li>
 
-            <!-- MÓDULO ACTIVO: ASIGNAR MATERIAL -->
+            <!-- MÓDULO: ASIGNAR MATERIAL -->
             <li class="nav-item active">
-                <a class="nav-link active" href="salidas.php">
+                <a class="nav-link" href="salidas.php">
                     <i class="fa-solid fa-circle-plus"></i>
                     <span>ASIGNAR MATERIAL</span>
                 </a>

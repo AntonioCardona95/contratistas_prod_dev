@@ -67,7 +67,7 @@
             <!-- SEPARADOR SUPERIOR -->
             <hr class="sidebar-divider my-0">
 
-            <!-- OPCIÓN ACTIVA DEL DASHBOARD -->
+            <!-- DASHBOARD -->
             <li class="nav-item active">
                 <a class="nav-link" href="index.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>

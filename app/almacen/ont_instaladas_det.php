@@ -5,7 +5,7 @@
     error_reporting(E_ALL);
 
     date_default_timezone_set('America/Monterrey');
-    
+
     session_start();
     $Contratista = $_SESSION['Contratista'];
     $idContratistas = $_SESSION['idContratistas'];
@@ -22,12 +22,11 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
+    <meta name="description" content="Detalle de ONT instaladas">
     <meta name="author" content="">
 
     <title>CONTRATISTAS</title>
 
-    <!-- CARGA DE ICONOS Y FUENTES -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
@@ -42,51 +41,81 @@
     <!-- ESTILO PERSONALIZADO PARA EL MENU ACTIVO DE LA SIDEBAR -->
     <link rel="stylesheet" href="css/sidebar-active.css">
 
+    <style>
+        .detail-page-card {
+            border: 0;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .detail-page-header {
+            background: linear-gradient(90deg, #0f172a 0%, #003d99 100%);
+            border: 0;
+            color: #fff;
+            padding: 1rem 1.25rem;
+        }
+
+        .detail-page-title {
+            color: #fff !important;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .detail-page-header .btn {
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .detail-page-body {
+            padding: 1.25rem;
+            background: #f8fafc;
+        }
+
+        #LoadOntInstaladosDet {
+            width: 100%;
+            min-height: 120px;
+        }
+    </style>
 </head>
 
 <body id="page-top">
 
-    <!-- Page Wrapper -->
+    <!-- CONTENEDOR PRINCIPAL -->
     <div id="wrapper">
 
         <!-- SIDEBAR -->
         <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a 100%, #224abe 0%); background-size: cover;">
 
-            <!-- Sidebar - Brand -->
+            <!-- SIDEBAR TITULO -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
                 <div class="sidebar-brand-text mx-3">ALMACEN</div>
             </a>
 
-            <!-- Divider -->
+            <!-- DIVISOR -->
             <hr class="sidebar-divider my-0">
 
-            <!-- Nav Item - Dashboard -->
+            <!-- Dashboard -->
             <li class="nav-item active">
                 <a class="nav-link" href="index.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span></a>
+                    <span>Dashboard</span>
+                </a>
             </li>
 
-            <!-- Divider -->
             <hr class="sidebar-divider">
-
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                ACCION
-            </div>
-
-            <!-- Nav Item - Pages Collapse Menu -->
+            <div class="sidebar-heading">ACCION</div>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
-                    aria-expanded="true" aria-controls="collapsePages">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true" aria-controls="collapsePages">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>MODULOS</span>
                 </a>
                 <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">MODULOS</h6>
-                        <a class='collapse-item' href='index.php'><i class="fa-solid fa-box-open"></i> ALMACEN</a>
-                        <a class='collapse-item' href='../ordenes/index.php'><i class="fa-solid fa-school-circle-check"></i> OPERACIONES</a>
+                        <a class="collapse-item" href="index.php"><i class="fa-solid fa-box-open"></i> ALMACEN</a>
+                        <a class="collapse-item" href="../ordenes/index.php"><i class="fa-solid fa-school-circle-check"></i> OPERACIONES</a>
                     </div>
                 </div>
             </li>
@@ -107,8 +136,8 @@
                 </a>
             </li>
 
-            <!-- MATERIAL RECHAZADO -->
-            <li class="nav-item active">
+            <!-- MÓDULO: MATERIAL RECHAZADO -->
+            <li class="nav-item">
                 <a class="nav-link" href="materialRechazado.php">
                     <i class="fa-solid fa-circle-xmark"></i>
                     <span>MATERIAL RECHAZADO</span>
@@ -141,100 +170,51 @@
                 </button>
             </div>
 
-
         </ul>
         <!-- FIN DE LA SIDEBAR -->
 
-        <!-- Content Wrapper -->
+        <!-- CONTENEDOR DE CONTENIDO -->
         <div id="content-wrapper" class="d-flex flex-column">
 
-            <!-- Main Content -->
+            <!-- CONTENIDO PRINCIPAL -->
             <div id="content">
 
-                <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                <!-- BARRA SUPERIOR -->
+                <?php include_once(__DIR__ . '/../components/TopbarContratistas.php'); ?>
+                <!-- FIN BARRA SUPERIOR -->
 
-                    <!-- Topbar Search -->
-                    <form class="col-xl-10 col-md-10 mb-10" id="FormQueryUnidades">
-                        
-                        <div class="input-group">
-
-                            <input type="date" name="Fecha1" id="Fecha1" class="form-control bg-light border-0 small" onchange="LoadOntInstaladosDet();" 
-                                aria-label="AL" aria-describedby="basic-addon2">
-
-                            <input type="date" name="Fecha2" id="Fecha2" class="form-control bg-light border-0 small" onchange="LoadOntInstaladosDet();" 
-                                aria-label="AL" aria-describedby="basic-addon2">
-
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
-                                    <i class="fas fa-search fa-sm"></i>
-                                </button>
-                            </div>
-                        
-                        </div>
-
-                    </form>
-                    
-                    <!-- Topbar Navbar -->
-                    <ul class="navbar-nav ml-auto">
-
-                        <div class="topbar-divider d-none d-sm-block"></div>
-
-                        <!-- Nav Item - User Information -->
-                        <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?php echo $Contratista;?></span>
-                                <img class="img-profile rounded-circle"
-                                    src="img/undraw_profile.svg">
-                            </a>
-                            <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    PERFIL
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    CERRAR SESION
-                                </a>
-                            </div>
-                        </li>
-
-                    </ul>
-
-                </nav>
-                <!-- End of Topbar -->
-
-                <!-- Begin Page Content -->
+                <!-- INICIO CONTENIDO PRINCIPAL -->
                 <div class="container-fluid">
 
-                    <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">MATERIAL INSTALADO</h1>
-
-                    <!-- DataTales Example -->
-                    <div id="LoadOntInstaladosDet">
-                    
+                    <!-- TARJETA PRINCIPAL DE DETALLE -->
+                    <div class="card shadow mb-4 detail-page-card">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center detail-page-header">
+                            <h1 class="m-0 font-weight-bold detail-page-title">ONT INSTALADAS</h1>
+                            <a href="index.php" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-arrow-left"></i> Regresar
+                            </a>
+                        </div>
+                        <div class="card-body detail-page-body">
+                            <div id="LoadOntInstaladosDet"></div>
+                        </div>
                     </div>
 
                 </div>
-                <!-- /.container-fluid -->
+                <!-- FIN CONTENIDO PRINCIPAL -->
 
             </div>
-            <!-- End of Main Content -->
+            <!-- FIN CONTENIDO PRINCIPAL -->
 
-            <!-- IMPORTAR EL FOOTER DE CONTRATISTAS -->
+            <!-- PIE DE PÁGINA -->
             <?php include_once(__DIR__ . '/../components/FooterContratistas.php'); ?>
 
         </div>
-        <!-- End of Content Wrapper -->
+        <!-- FIN CONTENEDOR DE CONTENIDO -->
 
     </div>
-    <!-- End of Page Wrapper -->
+    <!-- FIN CONTENEDOR PRINCIPAL -->
 
-    <!-- Scroll to Top Button-->
+    <!-- BOTÓN VOLVER ARRIBA -->
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
@@ -245,11 +225,10 @@
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
     <script src="js/app-2.js"></script>
     <script>
-        $(document).ready(function(){
+        $(document).ready(function () {
             LoadOntInstaladosDet();
         });
     </script>
-
 </body>
 </html>
 

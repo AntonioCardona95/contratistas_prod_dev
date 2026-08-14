@@ -5,10 +5,10 @@
     error_reporting(E_ALL);
 
     date_default_timezone_set('America/Monterrey');
-    
+
     session_start();
-    $Contratista = $_SESSION['Contratista'];
-    $idContratistas = $_SESSION['idContratistas'];
+    $Contratista = $_SESSION['Contratista'] ?? null;
+    $idContratistas = $_SESSION['idContratistas'] ?? null;
 
     if (empty($idContratistas)) {
         header("location: ../Login/modal/poweroff.php");
@@ -22,12 +22,11 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
+    <meta name="description" content="Detalle de ONT disponibles">
     <meta name="author" content="">
 
     <title>CONTRATSTAS</title>
 
-    <!-- CARGA DE ICONOS Y FUENTES -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
@@ -42,6 +41,43 @@
     <!-- ESTILO PERSONALIZADO PARA EL MENU ACTIVO DE LA SIDEBAR -->
     <link rel="stylesheet" href="css/sidebar-active.css">
 
+    <style>
+        .detail-page-card {
+            border: 0;
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .detail-page-header {
+            background: linear-gradient(90deg, #0f172a 0%, #003d99 100%);
+            border: 0;
+            color: #fff;
+            padding: 1rem 1.25rem;
+        }
+
+        .detail-page-title {
+            color: #fff !important;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .detail-page-header .btn {
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .detail-page-body {
+            padding: 1.25rem;
+            background: #f8fafc;
+        }
+
+        #LoadOntDisponiblesDet {
+            width: 100%;
+            min-height: 120px;
+        }
+    </style>
 </head>
 
 <body id="page-top">
@@ -60,11 +96,12 @@
             <!-- SEPARADOR SUPERIOR -->
             <hr class="sidebar-divider my-0">
 
-            <!-- OPCIÓN ACTIVA DEL DASHBOARD -->
+            <!-- DASHBOARD -->
             <li class="nav-item active">
                 <a class="nav-link" href="index.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span></a>
+                    <span>Dashboard</span>
+                </a>
             </li>
 
             <!-- SEPARADOR DE SECCIÓN -->
@@ -77,16 +114,15 @@
 
             <!-- MENÚ DE MÓDULOS -->
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
-                    aria-expanded="true" aria-controls="collapsePages">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true" aria-controls="collapsePages">
                     <i class="fas fa-fw fa-folder"></i>
                     <span>MODULOS</span>
                 </a>
                 <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">MODULOS</h6>
-                        <a class='collapse-item' href='index.php'><i class="fa-solid fa-box-open"></i> ALMACEN</a>
-                        <a class='collapse-item' href='../ordenes/index.php'><i class="fa-solid fa-school-circle-check"></i> OPERACIONES</a>
+                        <a class="collapse-item" href="index.php"><i class="fa-solid fa-box-open"></i> ALMACEN</a>
+                        <a class="collapse-item" href="../ordenes/index.php"><i class="fa-solid fa-school-circle-check"></i> OPERACIONES</a>
                     </div>
                 </div>
             </li>
@@ -107,8 +143,8 @@
                 </a>
             </li>
 
-            <!-- MÓDULO ACTIVO: MATERIAL RECHAZADO -->
-            <li class="nav-item active">
+            <!-- MÓDULO: MATERIAL RECHAZADO -->
+            <li class="nav-item">
                 <a class="nav-link" href="materialRechazado.php">
                     <i class="fa-solid fa-circle-xmark"></i>
                     <span>MATERIAL RECHAZADO</span>
@@ -149,91 +185,26 @@
 
             <!-- CONTENIDO PRINCIPAL -->
             <div id="content">
-
-                <!-- TOPBAR CON FILTROS DE FECHAS -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-
-                    <!-- FILTRO POR FECHA EN EL TOPBAR -->
-                    <form class="col-xl-10 col-md-10 mb-10" id="FormQueryUnidades">
-                        
-                        <div class="input-group">
-
-                            <input type="date" name="Fecha1" id="Fecha1" class="form-control bg-light border-0 small" onchange="LoadOntDisponiblesDet();" 
-                                aria-label="AL" aria-describedby="basic-addon2">
-
-                            <input type="date" name="Fecha2" id="Fecha2" class="form-control bg-light border-0 small" onchange="LoadOntDisponiblesDet();" 
-                                aria-label="AL" aria-describedby="basic-addon2">
-
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
-                                    <i class="fas fa-search fa-sm"></i>
-                                </button>
-                            </div>
-                        
-                        </div>
-
-                    </form>
-                    
-                    <!-- BARRA DE NAVEGACIÓN DEL USUARIO -->
-                    <ul class="navbar-nav ml-auto">
-
-                        <div class="topbar-divider d-none d-sm-block"></div>
-
-                        <!-- INFORMACIÓN DEL USUARIO -->
-                        <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?php echo $Contratista;?></span>
-                                <img class="img-profile rounded-circle"
-                                    src="img/undraw_profile.svg">
-                            </a>
-                            <!-- MENÚ DEL USUARIO -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    PERFIL
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    CERRAR SESION
-                                </a>
-                            </div>
-                        </li>
-
-                    </ul>
-
-                </nav>
-                <!-- FIN DEL TOPBAR -->
-
-                <!-- INICIO DEL CONTENIDO DE LA PÁGINA -->
+                <?php include_once(__DIR__ . '/../components/TopbarContratistas.php'); ?>
                 <div class="container-fluid">
-
-                    <!-- ENCABEZADO DE LA SECCIÓN -->
-                    <h1 class="h3 mb-2 text-gray-800">ONT DISPONIBLES PARA ASIGNAR</h1>
-
-                    <!-- CONTENEDOR DONDE SE CARGA LA TABLA DETALLADA -->
-                    <div id="LoadOntDisponiblesDet">
-                    
+                    <div class="card shadow mb-4 detail-page-card">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center detail-page-header">
+                            <h1 class="m-0 font-weight-bold detail-page-title">ONT DISPONIBLES</h1>
+                            <a href="index.php" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-arrow-left"></i> Regresar
+                            </a>
+                        </div>
+                        <div class="card-body detail-page-body">
+                            <div id="LoadOntDisponiblesDet"></div>
+                        </div>
                     </div>
 
                 </div>
-                <!-- /.container-fluid -->
-
             </div>
-            <!-- End of Main Content -->
-
-            <!-- IMPORTAR EL FOOTER DE CONTRATISTAS -->
             <?php include_once(__DIR__ . '/../components/FooterContratistas.php'); ?>
-
         </div>
-        <!-- End of Content Wrapper -->
-
     </div>
-    <!-- End of Page Wrapper -->
 
-    <!-- Scroll to Top Button-->
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
@@ -244,7 +215,7 @@
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
     <script src="js/app-2.js"></script>
     <script>
-        $(document).ready(function(){
+        $(document).ready(function () {
             LoadOntDisponiblesDet();
         });
     </script>

@@ -108,9 +108,9 @@
                 </a>
             </li>
 
-            <!-- MÓDULO ACTIVO: ACEPTAR MATERIAL -->
+            <!-- MÓDULO: ACEPTAR MATERIAL -->
             <li class="nav-item active">
-                <a class="nav-link active" href="aceptarMaterial.php">
+                <a class="nav-link" href="aceptarMaterial.php">
                     <i class="fa-solid fa-feather-pointed"></i>
                     <span>ACEPTAR MATERIAL</span>
                 </a>
