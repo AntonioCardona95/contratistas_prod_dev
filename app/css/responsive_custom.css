@@ -250,7 +250,9 @@ html, body {
     /* MOSTRAR BÚSQUEDA/FECHAS EN MÓVIL, EN SEGUNDA FILA DEBAJO DE LOS ICONOS */
     .topbar {
         flex-wrap: wrap !important;
-        padding: .5rem 1rem;
+        padding: .5rem .5rem;
+        height: 170px;
+        margin-bottom: 10px !important;
     }
     .topbar #sidebarToggleTop {
         order: 1;
@@ -268,11 +270,10 @@ html, body {
         margin-top: .75rem;
         margin-left: 0 !important;
     }
+    /* EL CONTENEDOR DE LOS BOTONES DE LAS FECHAS*/
     .navbar-search .input-group {
-        flex-wrap: wrap !important;
-        width: 100% !important;
-        flex: 1 1 100%;
         margin-bottom: .5rem;
+        margin-top: -15px
     }
     .navbar-search .topbar-date-input {
         flex: 1 1 40%;
@@ -285,9 +286,11 @@ html, body {
         width: 100% !important;
         margin-left: 0 !important;
     }
+    /* EL BOTON DE NUEVA SALIDA*/
     .topbar-actions-container a.btn {
         width: 100%;
         text-align: center;
+        font-size: 14px;
     }
 
     .img-profile { width: 32px !important; height: 32px !important; }
