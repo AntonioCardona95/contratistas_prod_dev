@@ -98,7 +98,12 @@ if (empty($idContratistas)) {
         }
 
         .page-nueva-salida .topbar #sidebarToggleTop {
-            display: none;
+            display: inline-flex;
+            background: transparent;
+            border: none;
+            color: #2c3e50;
+            font-size: 1.3rem;
+            padding: 0.4rem 0.7rem;
         }
 
         .page-nueva-salida .container-fluid {
@@ -175,23 +180,37 @@ if (empty($idContratistas)) {
         }
 
         .page-nueva-salida .btn-primary,
-        .page-nueva-salida button[type="submit"],
         .page-nueva-salida #addRow {
-            background: linear-gradient(180deg, #3b8cff 0%, #2e70e8 100%);
             border: none;
             border-radius: 10px;
             font-weight: 700;
             min-height: 42px;
             padding: 0.7rem 1.2rem;
-            box-shadow: 0 8px 18px rgba(42, 110, 232, 0.18);
             transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .page-nueva-salida #addRow {
+            background: linear-gradient(180deg, #1a315c 0%, #163767 100%);
+            box-shadow: 0 8px 18px rgba(22, 55, 103, 0.18);
+            color: #fff;
+        }
+
+        .page-nueva-salida button[type="submit"] {
+            background: linear-gradient(180deg, #22b56a 0%, #1d9f5d 100%);
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            min-height: 42px;
+            padding: 0.7rem 1.2rem;
+            box-shadow: 0 8px 18px rgba(29, 159, 93, 0.18);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            color: #fff;
         }
 
         .page-nueva-salida .btn-primary:hover,
         .page-nueva-salida button[type="submit"]:hover,
         .page-nueva-salida #addRow:hover {
             transform: translateY(-1px);
-            box-shadow: 0 12px 22px rgba(42, 110, 232, 0.26);
         }
 
         .page-nueva-salida .table {
@@ -203,8 +222,8 @@ if (empty($idContratistas)) {
         }
 
         .page-nueva-salida .table thead th {
-            background: #edf2f7;
-            color: #374151;
+            background: #e7ebf0;
+            color: #364152;
             font-weight: 700;
             border-bottom: 1px solid #dfe3ea;
             padding: 0.9rem 0.8rem;
@@ -408,7 +427,7 @@ if (empty($idContratistas)) {
                 <div class="container-fluid">
 
                     <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">ASIGNAR MATERIAL A TECNICO</h1>
+                    <h1 class="h3 m-0 font-weight-bold text-gray-800">ASIGNAR MATERIAL A TECNICO</h1>
 
                     <!-- filepath: c:\Users\Axel Garcia OPS\Desktop\HTDOCS\contratistas_dash\nueva_salida.php -->
                     <form action="modal/newsalida2.php" method="post" id="FormQueryUnidades" enctype="multipart/form-data" name="formulario" onsubmit="return confirm('¿Está seguro de registrar?');">
