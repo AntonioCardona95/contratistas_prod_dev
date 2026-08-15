@@ -179,6 +179,9 @@ if (empty($idContratistas)) {
             <div id="content">
 
                 <?php
+                    $topbar_defaults = [];
+                    $topbar_onchange = '';
+                    $topbar_actions = '<a href="salidas.php" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Regresar</a>';
                     include_once(__DIR__ . '/../components/TopbarContratistas.php');
                 ?>
 
