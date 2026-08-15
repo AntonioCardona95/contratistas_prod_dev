@@ -14,9 +14,35 @@
 ?>
 
 <style>
+    .dt-container .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin: 0;
+    }
+
+    #botones-detalles,
+    #search-detalles {
+        display: flex;
+        align-items: center;
+        min-height: 44px;
+    }
+
+    #botones-detalles {
+        justify-content: flex-start;
+    }
+
+    #search-detalles {
+        justify-content: flex-end;
+    }
+
     .dt-search {
         margin-bottom: 0;
         margin-top: 0;
+        display: flex;
+        justify-content: flex-end;
+        width: auto;
     }
 
     .dt-search input {
@@ -93,6 +119,21 @@
     }
 
     @media (max-width: 768px) {
+        .dt-container .row {
+            display: block;
+        }
+
+        #botones-detalles,
+        #search-detalles {
+            justify-content: flex-start;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        #search-detalles {
+            justify-content: stretch;
+        }
+
         #tecnicos-grid-container {
             grid-template-columns: 1fr;
         }
