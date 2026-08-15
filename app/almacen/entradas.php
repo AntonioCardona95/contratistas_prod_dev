@@ -154,7 +154,14 @@
             <div id="content">
 
                 <!-- TOPBAR -->
-                <?php include_once(__DIR__ . '/../components/TopbarContratistas.php'); ?>
+                <?php 
+                // Establecer fechas por defecto: hoy y 3 meses atrás
+                $topbar_defaults = [
+                    'Fecha1' => date('Y-m-d', strtotime('-3 months')),
+                    'Fecha2' => date('Y-m-d')
+                ];
+                include_once(__DIR__ . '/../components/TopbarContratistas.php'); 
+                ?>
 
                 <!-- CONTENIDO DE LA PAGINA -->
                 <div class="container-fluid">
