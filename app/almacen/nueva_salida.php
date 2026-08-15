@@ -86,8 +86,7 @@ if (empty($idContratistas)) {
                display: block;
                width: 100%;
                text-align: center;
-               font-size: 1rem;
-               padding: 0.85rem 0.75rem;
+               font-size: 14px;
            }
 
         }
