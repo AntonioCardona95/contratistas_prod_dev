@@ -35,6 +35,8 @@
 
     #search-detalles {
         justify-content: flex-end;
+        margin-left: auto;
+        width: 100%;
     }
 
     .dt-search {
@@ -42,12 +44,12 @@
         margin-top: 0;
         display: flex;
         justify-content: flex-end;
-        width: auto;
+        width: 100%;
     }
 
     .dt-search input {
-        width: 100% !important;
-        max-width: 500px !important;
+        width: 320px !important;
+        max-width: 100% !important;
         padding-left: 35px;
         border-radius: 8px;
     }
