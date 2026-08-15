@@ -292,7 +292,6 @@ $topbar_onchange = 'noop';
                                                     <th>UM</th>
                                                     <th>Total Piezas</th>
                                                     <th>Total Metros</th>
-                                                    <th>Cantidad Recibida</th>
                                                 </tr>
                                             </thead>
                                             <tfoot>
@@ -304,7 +303,6 @@ $topbar_onchange = 'noop';
                                                     <th>UM</th>
                                                     <th>Total Piezas</th>
                                                     <th>Total Metros</th>
-                                                    <th>Cantidad Recibida</th>
                                                 </tr>
                                             </tfoot>
                                             <tbody>
@@ -320,14 +318,13 @@ $topbar_onchange = 'noop';
                                                         <td><?= htmlspecialchars($mat['UM'] ?? '') ?></td>
                                                         <td><?= htmlspecialchars($mat['Total_Piezas'] ?? '') ?></td>
                                                         <td><?= htmlspecialchars($mat['Total_Metros'] ?? '') ?></td>
-                                                        <td><span class="badge badge-info"><?= $mat['series_total'] ?></span></td>
                                                     </tr>
                                                 <?php 
                                                         }
                                                     } else {
                                                 ?>
                                                     <tr>
-                                                        <td colspan="8" class="text-center text-muted">No se encontraron registros.</td>
+                                                        <td colspan="7" class="text-center text-muted">No se encontraron registros.</td>
                                                     </tr>
                                                 <?php } ?>
                                             </tbody>
