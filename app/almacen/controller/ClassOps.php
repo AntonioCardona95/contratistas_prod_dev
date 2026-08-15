@@ -210,10 +210,19 @@
         {
             $rows = null;
             $conexion = $this->get_conexion();
-            $sql="SELECT Num_Serie_S, Producto, Descripcion, Tecnologia, Modelo FROM material_det_salida
-            INNER JOIN producto ON FK_Material_S = idProducto 
-            WHERE Folio_Salida_Material_Det_S = :Folio_Salida_Material_Det_S
-            ORDER BY Folio_Salida_Material_Det_S DESC;";
+            $sql="SELECT 
+                    m.Num_Serie_S, 
+                    p.Producto, 
+                    p.Descripcion, 
+                    p.Tecnologia, 
+                    p.Modelo,
+                    p.Presentacion,
+                    m.Cantidad_S AS Total_Piezas,
+                    m.Total_Metros
+                FROM material_det_salida m
+                INNER JOIN producto p ON m.FK_Material_S = p.idProducto 
+                WHERE m.Folio_Salida_Material_Det_S = :Folio_Salida_Material_Det_S
+                ORDER BY m.Folio_Salida_Material_Det_S DESC;";
             $statement = $conexion->prepare($sql);
             $statement->bindParam(':Folio_Salida_Material_Det_S', $Folio_Salida_Material_Det_S, PDO::PARAM_STR);
             $statement->execute();

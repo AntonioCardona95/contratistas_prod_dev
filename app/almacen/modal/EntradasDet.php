@@ -139,6 +139,44 @@ $topbar_onchange = 'noop';
             word-break: break-word;
         }
 
+        /* ── TABS STYLING ── */
+        .nav-tabs {
+            border-bottom: 2px solid #e0e0e0 !important;
+        }
+
+        .nav-tabs .nav-link {
+            color: #6c757d !important;
+            border: none !important;
+            border-bottom: 3px solid transparent !important;
+            padding: 10px 20px !important;
+            font-weight: 500 !important;
+            transition: all 0.25s ease !important;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #007BFF !important;
+            border-bottom: 3px solid rgba(0, 123, 255, 0.2) !important;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #007BFF !important;
+            border-bottom: 3px solid #007BFF !important;
+            background: none !important;
+        }
+
+        .tab-content {
+            margin-top: 15px;
+        }
+
+        #entradas-det-series-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        #entradasTab .nav-link i {
+            margin-right: 6px;
+        }
+
         /* ── Responsive ── */
         @media (max-width: 1200px) {
             #entradas-det-cards-container {
@@ -223,47 +261,120 @@ $topbar_onchange = 'noop';
                         </div>
                         <div class="card-body">
 
-                            <!-- TABLA (escritorio) -->
-                            <div id="entradas-det-table-wrapper">
-                                <table class="table table-bordered display nowrap" style="width:100%" id="ventas">
-                                    <thead>
-                                        <tr>
-                                            <th>Material</th>
-                                            <th>Detalle</th>
-                                            <th>Tecnologia</th>
-                                            <th>SKU</th>
-                                            <th>Numero de Serie</th>
-                                        </tr>
-                                    </thead>
-                                    <tfoot>
-                                        <tr>
-                                            <th>Material</th>
-                                            <th>Detalle</th>
-                                            <th>Tecnologia</th>
-                                            <th>SKU</th>
-                                            <th>Numero de Serie</th>
-                                        </tr>
-                                    </tfoot>
-                                    <tbody>
-                                        <?php if (!empty($salidas_det)): foreach ($salidas_det as $row): ?>
-                                            <tr data-material="<?= htmlspecialchars($row['Producto'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                                data-detalle="<?= htmlspecialchars($row['Descripcion'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                                data-tecnologia="<?= htmlspecialchars($row['Tecnologia'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                                data-sku="<?= htmlspecialchars($row['Modelo'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                                data-serie="<?= htmlspecialchars($row['Num_Serie_S'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-                                                <td><?= htmlspecialchars($row['Producto'] ?? '') ?></td>
-                                                <td><?= htmlspecialchars($row['Descripcion'] ?? '') ?></td>
-                                                <td><?= htmlspecialchars($row['Tecnologia'] ?? '') ?></td>
-                                                <td><?= htmlspecialchars($row['Modelo'] ?? '') ?></td>
-                                                <td><?= htmlspecialchars($row['Num_Serie_S'] ?? '') ?></td>
-                                            </tr>
-                                        <?php endforeach; else: ?>
-                                            <tr>
-                                                <td colspan="5" class="text-center text-muted">No se encontraron registros.</td>
-                                            </tr>
-                                        <?php endif; ?>
-                                    </tbody>
-                                </table>
+                            <!-- TABS NAVIGATION -->
+                            <ul class="nav nav-tabs mb-4" id="entradasTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="materiales-tab" data-bs-toggle="tab" data-toggle="tab" href="#materiales-panel" role="tab" aria-controls="materiales-panel" aria-selected="true">
+                                        <i class="fas fa-box"></i> Materiales
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="series-tab" data-bs-toggle="tab" data-toggle="tab" href="#series-panel" role="tab" aria-controls="series-panel" aria-selected="false">
+                                        <i class="fas fa-barcode"></i> Números de Serie
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <!-- TAB CONTENT -->
+                            <div class="tab-content" id="entradasTabContent">
+
+                                <!-- TAB 1: MATERIALES -->
+                                <div class="tab-pane fade show active" id="materiales-panel" role="tabpanel" aria-labelledby="materiales-tab">
+                                    <div id="entradas-det-table-wrapper">
+                                        <table class="table table-bordered display nowrap" style="width:100%" id="ventasMateriales">
+                                            <thead>
+                                                <tr>
+                                                    <th>Material</th>
+                                                    <th>Modelo</th>
+                                                    <th>Tecnología</th>
+                                                    <th>Presentación</th>
+                                                    <th>Total Piezas</th>
+                                                    <th>Total Metros</th>
+                                                    <th>Cantidad Recibida</th>
+                                                </tr>
+                                            </thead>
+                                            <tfoot>
+                                                <tr>
+                                                    <th>Material</th>
+                                                    <th>Modelo</th>
+                                                    <th>Tecnología</th>
+                                                    <th>Presentación</th>
+                                                    <th>Total Piezas</th>
+                                                    <th>Total Metros</th>
+                                                    <th>Cantidad Recibida</th>
+                                                </tr>
+                                            </tfoot>
+                                            <tbody>
+                                                <?php 
+                                                    if (!empty($salidas_det)) {
+                                                        $materiales_unicos = array();
+                                                        foreach ($salidas_det as $row) {
+                                                            $key = $row['Modelo'] . '|' . $row['Producto'];
+                                                            if (!isset($materiales_unicos[$key])) {
+                                                                $materiales_unicos[$key] = $row;
+                                                                $materiales_unicos[$key]['cantidad_series'] = 0;
+                                                            }
+                                                            $materiales_unicos[$key]['cantidad_series']++;
+                                                        }
+                                                        foreach ($materiales_unicos as $mat) {
+                                                ?>
+                                                    <tr>
+                                                        <td><?= htmlspecialchars($mat['Producto'] ?? '') ?></td>
+                                                        <td><?= htmlspecialchars($mat['Modelo'] ?? '') ?></td>
+                                                        <td><?= htmlspecialchars($mat['Tecnologia'] ?? '') ?></td>
+                                                        <td><?= htmlspecialchars($mat['Presentacion'] ?? '') ?></td>
+                                                        <td><?= htmlspecialchars($mat['Total_Piezas'] ?? '') ?></td>
+                                                        <td><?= htmlspecialchars($mat['Total_Metros'] ?? '') ?></td>
+                                                        <td><span class="badge badge-info"><?= $mat['cantidad_series'] ?></span></td>
+                                                    </tr>
+                                                <?php 
+                                                        }
+                                                    } else {
+                                                ?>
+                                                    <tr>
+                                                        <td colspan="7" class="text-center text-muted">No se encontraron registros.</td>
+                                                    </tr>
+                                                <?php } ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <!-- TAB 2: NÚMEROS DE SERIE -->
+                                <div class="tab-pane fade" id="series-panel" role="tabpanel" aria-labelledby="series-tab">
+                                    <div id="entradas-det-series-wrapper">
+                                        <table class="table table-bordered display nowrap" style="width:100%" id="ventasSeries">
+                                            <thead>
+                                                <tr>
+                                                    <th>Material</th>
+                                                    <th>Modelo</th>
+                                                    <th>Número de Serie</th>
+                                                </tr>
+                                            </thead>
+                                            <tfoot>
+                                                <tr>
+                                                    <th>Material</th>
+                                                    <th>Modelo</th>
+                                                    <th>Número de Serie</th>
+                                                </tr>
+                                            </tfoot>
+                                            <tbody>
+                                                <?php if (!empty($salidas_det)): foreach ($salidas_det as $row): ?>
+                                                    <tr>
+                                                        <td><?= htmlspecialchars($row['Producto'] ?? '') ?></td>
+                                                        <td><?= htmlspecialchars($row['Modelo'] ?? '') ?></td>
+                                                        <td><span class="badge badge-primary"><?= htmlspecialchars($row['Num_Serie_S'] ?? 'SIN SERIE') ?></span></td>
+                                                    </tr>
+                                                <?php endforeach; else: ?>
+                                                    <tr>
+                                                        <td colspan="3" class="text-center text-muted">No se encontraron números de serie.</td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
                             </div>
 
                             <!-- CARDS (móvil) -->
@@ -287,7 +398,8 @@ $topbar_onchange = 'noop';
     <script>
         function noop() {}
         $(document).ready(function () {
-            let table = new DataTable('#ventas', {
+            // TABLA DE MATERIALES
+            let tableMateriales = new DataTable('#ventasMateriales', {
                 fixedColumns: { start: 1, end: 1 },
                 responsive: true,
                 language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
@@ -297,7 +409,18 @@ $topbar_onchange = 'noop';
                 scrollX: true
             });
 
-            new DataTable.Buttons(table, {
+            // TABLA DE SERIES
+            let tableSeries = new DataTable('#ventasSeries', {
+                fixedColumns: { start: 1, end: 1 },
+                responsive: true,
+                language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
+                ordering: false,
+                searching: true,
+                scrollY: true,
+                scrollX: true
+            });
+
+            new DataTable.Buttons(tableMateriales, {
                 buttons: [
                     {
                         extend: 'excelHtml5',
@@ -314,67 +437,7 @@ $topbar_onchange = 'noop';
                 ]
             });
 
-            table.buttons(0, null).container().prependTo(table.table().container());
-
-            // ── Render cards para móvil ──
-            function renderEntradasDetCards() {
-                const container = $('#entradas-det-cards-container');
-                container.empty();
-
-                const rows = table.rows({ search: 'applied' }).nodes();
-
-                if (rows.length === 0) {
-                    container.html('<div class="text-center text-muted py-4">No se encontraron registros.</div>');
-                    return;
-                }
-
-                let idx = 1;
-                rows.each(function(node) {
-                    const row       = $(node);
-                    const material  = row.data('material') || '';
-                    const detalle   = row.data('detalle') || '';
-                    const tecnologia = row.data('tecnologia') || '';
-                    const sku       = row.data('sku') || '';
-                    const serie     = row.data('serie') || '';
-
-                    const card = `
-                        <div class="entradas-det-card">
-                            <div class="entradas-det-card-header">
-                                <i class="fas fa-box-open"></i>
-                                <span class="font-weight-bold" style="flex:1">${material}</span>
-                                <span class="badge-folio">#${idx}</span>
-                            </div>
-                            <div class="entradas-det-card-body">
-                                <div class="entradas-det-field">
-                                    <span>Detalle</span>
-                                    <strong>${detalle}</strong>
-                                </div>
-                                <div class="entradas-det-field">
-                                    <span>Tecnología</span>
-                                    <strong>${tecnologia}</strong>
-                                </div>
-                                <div class="entradas-det-field">
-                                    <span>SKU</span>
-                                    <strong>${sku}</strong>
-                                </div>
-                                <div class="entradas-det-field">
-                                    <span>N° de Serie</span>
-                                    <strong>${serie}</strong>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-
-                    container.append(card);
-                    idx++;
-                });
-            }
-
-            renderEntradasDetCards();
-
-            table.on('search.dt page.dt draw.dt', function() {
-                renderEntradasDetCards();
-            });
+            tableMateriales.buttons(0, null).container().prependTo(tableMateriales.table().container());
         });
     </script>
 </body>
