@@ -106,7 +106,6 @@ if (empty($idContratistas)) {
         }
 
         .page-nueva-salida .container-fluid {
-            padding-top: 1.5rem;
             padding-bottom: 2rem;
         }
 
@@ -114,7 +113,7 @@ if (empty($idContratistas)) {
             font-weight: 300;
             letter-spacing: -0.04em;
             color: rgba(31, 41, 55, 0.82);
-            font-size: clamp(1.8rem, 2.4vw, 2.8rem);
+            font-size: 32px;
             margin-bottom: 1.25rem;
             text-align: center;
         }
