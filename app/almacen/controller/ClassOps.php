@@ -724,7 +724,7 @@
                     WHERE t.FK_Contra_ST = :idContratistas 
                     AND t.Status_Temp = 'rechazado'
                     AND t.Fecha_Salida_ST BETWEEN :Fecha1 AND :Fecha2
-                    ORDER BY t.Fecha_Respuesta DESC";
+                    ORDER BY t.idTransferencias_T DESC";
 
             return $this->runQuery($sql, [
                 'idContratistas' => $idContratistas,
