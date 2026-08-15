@@ -217,8 +217,7 @@
                     p.Tecnologia, 
                     p.Modelo,
                     p.Presentacion,
-                    m.Cantidad_S AS Total_Piezas,
-                    m.Total_Metros
+                    p.UM
                 FROM material_det_salida m
                 INNER JOIN producto p ON m.FK_Material_S = p.idProducto 
                 WHERE m.Folio_Salida_Material_Det_S = :Folio_Salida_Material_Det_S

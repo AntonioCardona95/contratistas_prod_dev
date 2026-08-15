@@ -288,8 +288,7 @@ $topbar_onchange = 'noop';
                                                     <th>Modelo</th>
                                                     <th>Tecnología</th>
                                                     <th>Presentación</th>
-                                                    <th>Total Piezas</th>
-                                                    <th>Total Metros</th>
+                                                    <th>UM</th>
                                                     <th>Cantidad Recibida</th>
                                                 </tr>
                                             </thead>
@@ -299,8 +298,7 @@ $topbar_onchange = 'noop';
                                                     <th>Modelo</th>
                                                     <th>Tecnología</th>
                                                     <th>Presentación</th>
-                                                    <th>Total Piezas</th>
-                                                    <th>Total Metros</th>
+                                                    <th>UM</th>
                                                     <th>Cantidad Recibida</th>
                                                 </tr>
                                             </tfoot>
@@ -323,8 +321,7 @@ $topbar_onchange = 'noop';
                                                         <td><?= htmlspecialchars($mat['Modelo'] ?? '') ?></td>
                                                         <td><?= htmlspecialchars($mat['Tecnologia'] ?? '') ?></td>
                                                         <td><?= htmlspecialchars($mat['Presentacion'] ?? '') ?></td>
-                                                        <td><?= htmlspecialchars($mat['Total_Piezas'] ?? '') ?></td>
-                                                        <td><?= htmlspecialchars($mat['Total_Metros'] ?? '') ?></td>
+                                                        <td><?= htmlspecialchars($mat['UM'] ?? '') ?></td>
                                                         <td><span class="badge badge-info"><?= $mat['cantidad_series'] ?></span></td>
                                                     </tr>
                                                 <?php 
@@ -332,7 +329,7 @@ $topbar_onchange = 'noop';
                                                     } else {
                                                 ?>
                                                     <tr>
-                                                        <td colspan="7" class="text-center text-muted">No se encontraron registros.</td>
+                                                        <td colspan="6" class="text-center text-muted">No se encontraron registros.</td>
                                                     </tr>
                                                 <?php } ?>
                                             </tbody>
