@@ -162,7 +162,7 @@ if (empty($idContratistas)) {
             <hr class="sidebar-divider d-none d-md-block">
 
             <!-- Sidebar Toggler (Sidebar) -->
-            <div class="text-center">
+            <div class="sidebar-footer text-center">
                 <button class="rounded-circle border-0" id="sidebarToggle" aria-label="Cerrar menu">
                     <i class="fas fa-times"></i>
                 </button>
@@ -181,6 +181,7 @@ if (empty($idContratistas)) {
                 <?php
                     $topbar_defaults = [];
                     $topbar_onchange = '';
+                    $topbar_hide_search = true;
                     $topbar_actions = '<a href="salidas.php" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Regresar</a>';
                     include_once(__DIR__ . '/../components/TopbarContratistas.php');
                 ?>

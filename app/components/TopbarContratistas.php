@@ -17,6 +17,7 @@ if (empty($tbFecha2)) $tbFecha2 = $defaultFecha2 ?? ($_POST['Fecha2'] ?? '');
 
 // Nombre de la función JS que se debe invocar al cambiar las fechas o al buscar.
 $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
+$topbar_hide_search = !empty($topbar_hide_search);
 ?>
 
 <!-- Topbar -->
@@ -27,23 +28,31 @@ $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
         <i class="fa fa-bars"></i>
     </button>
 
-    <!-- Topbar Search -->
-    <form id="FormQueryUnidades" class="d-flex form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search topbar-search-form">
-        <div class="input-group topbar-date-group">
-            <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
-            <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
-            <div class="input-group-append mr-2">
-                <button class="btn btn-primary" type="button" onclick="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
-                    <i class="fas fa-search fa-sm"></i>
-                </button>
+    <?php if (!$topbar_hide_search): ?>
+        <!-- Topbar Search -->
+        <form id="FormQueryUnidades" class="d-flex form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search topbar-search-form">
+            <div class="input-group topbar-date-group">
+                <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
+                <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
+                <div class="input-group-append mr-2">
+                    <button class="btn btn-primary" type="button" onclick="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
+                        <i class="fas fa-search fa-sm"></i>
+                    </button>
+                </div>
             </div>
-        </div>
+            <?php if(!empty($topbar_actions)): ?>
+                <div class="topbar-actions-container d-flex align-items-center ml-2">
+                    <?= $topbar_actions ?>
+                </div>
+            <?php endif; ?>
+        </form>
+    <?php else: ?>
         <?php if(!empty($topbar_actions)): ?>
-            <div class="topbar-actions-container d-flex align-items-center ml-2">
+            <div class="topbar-actions-container d-flex align-items-center ml-2 mr-auto">
                 <?= $topbar_actions ?>
             </div>
         <?php endif; ?>
-    </form>
+    <?php endif; ?>
 
     <!-- Topbar Navbar -->
     <ul class="navbar-nav ml-auto align-items-center topbar-icons">
