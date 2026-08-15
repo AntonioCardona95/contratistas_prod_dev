@@ -81,14 +81,15 @@ if (empty($idContratistas)) {
         }
 
         .page-nueva-salida .topbar-actions-container a.btn {
-            background: linear-gradient(180deg, #a7b0b7 0%, #8f9aa3 100%);
+            background: #a1a9b3;
             color: #fff;
             border: none;
             border-radius: 10px;
-            font-weight: 700;
-            padding: 0.8rem 1.2rem;
-            min-width: 150px;
-            box-shadow: 0 6px 18px rgba(31, 41, 55, 0.12);
+            font-weight: 600;
+            padding: 0.55rem 1rem;
+            min-width: 136px;
+            line-height: 1.2;
+            box-shadow: none;
         }
 
         .page-nueva-salida .topbar-icons {
@@ -109,8 +110,8 @@ if (empty($idContratistas)) {
             font-weight: 300;
             letter-spacing: -0.04em;
             color: rgba(31, 41, 55, 0.82);
-            font-size: clamp(2rem, 3.2vw, 4rem);
-            margin-bottom: 1.5rem;
+            font-size: clamp(1.8rem, 2.4vw, 2.8rem);
+            margin-bottom: 1.25rem;
             text-align: left;
         }
 
@@ -120,10 +121,18 @@ if (empty($idContratistas)) {
 
         .page-nueva-salida .container.mt-4 {
             max-width: 900px;
-            margin: 0 auto 2rem auto;
-            background: rgba(255, 255, 255, 0.12);
+            margin: 0 auto 1.5rem auto;
+            background: rgba(255, 255, 255, 0.28);
             border-radius: 18px;
-            padding: 0 0 0.25rem 0;
+            padding: 1rem 0 0.25rem 0;
+        }
+
+        .page-nueva-salida .card-form-shell {
+            background: #f3f5f8;
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            border-radius: 18px;
+            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+            padding: 1.25rem 1.25rem 1rem 1.25rem;
         }
 
         .page-nueva-salida .form-group {
@@ -144,11 +153,11 @@ if (empty($idContratistas)) {
         .page-nueva-salida textarea,
         .page-nueva-salida .form-control {
             border: 1px solid #dfe3ea;
-            border-radius: 12px;
+            border-radius: 10px;
             background: rgba(255, 255, 255, 0.82);
-            min-height: 52px;
-            padding: 0.75rem 1rem;
-            font-size: 1.04rem;
+            min-height: 46px;
+            padding: 0.65rem 0.9rem;
+            font-size: 1rem;
             color: #2f3743;
             box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.02);
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -172,13 +181,13 @@ if (empty($idContratistas)) {
         .page-nueva-salida .btn-primary,
         .page-nueva-salida button[type="submit"],
         .page-nueva-salida #addRow {
-            background: linear-gradient(180deg, #3c8dff 0%, #2a6ee8 100%);
+            background: linear-gradient(180deg, #3b8cff 0%, #2e70e8 100%);
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             font-weight: 700;
-            min-height: 48px;
-            padding: 0.8rem 1.4rem;
-            box-shadow: 0 10px 22px rgba(42, 110, 232, 0.22);
+            min-height: 42px;
+            padding: 0.7rem 1.2rem;
+            box-shadow: 0 8px 18px rgba(42, 110, 232, 0.18);
             transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
 
@@ -393,6 +402,7 @@ if (empty($idContratistas)) {
                     <form action="modal/newsalida2.php" method="post" id="FormQueryUnidades" enctype="multipart/form-data" name="formulario" onsubmit="return confirm('¿Está seguro de registrar?');">
 
                         <div class="container mt-4">
+                            <div class="card-form-shell">
 
                             <!-- Folio Salida -->
                             <div class="form-group">
@@ -467,6 +477,7 @@ if (empty($idContratistas)) {
                                 </button>
                             </div>
 
+                            </div>
                         </div>
                     </form>
 
