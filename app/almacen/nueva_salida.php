@@ -112,7 +112,7 @@ if (empty($idContratistas)) {
             color: rgba(31, 41, 55, 0.82);
             font-size: clamp(1.8rem, 2.4vw, 2.8rem);
             margin-bottom: 1.25rem;
-            text-align: left;
+            text-align: center;
         }
 
         .page-nueva-salida form {
@@ -135,10 +135,6 @@ if (empty($idContratistas)) {
             padding: 1.25rem 1.25rem 1rem 1.25rem;
         }
 
-        .page-nueva-salida .form-group {
-            margin-bottom: 1.25rem;
-        }
-
         .page-nueva-salida label {
             display: block;
             font-weight: 600;
@@ -156,7 +152,7 @@ if (empty($idContratistas)) {
             border-radius: 10px;
             background: rgba(255, 255, 255, 0.82);
             min-height: 46px;
-            padding: 0.65rem 0.9rem;
+            padding: 0rem 0.9rem;
             font-size: 1rem;
             color: #2f3743;
             box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.02);
@@ -203,6 +199,7 @@ if (empty($idContratistas)) {
             overflow: hidden;
             background: rgba(255, 255, 255, 0.72);
             border: 1px solid #dfe3ea;
+            margin-bottom: 0;
         }
 
         .page-nueva-salida .table thead th {
@@ -220,10 +217,27 @@ if (empty($idContratistas)) {
             background: rgba(255,255,255,0.45);
         }
 
+        .page-nueva-salida #selectedSeries tr {
+            background: transparent;
+        }
+
+        .page-nueva-salida #selectedSeries input[name="numeros_series[]"] {
+            background: #fff;
+            border: 1px solid #dfe3ea;
+            border-radius: 10px;
+            min-height: 42px;
+            padding: 0.6rem 0.8rem;
+            font-size: 0.96rem;
+            color: #2f3743;
+        }
+
         .page-nueva-salida .removeRow {
             border-radius: 10px;
             min-width: 42px;
             min-height: 42px;
+            background: #e74c3c;
+            border: none;
+            color: #fff;
         }
 
         @media (max-width: 768px) {
@@ -233,7 +247,6 @@ if (empty($idContratistas)) {
             }
 
             .page-nueva-salida h1 {
-                text-align: center;
                 font-size: 2rem;
             }
 
@@ -259,10 +272,9 @@ if (empty($idContratistas)) {
                 width: 100%;
                 text-align: center;
                 font-size: 14px;
-                padding: 0.85rem 0.75rem;
             }
 
-            .page-nueva-salida .container.mt-4 {
+            .page-nueva-salida .container.mt-2 {
                 max-width: 100%;
                 margin-left: 0;
                 margin-right: 0;
@@ -401,7 +413,7 @@ if (empty($idContratistas)) {
                     <!-- filepath: c:\Users\Axel Garcia OPS\Desktop\HTDOCS\contratistas_dash\nueva_salida.php -->
                     <form action="modal/newsalida2.php" method="post" id="FormQueryUnidades" enctype="multipart/form-data" name="formulario" onsubmit="return confirm('¿Está seguro de registrar?');">
 
-                        <div class="container mt-4">
+                        <div class="container mt-2">
                             <div class="card-form-shell">
 
                             <!-- Folio Salida -->
@@ -533,8 +545,8 @@ if (empty($idContratistas)) {
                             <td>
                                 <input type="text" class="form-control" name="numeros_series[]" value="${opcion}" readonly>
                             </td>
-                            <td class="text-center">
-                                <button type="button" class="btn btn-danger btn-sm removeRow">
+                            <td class="text-center" style="width: 80px;">
+                                <button type="button" class="btn btn-danger btn-sm removeRow" aria-label="Eliminar serie">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </td>
