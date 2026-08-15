@@ -65,12 +65,36 @@ if (empty($idContratistas)) {
             text-align: center;
             font-size: 20px;
            }
-            
+
+           .page-nueva-salida .topbar {
+               display: flex;
+               flex-wrap: wrap;
+               align-items: center;
+           }
+
+           .page-nueva-salida .topbar-icons {
+               margin-left: auto !important;
+           }
+
+           .page-nueva-salida .topbar-actions-container {
+               order: 3;
+               width: 100%;
+               margin: 0.5rem 0 0 0 !important;
+           }
+
+           .page-nueva-salida .topbar-actions-container a.btn {
+               display: block;
+               width: 100%;
+               text-align: center;
+               font-size: 1rem;
+               padding: 0.85rem 0.75rem;
+           }
+
         }
     </style>
 </head>
 
-<body id="page-top">
+<body id="page-top" class="page-nueva-salida">
 
     <!-- Page Wrapper -->
     <div id="wrapper">
