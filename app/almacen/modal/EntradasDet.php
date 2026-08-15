@@ -62,107 +62,135 @@ $topbar_onchange = 'noop';
         #entradas-det-table-wrapper {
             width: 100%;
             overflow-x: auto;
+            display: block;
         }
 
         /* ── Cards container ── */
         #entradas-det-cards-container {
             display: none;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 20px;
             margin-top: 20px;
+            width: 100%;
+        }
+
+        #entradas-det-series-cards-container {
+            display: none;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+            width: 100%;
         }
 
         /* ── Card ── */
         .entradas-det-card {
             background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(0, 0, 0, 0.04);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
             overflow: hidden;
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            display: flex;
+            flex-direction: column;
         }
 
         .entradas-det-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .entradas-det-card-header {
             background: linear-gradient(90deg, #0f172a 0%, #003d99 100%);
             color: #fff;
-            padding: 14px 18px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             gap: 10px;
         }
 
+        .entradas-det-card-header h5 {
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+            flex: 1;
+        }
+
         .entradas-det-card-header .badge-folio {
-            background: rgba(255,255,255,0.15);
-            border-radius: 8px;
-            padding: 4px 10px;
-            font-size: 0.8rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 6px;
+            padding: 3px 8px;
+            font-size: 0.75rem;
             font-weight: 700;
-            letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
         .entradas-det-card-body {
-            padding: 0 18px 18px;
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .entradas-det-field {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            padding: 10px 0;
-            border-bottom: 1px solid #f1f3f5;
-            gap: 10px;
+            gap: 8px;
+            padding: 6px 0;
+            font-size: 0.9rem;
         }
 
-        .entradas-det-field:last-child {
-            border-bottom: none;
-        }
-
-        .entradas-det-field span {
+        .entradas-det-field-label {
             color: #6c757d;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.3px;
+            font-weight: 500;
             flex: 1;
-            white-space: nowrap;
+            min-width: 120px;
         }
 
-        .entradas-det-field strong {
+        .entradas-det-field-value {
             color: #1f2937;
-            font-size: 0.92rem;
+            font-size: 0.9rem;
             font-weight: 600;
             text-align: right;
-            min-width: 100px;
             word-break: break-word;
         }
 
         /* ── TABS STYLING ── */
         .nav-tabs {
             border-bottom: 2px solid #e0e0e0 !important;
+            display: flex;
+            flex-wrap: wrap;
         }
 
         .nav-tabs .nav-link {
             color: #6c757d !important;
             border: none !important;
             border-bottom: 3px solid transparent !important;
-            padding: 10px 20px !important;
+            padding: 10px 16px !important;
             font-weight: 500 !important;
+            font-size: 0.95rem !important;
             transition: all 0.25s ease !important;
+            white-space: nowrap;
         }
 
         .nav-tabs .nav-link:hover {
             color: #007BFF !important;
-            border-bottom: 3px solid rgba(0, 123, 255, 0.2) !important;
+            border-bottom-color: rgba(0, 123, 255, 0.3) !important;
         }
 
         .nav-tabs .nav-link.active {
             color: #007BFF !important;
             border-bottom: 3px solid #007BFF !important;
             background: none !important;
+        }
+
+        .nav-tabs .nav-link i {
+            margin-right: 6px;
         }
 
         .tab-content {
@@ -174,20 +202,37 @@ $topbar_onchange = 'noop';
             overflow-x: auto;
         }
 
-        #entradasTab .nav-link i {
-            margin-right: 6px;
-        }
-
         /* ── Responsive ── */
         @media (max-width: 1200px) {
             #entradas-det-cards-container {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 992px) {
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start !important;
+                gap: 10px !important;
+            }
+
+            .card-header h1 {
+                font-size: 1.3rem !important;
+                width: 100%;
+            }
+
+            .card-header .btn {
+                width: 100%;
             }
         }
 
         @media (max-width: 768px) {
             #entradas-det-table-wrapper {
-                display: none;
+                display: none !important;
+            }
+
+            #entradas-det-series-wrapper {
+                display: none !important;
             }
 
             #entradas-det-cards-container {
@@ -195,8 +240,64 @@ $topbar_onchange = 'noop';
                 grid-template-columns: 1fr;
             }
 
+            #entradas-det-series-cards-container {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                display: none;
+            }
+
+            .card-header h1,
             h1.font-weight-bold {
-                font-size: 1rem !important;
+                font-size: 1.1rem !important;
+            }
+
+            .container-fluid {
+                padding-left: 12px;
+                padding-right: 12px;
+            }
+
+            .card {
+                margin-bottom: 16px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .entradas-det-card-header {
+                padding: 10px 12px;
+            }
+
+            .entradas-det-card-header h5 {
+                font-size: 0.85rem;
+            }
+
+            .entradas-det-card-body {
+                padding: 12px;
+                gap: 6px;
+            }
+
+            .entradas-det-field {
+                padding: 4px 0;
+                font-size: 0.85rem;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .entradas-det-field-label {
+                font-size: 0.75rem;
+            }
+
+            .entradas-det-field-value {
+                font-size: 0.85rem;
+                text-align: left;
+                width: 100%;
+            }
+
+            .nav-tabs .nav-link {
+                padding: 8px 12px !important;
+                font-size: 0.85rem !important;
             }
         }
     </style>
@@ -330,6 +431,8 @@ $topbar_onchange = 'noop';
                                             </tbody>
                                         </table>
                                     </div>
+                                    <!-- CARDS (móvil) - MATERIALES -->
+                                    <div id="entradas-det-cards-container"></div>
                                 </div>
 
                                 <!-- TAB 2: NÚMEROS DE SERIE -->
@@ -365,12 +468,12 @@ $topbar_onchange = 'noop';
                                             </tbody>
                                         </table>
                                     </div>
+                                    <!-- CARDS (móvil) - SERIES -->
+                                    <div id="entradas-det-series-cards-container"></div>
                                 </div>
 
                             </div>
 
-                            <!-- CARDS (móvil) -->
-                            <div id="entradas-det-cards-container"></div>
 
                         </div>
                     </div>
@@ -389,7 +492,106 @@ $topbar_onchange = 'noop';
 
     <script>
         function noop() {}
+        
+        // Datos de materiales y series (desde PHP)
+        const materialesData = <?= json_encode($materiales ?? []) ?>;
+        const seriesData = <?= json_encode($series ?? []) ?>;
+
+        // Función para renderizar cards de materiales
+        function renderMaterialesCards() {
+            const container = document.getElementById('entradas-det-cards-container');
+            container.innerHTML = '';
+
+            if (!materialesData || materialesData.length === 0) {
+                container.innerHTML = '<div class="alert alert-info w-100">No se encontraron registros.</div>';
+                return;
+            }
+
+            materialesData.forEach((mat, index) => {
+                const card = document.createElement('div');
+                card.className = 'entradas-det-card';
+                card.innerHTML = `
+                    <div class="entradas-det-card-header">
+                        <h5><i class="fas fa-box"></i> Material ${index + 1}</h5>
+                        <span class="badge-folio">#${index + 1}</span>
+                    </div>
+                    <div class="entradas-det-card-body">
+                        <div class="entradas-det-field">
+                            <span class="entradas-det-field-label">Producto</span>
+                            <strong class="entradas-det-field-value">${mat.Producto || 'N/A'}</strong>
+                        </div>
+                        <div class="entradas-det-field">
+                            <span class="entradas-det-field-label">Modelo</span>
+                            <strong class="entradas-det-field-value">${mat.Modelo || 'N/A'}</strong>
+                        </div>
+                        <div class="entradas-det-field">
+                            <span class="entradas-det-field-label">Tecnología</span>
+                            <strong class="entradas-det-field-value">${mat.Tecnologia || 'N/A'}</strong>
+                        </div>
+                        <div class="entradas-det-field">
+                            <span class="entradas-det-field-label">Presentación</span>
+                            <strong class="entradas-det-field-value">${mat.Presentacion || 'N/A'}</strong>
+                        </div>
+                        <div class="entradas-det-field">
+                            <span class="entradas-det-field-label">UM</span>
+                            <strong class="entradas-det-field-value">${mat.UM || 'N/A'}</strong>
+                        </div>
+                        <div class="entradas-det-field">
+                            <span class="entradas-det-field-label">Total Piezas</span>
+                            <strong class="entradas-det-field-value">${mat.Total_Piezas || '0'}</strong>
+                        </div>
+                        <div class="entradas-det-field">
+                            <span class="entradas-det-field-label">Total Metros</span>
+                            <strong class="entradas-det-field-value">${mat.Total_Metros || '0'}</strong>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // Función para renderizar cards de series
+        function renderSeriesCards() {
+            const container = document.getElementById('entradas-det-series-cards-container');
+            container.innerHTML = '';
+
+            if (!seriesData || seriesData.length === 0) {
+                container.innerHTML = '<div class="alert alert-info w-100">No se encontraron números de serie.</div>';
+                return;
+            }
+
+            seriesData.forEach((row, index) => {
+                const card = document.createElement('div');
+                card.className = 'entradas-det-card';
+                card.innerHTML = `
+                    <div class="entradas-det-card-header">
+                        <h5><i class="fas fa-barcode"></i> Serie ${index + 1}</h5>
+                        <span class="badge-folio">#${index + 1}</span>
+                    </div>
+                    <div class="entradas-det-card-body">
+                        <div class="entradas-det-field">
+                            <span class="entradas-det-field-label">Producto</span>
+                            <strong class="entradas-det-field-value">${row.Producto || 'N/A'}</strong>
+                        </div>
+                        <div class="entradas-det-field">
+                            <span class="entradas-det-field-label">Modelo</span>
+                            <strong class="entradas-det-field-value">${row.Modelo || 'N/A'}</strong>
+                        </div>
+                        <div class="entradas-det-field">
+                            <span class="entradas-det-field-label">Número de Serie</span>
+                            <strong class="entradas-det-field-value"><span class="badge badge-primary">${row.Num_Serie_S || 'SIN SERIE'}</span></strong>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
         $(document).ready(function () {
+            // Renderizar cards para móvil
+            renderMaterialesCards();
+            renderSeriesCards();
+
             // TABLA DE MATERIALES
             let tableMateriales = new DataTable('#ventasMateriales', {
                 fixedColumns: { start: 1, end: 1 },
