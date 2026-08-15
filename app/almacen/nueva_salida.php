@@ -65,7 +65,6 @@ if (empty($idContratistas)) {
         .page-nueva-salida .topbar {
             background: #fff !important;
             border-bottom: 1px solid rgba(15, 23, 42, 0.06);
-            height: auto;
             min-height: 72px;
             padding: 0.5rem 1rem;
             display: flex;
