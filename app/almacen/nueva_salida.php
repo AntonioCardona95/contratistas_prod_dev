@@ -179,8 +179,6 @@ if (empty($idContratistas)) {
             <div id="content">
 
                 <?php
-                    $topbar_onchange = 'LoadEntradas';
-                    $topbar_actions = '';
                     include_once(__DIR__ . '/../components/TopbarContratistas.php');
                 ?>
 
