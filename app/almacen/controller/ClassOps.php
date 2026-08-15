@@ -206,31 +206,50 @@
             return $rows;
         }
 
+        // OBTENER MATERIALES DE UNA ENTRADA (FOLIO_SALIDA)
+        public function ObtenerMaterialesEntrada($Folio_Salida)
+        {
+            $sql = "SELECT 
+                        t.idTransferencias, 
+                        p.Producto, 
+                        p.Modelo, 
+                        t.Tecnologia, 
+                        p.UM, 
+                        p.Presentacion,
+                        t.Total_Piezas,
+                        t.Total_Metros,
+                        (SELECT COUNT(*) FROM material_det_salida m
+                            WHERE m.Folio_Salida_Material_Det_S = :folio
+                              AND m.FK_Material_S = t.FK_Producto_S) AS series_total
+                    FROM transferencias t
+                    INNER JOIN producto p ON t.FK_Producto_S = p.idProducto
+                    WHERE t.Folio_Salida = :folio";
+
+            return $this->runQuery($sql, ['folio' => $Folio_Salida]);
+        }
+
+        // OBTENER NÚMEROS DE SERIE DE UNA ENTRADA (FOLIO_SALIDA)
+        public function ObtenerSeriesEntrada($Folio_Salida)
+        {
+            $sql = "SELECT 
+                        m.Num_Serie_S, 
+                        p.Producto, 
+                        p.Modelo,
+                        p.Descripcion,
+                        p.Tecnologia,
+                        p.Presentacion,
+                        p.UM
+                    FROM material_det_salida m
+                    INNER JOIN producto p ON m.FK_Material_S = p.idProducto
+                    WHERE m.Folio_Salida_Material_Det_S = :folio";
+
+            return $this->runQuery($sql, ['folio' => $Folio_Salida]);
+        }
+
+        // MANTENER PARA COMPATIBILIDAD HACIA ATRÁS
         public function EntradasDet($Folio_Salida_Material_Det_S)
         {
-            $rows = null;
-            $conexion = $this->get_conexion();
-            $sql="SELECT 
-                    m.Num_Serie_S, 
-                    p.Producto, 
-                    p.Descripcion, 
-                    p.Tecnologia, 
-                    p.Modelo,
-                    p.Presentacion,
-                    p.UM
-                FROM material_det_salida m
-                INNER JOIN producto p ON m.FK_Material_S = p.idProducto 
-                WHERE m.Folio_Salida_Material_Det_S = :Folio_Salida_Material_Det_S
-                ORDER BY m.Folio_Salida_Material_Det_S DESC;";
-            $statement = $conexion->prepare($sql);
-            $statement->bindParam(':Folio_Salida_Material_Det_S', $Folio_Salida_Material_Det_S, PDO::PARAM_STR);
-            $statement->execute();
-
-            while ($result = $statement->fetch()) {
-                $rows[] = $result;
-            }
-
-            return $rows;
+            return $this->ObtenerSeriesEntrada($Folio_Salida_Material_Det_S);
         }
 
         public function Salidas($idContratistas,$Fecha1,$Fecha2)

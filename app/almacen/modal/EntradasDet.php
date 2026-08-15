@@ -22,7 +22,8 @@ if ($Folio <= 0) {
 }
 
 $modal = new Ops();
-$salidas_det = $modal->EntradasDet($Folio);
+$materiales = $modal->ObtenerMaterialesEntrada($Folio);
+$series = $modal->ObtenerSeriesEntrada($Folio);
 $topbar_onchange = 'noop';
 
 ?>
@@ -289,6 +290,8 @@ $topbar_onchange = 'noop';
                                                     <th>Tecnología</th>
                                                     <th>Presentación</th>
                                                     <th>UM</th>
+                                                    <th>Total Piezas</th>
+                                                    <th>Total Metros</th>
                                                     <th>Cantidad Recibida</th>
                                                 </tr>
                                             </thead>
@@ -299,22 +302,15 @@ $topbar_onchange = 'noop';
                                                     <th>Tecnología</th>
                                                     <th>Presentación</th>
                                                     <th>UM</th>
+                                                    <th>Total Piezas</th>
+                                                    <th>Total Metros</th>
                                                     <th>Cantidad Recibida</th>
                                                 </tr>
                                             </tfoot>
                                             <tbody>
                                                 <?php 
-                                                    if (!empty($salidas_det)) {
-                                                        $materiales_unicos = array();
-                                                        foreach ($salidas_det as $row) {
-                                                            $key = $row['Modelo'] . '|' . $row['Producto'];
-                                                            if (!isset($materiales_unicos[$key])) {
-                                                                $materiales_unicos[$key] = $row;
-                                                                $materiales_unicos[$key]['cantidad_series'] = 0;
-                                                            }
-                                                            $materiales_unicos[$key]['cantidad_series']++;
-                                                        }
-                                                        foreach ($materiales_unicos as $mat) {
+                                                    if (!empty($materiales)) {
+                                                        foreach ($materiales as $mat) {
                                                 ?>
                                                     <tr>
                                                         <td><?= htmlspecialchars($mat['Producto'] ?? '') ?></td>
@@ -322,14 +318,16 @@ $topbar_onchange = 'noop';
                                                         <td><?= htmlspecialchars($mat['Tecnologia'] ?? '') ?></td>
                                                         <td><?= htmlspecialchars($mat['Presentacion'] ?? '') ?></td>
                                                         <td><?= htmlspecialchars($mat['UM'] ?? '') ?></td>
-                                                        <td><span class="badge badge-info"><?= $mat['cantidad_series'] ?></span></td>
+                                                        <td><?= htmlspecialchars($mat['Total_Piezas'] ?? '') ?></td>
+                                                        <td><?= htmlspecialchars($mat['Total_Metros'] ?? '') ?></td>
+                                                        <td><span class="badge badge-info"><?= $mat['series_total'] ?></span></td>
                                                     </tr>
                                                 <?php 
                                                         }
                                                     } else {
                                                 ?>
                                                     <tr>
-                                                        <td colspan="6" class="text-center text-muted">No se encontraron registros.</td>
+                                                        <td colspan="8" class="text-center text-muted">No se encontraron registros.</td>
                                                     </tr>
                                                 <?php } ?>
                                             </tbody>
@@ -356,7 +354,7 @@ $topbar_onchange = 'noop';
                                                 </tr>
                                             </tfoot>
                                             <tbody>
-                                                <?php if (!empty($salidas_det)): foreach ($salidas_det as $row): ?>
+                                                <?php if (!empty($series)): foreach ($series as $row): ?>
                                                     <tr>
                                                         <td><?= htmlspecialchars($row['Producto'] ?? '') ?></td>
                                                         <td><?= htmlspecialchars($row['Modelo'] ?? '') ?></td>
