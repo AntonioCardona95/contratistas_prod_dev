@@ -246,7 +246,11 @@ $topbar_onchange = 'noop';
             }
 
             .nav-tabs {
-                display: none;
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                overflow-y: hidden;
+                -webkit-overflow-scrolling: touch;
             }
 
             .card-header h1,
@@ -604,15 +608,20 @@ $topbar_onchange = 'noop';
             });
 
             // TABLA DE SERIES
-            let tableSeries = new DataTable('#ventasSeries', {
-                fixedColumns: { start: 1, end: 1 },
-                responsive: true,
-                language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
-                ordering: false,
-                searching: true,
-                scrollY: true,
-                scrollX: true
-            });
+            // La fila informativa usa colspan; no se inicializa DataTables sin series
+            // para evitar que intente leer columnas inexistentes.
+            let tableSeries = null;
+            if (seriesData && seriesData.length > 0) {
+                tableSeries = new DataTable('#ventasSeries', {
+                    fixedColumns: { start: 1, end: 1 },
+                    responsive: true,
+                    language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
+                    ordering: false,
+                    searching: true,
+                    scrollY: true,
+                    scrollX: true
+                });
+            }
 
             new DataTable.Buttons(tableMateriales, {
                 buttons: [
