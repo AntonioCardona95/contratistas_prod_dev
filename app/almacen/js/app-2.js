@@ -69,19 +69,12 @@ function LoadSeries() {
     console.log("Material seleccionado:", materialSeleccionado);
     console.log("Contratista:", contratista);
     
-    // Destruir y limpiar completamente el Bootstrap Select
-    try {
-        $('#Num_Serie_T').selectpicker('destroy');
-    } catch(e) {
-        console.log("SelectPicker no estaba inicializado");
-    }
-    
+    // Select2 se inicializa una sola vez; solo se reemplazan sus opciones.
     $("#Num_Serie_T").empty();
-    $("#Num_Serie_T").removeClass('selectpicker');
-    
     if (!materialSeleccionado || !contratista) {
         console.log("Faltan datos requeridos");
         $("#Num_Serie_T").html('<option value="">Selecciona primero un material</option>');
+        $('#Num_Serie_T').val(null).trigger('change');
         return;
     }
     
@@ -111,23 +104,14 @@ function LoadSeries() {
                 $("#Num_Serie_T").html(data);
             }
             
-            // Reinicializar Bootstrap Select
-            $("#Num_Serie_T").addClass('selectpicker');
-            $('#Num_Serie_T').selectpicker({
-                liveSearch: true,
-                title: 'Selecciona series'
-            });
+            $('#Num_Serie_T').val(null).trigger('change');
         },
         error: function (xhr, status, error) {
             console.error("Error en LoadSeries:", error);
             console.error("Status:", status);
             console.error("XHR:", xhr.responseText);
             $("#Num_Serie_T").html('<option value="">Error al cargar series</option>');
-            $("#Num_Serie_T").addClass('selectpicker');
-            $('#Num_Serie_T').selectpicker({
-                liveSearch: true,
-                title: 'Selecciona series'
-            });
+            $('#Num_Serie_T').val(null).trigger('change');
             alert("Hubo un error al cargar las series. Inténtalo de nuevo.");
         }
     });

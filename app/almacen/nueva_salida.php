@@ -43,8 +43,8 @@ if (empty($idContratistas)) {
     <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
     <link href="../css/responsive_custom.css" rel="stylesheet">
 
-    <!-- Bootstrap Select CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/css/bootstrap-select.min.css">
+    <!-- Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
 
     <!-- ESTILO PERSONALIZADO PARA EL MENU ACTIVO DE LA SIDEBAR -->
     <link rel="stylesheet" href="css/sidebar-active.css">
@@ -463,7 +463,7 @@ if (empty($idContratistas)) {
                             <!-- Series -->
                             <div class="form-group">
                                 <label for="Num_Serie_T">Series Disponibles</label>
-                                <select id="Num_Serie_T" class="form-control selectpicker" multiple data-live-search="true" title="Selecciona series">
+                                <select id="Num_Serie_T" class="form-control" multiple>
                                     <!-- Las series se cargarán dinámicamente -->
                                 </select>
                             </div>
@@ -534,11 +534,40 @@ if (empty($idContratistas)) {
     <?php include_once(__DIR__ . '/../components/ModalCierreSesion.php'); ?>
 
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
     <script src="js/app-2.js"></script>
 
     <script>
         $(document).ready(function() {
+            function inicializarSelect2($select, placeholder) {
+                if (!$select.length || $select.hasClass('select2-hidden-accessible')) {
+                    return;
+                }
+
+                const opciones = {
+                    placeholder: placeholder,
+                    allowClear: true,
+                    width: '100%'
+                };
+
+                // Esta vista es una pÃ¡gina completa. Si el select se reutiliza
+                // dentro de un modal Bootstrap, el desplegable queda dentro de Ã©l.
+                const $modalPadre = $select.closest('.modal');
+                if ($modalPadre.length) {
+                    opciones.dropdownParent = $modalPadre;
+                }
+
+                $select.select2(opciones);
+                $select.on('select2:open.nuevaSalida', function() {
+                    setTimeout(function() {
+                        $('.select2-container--open .select2-search__field').focus().select();
+                    }, 100);
+                });
+            }
+
+            inicializarSelect2($('#FK_Tecnico_Salida_Det'), 'Selecciona TÃ©cnico');
+            inicializarSelect2($('#FK_Material_Salidas_Contratistas'), 'Selecciona Material');
+            inicializarSelect2($('#Num_Serie_T'), 'Selecciona series');
+
             // No inicializar automáticamente el selectpicker para Num_Serie_T
             // porque se reinicializa dinámicamente en LoadSeries()
             
@@ -576,7 +605,7 @@ if (empty($idContratistas)) {
                     $("#Num_Serie_T option:selected").each(function() {
                         $(this).remove();
                     });
-                    $('#Num_Serie_T').selectpicker('refresh');
+                    $('#Num_Serie_T').val(null).trigger('change');
                 } else {
                     alert("No hay series seleccionadas.");
                 }
@@ -588,16 +617,13 @@ if (empty($idContratistas)) {
                 
                 // Devolver la serie al select múltiple
                 $("#Num_Serie_T").append(`<option value="${serieValue}">${serieValue}</option>`);
-                $('#Num_Serie_T').selectpicker('refresh');
+                $('#Num_Serie_T').trigger('change');
                 
                 // Eliminar la fila de la tabla
                 $(this).closest("tr").remove();
             });
         });
     </script>
-
-    <!-- Bootstrap Select JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.14.0-beta3/dist/js/bootstrap-select.min.js"></script>
 
 </body>
 

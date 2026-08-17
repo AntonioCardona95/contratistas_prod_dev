@@ -339,7 +339,9 @@ html, body {
     body.sidebar-toggled #content-wrapper,
     .sidebar.toggled ~ #content-wrapper,
     .sidebar.toggled + #content-wrapper {
-        margin-left: 0 !important;
+        /* La sidebar compacta conserva 6.5rem de ancho; reservar ese espacio
+           evita que el contenido quede debajo de ella. */
+        margin-left: 6.5rem !important;
     }
 
     /* Asegurar footer toggle centrado en vista sidebar (desktop) */
