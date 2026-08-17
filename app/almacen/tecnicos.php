@@ -294,7 +294,12 @@
                 ordering: false,
                 searching: true,
                 pageLength: 12,
-                dom: '<"row"<"col-md-6"f><"col-md-6"B>>' + '<"row"<"col-md-12"t>>' + '<"row"<"col-md-12"ip>>',
+                layout: {
+                    topStart: 'buttons',
+                    topEnd: 'search',
+                    bottomStart: 'info',
+                    bottomEnd: 'paging'
+                },
                 buttons: [{
                     extend: 'excelHtml5',
                     text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
@@ -303,7 +308,8 @@
                 }],
                 initComplete: function () {
                     const api = this.api();
-                    relocateControls(api);
+                    $('#tecnicos-grid-container').insertBefore($('#TecnicosTable'));
+                    $('.dt-search input').attr('placeholder', 'Buscar por nombre, expediente o telefono');
                     renderCards(api);
                     $('#TecnicosTable').hide();
                     tecnicosTableInitialized = true;
@@ -318,7 +324,6 @@
 
                 isRendering = true;
                 renderCards(table);
-                relocateControls(table);
                 setTimeout(function () {
                     isRendering = false;
                 }, 100);

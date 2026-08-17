@@ -301,6 +301,27 @@ if (empty($idContratistas)) {
             .page-nueva-salida label {
                 font-size: 0.95rem;
             }
+
+            /* La tabla de series solo tiene dos columnas: no debe heredar el
+               min-width global de tablas, que ocultaba la acciÃ³n a la derecha. */
+            .page-nueva-salida #selectedSeriesTable {
+                min-width: 100% !important;
+                width: 100% !important;
+                table-layout: fixed;
+            }
+
+            .page-nueva-salida #selectedSeriesTable th:last-child,
+            .page-nueva-salida #selectedSeriesTable td:last-child {
+                width: 80px;
+                min-width: 80px;
+                padding-left: 0.35rem;
+                padding-right: 0.35rem;
+            }
+
+            .page-nueva-salida #selectedSeries input[name="numeros_series[]"] {
+                width: 100%;
+                min-width: 0;
+            }
         }
     </style>
 </head>
@@ -446,7 +467,7 @@ if (empty($idContratistas)) {
                             <div class="form-group">
                                 <label for="FK_Tecnico_Salida_Det">Técnico</label>
                                 <select name="FK_Tecnico_Salida_Det" id="FK_Tecnico_Salida_Det" class="form-control" required>
-                                    <option value="">Selecciona Técnico</option>
+                                    <option value="">Selecciona Tecnico</option>
                                     <?php Tecnicos($idContratistas); ?>
                                 </select>
                             </div>
@@ -480,7 +501,7 @@ if (empty($idContratistas)) {
                             <!-- Tabla de series seleccionadas -->
                             <div class="form-group">
                                 <label>Series Seleccionadas</label>
-                                <table class="table table-bordered">
+                                <table id="selectedSeriesTable" class="table table-bordered">
                                     <thead>
                                         <tr>
                                             <th>Número de Serie</th>
@@ -564,7 +585,7 @@ if (empty($idContratistas)) {
                 });
             }
 
-            inicializarSelect2($('#FK_Tecnico_Salida_Det'), 'Selecciona TÃ©cnico');
+            inicializarSelect2($('#FK_Tecnico_Salida_Det'), 'Selecciona Tecnico');
             inicializarSelect2($('#FK_Material_Salidas_Contratistas'), 'Selecciona Material');
             inicializarSelect2($('#Num_Serie_T'), 'Selecciona series');
 

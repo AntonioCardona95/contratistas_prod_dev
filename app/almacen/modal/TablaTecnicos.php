@@ -246,21 +246,7 @@
         No se encontraron técnicos activos para este contratista.
     </div>
 <?php else : ?>
-    <div class="dt-container" style="margin-bottom: 15px;">
-        <div class="row align-items-center">
-            <div class="col-md-6" id="botones-detalles"></div>
-            <div class="col-md-6 d-flex justify-content-end" id="search-detalles"></div>
-        </div>
-    </div>
-
     <div id="tecnicos-grid-container" class="row g-4"></div>
-
-    <div class="dt-container" style="margin-top: 20px;">
-        <div class="row align-items-center">
-            <div class="col-md-6" id="info-detalles"></div>
-            <div class="col-md-6 d-flex justify-content-end" id="pagination-detalles"></div>
-        </div>
-    </div>
 
     <table class="table table-bordered display nowrap datatable-init" style="width:100%; display:none;" id="TecnicosTable">
         <thead>
