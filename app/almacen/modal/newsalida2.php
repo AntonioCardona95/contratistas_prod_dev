@@ -23,8 +23,8 @@ function showAlert($message, $redirect = null)
     </script>";
 }
 
-// Input validation
-$folio = $_POST['folio'];
+// El folio enviado por el navegador es solo visual. El definitivo se obtiene
+// bajo bloqueo justo antes de insertar, para impedir folios duplicados.
 $FK_Contratista_Salida_Det = $_POST['FK_Contratista_Salida'];
 $FK_Tecnico_Salida_Det = $_POST['FK_Tecnico_Salida_Det'];
 $Descripcion_Salida_Det = sanitizeInput($_POST['Descripcion_Salida_Det'] ?? '');
@@ -34,13 +34,17 @@ $Fecha_Salida_Det = date('Y-m-d H:i:s');
 $Ubicacion = 'SIN INSTALAR';
 
 // Validate required fields
-if (!$folio || !$FK_Contratista_Salida_Det || !$FK_Tecnico_Salida_Det || empty($numeros_series)) {
+if (!$FK_Contratista_Salida_Det || !$FK_Tecnico_Salida_Det || empty($numeros_series)) {
     showAlert("Faltan datos obligatorios. Verifique e intente nuevamente.");
     exit;
 }
 
 try {
     $modal = new Ops();
+    $folio = $modal->FolioSeguroSalida();
+    if ($folio === false) {
+        throw new Exception('No fue posible reservar un folio de salida.');
+    }
     $success = true;
 
     // Process each serial number

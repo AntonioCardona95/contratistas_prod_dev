@@ -13,19 +13,9 @@
 	
     function UltimaSalida(){
         global $modalcargar;
-        $ultimo = $modalcargar->UltimaSalida();
-
-        $folio = 0;
-        if ($ultimo) {
-            foreach ($ultimo as $key) {
-                $folio = $key['Folio_Salida_T'] + 1;
-
-                echo '<input type="number" name="folio" id="Folio_Salida" class="form-control" value="'.$folio.'" readonly="">';
-            }
-        }else{
-            $folio = 1;
-            echo '<input type="number" name="folio" id="Folio_Salida" class="form-control" value="'.$folio.'" readonly="">';
-        }
+        $folio = $modalcargar->FolioProvisionalSalida();
+        $folio = $folio !== false ? $folio : '';
+        echo '<input type="number" name="folio" id="Folio_Salida" class="form-control" value="'.$folio.'" readonly="">';
     }
 
     function UltimaTraspaso(){

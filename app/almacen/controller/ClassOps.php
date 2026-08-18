@@ -472,6 +472,68 @@
             return $rows;
         }
 
+        // OBTENER EL FOLIO PROVISIONAL
+        public function FolioProvisionalSalida()
+        {
+            try {
+                $conexion = $this->get_conexion();
+                $stmt = $conexion->prepare(
+                    "SELECT siguiente_folio
+                     FROM folio_secuencia
+                     WHERE id_tabla = 'salidas_contratista_t'"
+                );
+                $stmt->execute();
+                $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                return $resultado ? (int)$resultado['siguiente_folio'] : 1;
+            } catch (Exception $e) {
+                error_log('[FolioProvisionalSalida] Excepcion: ' . $e->getMessage());
+                return false;
+            }
+        }
+
+        // OBTENER EL FOLIO SEGURO EL REAL QUE EVITA LA DUPLICIDAD
+        public function FolioSeguroSalida()
+        {
+            $conexion = $this->get_conexion();
+
+            try {
+                $conexion->beginTransaction();
+
+                // La fila debe existir antes de bloquearla. La inicializacion
+                // de datos se realiza con el SQL de migracion indicado abajo.
+                $stmt = $conexion->prepare(
+                    "SELECT siguiente_folio
+                     FROM folio_secuencia
+                     WHERE id_tabla = 'salidas_contratista_t'
+                     FOR UPDATE"
+                );
+                $stmt->execute();
+                $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$resultado) {
+                    throw new Exception('No existe la secuencia salidas_contratista_t. Inicialice folio_secuencia.');
+                }
+
+                $folioActual = (int)$resultado['siguiente_folio'];
+                $actualizar = $conexion->prepare(
+                    "UPDATE folio_secuencia
+                     SET siguiente_folio = siguiente_folio + 1
+                     WHERE id_tabla = 'salidas_contratista_t'"
+                );
+                $actualizar->execute();
+
+                $conexion->commit();
+                return $folioActual;
+            } catch (Exception $e) {
+                if ($conexion->inTransaction()) {
+                    $conexion->rollBack();
+                }
+                error_log('[FolioSeguroSalida] Excepcion: ' . $e->getMessage());
+                return false;
+            }
+        }
+
         public function UltimaTraspaso()
         {
             $rows = null;
