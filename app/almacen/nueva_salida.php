@@ -449,7 +449,7 @@ if (empty($idContratistas)) {
                     <h1 class="h3 m-0 font-weight-bold text-gray-800">ASIGNAR MATERIAL A TECNICO</h1>
 
                     <!-- filepath: c:\Users\Axel Garcia OPS\Desktop\HTDOCS\contratistas_dash\nueva_salida.php -->
-                    <form action="modal/newsalida2.php" method="post" id="FormQueryUnidades" enctype="multipart/form-data" name="formulario" onsubmit="return confirm('¿Está seguro de registrar?');">
+                    <form action="modal/newsalida2.php" method="post" id="FormQueryUnidades" enctype="multipart/form-data" name="formulario">
 
                         <div class="container mt-2">
                             <div class="card-form-shell">
@@ -522,7 +522,7 @@ if (empty($idContratistas)) {
 
                             <!-- Botón para procesar -->
                             <div class="form-group text-center">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" id="btnProcesarSalida" class="btn btn-primary">
                                     <i class="fas fa-check"></i> Procesar Salida
                                 </button>
                             </div>
@@ -642,6 +642,73 @@ if (empty($idContratistas)) {
                 
                 // Eliminar la fila de la tabla
                 $(this).closest("tr").remove();
+            });
+
+            // El folio definitivo se asigna en el servidor. El formulario se
+            // envía por AJAX para poder mostrarlo al usuario con SweetAlert.
+            $('#FormQueryUnidades').on('submit', function(event) {
+                event.preventDefault();
+
+                const formulario = this;
+                if (!formulario.checkValidity()) {
+                    formulario.reportValidity();
+                    return;
+                }
+
+                const $formulario = $(formulario);
+                const $boton = $('#btnProcesarSalida');
+                const textoOriginal = $boton.html();
+
+                Swal.fire({
+                    icon: 'question',
+                    title: '¿Procesar salida?',
+                    text: 'Las series seleccionadas serán asignadas al técnico.',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sí, procesar',
+                    cancelButtonText: 'Cancelar',
+                    allowOutsideClick: false
+                }).then(function(resultado) {
+                    if (!resultado.isConfirmed) {
+                        return;
+                    }
+
+                    $.ajax({
+                        type: 'POST',
+                        url: $formulario.attr('action'),
+                        data: $formulario.serialize(),
+                        dataType: 'json',
+                        beforeSend: function() {
+                            $boton.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Procesando...');
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    position: "top",
+                                    icon: "success",
+                                    title: "Salida guardada correctamente",
+                                    html: "<strong>Folio asignado:</strong> " + response.folio_real +
+                                        (response.cambio_folio
+                                            ? "<br><br><strong>Nota:</strong> El folio provisional fue actualizado correctamente."
+                                            : ""),
+                                    showConfirmButton: true,
+                                    allowOutsideClick: false
+                                }).then(function() {
+                                    window.location.href = response.redirect || 'salidas.php';
+                                });
+                                return;
+                            }
+
+                            Swal.fire('No se pudo guardar la salida', response.message || 'Intente nuevamente.', 'error');
+                        },
+                        error: function(xhr) {
+                            const response = xhr.responseJSON || {};
+                            Swal.fire('No se pudo guardar la salida', response.message || 'Ocurrió un error al procesar la salida.', 'error');
+                        },
+                        complete: function() {
+                            $boton.prop('disabled', false).html(textoOriginal);
+                        }
+                    });
+                });
             });
         });
     </script>

@@ -1,6 +1,8 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+// Este archivo responde JSON al formulario AJAX; los errores PHP no deben
+// mezclarse con la respuesta que interpreta SweetAlert.
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
 error_reporting(E_ALL);
 
 date_default_timezone_set('America/Monterrey');
@@ -12,21 +14,19 @@ function sanitizeInput($data)
     return htmlspecialchars(stripslashes(trim($data)));
 }
 
-// Alert function
-function showAlert($message, $redirect = null)
+function jsonResponse($data, $statusCode = 200)
 {
-    echo "<script>
-        alert('$message');
-        window.onload = function() {
-            " . ($redirect ? "window.location.href = '$redirect';" : "") . "
-        };
-    </script>";
+    http_response_code($statusCode);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode($data);
+    exit;
 }
 
 // El folio enviado por el navegador es solo visual. El definitivo se obtiene
 // bajo bloqueo justo antes de insertar, para impedir folios duplicados.
-$FK_Contratista_Salida_Det = $_POST['FK_Contratista_Salida'];
-$FK_Tecnico_Salida_Det = $_POST['FK_Tecnico_Salida_Det'];
+$folioProvisional = isset($_POST['folio']) ? (int)$_POST['folio'] : 0;
+$FK_Contratista_Salida_Det = $_POST['FK_Contratista_Salida'] ?? null;
+$FK_Tecnico_Salida_Det = $_POST['FK_Tecnico_Salida_Det'] ?? null;
 $Descripcion_Salida_Det = sanitizeInput($_POST['Descripcion_Salida_Det'] ?? '');
 $numeros_series = $_POST['numeros_series'] ?? [];
 $FK_Material_Salidas_Contratistas = sanitizeInput($_POST['FK_Material_Salidas_Contratistas'] ?? '');
@@ -35,8 +35,10 @@ $Ubicacion = 'SIN INSTALAR';
 
 // Validate required fields
 if (!$FK_Contratista_Salida_Det || !$FK_Tecnico_Salida_Det || empty($numeros_series)) {
-    showAlert("Faltan datos obligatorios. Verifique e intente nuevamente.");
-    exit;
+    jsonResponse([
+        'success' => false,
+        'message' => 'Faltan datos obligatorios. Verifique e intente nuevamente.'
+    ], 422);
 }
 
 try {
@@ -79,7 +81,12 @@ try {
         );
 
         if ($insert2) {
-            showAlert("Transferencia Exitosa!", "../salidas.php");
+            jsonResponse([
+                'success' => true,
+                'folio_real' => $folio,
+                'cambio_folio' => $folioProvisional !== $folio,
+                'redirect' => 'salidas.php'
+            ]);
         } else {
             throw new Exception("Error al registrar la transferencia.");
         }
@@ -87,5 +94,9 @@ try {
         throw new Exception("Error al procesar los números de serie.");
     }
 } catch (Exception $e) {
-    showAlert("Error: " . $e->getMessage());
+    error_log('[newsalida2] Error: ' . $e->getMessage());
+    jsonResponse([
+        'success' => false,
+        'message' => $e->getMessage()
+    ], 500);
 }
