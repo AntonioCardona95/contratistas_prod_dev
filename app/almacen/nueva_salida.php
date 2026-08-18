@@ -1,18 +1,26 @@
 <?php
 
+// CONFIGURA LA VISTA DE ASIGNACIÓN DE MATERIAL A TÉCNICOS.
+// MUESTRA EL FORMULARIO Y DELEGA EL GUARDADO A modal/newsalida2.php.
+
+// ACTIVA EL REPORTE DE ERRORES DURANTE EL DESARROLLO.
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+// DEFINE LA ZONA HORARIA UTILIZADA POR LA APLICACIÓN.
 date_default_timezone_set('America/Monterrey');
 
+// CARGA LA LÓGICA DE DATOS Y LAS FUNCIONES QUE RENDERIZAN LOS SELECTS/FOLIO.
 require_once("controller/ClassOps.php");
 require_once("modal/cargar.php");
 
+// RECUPERA LA SESIÓN Y EL CONTRATISTA QUE OPERA LA SALIDA.
 session_start();
 $Contratista = $_SESSION['Contratista'];
 $idContratistas = $_SESSION['idContratistas'];
 
+// IMPIDE EL ACCESO A LA VISTA CUANDO NO EXISTE UNA SESIÓN VÁLIDA.
 if (empty($idContratistas)) {
     header("location: ../Login/modal/poweroff.php");
 }
@@ -50,6 +58,7 @@ if (empty($idContratistas)) {
     <link rel="stylesheet" href="css/sidebar-active.css">
 
     <style>
+        /* ESTILOS GENERALES DEL FORMULARIO Y DE LA CABECERA. */
         .selected-option {
             background-color: #d4edda !important;
             color: #155724 !important;
@@ -58,6 +67,7 @@ if (empty($idContratistas)) {
             background: linear-gradient(90deg, #007BFF 0%, #007 100%) !important;
         }
 
+        /* DEFINE EL CONTENEDOR, LA BARRA SUPERIOR Y EL TÍTULO DE LA VISTA. */
         .page-nueva-salida #content {
             background: #eef1f6;
         }
@@ -105,6 +115,7 @@ if (empty($idContratistas)) {
             padding: 0.4rem 0.7rem;
         }
 
+        /* DA FORMA A LA TARJETA Y A LOS CAMPOS DEL FORMULARIO. */
         .page-nueva-salida .container-fluid {
             padding-bottom: 2rem;
         }
@@ -177,6 +188,7 @@ if (empty($idContratistas)) {
             resize: vertical;
         }
 
+        /* PERSONALIZA LOS BOTONES DE AGREGAR Y PROCESAR LA SALIDA. */
         .page-nueva-salida .btn-primary,
         .page-nueva-salida #addRow {
             border: none;
@@ -211,6 +223,7 @@ if (empty($idContratistas)) {
             transform: translateY(-1px);
         }
 
+        /* DA FORMATO A LA TABLA DE SERIES SELECCIONADAS. */
         .page-nueva-salida .table {
             border-radius: 12px;
             overflow: hidden;
@@ -257,6 +270,21 @@ if (empty($idContratistas)) {
             color: #fff;
         }
 
+        /* RESALTA LOS CAMPOS Y EL BLOQUE DE SERIES CON ERRORES DE VALIDACIÓN. */
+        .page-nueva-salida .campo-obligatorio-error,
+        .page-nueva-salida .select2-container.campo-obligatorio-error .select2-selection {
+            border-color: #e74a3b !important;
+            box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.16) !important;
+        }
+
+        .page-nueva-salida #grupoSeriesSeleccionadas.campo-obligatorio-error {
+            border: 1px solid #e74a3b;
+            border-radius: 12px;
+            padding: 0.8rem;
+            background: #fff4f3;
+        }
+
+        /* AJUSTA LA PRESENTACIÓN DEL FORMULARIO PARA PANTALLAS MÓVILES. */
         @media (max-width: 768px) {
             .page-nueva-salida .container-fluid {
                 padding-left: 0.75rem;
@@ -328,21 +356,21 @@ if (empty($idContratistas)) {
 
 <body id="page-top" class="page-nueva-salida">
 
-    <!-- Page Wrapper -->
+    <!-- CONTENEDOR PRINCIPAL DE LA PÁGINA. -->
     <div id="wrapper">
 
         <!-- SIDEBAR -->
         <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a 100%, #224abe 0%); background-size: cover;">
 
-            <!-- Sidebar - Brand -->
+            <!-- MARCA Y ACCESO PRINCIPAL DEL MENÚ LATERAL. -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
                 <div class="sidebar-brand-text mx-3">ALMACEN</div>
             </a>
 
-            <!-- Divider -->
+            <!-- SEPARADOR VISUAL DEL MENÚ. -->
             <hr class="sidebar-divider my-0">
 
-            <!-- DASHBOARD -->
+            <!-- ACCESO AL TABLERO PRINCIPAL. -->
             <li class="nav-item">
                 <a class="nav-link" href="index.php">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
@@ -350,15 +378,15 @@ if (empty($idContratistas)) {
                 </a>
             </li>
 
-            <!-- Divider -->
+            <!-- SEPARADOR VISUAL DEL MENÚ. -->
             <hr class="sidebar-divider">
 
-            <!-- Heading -->
+            <!-- TÍTULO DE LA SECCIÓN DE NAVEGACIÓN. -->
             <div class="sidebar-heading">
                 ACCION
             </div>
 
-            <!-- Nav Item - Pages Collapse Menu -->
+            <!-- MENÚ DESPLEGABLE PARA CAMBIAR DE MÓDULO. -->
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
                     aria-expanded="true" aria-controls="collapsePages">
@@ -374,7 +402,7 @@ if (empty($idContratistas)) {
                 </div>
             </li>
 
-            <!-- MATERIAL RECIBIDO -->
+            <!-- ACCESO AL MATERIAL RECIBIDO. -->
             <li class="nav-item">
                 <a class="nav-link" href="entradas.php">
                     <i class="fa-solid fa-clipboard-check"></i>
@@ -382,7 +410,7 @@ if (empty($idContratistas)) {
                 </a>
             </li>
 
-            <!-- ACEPTAR MATERIAL -->
+            <!-- ACCESO A LA ACEPTACIÓN DE MATERIAL. -->
             <li class="nav-item">
                 <a class="nav-link" href="aceptarMaterial.php">
                     <i class="fa-solid fa-feather-pointed"></i>
@@ -398,7 +426,7 @@ if (empty($idContratistas)) {
                 </a>
             </li>
 
-            <!-- ASIGNAR MATERIAL -->
+            <!-- ACCESO ACTIVO A LA ASIGNACIÓN DE MATERIAL. -->
             <li class="nav-item active">
                 <a class="nav-link" href="salidas.php">
                     <i class="fa-solid fa-circle-plus"></i>
@@ -406,7 +434,7 @@ if (empty($idContratistas)) {
                 </a>
             </li>
 
-            <!-- TECNICOS -->
+            <!-- ACCESO AL CATÁLOGO DE TÉCNICOS. -->
             <li class="nav-item">
                 <a class="nav-link" href="tecnicos.php">
                     <i class="fas fa-fw fa-table"></i>
@@ -428,10 +456,10 @@ if (empty($idContratistas)) {
         </ul>
         <!-- FIN DE LA SIDEBAR -->
 
-        <!-- Content Wrapper -->
+        <!-- CONTENEDOR DEL CONTENIDO CENTRAL DE LA VISTA. -->
         <div id="content-wrapper" class="d-flex flex-column">
 
-            <!-- Main Content -->
+            <!-- ÁREA PRINCIPAL DEL FORMULARIO DE SALIDA. -->
             <div id="content">
 
                 <?php
@@ -464,25 +492,25 @@ if (empty($idContratistas)) {
                             <input type="hidden" name="FK_Contratista_Salida" id="FK_Contratista_Salida" value="<?php echo $idContratistas; ?>">
 
                             <!-- Técnico -->
-                            <div class="form-group">
+                            <div class="form-group" id="grupoTecnico">
                                 <label for="FK_Tecnico_Salida_Det">Técnico</label>
-                                <select name="FK_Tecnico_Salida_Det" id="FK_Tecnico_Salida_Det" class="form-control" required>
+                                <select name="FK_Tecnico_Salida_Det" id="FK_Tecnico_Salida_Det" class="form-control">
                                     <option value="">Selecciona Tecnico</option>
                                     <?php Tecnicos($idContratistas); ?>
                                 </select>
                             </div>
 
                             <!-- Material -->
-                            <div class="form-group">
+                            <div class="form-group" id="grupoMaterial">
                                 <label for="FK_Material_Salidas_Contratistas">Material</label>
-                                <select name="FK_Material_Salidas_Contratistas" id="FK_Material_Salidas_Contratistas" class="form-control" onchange="LoadSeries();" required>
+                                <select name="FK_Material_Salidas_Contratistas" id="FK_Material_Salidas_Contratistas" class="form-control" onchange="LoadSeries();">
                                     <option value="">Selecciona Material</option>
                                     <?php Materiales($idContratistas); ?>
                                 </select>
                             </div>
 
                             <!-- Series -->
-                            <div class="form-group">
+                            <div class="form-group" id="grupoSeriesSeleccionadas">
                                 <label for="Num_Serie_T">Series Disponibles</label>
                                 <select id="Num_Serie_T" class="form-control" multiple>
                                     <!-- Las series se cargarán dinámicamente -->
@@ -627,6 +655,7 @@ if (empty($idContratistas)) {
                         $(this).remove();
                     });
                     $('#Num_Serie_T').val(null).trigger('change');
+                    $('#grupoSeriesSeleccionadas').removeClass('campo-obligatorio-error');
                 } else {
                     alert("No hay series seleccionadas.");
                 }
@@ -644,16 +673,65 @@ if (empty($idContratistas)) {
                 $(this).closest("tr").remove();
             });
 
+            function marcarCampoObligatorio($campo, mostrarError) {
+                $campo.toggleClass('campo-obligatorio-error', mostrarError)
+                    .attr('aria-invalid', mostrarError ? 'true' : 'false');
+                $campo.next('.select2-container').toggleClass('campo-obligatorio-error', mostrarError);
+            }
+
+            function enfocarCampo($campo) {
+                $('html, body').animate({ scrollTop: $campo.closest('.form-group').offset().top - 90 }, 250);
+                $campo.select2('open');
+            }
+
+            $('#FK_Tecnico_Salida_Det, #FK_Material_Salidas_Contratistas').on('change', function() {
+                if ($(this).val()) {
+                    marcarCampoObligatorio($(this), false);
+                }
+            });
+
             // El folio definitivo se asigna en el servidor. El formulario se
             // envía por AJAX para poder mostrarlo al usuario con SweetAlert.
             $('#FormQueryUnidades').on('submit', function(event) {
                 event.preventDefault();
 
-                const formulario = this;
-                if (!formulario.checkValidity()) {
-                    formulario.reportValidity();
+                const $tecnico = $('#FK_Tecnico_Salida_Det');
+                const $material = $('#FK_Material_Salidas_Contratistas');
+                const tecnicoVacio = !$tecnico.val();
+                const materialVacio = !$material.val();
+
+                // E-001 tiene prioridad: primero se deben seleccionar Técnico
+                // y Material antes de validar las series.
+                marcarCampoObligatorio($tecnico, tecnicoVacio);
+                marcarCampoObligatorio($material, materialVacio);
+                if (tecnicoVacio || materialVacio) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'E-001 CAMPOS OBLIGATORIOS',
+                        text: 'Completa todos los campos obligatorios resaltados en rojo.',
+                        confirmButtonText: 'Entendido'
+                    }).then(function() {
+                        enfocarCampo(tecnicoVacio ? $tecnico : $material);
+                    });
                     return;
                 }
+
+                const $grupoSeries = $('#grupoSeriesSeleccionadas');
+                const sinSeries = $('#selectedSeries input[name="numeros_series[]"]').length === 0;
+                $grupoSeries.toggleClass('campo-obligatorio-error', sinSeries);
+                if (sinSeries) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'E-002 SERIES OBLIGATORIAS',
+                        text: 'Agrega al menos un número de serie para continuar.',
+                        confirmButtonText: 'Entendido'
+                    }).then(function() {
+                        $('html, body').animate({ scrollTop: $grupoSeries.offset().top - 90 }, 250);
+                    });
+                    return;
+                }
+
+                const formulario = this;
 
                 const $formulario = $(formulario);
                 const $boton = $('#btnProcesarSalida');
