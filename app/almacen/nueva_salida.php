@@ -680,8 +680,14 @@ if (empty($idContratistas)) {
             }
 
             function enfocarCampo($campo) {
-                $('html, body').animate({ scrollTop: $campo.closest('.form-group').offset().top - 90 }, 250);
-                $campo.select2('open');
+                const $grupo = $campo.closest('.form-group');
+                if ($grupo.length) {
+                    $('html, body').animate({ scrollTop: $grupo.offset().top - 90 }, 250);
+                }
+                $campo.blur();
+                if ($campo.data('select2')) {
+                    $campo.select2('close');
+                }
             }
 
             $('#FK_Tecnico_Salida_Det, #FK_Material_Salidas_Contratistas').on('change', function() {
