@@ -55,7 +55,7 @@
             color: #155724 !important;
         }
         .modal-header-gradient {
-            background: linear-gradient(90deg, #007BFF 0%, #007 100%) !important;
+            background: linear-gradient(90deg, #0f172a 0%, #003d99 100%) !important;
         }
 
         /* DA FORMA A LA TARJETA Y A LOS CAMPOS DEL FORMULARIO. */
@@ -349,7 +349,7 @@
                     </button>
                 </div>
                 <!-- filepath: c:\Users\Axel Garcia OPS\Desktop\HTDOCS\contratistas_dash\nueva_salida.php -->
-                <form action="modal/newsalida2.php" method="post" id="FormQueryUnidades" enctype="multipart/form-data" name="formulario">
+                <form action="modal/newsalida2.php" method="post" id="FormNuevaSalida" enctype="multipart/form-data" name="formulario">
                     <div class="modal-body">
                         <div class="card-form-shell">
 
@@ -564,7 +564,7 @@
 
             // El folio definitivo se asigna en el servidor. El formulario se
             // envía por AJAX para poder mostrarlo al usuario con SweetAlert.
-            $('#FormQueryUnidades').on('submit', function(event) {
+            $(document).on('submit', '#FormNuevaSalida', function(event) {
                 event.preventDefault();
 
                 const $tecnico = $('#FK_Tecnico_Salida_Det');
