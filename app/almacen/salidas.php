@@ -83,7 +83,7 @@
             border: 1px solid #dfe3ea;
             border-radius: 10px;
             background: rgba(255, 255, 255, 0.82);
-            min-height: 46px;
+            min-height: 30px;
             padding: 0rem 0.9rem;
             font-size: 1rem;
             color: #2f3743;
@@ -103,7 +103,7 @@
             border-radius: 10px;
             font-weight: 700;
             min-height: 42px;
-            padding: 0.7rem 1.2rem;
+            padding: 5px 15px;
             transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
 
@@ -113,16 +113,9 @@
             color: #fff;
         }
 
+        /* BOTON DE PROCESAR SALIDA */
         #modalNuevaSalida button[type="submit"] {
             background: linear-gradient(180deg, #22b56a 0%, #1d9f5d 100%);
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            min-height: 42px;
-            padding: 0.7rem 1.2rem;
-            box-shadow: 0 8px 18px rgba(29, 159, 93, 0.18);
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-            color: #fff;
         }
 
         #modalNuevaSalida .btn-primary:hover,
@@ -140,23 +133,19 @@
             margin-bottom: 0;
         }
 
+        /* TITULO DE LA COLUMNA */
         #modalNuevaSalida .table thead th {
             background: #e7ebf0;
             color: #364152;
             font-weight: 700;
             border-bottom: 1px solid #dfe3ea;
-            padding: 0.9rem 0.8rem;
         }
 
+        /* REGISTROS DE LA TABLA*/
         #modalNuevaSalida .table tbody td {
             vertical-align: middle;
-            padding: 0.8rem;
             border-top: 1px solid #eef2f7;
             background: rgba(255,255,255,0.45);
-        }
-
-        #modalNuevaSalida #selectedSeries tr {
-            background: transparent;
         }
 
         #modalNuevaSalida #selectedSeries input[name="numeros_series[]"] {
@@ -306,7 +295,7 @@
                 <?php
                     // Esta pantalla define su acción del topbar y agrega el botón para registrar una nueva salida.
                     $topbar_onchange = 'LoadSalidas';
-                    $topbar_actions = '<button type="button" class="btn btn-success" data-toggle="modal" data-target="#modalNuevaSalida"><i class="fas fa-plus"></i> NUEVA SALIDA</button>';
+                    $topbar_actions = '<a type="button" class="btn btn-success" data-toggle="modal" data-target="#modalNuevaSalida"><i class="fas fa-plus"></i> NUEVA SALIDA</a>';
                     include_once(__DIR__ . '/../components/TopbarContratistas.php');
                 ?>
                 <div class="container-fluid">
