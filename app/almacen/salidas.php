@@ -91,8 +91,9 @@
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
+        /* TEXTAREA DE DESCRIPCION */
         #modalNuevaSalida textarea.form-control {
-            min-height: 110px;
+            min-height: 75px;
             resize: vertical;
         }
 
@@ -124,8 +125,11 @@
             transform: translateY(-1px);
         }
 
-        /* DA FORMATO A LA TABLA DE SERIES SELECCIONADAS. */
-        #modalNuevaSalida .table {
+        /* DA FORMATO Y RESPONSIVIDAD A LA TABLA DE SERIES SELECCIONADAS. */
+        #modalNuevaSalida #selectedSeriesTable {
+            min-width: 100% !important;
+            width: 100% !important;
+            table-layout: fixed;
             border-radius: 12px;
             overflow: hidden;
             background: rgba(255, 255, 255, 0.72);
@@ -134,37 +138,71 @@
         }
 
         /* TITULO DE LA COLUMNA */
-        #modalNuevaSalida .table thead th {
+        #modalNuevaSalida #selectedSeriesTable thead th {
             background: #e7ebf0;
             color: #364152;
             font-weight: 700;
             border-bottom: 1px solid #dfe3ea;
+            white-space: normal !important;
+            padding: 0.6rem 0.5rem;
+            font-size: 0.95rem;
         }
 
-        /* REGISTROS DE LA TABLA*/
-        #modalNuevaSalida .table tbody td {
+        /* REGISTROS DE LA TABLA */
+        #modalNuevaSalida #selectedSeriesTable tbody td {
             vertical-align: middle;
             border-top: 1px solid #eef2f7;
             background: rgba(255,255,255,0.45);
+            white-space: normal !important;
+            padding: 0.5rem 0.4rem;
+        }
+
+        /* ANCHO DE LA COLUMNA DE ACCIÓN */
+        #modalNuevaSalida #selectedSeriesTable th:last-child,
+        #modalNuevaSalida #selectedSeriesTable td:last-child {
+            width: 75px !important;
+            min-width: 75px !important;
+            max-width: 75px !important;
+            text-align: center;
+            padding-left: 0.25rem !important;
+            padding-right: 0.25rem !important;
         }
 
         #modalNuevaSalida #selectedSeries input[name="numeros_series[]"] {
             background: #fff;
             border: 1px solid #dfe3ea;
             border-radius: 10px;
-            min-height: 42px;
-            padding: 0.6rem 0.8rem;
-            font-size: 0.96rem;
+            min-height: 38px;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.92rem;
             color: #2f3743;
+            width: 100% !important;
+            min-width: 0 !important;
         }
 
         #modalNuevaSalida .removeRow {
             border-radius: 10px;
-            min-width: 42px;
-            min-height: 42px;
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
+            min-height: 38px;
             background: #e74c3c;
             border: none;
             color: #fff;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* AJUSTES PARA PANTALLAS PEQUEÑAS / MÓVILES */
+        @media (max-width: 768px) {
+            #modalNuevaSalida .card-form-shell {
+                padding: 0.85rem 0.75rem;
+            }
+            #modalNuevaSalida .modal-body {
+                padding: 0.75rem;
+            }
         }
 
         /* RESALTA LOS CAMPOS Y EL BLOQUE DE SERIES CON ERRORES DE VALIDACIÓN. */
