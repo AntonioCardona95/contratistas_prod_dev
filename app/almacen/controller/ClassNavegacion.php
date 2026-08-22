@@ -7,7 +7,7 @@ class Navegacion extends Conexion
     protected function runQuery($sql, $params = array())
     {
         $rows = array();
-        $conexion = $this->get_conexion();
+        $conexion = $this->conexion();
 
         try {
             $stmt = $conexion->prepare($sql);
@@ -30,7 +30,7 @@ class Navegacion extends Conexion
 
     protected function runExecute($sql, $params = array())
     {
-        $conexion = $this->get_conexion();
+        $conexion = $this->conexion();
         try {
             $stmt = $conexion->prepare($sql);
             foreach ($params as $key => $val) {
@@ -64,5 +64,39 @@ class Navegacion extends Conexion
         );
 
         return $this->runQuery($sql, $params);
+    }
+
+    // OBTENER LAS SERIES Y SU ESTADO PARA UN FOLIO
+    public function ObtenerDetalleFolio($folio, $contratistaId)
+    {
+        $sql = "SELECT
+                    m.Num_Serie_S,
+                    p.Producto,
+                    s.Folio_Salida_Det,
+                    s.FK_Tecnico_Salida_Det,
+                    CONCAT(t.Nombre_T, ' ', t.Apellidos_T) AS Tecnico,
+                    c.Telefono,
+                    c.Fecha_Coordiapp,
+                    CASE WHEN c.Ont IS NULL THEN 0 ELSE 1 END AS Liquidado
+                FROM transferencias_t AS transferencia
+                INNER JOIN material_det_salida AS m
+                    ON transferencia.Folio_Salida_ST = m.Folio_Salida_Material_Det_S
+                INNER JOIN producto AS p
+                    ON m.FK_Material_S = p.idProducto
+                LEFT JOIN salidas_contratistas AS s
+                    ON m.Num_Serie_S = s.Num_Serie_Salida_Det
+                LEFT JOIN tecnicos AS t
+                    ON s.FK_Tecnico_Salida_Det = t.idTecnico
+                LEFT JOIN View_Detalle_Coordiapp_Completadas AS c
+                    ON m.Num_Serie_S = c.Ont
+                WHERE transferencia.Folio_Salida_ST = :folio
+                    AND transferencia.FK_Contra_ST = :contratistaId
+                    AND p.Tipo_Proyecto IN ('ONT', 'Modem')
+                ORDER BY p.Producto, m.Num_Serie_S";
+
+        return $this->runQuery($sql, array(
+            ':folio' => $folio,
+            ':contratistaId' => $contratistaId
+        ));
     }
 }

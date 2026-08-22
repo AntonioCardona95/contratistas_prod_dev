@@ -130,9 +130,10 @@
             max-width: 85vw !important;
         }
 
-        #tac_folios_tabla td.dt-type-numeric,
-        #tac_folios_tabla th.dt-type-numeric {
-        text-align: center !important;
+        /* ESTILO PARA LAS CELDAS NUMÉRICAS */
+        #tac_series_tabla td.dt-type-numeric,
+        #tac_series_tabla th.dt-type-numeric {
+            text-align: center !important;
         }
     </style>
 
@@ -365,13 +366,25 @@
             $('#titulo-panel-folios').html(
                 '<i class="fas fa-file-alt mr-1"></i> Folio ' + escapeHtml(folio)
             );
-            $('#contenido-folios').html(
-                '<div class="placeholder-tac">' +
-                '<i class="fas fa-file-alt"></i>' +
-                '<p>Folio ' + escapeHtml(folio) + ' seleccionado</p>' +
-                '<small class="text-muted">El detalle de numeros de serie se agregara en el siguiente paso.</small>' +
-                '</div>'
-            );
+
+            $('#spinnerFolios').css('display', 'flex');
+            $('#contenido-folios').css('opacity', '0.4');
+
+            $.ajax({
+                url: 'modal/Navegacion_Tabla.php',
+                type: 'POST',
+                data: { folio: folio },
+                success: function (html) {
+                    $('#contenido-folios').html(html).css('opacity', '1');
+                    $('#spinnerFolios').hide();
+                },
+                error: function () {
+                    $('#contenido-folios').html(
+                        '<div class="alert alert-danger m-3">Error al cargar el detalle del folio</div>'
+                    ).css('opacity', '1');
+                    $('#spinnerFolios').hide();
+                }
+            });
         }
 
         function escapeHtml(valor) {

@@ -95,4 +95,19 @@ class Conexion
                 return $e->getMessage();
             }
         }
+
+    public function conexion()
+    {
+        try {
+            $user = "erpintr1";
+            $pass = "$7nM7g9d5";
+            $host = "198.251.78.237";
+            $db = "erpintr1_erp";
+            $conexion = new PDO( "mysql:host=$host;dbname=$db;charset=utf8mb4", $user, $pass );
+            $conexion->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+            return $conexion;
+        } catch (PDOException $e) {
+            return $e->getMessage();
+        }
+    }
 }
