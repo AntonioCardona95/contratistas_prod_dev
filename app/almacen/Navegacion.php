@@ -37,7 +37,7 @@
     <!-- CARGA DE ICONOS Y FUENTES -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
 
     <!-- ESTILOS BASE DE LA PLANTILLA -->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
@@ -63,19 +63,19 @@
         .cont-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 10px 28px rgba(0,0,0,.13);
-            border-color: #4e73df;
+            border-color: #003d99;
         }
         /* TARJETA SELECCIONADA */
         .cont-card.selected {
-            border: 2px solid #1cc88a;
-            background: #f0fff6;
+            border: 2px solid #003d99;
+            background: #eff6fc;
         }
         /* AVATAR DEL CONTRATISTA */
         .cont-avatar {
             width: 52px;
             height: 52px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #4e73df, #1cc88a);
+            background: linear-gradient(135deg, #007BFF, #0f172a);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -166,7 +166,7 @@
                     <!-- TITULO DEL MODULO -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">
-                            <i class="fa-brands fa-tailwind-css"></i> Navegacion de Numeros de Serie
+                            Navegacion de Numeros de Serie <i class="fa-brands fa-tailwind-css"></i>
                         </h1>
                     </div>
 
@@ -319,7 +319,7 @@
 
         //  RENDERIZAR TARJETAS DE FOLIOS
         function renderizarTarjetas(lista) {
-            
+
             if (lista.length === 0) {
                 $('#lista-folios').html(
                     '<div class="text-center text-muted py-5">No hay folios en el periodo</div>'

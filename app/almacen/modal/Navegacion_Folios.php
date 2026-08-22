@@ -1,6 +1,6 @@
 <?php
 // IMPORTAR LA CLASE DE NAVEGACIÓN
-require_once(__DIR__ . '/controller/ClassNavegacion.php');
+    require_once("../controller/ClassNavegacion.php");
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
