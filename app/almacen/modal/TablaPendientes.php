@@ -150,7 +150,7 @@
             font-size: 15px !important;
         }
         .detalle-footer-row {
-            gap: 1rem;
+            gap: 1.5rem !important;
         }
     }
 
