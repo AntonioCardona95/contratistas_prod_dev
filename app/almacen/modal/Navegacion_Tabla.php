@@ -80,7 +80,7 @@ if (!$series) {
 			paging: true,
 			scrollX: true,
 			pageLength: 10,
-			dom: '<"d-flex justify-content-between align-items-center mb-2" Bf>' +
+			dom: '<"d-flex justify-content-between align-items-center mb-2" f>' +
 				'rt' +
 				'<"row"<"col-md-12 text-right mt-2"p>>'
 		};

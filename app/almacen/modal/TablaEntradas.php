@@ -178,11 +178,9 @@
                         <td><?= $row['Cantidad_ST'] ?></td>
                         <td><?= $row['Fecha_Salida_ST'] ?></td>
                         <td>
-                            <a href="modal/EntradasDet.php?id=<?= $row['Folio_Salida_ST'] ?>">
-                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalForm">
-                                    <i class="fa-solid fa-file-lines"></i>
-                                </button>
-                            </a>
+                            <button type="button" class="btn btn-danger btn-sm btn-detalle-entrada" data-folio="<?= htmlspecialchars($row['Folio_Salida_ST'], ENT_QUOTES, 'UTF-8') ?>" title="Ver detalle">
+                                <i class="fa-solid fa-file-lines"></i>
+                            </button>
                         </td>
                     </tr>
                 <?php endforeach; endif; ?>
@@ -266,11 +264,9 @@
                                 <div class="font-weight-bold">${folio}</div>
                                 <div class="text-muted small">${almacen}</div>
                             </div>
-                            <a href="modal/EntradasDet.php?id=${folio}">
-                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalForm" title="Ver detalle">
-                                    <i class="fa-solid fa-file-lines"></i>
-                                </button>
-                            </a>
+                            <button type="button" class="btn btn-danger btn-sm btn-detalle-entrada" data-folio="${folio}" title="Ver detalle">
+                                <i class="fa-solid fa-file-lines"></i>
+                            </button>
                         </div>
                         <div class="entrada-card-body">
                             <div class="entrada-field">

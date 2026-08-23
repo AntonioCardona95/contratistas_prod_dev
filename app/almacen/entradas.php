@@ -109,12 +109,51 @@
     <!-- MODAL DE CIERRE DE SESION -->
     <?php include_once(__DIR__ . '/../components/ModalCierreSesion.php'); ?>
 
+    <div class="modal fade" id="modalEntradaDetalle" tabindex="-1" role="dialog" aria-labelledby="modalEntradaDetalleTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEntradaDetalleTitulo">Detalle de entrada</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modalEntradaDetalleContenido">
+                    <div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPTS DE CONTRATISTAS -->
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
 
     <script>
         $(document).ready(function(){
             LoadEntradas();
+
+            $(document).on('click', '.btn-detalle-entrada', function () {
+                const folio = $(this).data('folio');
+                $('#modalEntradaDetalleContenido').html(
+                    '<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>'
+                );
+                $('#modalEntradaDetalle').modal('show');
+
+                $.ajax({
+                    url: 'modal/EntradasDet.php',
+                    type: 'GET',
+                    data: { Folio: folio },
+                    success: function (contenido) {
+                        $('#modalEntradaDetalleContenido').html(contenido);
+                        $('#modalEntradaDetalleTitulo').text('Detalle de entrada, folio ' + folio);
+                    },
+                    error: function () {
+                        $('#modalEntradaDetalleContenido').html(
+                            '<div class="alert alert-danger mb-0">No fue posible cargar el detalle.</div>'
+                        );
+                    }
+                });
+            });
         });
     </script>
 
