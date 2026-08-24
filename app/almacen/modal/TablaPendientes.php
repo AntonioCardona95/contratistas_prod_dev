@@ -193,6 +193,9 @@
 
 <!-- CONTENEDOR PRINCIPAL DE LA TABLA Y LAS TARJETAS RESPONSIVAS. -->
 <div id="contenedor-tabla-pendientes" style="opacity: 0; transition: opacity 0.3s ease;">
+    <!-- BOTON DE EXCEL -->
+    <div id="pendientes-buttons-container"></div>
+
     <div id="pendientes-table-wrapper">
         <table class="table table-bordered display nowrap" style="width:100%" id="pendientes">
             <thead>
@@ -303,6 +306,19 @@
                 setTimeout(aplicarFiltroDesdeUrl, 50);
             }
         });
+
+        new DataTable.Buttons(table, {
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
+                    titleAttr: 'Exportar a Excel',
+                    className: 'btn btn-success'
+                }
+            ]
+        });
+
+        table.buttons(0, null).container().appendTo('#pendientes-buttons-container');
 
         var filtroAplicado = false;
 

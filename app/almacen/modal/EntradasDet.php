@@ -194,6 +194,9 @@ $series = $modal->ObtenerSeriesEntrada($Folio) ?? [];
 </style>
 
 <div class="entrada-detalle-contenido">
+    <!-- BOTON DE EXCEL -->
+    <div id="entradas-det-buttons-container"></div>
+
     <ul class="nav nav-tabs mb-4" id="entradasTab<?= $Folio ?>" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" data-toggle="tab" data-target="#materiales-panel-<?= $Folio ?>" type="button">
@@ -350,13 +353,13 @@ $series = $modal->ObtenerSeriesEntrada($Folio) ?? [];
             buttons: [
                 {
                     extend: 'excelHtml5',
-                    text: '<i class="fas fa-file-excel"></i>',
+                    text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
                     titleAttr: 'Exportar a Excel',
                     className: 'btn btn-success btn-sm'
                 }
             ]
         });
-        botones.container().prependTo(tablaMateriales.table().container());
+        botones.container().appendTo('#entradas-det-buttons-container');
     }
 }());
 </script>

@@ -140,7 +140,7 @@
 
 <div id="contenedor-tabla-entradas" style="opacity: 0; transition: opacity 0.3s ease;">
     <!-- BOTON DE EXCEL -->
-    <div id="entradas-buttons-container" class="mb-3"></div>
+    <div id="entradas-buttons-container"></div>
 
     <div id="entradas-table-wrapper">
         <table class="table table-bordered display nowrap" style="width:100%" id="ventas">
@@ -223,7 +223,7 @@
                 buttons: [
                     {
                         extend:    'excelHtml5',
-                        text:      '<i class="fas fa-file-excel"></i> ',
+                        text:      '<i class="fas fa-file-excel"></i> Exportar a Excel',
                         titleAttr: 'Exportar a Excel',
                         className: 'btn btn-success'
                     }

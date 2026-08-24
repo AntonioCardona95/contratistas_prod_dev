@@ -138,6 +138,9 @@
 </div>
 
 <div id="contenedor-tabla-rechazados" style="opacity: 0; transition: opacity 0.3s ease;">
+    <!-- BOTON DE EXCEL -->
+    <div id="rechazados-buttons-container"></div>
+
     <div id="rechazados-table-wrapper">
         <table class="table table-bordered display nowrap datatable-init" style="width:100%" id="rechazados">
             <thead>
@@ -240,6 +243,19 @@
                 $('#contenedor-tabla-rechazados').css('opacity', '1');
             }
         });
+
+        new DataTable.Buttons(table, {
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
+                    titleAttr: 'Exportar a Excel',
+                    className: 'btn btn-success'
+                }
+            ]
+        });
+
+        table.buttons(0, null).container().appendTo('#rechazados-buttons-container');
 
         const urlParams = new URLSearchParams(window.location.search);
         const folioBuscar = urlParams.get('folio');

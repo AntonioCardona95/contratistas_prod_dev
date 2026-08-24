@@ -137,6 +137,9 @@ $salidas_det = $modal->SalidasDet($Folio) ?? [];
 </style>
 
 <div class="salidas-detalle-contenido">
+    <!-- BOTON DE EXCEL -->
+    <div id="salidas-det-buttons-container"></div>
+
     <div id="salidas-det-table-wrapper">
         <table class="table table-bordered display nowrap" style="width:100%" id="salidasDetalleTabla">
             <thead>
@@ -213,14 +216,14 @@ $salidas_det = $modal->SalidasDet($Folio) ?? [];
             buttons: [
                 {
                     extend: 'excelHtml5',
-                    text: '<i class="fas fa-file-excel"></i>',
+                    text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
                     titleAttr: 'Exportar a Excel',
                     className: 'btn btn-success btn-sm'
                 }
             ]
         });
 
-        botones.container().prependTo(tabla.table().container());
+        botones.container().appendTo('#salidas-det-buttons-container');
     }
 }());
 </script>
