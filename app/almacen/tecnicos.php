@@ -119,122 +119,7 @@
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
 
     <script>
-        let tecnicosTableInitialized = false;
         let tecnicosLoadInProgress = false;
-
-        function relocateControls(table) {
-            const wrapper = $(table.table().container());
-            wrapper.find('.dt-search').appendTo('#search-detalles');
-            wrapper.find('.dt-buttons').appendTo('#botones-detalles');
-            wrapper.find('.dt-paging').appendTo('#pagination-detalles');
-            wrapper.find('.dt-info').appendTo('#info-detalles');
-            $('.dt-search input').attr('placeholder', 'Buscar por nombre, expediente o teléfono');
-
-            const dataTablesWrapper = wrapper.closest('.dataTables_wrapper');
-            if (dataTablesWrapper.length) {
-                dataTablesWrapper.hide();
-            }
-        }
-
-        function renderCards(table) {
-            const container = $('#tecnicos-grid-container');
-            container.empty();
-
-            const visibleRows = table.rows({ page: 'current' }).nodes();
-
-            if (visibleRows.length === 0) {
-                container.html('<div class="col-12 text-center"><p>No se encontraron técnicos.</p></div>');
-                return;
-            }
-
-            $(visibleRows).each(function () {
-                const row = $(this);
-                const nombre = row.data('nombre') || 'Sin nombre';
-                const expediente = row.data('expediente') || 'N/A';
-                const telefono = row.data('telefono') || 'N/A';
-                const cope = row.data('cope') || 'SIN COPE';
-
-                const card = `
-                    <div class="tecnico-card">
-                        <div class="card-body">
-                            <div class="tecnico-nombre">${nombre}</div>
-                            <div class="tecnico-info-item">
-                                <span class="tecnico-info-label">Expediente</span>
-                                <span class="tecnico-info-value">${expediente}</span>
-                            </div>
-                            <div class="tecnico-info-item">
-                                <span class="tecnico-info-label">Teléfono</span>
-                                <span class="tecnico-info-value">${telefono}</span>
-                            </div>
-                            <div class="tecnico-info-item">
-                                <span class="tecnico-info-label">COPE</span>
-                                <span class="tecnico-info-value">${cope}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                container.append(card);
-            });
-        }
-
-        function initTecnicosTable() {
-            if (tecnicosTableInitialized) {
-                return;
-            }
-
-            const $table = $('#TecnicosTable');
-            if (!$table.length) {
-                return;
-            }
-
-            if (window.DataTable && typeof window.DataTable.isDataTable === 'function' && window.DataTable.isDataTable('#TecnicosTable')) {
-                $('#TecnicosTable').DataTable().destroy();
-            }
-
-            const table = new DataTable('#TecnicosTable', {
-                responsive: true,
-                language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'
-                },
-                ordering: false,
-                searching: true,
-                pageLength: 12,
-                layout: {
-                    topStart: 'buttons',
-                    topEnd: 'search',
-                    bottomStart: 'info',
-                    bottomEnd: 'paging'
-                },
-                buttons: [{
-                    extend: 'excelHtml5',
-                    text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
-                    titleAttr: 'Exportar a Excel',
-                    className: 'btn btn-success'
-                }],
-                initComplete: function () {
-                    const api = this.api();
-                    $('#tecnicos-grid-container').insertBefore($('#TecnicosTable'));
-                    $('.dt-search input').attr('placeholder', 'Buscar por nombre, expediente o telefono');
-                    renderCards(api);
-                    $('#TecnicosTable').hide();
-                    tecnicosTableInitialized = true;
-                }
-            });
-
-            let isRendering = false;
-            table.on('search.dt page.dt order.dt', function () {
-                if (isRendering) {
-                    return;
-                }
-
-                isRendering = true;
-                renderCards(table);
-                setTimeout(function () {
-                    isRendering = false;
-                }, 100);
-            });
-        }
 
         function LoadTecnicos() {
             if (tecnicosLoadInProgress) {
@@ -248,7 +133,6 @@
                 type: 'GET',
                 success: function (html) {
                     $('#LoadTecnicos').html(html);
-                    setTimeout(initTecnicosTable, 50);
                 },
                 error: function (xhr, status) {
                     console.error('Error al cargar técnicos:', status, xhr);

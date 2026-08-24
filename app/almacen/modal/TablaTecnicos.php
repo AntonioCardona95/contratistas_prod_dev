@@ -248,34 +248,110 @@
 <?php else : ?>
     <div id="tecnicos-grid-container" class="row g-4"></div>
 
-    <table class="table table-bordered display nowrap datatable-init" style="width:100%; display:none;" id="TecnicosTable">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Expediente</th>
-                <th>Teléfono</th>
-                <th>COPE</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($tecnicos as $tecnico) : ?>
-                <?php
-                    $nombreCompleto = trim(($tecnico['Nombre_T'] ?? '') . ' ' . ($tecnico['Apellidos_T'] ?? ''));
-                    $telefono = $tecnico['Celular_T'] ?? $tecnico['Telefono'] ?? 'N/A';
-                    $expediente = $tecnico['NExpediente'] ?? 'N/A';
-                    $cope = $tecnico['Cope'] ?? 'SIN COPE';
-                ?>
-                <tr data-nombre="<?= htmlspecialchars($nombreCompleto, ENT_QUOTES, 'UTF-8') ?>"
-                    data-expediente="<?= htmlspecialchars($expediente, ENT_QUOTES, 'UTF-8') ?>"
-                    data-telefono="<?= htmlspecialchars($telefono, ENT_QUOTES, 'UTF-8') ?>"
-                    data-cope="<?= htmlspecialchars($cope, ENT_QUOTES, 'UTF-8') ?>">
-                    <td><?= htmlspecialchars($nombreCompleto) ?></td>
-                    <td><?= htmlspecialchars($expediente) ?></td>
-                    <td><?= htmlspecialchars($telefono) ?></td>
-                    <td><?= htmlspecialchars($cope) ?></td>
+    <!-- BOTON DE EXCEL -->
+    <div id="tecnicos-buttons-container" class="mb-3"></div>
+
+    <div id="tecnicos-table-wrapper">
+        <table class="table table-bordered display nowrap datatable-init" style="width:100%; display:none;" id="TecnicosTable">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Expediente</th>
+                    <th>Teléfono</th>
+                    <th>COPE</th>
                 </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <?php foreach ($tecnicos as $tecnico) : ?>
+                    <?php
+                        $nombreCompleto = trim(($tecnico['Nombre_T'] ?? '') . ' ' . ($tecnico['Apellidos_T'] ?? ''));
+                        $telefono = $tecnico['Celular_T'] ?? $tecnico['Telefono'] ?? 'N/A';
+                        $expediente = $tecnico['NExpediente'] ?? 'N/A';
+                        $cope = $tecnico['Cope'] ?? 'SIN COPE';
+                    ?>
+                    <tr data-nombre="<?= htmlspecialchars($nombreCompleto, ENT_QUOTES, 'UTF-8') ?>"
+                        data-expediente="<?= htmlspecialchars($expediente, ENT_QUOTES, 'UTF-8') ?>"
+                        data-telefono="<?= htmlspecialchars($telefono, ENT_QUOTES, 'UTF-8') ?>"
+                        data-cope="<?= htmlspecialchars($cope, ENT_QUOTES, 'UTF-8') ?>">
+                        <td><?= htmlspecialchars($nombreCompleto) ?></td>
+                        <td><?= htmlspecialchars($expediente) ?></td>
+                        <td><?= htmlspecialchars($telefono) ?></td>
+                        <td><?= htmlspecialchars($cope) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+<?php endif; ?>
+
+<?php if ($totalTecnicos > 0) : ?>
+<script>
+(function () {
+    const table = new DataTable('#TecnicosTable', {
+        responsive: true,
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'
+        },
+        ordering: false,
+        searching: true,
+        pageLength: 12,
+        initComplete: function () {
+            const api = this.api();
+            $('#TecnicosTable').hide();
+            $('.dt-search input').attr('placeholder', 'Buscar por nombre, expediente o telefono');
+            renderCards(api);
+        }
+    });
+
+    const botones = new DataTable.Buttons(table, {
+        buttons: [{
+            extend: 'excelHtml5',
+            text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
+            titleAttr: 'Exportar a Excel',
+            className: 'btn btn-success'
+        }]
+    });
+
+    botones.container().appendTo('#tecnicos-buttons-container');
+
+    function renderCards(dataTable) {
+        const container = $('#tecnicos-grid-container');
+        container.empty();
+
+        const visibleRows = dataTable.rows({ page: 'current' }).nodes();
+        if (visibleRows.length === 0) {
+            container.html('<div class="col-12 text-center"><p>No se encontraron técnicos.</p></div>');
+            return;
+        }
+
+        $(visibleRows).each(function () {
+            const row = $(this);
+            container.append(`
+                <div class="tecnico-card">
+                    <div class="card-body">
+                        <div class="tecnico-nombre">${row.data('nombre') || 'Sin nombre'}</div>
+                        <div class="tecnico-info-item">
+                            <span class="tecnico-info-label">Expediente</span>
+                            <span class="tecnico-info-value">${row.data('expediente') || 'N/A'}</span>
+                        </div>
+                        <div class="tecnico-info-item">
+                            <span class="tecnico-info-label">Teléfono</span>
+                            <span class="tecnico-info-value">${row.data('telefono') || 'N/A'}</span>
+                        </div>
+                        <div class="tecnico-info-item">
+                            <span class="tecnico-info-label">COPE</span>
+                            <span class="tecnico-info-value">${row.data('cope') || 'SIN COPE'}</span>
+                        </div>
+                    </div>
+                </div>
+            `);
+        });
+    }
+
+    table.on('search.dt page.dt order.dt', function () {
+        renderCards(table);
+    });
+}());
+</script>
 <?php endif; ?>
 
