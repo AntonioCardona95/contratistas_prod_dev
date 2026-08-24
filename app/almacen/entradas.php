@@ -129,32 +129,36 @@
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
 
     <script>
+        
         $(document).ready(function(){
             LoadEntradas();
+        });
 
-            $(document).on('click', '.btn-detalle-entrada', function () {
-                const folio = $(this).data('folio');
-                $('#modalEntradaDetalleContenido').html(
-                    '<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>'
-                );
-                $('#modalEntradaDetalle').modal('show');
 
-                $.ajax({
-                    url: 'modal/EntradasDet.php',
-                    type: 'GET',
-                    data: { Folio: folio },
-                    success: function (contenido) {
-                        $('#modalEntradaDetalleContenido').html(contenido);
-                        $('#modalEntradaDetalleTitulo').text('Detalle de entrada, folio ' + folio);
-                    },
-                    error: function () {
-                        $('#modalEntradaDetalleContenido').html(
-                            '<div class="alert alert-danger mb-0">No fue posible cargar el detalle.</div>'
-                        );
-                    }
-                });
+        $(document).on('click', '.btn-detalle-entrada', function () {
+
+            const folio = $(this).data('folio');
+            $('#modalEntradaDetalleContenido').html(
+                '<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>'
+            );
+            $('#modalEntradaDetalle').modal('show');
+
+            $.ajax({
+                url: 'modal/EntradasDet.php',
+                type: 'POST',
+                data: { folio: folio },
+                success: function (contenido) {
+                    $('#modalEntradaDetalleContenido').html(contenido);
+                    $('#modalEntradaDetalleTitulo').text('Detalle de entrada, folio ' + folio);
+                },
+                error: function () {
+                    $('#modalEntradaDetalleContenido').html(
+                        '<div class="alert alert-danger mb-0">No fue posible cargar el detalle.</div>'
+                    );
+                }
             });
         });
+
     </script>
 
 </body>

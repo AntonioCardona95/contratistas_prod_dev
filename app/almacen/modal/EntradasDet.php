@@ -12,10 +12,7 @@ if (empty($_SESSION['idContratistas'])) {
     exit;
 }
 
-$Folio = filter_input(INPUT_GET, 'Folio', FILTER_VALIDATE_INT);
-if (!$Folio) {
-    $Folio = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-}
+$Folio = filter_input(INPUT_POST, 'folio', FILTER_VALIDATE_INT);
 
 if (!$Folio) {
     http_response_code(400);

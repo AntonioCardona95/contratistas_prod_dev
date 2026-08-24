@@ -373,6 +373,26 @@
     <!-- MODAL DE CIERRE DE SESIÓN -->
     <?php include_once(__DIR__ . '/../components/ModalCierreSesion.php'); ?>
 
+    <!-- MODAL DE DETALLE DE SALIDA -->
+    <div class="modal fade" id="modalSalidaDetalle" tabindex="-1" role="dialog"
+        aria-labelledby="modalSalidaDetalleTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalSalidaDetalleTitulo">Detalle de salida</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modalSalidaDetalleContenido">
+                    <div class="text-center py-4">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPTS DE CONTRATISTAS -->
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
     <script src="js/app-2.js"></script>
@@ -603,6 +623,41 @@
                 });
             });
         });
+
+
+        // EVENTO PARA ABRIR EL MODAL DE DETALLE DE SALIDA
+        $(document).on('click', '.btn-detalle-salida', function () {
+            const folio = $(this).data('folio');
+
+            $('#modalSalidaDetalleContenido').html(
+                '<div class="text-center py-4">' +
+                '<i class="fas fa-spinner fa-spin fa-2x"></i>' +
+                '</div>'
+            );
+
+            $('#modalSalidaDetalle').modal('show');
+
+            $.ajax({
+                url: 'modal/SalidasDet.php',
+                type: 'POST',
+                data: { folio: folio },
+                success: function (contenido) {
+                    $('#modalSalidaDetalleContenido').html(contenido);
+                    $('#modalSalidaDetalleTitulo').text(
+                        'Detalle de salida, folio ' + folio
+                    );
+                },
+                error: function () {
+                    $('#modalSalidaDetalleContenido').html(
+                        '<div class="alert alert-danger mb-0">' +
+                        'No fue posible cargar el detalle.' +
+                        '</div>'
+                    );
+                }
+            });
+
+        });
+
     </script>
 
 </body>

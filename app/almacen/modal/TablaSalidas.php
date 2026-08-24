@@ -174,11 +174,11 @@
                         <td><?= $row['Cantidad_T'] ?></td>
                         <td><?= $row['Fecha_T'] ?></td>
                         <td>
-                            <a href="modal/SalidasDet.php?id=<?= $row['Folio_Salida_T'] ?>">
-                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalForm">
-                                    <i class="fa-solid fa-file-lines"></i>
-                                </button>
-                            </a>
+                            <button type="button" class="btn btn-danger btn-sm btn-detalle-salida"
+                                data-folio="<?= htmlspecialchars($row['Folio_Salida_T'], ENT_QUOTES, 'UTF-8') ?>"
+                                title="Ver detalle">
+                                <i class="fa-solid fa-file-lines"></i>
+                            </button>
                         </td>
                     </tr>
                 <?php endforeach; endif; ?>
@@ -261,11 +261,10 @@
                                 <div class="font-weight-bold">${folio}</div>
                                 <div class="text-muted small">${contratista}</div>
                             </div>
-                            <a href="modal/SalidasDet.php?id=${folio}">
-                                <button type="button" class="btn btn-danger btn-sm" data-toggle="modal" data-target="#modalForm" title="Ver detalle">
-                                    <i class="fa-solid fa-file-lines"></i>
-                                </button>
-                            </a>
+                            <button type="button" class="btn btn-danger btn-sm btn-detalle-salida"
+                                data-folio="${folio}" title="Ver detalle">
+                                <i class="fa-solid fa-file-lines"></i>
+                            </button>
                         </div>
                         <div class="salida-card-body">
                             <div class="salida-field">

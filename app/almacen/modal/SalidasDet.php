@@ -4,374 +4,220 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-require_once(__DIR__ . '/../controller/ClassOps.php');
 session_start();
+require_once(__DIR__ . '/../controller/ClassOps.php');
 
-$Contratista = $_SESSION['Contratista'] ?? null;
-$idContratistas = $_SESSION['idContratistas'] ?? null;
-
-if (empty($Contratista) || empty($idContratistas)) {
-    header('location: ../../Login/modal/poweroff.php');
+if (empty($_SESSION['idContratistas'])) {
+    http_response_code(401);
+    echo '<div class="alert alert-warning mb-0">Sesion no valida.</div>';
     exit;
 }
 
-$Folio = isset($_GET['id']) ? intval($_GET['id']) : 0;
-if ($Folio <= 0) {
-    header('location: ../salidas.php');
+$Folio = filter_input(INPUT_POST, 'folio', FILTER_VALIDATE_INT);
+
+if (!$Folio) {
+    http_response_code(400);
+    echo '<div class="alert alert-warning mb-0">El folio no es valido.</div>';
     exit;
 }
 
 $modal = new Ops();
-$salidas_det = $modal->SalidasDet($Folio);
-
+$salidas_det = $modal->SalidasDet($Folio) ?? [];
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="Detalle de salida de material">
-    <meta name="author" content="">
 
-    <title>ERP - ALMACEN | Salida <?= htmlspecialchars($Folio) ?></title>
+<style>
+    .dataTables_wrapper .dt-buttons .btn {
+        margin-right: .25rem;
+    }
 
-    <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <link href="../css/sb-admin-2.min.css" rel="stylesheet">
-    <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
-    <link href="../../css/responsive_custom.css" rel="stylesheet">
+    #salidas-det-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
 
-    <style>
-        .dataTables_wrapper .dt-buttons .btn {
-            margin-right: .25rem;
-        }
+    #salidas-det-cards-container {
+        display: none;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 20px;
+    }
 
-        /* ── Wrapper tabla ── */
-        #salidas-det-table-wrapper {
-            width: 100%;
-            overflow-x: auto;
-        }
+    .salidas-det-card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
 
-        /* ── Cards container ── */
+    .salidas-det-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .salidas-det-card-header {
+        background: linear-gradient(90deg, #0f172a 0%, #1a6630 100%);
+        color: #fff;
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .salidas-det-card-header .badge-folio {
+        background: rgba(255,255,255,0.15);
+        border-radius: 8px;
+        padding: 4px 10px;
+        font-size: .8rem;
+        font-weight: 700;
+        letter-spacing: .5px;
+    }
+
+    .salidas-det-card-body {
+        padding: 0 18px 18px;
+    }
+
+    .salidas-det-field {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f3f5;
+        gap: 10px;
+    }
+
+    .salidas-det-field:last-child {
+        border-bottom: none;
+    }
+
+    .salidas-det-field span {
+        color: #6c757d;
+        font-size: .82rem;
+        text-transform: uppercase;
+        letter-spacing: .3px;
+        flex: 1;
+        white-space: nowrap;
+    }
+
+    .salidas-det-field strong {
+        color: #1f2937;
+        font-size: .92rem;
+        font-weight: 600;
+        text-align: right;
+        min-width: 100px;
+        word-break: break-word;
+    }
+
+    @media (max-width: 1200px) {
         #salidas-det-cards-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        #salidas-det-table-wrapper {
             display: none;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-top: 20px;
         }
 
-        /* ── Card ── */
-        .salidas-det-card {
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            overflow: hidden;
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
-        }
-
-        .salidas-det-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
-        }
-
-        .salidas-det-card-header {
-            background: linear-gradient(90deg, #0f172a 0%, #1a6630 100%);
-            color: #fff;
-            padding: 14px 18px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .salidas-det-card-header .badge-folio {
-            background: rgba(255,255,255,0.15);
-            border-radius: 8px;
-            padding: 4px 10px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        .salidas-det-card-body {
-            padding: 0 18px 18px;
+        #salidas-det-cards-container {
+            display: grid;
+            grid-template-columns: 1fr;
         }
 
         .salidas-det-field {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding: 10px 0;
-            border-bottom: 1px solid #f1f3f5;
-            gap: 10px;
-        }
-
-        .salidas-det-field:last-child {
-            border-bottom: none;
-        }
-
-        .salidas-det-field span {
-            color: #6c757d;
-            font-size: 0.82rem;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            flex: 1;
-            white-space: nowrap;
+            flex-direction: column;
         }
 
         .salidas-det-field strong {
-            color: #1f2937;
-            font-size: 0.92rem;
-            font-weight: 600;
-            text-align: right;
-            min-width: 100px;
-            word-break: break-word;
+            text-align: left;
+            width: 100%;
         }
+    }
+</style>
 
-        /* ── Responsive ── */
-        @media (max-width: 1200px) {
-            #salidas-det-cards-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            #salidas-det-table-wrapper {
-                display: none;
-            }
-
-            #salidas-det-cards-container {
-                display: grid;
-                grid-template-columns: 1fr;
-            }
-
-            h1.font-weight-bold {
-                font-size: 1rem !important;
-            }
-        }
-    </style>
-</head>
-<body id="page-top">
-    <div id="wrapper">
-        <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a 100%, #224abe 0%); background-size: cover;">
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="../index.php">
-                <div class="sidebar-brand-text mx-3">ALMACEN</div>
-            </a>
-            <hr class="sidebar-divider my-0">
-            <li class="nav-item">
-                <a class="nav-link" href="../index.php">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <hr class="sidebar-divider">
-            <div class="sidebar-heading">ACCION</div>
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true" aria-controls="collapsePages">
-                    <i class="fas fa-fw fa-folder"></i>
-                    <span>MODULOS</span>
-                </a>
-                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">MODULOS</h6>
-                        <a class='collapse-item' href='../index.php'><i class="fa-solid fa-box-open"></i> ALMACEN</a>
-                        <a class='collapse-item' href='../../ops/index.php'><i class="fa-solid fa-school-circle-check"></i> OPERACIONES</a>
-                    </div>
-                </div>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="../entradas.php">
-                    <i class="fas fa-fw fa-clipboard-check"></i>
-                    <span>ENTRADAS DE MATERIALES</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="../salidas.php">
-                    <i class="fas fa-fw fa-circle-plus"></i>
-                    <span>MATERIAL ASIGNADO A MIS TECNICOS</span>
-                </a>
-            </li>
-            <hr class="sidebar-divider d-none d-md-block">
-            <div class="sidebar-footer text-center">
-                <button class="rounded-circle border-0" id="sidebarToggle" aria-label="Cerrar menú">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </ul>
-
-        <div id="content-wrapper" class="d-flex flex-column">
-            <div id="content">
-                <?php include_once(__DIR__ . '/../../components/TopbarContratistas.php'); ?>
-                <div class="container-fluid">
-                    <div class="card shadow mb-4">
-                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                            <h1 class="m-0 font-weight-bold text-gray-800">MATERIAL ASIGNADO FOLIO SALIDA: <?= htmlspecialchars($Folio) ?></h1>
-                            <a href="../salidas.php" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Regresar</a>
-                        </div>
-                        <div class="card-body">
-
-                            <!-- TABLA (escritorio) -->
-                            <div id="salidas-det-table-wrapper">
-                                <table class="table table-bordered display nowrap" style="width:100%" id="ventas">
-                                    <thead>
-                                        <tr>
-                                            <th>Tecnico</th>
-                                            <th>Material</th>
-                                            <th>Detalle</th>
-                                            <th>Tecnologia</th>
-                                            <th>SKU</th>
-                                            <th>Numero de Serie</th>
-                                        </tr>
-                                    </thead>
-                                    <tfoot>
-                                        <tr>
-                                            <th>Tecnico</th>
-                                            <th>Material</th>
-                                            <th>Detalle</th>
-                                            <th>Tecnologia</th>
-                                            <th>SKU</th>
-                                            <th>Numero de Serie</th>
-                                        </tr>
-                                    </tfoot>
-                                    <tbody>
-                                        <?php if (!empty($salidas_det)): foreach ($salidas_det as $row): ?>
-                                            <tr data-tecnico="<?= htmlspecialchars($row['Tecnico'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                                data-material="<?= htmlspecialchars($row['Producto'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                                data-detalle="<?= htmlspecialchars($row['Descripcion'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                                data-tecnologia="<?= htmlspecialchars($row['Tecnologia'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                                data-sku="<?= htmlspecialchars($row['Modelo'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
-                                                data-serie="<?= htmlspecialchars($row['Num_Serie_Salida_Det'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-                                                <td><?= htmlspecialchars($row['Tecnico'] ?? '') ?></td>
-                                                <td><?= htmlspecialchars($row['Producto'] ?? '') ?></td>
-                                                <td><?= htmlspecialchars($row['Descripcion'] ?? '') ?></td>
-                                                <td><?= htmlspecialchars($row['Tecnologia'] ?? '') ?></td>
-                                                <td><?= htmlspecialchars($row['Modelo'] ?? '') ?></td>
-                                                <td><?= htmlspecialchars($row['Num_Serie_Salida_Det'] ?? '') ?></td>
-                                            </tr>
-                                        <?php endforeach; else: ?>
-                                            <tr>
-                                                <td colspan="6" class="text-center text-muted">No se encontraron registros.</td>
-                                            </tr>
-                                        <?php endif; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <!-- CARDS (móvil) -->
-                            <div id="salidas-det-cards-container"></div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <?php include_once(__DIR__ . '/../../components/FooterContratistas.php'); ?>
-        </div>
+<div class="salidas-detalle-contenido">
+    <div id="salidas-det-table-wrapper">
+        <table class="table table-bordered display nowrap" style="width:100%" id="salidasDetalleTabla">
+            <thead>
+                <tr>
+                    <th>Tecnico</th>
+                    <th>Material</th>
+                    <th>Detalle</th>
+                    <th>Tecnologia</th>
+                    <th>SKU</th>
+                    <th>Numero de Serie</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($salidas_det as $salida): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($salida['Tecnico'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($salida['Producto'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($salida['Descripcion'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($salida['Tecnologia'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($salida['Modelo'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($salida['Num_Serie_Salida_Det'] ?? '') ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
 
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
+    <div id="salidas-det-cards-container"></div>
+</div>
 
-    <?php include_once(__DIR__ . '/../../components/ModalCierreSesion.php'); ?>
-    <?php include_once(__DIR__ . '/../../components/ScriptContratistas.php'); ?>
+<script>
+(function () {
+    const salidas = <?= json_encode($salidas_det) ?>;
 
-    <script>
-        $(document).ready(function () {
-            let table = new DataTable('#ventas', {
-                fixedColumns: { start: 1, end: 1 },
-                responsive: true,
-                language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
-                ordering: false,
-                searching: true,
-                scrollY: true,
-                scrollX: true
-            });
+    const tarjetas = $('#salidas-det-cards-container');
 
-            new DataTable.Buttons(table, {
-                buttons: [
-                    {
-                        extend: 'excelHtml5',
-                        text: '<i class="fas fa-file-excel"></i> ',
-                        titleAttr: 'Exportar a Excel',
-                        className: 'btn btn-success'
-                    },
-                    {
-                        extend: 'pdfHtml5',
-                        text: '<i class="fas fa-file-pdf"></i> ',
-                        titleAttr: 'Exportar a PDF',
-                        className: 'btn btn-danger'
-                    }
-                ]
-            });
+    salidas.forEach(function (salida, indice) {
+        const tarjeta =
+            '<div class="salidas-det-card">' +
+                '<div class="salidas-det-card-header">' +
+                    '<i class="fas fa-tools"></i>' +
+                    '<span class="font-weight-bold" style="flex:1">' + (salida.Producto || '') + '</span>' +
+                    '<span class="badge-folio">#' + (indice + 1) + '</span>' +
+                '</div>' +
+                '<div class="salidas-det-card-body">' +
+                    '<div class="salidas-det-field"><span>Tecnico</span><strong>' + (salida.Tecnico || '') + '</strong></div>' +
+                    '<div class="salidas-det-field"><span>Detalle</span><strong>' + (salida.Descripcion || '') + '</strong></div>' +
+                    '<div class="salidas-det-field"><span>Tecnologia</span><strong>' + (salida.Tecnologia || '') + '</strong></div>' +
+                    '<div class="salidas-det-field"><span>SKU</span><strong>' + (salida.Modelo || '') + '</strong></div>' +
+                    '<div class="salidas-det-field"><span>Numero de Serie</span><strong>' + (salida.Num_Serie_Salida_Det || '') + '</strong></div>' +
+                '</div>' +
+            '</div>';
 
-            table.buttons(0, null).container().prependTo(table.table().container());
+        tarjetas.append(tarjeta);
+    });
 
-            // ── Render cards para móvil ──
-            function renderSalidasDetCards() {
-                const container = $('#salidas-det-cards-container');
-                container.empty();
-
-                const rows = table.rows({ search: 'applied' }).nodes();
-
-                if (rows.length === 0) {
-                    container.html('<div class="text-center text-muted py-4">No se encontraron registros.</div>');
-                    return;
-                }
-
-                let idx = 1;
-                rows.each(function(node) {
-                    const row        = $(node);
-                    const tecnico    = row.data('tecnico') || '';
-                    const material   = row.data('material') || '';
-                    const detalle    = row.data('detalle') || '';
-                    const tecnologia = row.data('tecnologia') || '';
-                    const sku        = row.data('sku') || '';
-                    const serie      = row.data('serie') || '';
-
-                    const card = `
-                        <div class="salidas-det-card">
-                            <div class="salidas-det-card-header">
-                                <i class="fas fa-tools"></i>
-                                <span class="font-weight-bold" style="flex:1">${material}</span>
-                                <span class="badge-folio">#${idx}</span>
-                            </div>
-                            <div class="salidas-det-card-body">
-                                <div class="salidas-det-field">
-                                    <span>Técnico</span>
-                                    <strong>${tecnico}</strong>
-                                </div>
-                                <div class="salidas-det-field">
-                                    <span>Detalle</span>
-                                    <strong>${detalle}</strong>
-                                </div>
-                                <div class="salidas-det-field">
-                                    <span>Tecnología</span>
-                                    <strong>${tecnologia}</strong>
-                                </div>
-                                <div class="salidas-det-field">
-                                    <span>SKU</span>
-                                    <strong>${sku}</strong>
-                                </div>
-                                <div class="salidas-det-field">
-                                    <span>N° de Serie</span>
-                                    <strong>${serie}</strong>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-
-                    container.append(card);
-                    idx++;
-                });
-            }
-
-            renderSalidasDetCards();
-
-            table.on('search.dt page.dt draw.dt', function() {
-                renderSalidasDetCards();
-            });
+    if (typeof DataTable !== 'undefined' && salidas.length > 0) {
+        const tabla = new DataTable('#salidasDetalleTabla', {
+            responsive: true,
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'
+            },
+            ordering: false,
+            searching: true,
+            paging: true,
+            scrollX: true,
+            pageLength: 10
         });
-    </script>
-</body>
-</html>
+
+        const botones = new DataTable.Buttons(tabla, {
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i>',
+                    titleAttr: 'Exportar a Excel',
+                    className: 'btn btn-success btn-sm'
+                }
+            ]
+        });
+
+        botones.container().prependTo(tabla.table().container());
+    }
+}());
+</script>
