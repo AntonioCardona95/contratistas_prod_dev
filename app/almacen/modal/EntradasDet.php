@@ -195,7 +195,7 @@ $series = $modal->ObtenerSeriesEntrada($Folio) ?? [];
 
 <div class="entrada-detalle-contenido">
     <!-- BOTON DE EXCEL -->
-    <div id="entradas-det-buttons-container"></div>
+    <div id="entradas-det-buttons-container" class="mb-3"></div>
 
     <ul class="nav nav-tabs mb-4" id="entradasTab<?= $Folio ?>" role="tablist">
         <li class="nav-item" role="presentation">

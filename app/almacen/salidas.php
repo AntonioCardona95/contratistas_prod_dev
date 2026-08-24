@@ -278,7 +278,7 @@
             <div class="modal-content">
                 <div class="modal-header modal-header-gradient text-white">
                     <h5 class="modal-title font-weight-bold" id="modalNuevaSalidaLabel"><i class="fas fa-plus-circle"></i> ASIGNAR MATERIAL A TÉCNICO</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                    <button type="button" class="btn btn-light" data-dismiss="modal" aria-label="Cerrar">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
@@ -380,7 +380,7 @@
             <div class="modal-content">
                 <div class="modal-header modal-header-gradient text-white">
                     <h5 class="modal-title" id="modalSalidaDetalleTitulo">Detalle de salida: Folio </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <button type="button" class="btn btn-light" data-dismiss="modal" aria-label="Cerrar">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>

@@ -138,7 +138,7 @@ $salidas_det = $modal->SalidasDet($Folio) ?? [];
 
 <div class="salidas-detalle-contenido">
     <!-- BOTON DE EXCEL -->
-    <div id="salidas-det-buttons-container"></div>
+    <div id="salidas-det-buttons-container" class="mb-3"></div>
 
     <div id="salidas-det-table-wrapper">
         <table class="table table-bordered display nowrap" style="width:100%" id="salidasDetalleTabla">

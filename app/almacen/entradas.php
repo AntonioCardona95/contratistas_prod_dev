@@ -120,7 +120,7 @@
             <div class="modal-content">
                 <div class="modal-header modal-header-gradient text-white">
                     <h5 class="modal-title" id="modalEntradaDetalleTitulo">Detalle de entrada: Folio </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <button type="button" class="btn btn-light" data-dismiss="modal" aria-label="Cerrar">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
