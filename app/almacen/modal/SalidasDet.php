@@ -203,7 +203,10 @@ $salidas_det = $modal->SalidasDet($Folio) ?? [];
             searching: true,
             paging: true,
             scrollX: true,
-            pageLength: 10
+            pageLength: 10,
+            initComplete: function () {
+                this.api().columns.adjust();
+            }
         });
 
         const botones = new DataTable.Buttons(tabla, {

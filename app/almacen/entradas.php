@@ -44,6 +44,12 @@
     <!-- ESTILO PERSONALIZADO PARA EL MENU ACTIVO DE LA SIDEBAR -->
     <link rel="stylesheet" href="css/sidebar-active.css">
 
+    <style>
+        .modal-header-gradient {
+            background: linear-gradient(90deg, #0f172a 0%, #003d99 100%) !important;
+        }
+    </style>
+
 </head>
 
 <body id="page-top">
@@ -112,8 +118,8 @@
     <div class="modal fade" id="modalEntradaDetalle" tabindex="-1" role="dialog" aria-labelledby="modalEntradaDetalleTitulo" aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalEntradaDetalleTitulo">Detalle de entrada</h5>
+                <div class="modal-header modal-header-gradient text-white">
+                    <h5 class="modal-title" id="modalEntradaDetalleTitulo">Detalle de entrada: Folio </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -149,7 +155,7 @@
                 data: { folio: folio },
                 success: function (contenido) {
                     $('#modalEntradaDetalleContenido').html(contenido);
-                    $('#modalEntradaDetalleTitulo').text('Detalle de entrada, folio ' + folio);
+                    $('#modalEntradaDetalleTitulo').text('Detalle de entrada: Folio ' + folio);
                 },
                 error: function () {
                     $('#modalEntradaDetalleContenido').html(

@@ -378,8 +378,8 @@
         aria-labelledby="modalSalidaDetalleTitulo" aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalSalidaDetalleTitulo">Detalle de salida</h5>
+                <div class="modal-header modal-header-gradient text-white">
+                    <h5 class="modal-title" id="modalSalidaDetalleTitulo">Detalle de salida: Folio </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -643,9 +643,7 @@
                 data: { folio: folio },
                 success: function (contenido) {
                     $('#modalSalidaDetalleContenido').html(contenido);
-                    $('#modalSalidaDetalleTitulo').text(
-                        'Detalle de salida, folio ' + folio
-                    );
+                    $('#modalSalidaDetalleTitulo').text('Detalle de salida: Folio ' + folio);
                 },
                 error: function () {
                     $('#modalSalidaDetalleContenido').html(

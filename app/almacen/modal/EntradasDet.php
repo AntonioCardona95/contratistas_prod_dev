@@ -326,7 +326,10 @@ $series = $modal->ObtenerSeriesEntrada($Folio) ?? [];
             ordering: false,
             searching: true,
             scrollX: true,
-            pageLength: 10
+            pageLength: 10,
+            initComplete: function () {
+                this.api().columns.adjust();
+            }
         });
 
         if (series.length > 0) {
@@ -336,7 +339,10 @@ $series = $modal->ObtenerSeriesEntrada($Folio) ?? [];
                 ordering: false,
                 searching: true,
                 scrollX: true,
-                pageLength: 10
+                pageLength: 10,
+                initComplete: function () {
+                    this.api().columns.adjust();
+                }
             });
         }
 
