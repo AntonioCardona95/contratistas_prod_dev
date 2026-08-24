@@ -246,13 +246,11 @@
         No se encontraron técnicos activos para este contratista.
     </div>
 <?php else : ?>
-    <div id="tecnicos-grid-container" class="row g-4"></div>
-
     <!-- BOTON DE EXCEL -->
     <div id="tecnicos-buttons-container" class="mb-3"></div>
 
     <div id="tecnicos-table-wrapper">
-        <table class="table table-bordered display nowrap datatable-init" style="width:100%; display:none;" id="TecnicosTable">
+        <table class="table table-bordered display nowrap datatable-init" style="width:100%;" id="TecnicosTable">
             <thead>
                 <tr>
                     <th>Nombre</th>
@@ -282,6 +280,8 @@
             </tbody>
         </table>
     </div>
+
+    <div id="tecnicos-grid-container" class="row g-4"></div>
 <?php endif; ?>
 
 <?php if ($totalTecnicos > 0) : ?>
