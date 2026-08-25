@@ -21,6 +21,20 @@ if (!$series) {
 	echo '<div class="alert alert-info m-3">No hay numeros de serie para este folio.</div>';
 	exit;
 }
+
+// TOTAL DE SERIES
+$totalSeries = count($series);
+// TOTAL NAVEGANDO
+$totalNavegando = 0;
+
+foreach ($series as $serie) {
+	if ((int)($serie['Navegando'] ?? 0) === 1) {
+		$totalNavegando++;
+	}
+}
+
+// TOTAL PENDIENTES
+$totalPendientes = $totalSeries - $totalNavegando;
 ?>
 
 <div class="navegacion-tabla-contenedor">
@@ -95,6 +109,59 @@ if (!$series) {
 			0%, 100% { box-shadow: inset 3px 0 0 #0aa2c0; }
 			50% { box-shadow: inset 7px 0 0 #0aa2c0; }
 		}
+
+		.tac-resumen-series {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 16px;
+			margin-top: 20px;
+		}
+
+		.tac-resumen-tarjeta {
+			background: #fff;
+			border: 1px solid #e3e6f0;
+			border-left: 4px solid #4e73df;
+			border-radius: 6px;
+			box-shadow: 0 4px 12px rgba(0, 0, 0, .06);
+			padding: 14px 16px;
+		}
+
+		.tac-resumen-tarjeta.navegando {
+			border-left-color: #0aa2c0;
+		}
+
+		.tac-resumen-tarjeta.pendientes {
+			border-left-color: #f6c23e;
+		}
+
+		.tac-resumen-etiqueta {
+			color: #4e73df;
+			font-size: .75rem;
+			font-weight: 700;
+			text-transform: uppercase;
+		}
+
+		.tac-resumen-tarjeta.navegando .tac-resumen-etiqueta {
+			color: #0aa2c0;
+		}
+
+		.tac-resumen-tarjeta.pendientes .tac-resumen-etiqueta {
+			color: #d39e00;
+		}
+
+		.tac-resumen-valor {
+			color: #6c757d;
+			font-size: 1.75rem;
+			font-weight: 600;
+			line-height: 1.2;
+			margin-top: 4px;
+		}
+
+		@media (max-width: 768px) {
+			.tac-resumen-series {
+				grid-template-columns: 1fr;
+			}
+		}
 	</style>
 
 	<div id="tac-buttons-container" class="mb-3"></div>
@@ -145,6 +212,38 @@ if (!$series) {
 			<?php endforeach; ?>
 		</tbody>
 	</table>
+
+	<div class="tac-resumen-series">
+		<div class="tac-resumen-tarjeta">
+			<div class="tac-resumen-etiqueta">
+				<i class="fas fa-barcode mr-1" aria-hidden="true"></i>
+				Total de series
+			</div>
+			<div class="tac-resumen-valor">
+				<?= $totalSeries ?>
+			</div>
+		</div>
+
+		<div class="tac-resumen-tarjeta navegando">
+			<div class="tac-resumen-etiqueta">
+				<i class="fas fa-wifi mr-1" aria-hidden="true"></i>
+				Series navegando
+			</div>
+			<div class="tac-resumen-valor">
+				<?= $totalNavegando ?>
+			</div>
+		</div>
+
+		<div class="tac-resumen-tarjeta pendientes">
+			<div class="tac-resumen-etiqueta">
+				<i class="fas fa-hourglass-half mr-1" aria-hidden="true"></i>
+				Series pendientes
+			</div>
+			<div class="tac-resumen-valor">
+				<?= $totalPendientes ?>
+			</div>
+		</div>
+	</div>
 </div>
 
 <script>
