@@ -63,6 +63,66 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			min-width: 1900px;
 		}
 
+		#tac-series-cards-container {
+			display: none;
+			grid-template-columns: 1fr;
+			gap: 14px;
+		}
+
+		.tac-serie-card {
+			border: 1px solid #e3e6f0;
+			border-left: 4px solid #adb5bd;
+			border-radius: 8px;
+			background: #fff;
+			box-shadow: 0 3px 10px rgba(0, 0, 0, .06);
+			overflow: hidden;
+		}
+
+		.tac-serie-card.navegando {
+			border-left-color: #0aa2c0;
+			background: #dff6ff;
+		}
+
+		.tac-serie-card-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 10px;
+			padding: 12px 14px;
+			border-bottom: 1px solid #e3e6f0;
+		}
+
+		.tac-serie-card-title {
+			color: #3a3b45;
+			font-weight: 700;
+			word-break: break-word;
+		}
+
+		.tac-serie-card-body {
+			display: grid;
+			gap: 8px;
+			padding: 12px 14px;
+		}
+
+		.tac-serie-card-field {
+			display: grid;
+			grid-template-columns: 42% 58%;
+			gap: 8px;
+			font-size: .82rem;
+		}
+
+		.tac-serie-card-field span {
+			color: #6c757d;
+			font-weight: 600;
+		}
+
+		.tac-serie-card-field strong {
+			color: #1f2937;
+			font-weight: 600;
+			text-align: right;
+			word-break: break-word;
+		}
+
 		#tac_series_tabla th,
 		#tac_series_tabla td {
 			white-space: nowrap;
@@ -173,6 +233,27 @@ $totalPendientes = $totalSeries - $totalNavegando;
 		}
 
 		@media (max-width: 768px) {
+			#tac_series_tabla_wrapper {
+				display: none;
+			}
+
+			.navegacion-tabla-contenedor .dt-container {
+				display: none;
+			}
+
+			#tac-series-cards-container {
+				display: grid;
+			}
+
+			#tac-controls-container {
+				align-items: stretch;
+				flex-direction: column;
+			}
+
+			#filtro-estado-series {
+				max-width: none;
+			}
+
 			.tac-resumen-series {
 				grid-template-columns: 1fr;
 			}
@@ -237,6 +318,8 @@ $totalPendientes = $totalSeries - $totalNavegando;
 		</tbody>
 	</table>
 
+	<div id="tac-series-cards-container"></div>
+
 	<div class="tac-resumen-series">
 		<div class="tac-resumen-tarjeta">
 			<div class="tac-resumen-etiqueta">
@@ -276,6 +359,8 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			return;
 		}
 
+		const series = <?= json_encode($series) ?>;
+
 		if ($.fn.DataTable.isDataTable('#tac_series_tabla')) {
 			$('#tac_series_tabla').DataTable().destroy();
 		}
@@ -313,6 +398,55 @@ $totalPendientes = $totalSeries - $totalNavegando;
 
 		let filtroEstado = '';
 
+		function escaparHtml(valor) {
+			return $('<div>').text(valor ?? '').html();
+		}
+
+		function renderizarTarjetas(filtroActual) {
+			const tarjetas = $('#tac-series-cards-container');
+			tarjetas.empty();
+
+			series.forEach(function (serie, indice) {
+				const estaNavegando = Number(serie.Navegando || 0) === 1;
+
+				if (filtroActual === 'navegando' && !estaNavegando) {
+					return;
+				}
+
+				if (filtroActual === 'pendiente' && estaNavegando) {
+					return;
+				}
+
+				const estado = estaNavegando ? 'Navegando' : 'No navegando';
+				const claseTarjeta = estaNavegando ? ' navegando' : '';
+
+				const tarjeta =
+					'<article class="tac-serie-card' + claseTarjeta + '">' +
+						'<div class="tac-serie-card-header">' +
+							'<span class="tac-serie-card-title">' + escaparHtml(serie.Num_Serie_S) + '</span>' +
+							'<span class="badge ' + (estaNavegando ? 'badge-info' : 'badge-secondary') + '">' +
+								(estaNavegando ? '<i class="fas fa-wifi mr-1"></i>' : '') + estado +
+							'</span>' +
+						'</div>' +
+						'<div class="tac-serie-card-body">' +
+							'<div class="tac-serie-card-field"><span>Producto</span><strong>' + escaparHtml(serie.Producto) + '</strong></div>' +
+							'<div class="tac-serie-card-field"><span>Folio asignacion</span><strong>' + escaparHtml(serie.Folio_Salida_Det || 'Sin asignar') + '</strong></div>' +
+							'<div class="tac-serie-card-field"><span>Tecnico</span><strong>' + escaparHtml(serie.Tecnico || 'Sin asignar') + '</strong></div>' +
+							'<div class="tac-serie-card-field"><span>Telefono Coordiapp</span><strong>' + escaparHtml(serie.Telefono_Coordiapp || 'Sin dato') + '</strong></div>' +
+							'<div class="tac-serie-card-field"><span>Fecha Coordiapp</span><strong>' + escaparHtml(serie.Fecha_Coordiapp || 'Sin dato') + '</strong></div>' +
+							'<div class="tac-serie-card-field"><span>Telefono TAC</span><strong>' + escaparHtml(serie.Telefono_Tac || 'Sin dato') + '</strong></div>' +
+							'<div class="tac-serie-card-field"><span>Fecha liquidacion TAC</span><strong>' + escaparHtml(serie.Fecha_Liquidacion_Tac || 'Sin dato') + '</strong></div>' +
+							'<div class="tac-serie-card-field"><span>Telefono ECI</span><strong>' + escaparHtml(serie.Telefono_Eci || 'Sin dato') + '</strong></div>' +
+							'<div class="tac-serie-card-field"><span>Fecha consulta ECI</span><strong>' + escaparHtml(serie.Fecha_Consulta_Eci || 'Sin dato') + '</strong></div>' +
+						'</div>' +
+					'</article>';
+
+				tarjetas.append(tarjeta);
+			});
+		}
+
+		renderizarTarjetas(filtroEstado);
+
 		$.fn.dataTable.ext.search.push(function (configuracion, datos, indiceFila) {
 			if (configuracion.nTable.id !== 'tac_series_tabla' || filtroEstado === '') {
 				return true;
@@ -329,6 +463,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 		$('#filtro-estado-series').on('change', function () {
 			filtroEstado = $(this).val();
 			tabla.draw();
+			renderizarTarjetas(filtroEstado);
 		});
 	});
 </script>
