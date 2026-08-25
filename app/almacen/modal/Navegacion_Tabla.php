@@ -81,12 +81,6 @@ if (!$series) {
 
 		#tac_series_tabla th:nth-child(11),
 		#tac_series_tabla td:nth-child(11) {
-			min-width: 100px;
-			text-align: center;
-		}
-
-		#tac_series_tabla th:nth-child(12),
-		#tac_series_tabla td:nth-child(12) {
 			min-width: 140px;
 			text-align: center;
 		}
@@ -97,7 +91,7 @@ if (!$series) {
 		}
 	</style>
 
-	<div id="tac-buttons-container" class="mb-2"></div>
+	<div id="tac-buttons-container" class="mb-3"></div>
 
 	<table id="tac_series_tabla" class="table table-bordered table-hover" style="width:100%">
 		<thead>
@@ -112,7 +106,6 @@ if (!$series) {
 				<th>Fecha liquidacion TAC</th>
 				<th>Telefono ECI</th>
 				<th>Fecha consulta ECI</th>
-				<th>Estado</th>
 				<th>Navegando</th>
 			</tr>
 		</thead>
@@ -133,11 +126,10 @@ if (!$series) {
 					<td><?= htmlspecialchars($serie['Fecha_Liquidacion_Tac'] ?? 'Sin dato') ?></td>
 					<td><?= htmlspecialchars($serie['Telefono_Eci'] ?? 'Sin dato') ?></td>
 					<td><?= htmlspecialchars($serie['Fecha_Consulta_Eci'] ?? 'Sin dato') ?></td>
-					<td><?= htmlspecialchars($serie['Estado_Eci'] ?? 'Sin dato') ?></td>
 					<td>
 						<span class="badge <?= $navegando ? 'badge-info' : 'badge-secondary' ?>">
 							<?php if ($navegando): ?>
-								<i class="fas fa-wifi mr-1" aria-hidden="true"></i> Si
+								<i class="fa-brands fa-tailwind-css fa-float mr-1 " style="--fa-animation-duration: 2s;" aria-hidden="true"></i>
 							<?php else: ?>
 								No
 							<?php endif; ?>
@@ -167,9 +159,11 @@ if (!$series) {
 			ordering: true,
 			searching: true,
 			paging: true,
+			lengthChange: true,
 			scrollX: true,
+			lengthMenu: [10, 25, 50, 100],
 			pageLength: 10,
-			dom: '<"d-flex justify-content-between align-items-center mb-2" f>' +
+			dom: '<"d-flex justify-content-between align-items-center mb-2" lf>' +
 				'rt' +
 				'<"row"<"col-md-12 text-right mt-2"p>>'
 		};
