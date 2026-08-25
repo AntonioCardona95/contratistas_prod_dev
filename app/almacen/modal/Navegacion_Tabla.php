@@ -44,6 +44,21 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			animation: pulso-navegacion 2s ease-in-out infinite;
 		}
 
+		#tac-controls-container {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 16px;
+		}
+
+		#tac-buttons-container {
+			flex: 1;
+		}
+
+		#filtro-estado-series {
+			max-width: 220px;
+		}
+
 		#tac_series_tabla {
 			min-width: 1900px;
 		}
@@ -164,7 +179,14 @@ $totalPendientes = $totalSeries - $totalNavegando;
 		}
 	</style>
 
-	<div id="tac-buttons-container" class="mb-3"></div>
+	<div id="tac-controls-container" class="mb-3">
+		<div id="tac-buttons-container"></div>
+		<select id="filtro-estado-series" class="form-control">
+			<option value="">Todos</option>
+			<option value="navegando">Navegando</option>
+			<option value="pendiente">No navegando</option>
+		</select>
+	</div>
 
 	<table id="tac_series_tabla" class="table table-bordered table-hover" style="width:100%">
 		<thead>
@@ -286,5 +308,14 @@ $totalPendientes = $totalSeries - $totalNavegando;
 		});
 
 		botones.container().appendTo('#tac-buttons-container');
+
+		$('#filtro-estado-series').on('change', function () {
+			const filtroEstado = $(this).val();
+			const busquedaEstado = filtroEstado === 'navegando'
+				? '^Si$'
+				: filtroEstado === 'pendiente' ? '^No$' : '';
+
+			tabla.column(10).search(busquedaEstado, true, false).draw();
+		});
 	});
 </script>

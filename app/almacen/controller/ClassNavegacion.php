@@ -80,13 +80,18 @@ class Navegacion extends Conexion
     // OBTENER FOLIOS PARA UN CONTRATISTA
     public function FoliosContratista($contratistaId, $fechaInicio, $fechaFin)
     {
-        $sql = "SELECT DISTINCT(t.Folio_Salida_ST) FROM transferencias_t t
+        $sql = "SELECT
+                t.Folio_Salida_ST,
+                COUNT(DISTINCT m.Num_Serie_S) AS CantidadSeries
+            FROM transferencias_t t
                 INNER JOIN material_det_salida m ON t.Folio_Salida_ST = m.Folio_Salida_Material_Det_S
                 INNER JOIN producto p ON m.FK_Material_S = p.idProducto
                 WHERE
                     p.Tipo_Proyecto IN ('ONT', 'Modem') AND
                     t.FK_Contra_ST = :contratistaId AND
-                    DATE(Fecha_Salida_ST) BETWEEN :fechaInicio AND :fechaFin";
+                    DATE(Fecha_Salida_ST) BETWEEN :fechaInicio AND :fechaFin
+                GROUP BY t.Folio_Salida_ST
+                ORDER BY t.Folio_Salida_ST DESC";
 
         $params = array(
             ':fechaInicio' => $fechaInicio,

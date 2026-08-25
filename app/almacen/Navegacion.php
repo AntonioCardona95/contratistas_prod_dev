@@ -175,7 +175,7 @@
                     <div class="row">
 
                         <!-- COLUMNA IZQUIERDA: LISTA DE FOLIOS ASIGNADOS -->
-                        <div class="col-md-4 col-lg-3 mb-4">
+                        <div class="col-md-3 col-lg-2 mb-4">
 
                             <div class="panel-folios h-100">
 
@@ -206,7 +206,7 @@
                         </div>
 
                         <!-- COLUMNA DERECHA: FOLIOS DEL CONTRATISTA -->
-                        <div class="col-md-8 col-lg-9 mb-4">
+                        <div class="col-md-9 col-lg-10 mb-4">
                             <div class="panel-folios position-relative">
                                 <div class="panel-header d-flex align-items-center justify-content-between">
                                     <h6 class="m-0 font-weight-bold text-success" id="titulo-panel-folios">
@@ -334,6 +334,7 @@
             var html = '';
             lista.forEach(function (folio) {
                 var numeroFolio = String(folio.Folio_Salida_ST || '');
+                var cantidadSeries = Number(folio.CantidadSeries || 0);
                 var isActive = (FolioActivo && String(FolioActivo.id) === numeroFolio) ? 'selected' : '';
                 html +=
                     '<div class="cont-card p-3 mb-2 d-flex align-items-center ' + isActive + '" ' +
@@ -342,6 +343,7 @@
                     '  <div class="cont-avatar mr-3"><i class="fas fa-file-alt"></i></div>' +
                     '  <div>' +
                     '    <div class="cont-name">Folio ' + escapeHtml(numeroFolio) + '</div>' +
+                    '    <small class="text-muted">' + cantidadSeries + ' numero' + (cantidadSeries === 1 ? '' : 's') + ' de serie</small>' +
                     '  </div>' +
                     '</div>';
             });
