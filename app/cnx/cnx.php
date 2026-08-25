@@ -96,6 +96,8 @@ class Conexion
             }
         }
 
+
+    /* CLASES PARA EL MODULO DE NAVEGACION EN LA BD DE PRUEBAS */
     public function conexion()
     {
         try {
@@ -108,6 +110,27 @@ class Conexion
             return $conexion;
         } catch (PDOException $e) {
             return $e->getMessage();
+        }
+    }
+
+
+    public function conexion_navegacion()
+    {
+        $user = "erpintr1";
+        $pass = "$7nM7g9d5";
+        $host = "67.217.246.65";
+        $db = "analisis_bd";
+        $dsn = "mysql:host=$host;dbname=$db;charset=utf8";
+
+        try {
+            $conexion = new PDO( $dsn, $user, $pass, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            ] );
+            return $conexion;
+        } catch (PDOException $e) {
+            // Loguear el error en producción en vez de mostrarlo
+            die("Error de conexión a la base de datos remota: " . $e->getMessage());
         }
     }
 }

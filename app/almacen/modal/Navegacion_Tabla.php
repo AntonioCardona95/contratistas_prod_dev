@@ -24,6 +24,26 @@ if (!$series) {
 ?>
 
 <div class="table-responsive">
+	<style>
+		#tac_series_tabla tbody tr.serie-navegando {
+			background-color: #dff6ff !important;
+			animation: pulso-navegacion 2s ease-in-out infinite;
+		}
+
+		#tac_series_tabla tbody tr.serie-navegando td:first-child::before {
+			content: '\f1eb';
+			font-family: 'Font Awesome 6 Free';
+			font-weight: 900;
+			color: #0aa2c0;
+			margin-right: .35rem;
+		}
+
+		@keyframes pulso-navegacion {
+			0%, 100% { box-shadow: inset 3px 0 0 #0aa2c0; }
+			50% { box-shadow: inset 7px 0 0 #0aa2c0; }
+		}
+	</style>
+
 	<table id="tac_series_tabla" class="table table-bordered table-hover" style="width:100%">
 		<thead>
 			<tr>
@@ -31,29 +51,39 @@ if (!$series) {
 				<th>Numero de serie</th>
 				<th>Folio asignacion</th>
 				<th>Tecnico</th>
-				<th>Liquidado en Coordiapp</th>
-				<th>Telefono</th>
+				<th>Telefono Coordiapp</th>
 				<th>Fecha Coordiapp</th>
+				<th>Telefono TAC</th>
+				<th>Fecha liquidacion TAC</th>
+				<th>Telefono ECI</th>
+				<th>Fecha consulta ECI</th>
+				<th>Estado</th>
+				<th>Navegando</th>
 			</tr>
 		</thead>
 		<tbody>
 			<?php foreach ($series as $serie): ?>
 				<?php
 					$numeroSerie = $serie['Num_Serie_S'] ?? '';
-					$liquidado = (int)($serie['Liquidado'] ?? 0) === 1;
+					$navegando = (int)($serie['Navegando'] ?? 0) === 1;
 				?>
-				<tr>
+				<tr class="<?= $navegando ? 'serie-navegando' : '' ?>">
 					<td><?= htmlspecialchars($serie['Producto'] ?? '') ?></td>
 					<td><?= htmlspecialchars($numeroSerie) ?></td>
 					<td><?= htmlspecialchars($serie['Folio_Salida_Det'] ?? 'Sin asignar') ?></td>
 					<td><?= htmlspecialchars(trim($serie['Tecnico'] ?? '') ?: 'Sin asignar') ?></td>
+					<td><?= htmlspecialchars($serie['Telefono_Coordiapp'] ?? 'Sin dato') ?></td>
+					<td><?= htmlspecialchars($serie['Fecha_Coordiapp'] ?? 'Sin dato') ?></td>
+					<td><?= htmlspecialchars($serie['Telefono_Tac'] ?? 'Sin dato') ?></td>
+					<td><?= htmlspecialchars($serie['Fecha_Liquidacion_Tac'] ?? 'Sin dato') ?></td>
+					<td><?= htmlspecialchars($serie['Telefono_Eci'] ?? 'Sin dato') ?></td>
+					<td><?= htmlspecialchars($serie['Fecha_Consulta_Eci'] ?? 'Sin dato') ?></td>
+					<td><?= htmlspecialchars($serie['Estado_Eci'] ?? 'Sin dato') ?></td>
 					<td>
-						<span class="badge <?= $liquidado ? 'badge-success' : 'badge-secondary' ?>">
-							<?= $liquidado ? 'Si' : 'No' ?>
+						<span class="badge <?= $navegando ? 'badge-info' : 'badge-secondary' ?>">
+							<?= $navegando ? 'Si' : 'No' ?>
 						</span>
 					</td>
-					<td><?= htmlspecialchars($serie['Telefono'] ?? 'Sin dato') ?></td>
-					<td><?= htmlspecialchars($serie['Fecha_Coordiapp'] ?? 'Sin dato') ?></td>
 				</tr>
 			<?php endforeach; ?>
 		</tbody>
