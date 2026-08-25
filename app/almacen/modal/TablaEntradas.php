@@ -139,9 +139,6 @@
 </div>
 
 <div id="contenedor-tabla-entradas" style="opacity: 0; transition: opacity 0.3s ease;">
-    <!-- BOTON DE EXCEL -->
-    <div id="entradas-buttons-container"></div>
-
     <div id="entradas-table-wrapper">
         <table class="table table-bordered display nowrap" style="width:100%" id="ventas">
             <thead>
@@ -203,7 +200,6 @@
     <div id="entradas-cards-container"></div>
 </div>
 
-
 <script>
 	$(document).ready(function () {
         let table = new DataTable('#ventas', {
@@ -223,9 +219,15 @@
                 buttons: [
                     {
                         extend:    'excelHtml5',
-                        text:      '<i class="fas fa-file-excel"></i> Exportar a Excel',
+                        text:      '<i class="fas fa-file-excel"></i> ',
                         titleAttr: 'Exportar a Excel',
                         className: 'btn btn-success'
+                    },
+                    {
+                        extend:    'pdfHtml5',
+                        text:      '<i class="fas fa-file-pdf"></i> ',
+                        titleAttr: 'Exportar a PDF',
+                        className: 'btn btn-danger'
                     }
                 ],
         });
@@ -233,7 +235,7 @@
         table
             .buttons(0, null)
             .container()
-            .appendTo('#entradas-buttons-container');
+            .prependTo(table.table().container());
 
         function renderEntradaCards() {
             const container = $('#entradas-cards-container');

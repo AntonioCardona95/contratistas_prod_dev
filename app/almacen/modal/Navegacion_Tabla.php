@@ -23,19 +23,72 @@ if (!$series) {
 }
 ?>
 
-<div class="table-responsive">
+<div class="navegacion-tabla-contenedor">
 	<style>
 		#tac_series_tabla tbody tr.serie-navegando {
 			background-color: #dff6ff !important;
 			animation: pulso-navegacion 2s ease-in-out infinite;
 		}
 
-		#tac_series_tabla tbody tr.serie-navegando td:first-child::before {
-			content: '\f1eb';
-			font-family: 'Font Awesome 6 Free';
-			font-weight: 900;
-			color: #0aa2c0;
-			margin-right: .35rem;
+		#tac_series_tabla {
+			min-width: 1900px;
+		}
+
+		#tac_series_tabla th,
+		#tac_series_tabla td {
+			white-space: nowrap;
+			vertical-align: middle;
+		}
+
+		#tac_series_tabla th:nth-child(1),
+		#tac_series_tabla td:nth-child(1) {
+			min-width: 220px;
+		}
+
+		#tac_series_tabla th:nth-child(2),
+		#tac_series_tabla td:nth-child(2) {
+			min-width: 190px;
+		}
+
+		#tac_series_tabla th:nth-child(3),
+		#tac_series_tabla td:nth-child(3) {
+			min-width: 150px;
+		}
+
+		#tac_series_tabla th:nth-child(4),
+		#tac_series_tabla td:nth-child(4) {
+			min-width: 260px;
+			white-space: normal;
+		}
+
+		#tac_series_tabla th:nth-child(5),
+		#tac_series_tabla td:nth-child(5),
+		#tac_series_tabla th:nth-child(7),
+		#tac_series_tabla td:nth-child(7),
+		#tac_series_tabla th:nth-child(9),
+		#tac_series_tabla td:nth-child(9) {
+			min-width: 160px;
+		}
+
+		#tac_series_tabla th:nth-child(6),
+		#tac_series_tabla td:nth-child(6),
+		#tac_series_tabla th:nth-child(8),
+		#tac_series_tabla td:nth-child(8),
+		#tac_series_tabla th:nth-child(10),
+		#tac_series_tabla td:nth-child(10) {
+			min-width: 190px;
+		}
+
+		#tac_series_tabla th:nth-child(11),
+		#tac_series_tabla td:nth-child(11) {
+			min-width: 100px;
+			text-align: center;
+		}
+
+		#tac_series_tabla th:nth-child(12),
+		#tac_series_tabla td:nth-child(12) {
+			min-width: 140px;
+			text-align: center;
 		}
 
 		@keyframes pulso-navegacion {
@@ -43,6 +96,8 @@ if (!$series) {
 			50% { box-shadow: inset 7px 0 0 #0aa2c0; }
 		}
 	</style>
+
+	<div id="tac-buttons-container" class="mb-2"></div>
 
 	<table id="tac_series_tabla" class="table table-bordered table-hover" style="width:100%">
 		<thead>
@@ -81,7 +136,11 @@ if (!$series) {
 					<td><?= htmlspecialchars($serie['Estado_Eci'] ?? 'Sin dato') ?></td>
 					<td>
 						<span class="badge <?= $navegando ? 'badge-info' : 'badge-secondary' ?>">
-							<?= $navegando ? 'Si' : 'No' ?>
+							<?php if ($navegando): ?>
+								<i class="fas fa-wifi mr-1" aria-hidden="true"></i> Si
+							<?php else: ?>
+								No
+							<?php endif; ?>
 						</span>
 					</td>
 				</tr>
@@ -127,6 +186,6 @@ if (!$series) {
 			]
 		});
 
-		botones.container().prependTo(tabla.table().container());
+		botones.container().appendTo('#tac-buttons-container');
 	});
 </script>

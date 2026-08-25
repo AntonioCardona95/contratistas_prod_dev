@@ -139,9 +139,6 @@
 </div>
 
 <div id="contenedor-tabla-salidas" style="opacity: 0; transition: opacity 0.3s ease;">
-    <!-- BOTON DE EXCEL -->
-    <div id="salidas-buttons-container"></div>
-
     <div id="salidas-table-wrapper">
         <table class="table table-bordered display nowrap" style="width:100%" id="ventas">
             <thead>
@@ -220,9 +217,15 @@
                 buttons: [
                     {
                         extend:    'excelHtml5',
-                        text:      '<i class="fas fa-file-excel"></i> Exportar a Excel',
+                        text:      '<i class="fas fa-file-excel"></i> ',
                         titleAttr: 'Exportar a Excel',
                         className: 'btn btn-success'
+                    },
+                    {
+                        extend:    'pdfHtml5',
+                        text:      '<i class="fas fa-file-pdf"></i> ',
+                        titleAttr: 'Exportar a PDF',
+                        className: 'btn btn-danger'
                     }
                 ],
         });
@@ -230,7 +233,7 @@
         table
             .buttons(0, null)
             .container()
-            .appendTo('#salidas-buttons-container');
+            .prependTo(table.table().container());
 
         function renderSalidaCards() {
             const container = $('#salidas-cards-container');
