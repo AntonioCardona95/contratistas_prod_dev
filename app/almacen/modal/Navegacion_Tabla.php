@@ -117,7 +117,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 		.custom-badge {
 			background-color: none;
 			color: #007BFF;
-			
+			font-size: 130%;
 		}
 
 		@keyframes pulso-navegacion {
@@ -183,8 +183,8 @@ $totalPendientes = $totalSeries - $totalNavegando;
 		<div id="tac-buttons-container"></div>
 		<select id="filtro-estado-series" class="form-control">
 			<option value="">Todos</option>
-			<option value="navegando">Navegando</option>
-			<option value="pendiente">No navegando</option>
+			<option value="navegando">Navegando (<?= $totalNavegando ?>)</option>
+			<option value="pendiente">No navegando (<?= $totalPendientes ?>)</option>
 		</select>
 	</div>
 
@@ -225,7 +225,9 @@ $totalPendientes = $totalSeries - $totalNavegando;
 						<span class="badge <?= $navegando ? 'custom-badge' : 'badge-secondary' ?>">
 							<?php if ($navegando): ?>
 								<i class="fa-brands fa-tailwind-css fa-float mr-1 " style="--fa-animation-duration: 2s;" aria-hidden="true"></i>
+								<span class="sr-only">Si</span>
 							<?php else: ?>
+								<span class="sr-only">No</span>
 								No
 							<?php endif; ?>
 						</span>
@@ -242,7 +244,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 				Total de series
 			</div>
 			<div class="tac-resumen-valor">
-				<?= $totalSeries ?>
+				<span id="total-series-valor"><?= $totalSeries ?></span>
 			</div>
 		</div>
 
@@ -252,7 +254,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 				Series navegando
 			</div>
 			<div class="tac-resumen-valor">
-				<?= $totalNavegando ?>
+				<span id="total-navegando-valor"><?= $totalNavegando ?></span>
 			</div>
 		</div>
 
@@ -262,7 +264,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 				Series pendientes
 			</div>
 			<div class="tac-resumen-valor">
-				<?= $totalPendientes ?>
+				<span id="total-pendientes-valor"><?= $totalPendientes ?></span>
 			</div>
 		</div>
 	</div>
@@ -309,13 +311,24 @@ $totalPendientes = $totalSeries - $totalNavegando;
 
 		botones.container().appendTo('#tac-buttons-container');
 
-		$('#filtro-estado-series').on('change', function () {
-			const filtroEstado = $(this).val();
-			const busquedaEstado = filtroEstado === 'navegando'
-				? '^Si$'
-				: filtroEstado === 'pendiente' ? '^No$' : '';
+		let filtroEstado = '';
 
-			tabla.column(10).search(busquedaEstado, true, false).draw();
+		$.fn.dataTable.ext.search.push(function (configuracion, datos, indiceFila) {
+			if (configuracion.nTable.id !== 'tac_series_tabla' || filtroEstado === '') {
+				return true;
+			}
+
+			const fila = configuracion.aoData[indiceFila].nTr;
+			const estaNavegando = fila.classList.contains('serie-navegando');
+
+			return filtroEstado === 'navegando'
+				? estaNavegando
+				: !estaNavegando;
+		});
+
+		$('#filtro-estado-series').on('change', function () {
+			filtroEstado = $(this).val();
+			tabla.draw();
 		});
 	});
 </script>
