@@ -85,6 +85,12 @@ if (!$series) {
 			text-align: center;
 		}
 
+		.custom-badge {
+			background-color: none;
+			color: #007BFF;
+			
+		}
+
 		@keyframes pulso-navegacion {
 			0%, 100% { box-shadow: inset 3px 0 0 #0aa2c0; }
 			50% { box-shadow: inset 7px 0 0 #0aa2c0; }
@@ -127,7 +133,7 @@ if (!$series) {
 					<td><?= htmlspecialchars($serie['Telefono_Eci'] ?? 'Sin dato') ?></td>
 					<td><?= htmlspecialchars($serie['Fecha_Consulta_Eci'] ?? 'Sin dato') ?></td>
 					<td>
-						<span class="badge <?= $navegando ? 'badge-info' : 'badge-secondary' ?>">
+						<span class="badge <?= $navegando ? 'custom-badge' : 'badge-secondary' ?>">
 							<?php if ($navegando): ?>
 								<i class="fa-brands fa-tailwind-css fa-float mr-1 " style="--fa-animation-duration: 2s;" aria-hidden="true"></i>
 							<?php else: ?>

@@ -216,7 +216,10 @@
 
                                 <!-- SPINNER OVERLAY -->
                                 <div class="loading-overlay" id="spinnerFolios">
-                                    <div class="spinner-border text-primary" role="status"></div>
+                                    <div class="text-center text-muted py-5">
+                                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                                        <p class="mt-2">Cargando...</p>
+                                    </div>
                                 </div>
 
                                 <div id="contenido-folios" class="p-3">
