@@ -51,6 +51,20 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			gap: 16px;
 		}
 
+		#titulo-panel-folios {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			width: 100%;
+			gap: 16px;
+		}
+
+		#titulo-panel-folios .fecha-folio {
+			margin-left: auto;
+			text-align: right;
+			white-space: nowrap;
+		}
+
 		#tac-buttons-container {
 			flex: 1;
 		}
@@ -168,10 +182,18 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			min-width: 190px;
 		}
 
-		#tac_series_tabla th:nth-child(11),
-		#tac_series_tabla td:nth-child(11) {
+		#tac_series_tabla th:nth-child(12),
+		#tac_series_tabla td:nth-child(12) {
 			min-width: 140px;
 			text-align: center;
+		}
+
+		#tac_series_tabla td:nth-child(12) .estado-navegacion {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			min-width: 28px;
+			line-height: 1;
 		}
 
 		.custom-badge {
@@ -272,9 +294,10 @@ $totalPendientes = $totalSeries - $totalNavegando;
 	<table id="tac_series_tabla" class="table table-bordered table-hover" style="width:100%">
 		<thead>
 			<tr>
-				<th>Producto</th>
+				<th>Modelo</th>
 				<th>Numero de serie</th>
 				<th>Folio asignacion</th>
+				<th>Fecha asignacion</th>
 				<th>Tecnico</th>
 				<th>Telefono Coordiapp</th>
 				<th>Fecha Coordiapp</th>
@@ -295,6 +318,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 					<td><?= htmlspecialchars($serie['Producto'] ?? '') ?></td>
 					<td><?= htmlspecialchars($numeroSerie) ?></td>
 					<td><?= htmlspecialchars($serie['Folio_Salida_Det'] ?? 'Sin asignar') ?></td>
+					<td><?= htmlspecialchars($serie['Fecha_Salida_Det'] ?? 'Sin asignar') ?></td>
 					<td><?= htmlspecialchars(trim($serie['Tecnico'] ?? '') ?: 'Sin asignar') ?></td>
 					<td><?= htmlspecialchars($serie['Telefono_Coordiapp'] ?? 'Sin dato') ?></td>
 					<td><?= htmlspecialchars($serie['Fecha_Coordiapp'] ?? 'Sin dato') ?></td>
@@ -303,7 +327,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 					<td><?= htmlspecialchars($serie['Telefono_Eci'] ?? 'Sin dato') ?></td>
 					<td><?= htmlspecialchars($serie['Fecha_Consulta_Eci'] ?? 'Sin dato') ?></td>
 					<td>
-						<span class="badge <?= $navegando ? 'custom-badge' : 'badge-secondary' ?>">
+						<span class="badge estado-navegacion <?= $navegando ? 'custom-badge' : 'badge-secondary' ?>">
 							<?php if ($navegando): ?>
 								<i class="fa-brands fa-tailwind-css fa-float mr-1 " style="--fa-animation-duration: 2s;" aria-hidden="true"></i>
 								<span class="sr-only">Si</span>
@@ -431,6 +455,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 						'<div class="tac-serie-card-body">' +
 							'<div class="tac-serie-card-field"><span>Producto</span><strong>' + escaparHtml(serie.Producto) + '</strong></div>' +
 							'<div class="tac-serie-card-field"><span>Folio asignacion</span><strong>' + escaparHtml(serie.Folio_Salida_Det || 'Sin asignar') + '</strong></div>' +
+							'<div class="tac-serie-card-field"><span>Fecha asignacion</span><strong>' + escaparHtml(serie.Fecha_Salida_Det || 'Sin asignar') + '</strong></div>' +
 							'<div class="tac-serie-card-field"><span>Tecnico</span><strong>' + escaparHtml(serie.Tecnico || 'Sin asignar') + '</strong></div>' +
 							'<div class="tac-serie-card-field"><span>Telefono Coordiapp</span><strong>' + escaparHtml(serie.Telefono_Coordiapp || 'Sin dato') + '</strong></div>' +
 							'<div class="tac-serie-card-field"><span>Fecha Coordiapp</span><strong>' + escaparHtml(serie.Fecha_Coordiapp || 'Sin dato') + '</strong></div>' +

@@ -182,7 +182,7 @@
                                 <div class="panel-header d-flex align-items-center justify-content-between">
                                     <!-- TITULO DE LA COLUMNA -->
                                     <h6 class="m-0 font-weight-bold text-primary">
-                                        <i class="fas fa-users mr-1"></i> Folios Asignados
+                                        <i class="fas fa-users mr-1"></i> Vales Entregados
                                     </h6>
                                     <!-- CONTADOR DE FOLIOS -->
                                     <span id="badge-total-cont" class="badge badge-primary badge-pill">0</span>
@@ -210,7 +210,7 @@
                             <div class="panel-folios position-relative">
                                 <div class="panel-header d-flex align-items-center justify-content-between">
                                     <h6 class="m-0 font-weight-bold text-success" id="titulo-panel-folios">
-                                        <i class="fas fa-file-alt mr-1"></i> Selecciona un folio
+                                        <i class="fas fa-file-alt mr-1"></i> Selecciona un vale
                                     </h6>
                                 </div>
 
@@ -225,7 +225,7 @@
                                 <div id="contenido-folios" class="p-3">
                                     <div class="placeholder-tac">
                                         <i class="fas fa-hand-point-left"></i>
-                                        <p>Selecciona un folio para ver sus detalles y Numeros de serie asignadas</p>
+                                        <p>Selecciona un vale para ver sus Numeros de serie asignadas</p>
                                     </div>
                                 </div>
                             </div>
@@ -305,9 +305,9 @@
                             $('#contenido-folios').html(
                                 '<div class="placeholder-tac">' +
                                 '<i class="fas fa-hand-point-left"></i>' +
-                                '<p>Selecciona un folio para ver los numeros de serie</p></div>'
+                                '<p>Selecciona un vale para ver los numeros de serie</p></div>'
                             );
-                            $('#titulo-panel-folios').html('<i class="fas fa-file-alt mr-1"></i> Selecciona un folio');
+                            $('#titulo-panel-folios').html('<i class="fas fa-file-alt mr-1"></i> Selecciona un vale');
                         }
                     }
                 },
@@ -326,7 +326,7 @@
 
             if (lista.length === 0) {
                 $('#lista-folios').html(
-                    '<div class="text-center text-muted py-5">No hay folios en el periodo</div>'
+                    '<div class="text-center text-muted py-5">No hay vales en el periodo</div>'
                 );
                 return;
             }
@@ -362,6 +362,10 @@
         // SELECCIONAR FOLIO
         function seleccionarFolio(id) {
             var folio = String(id);
+            var folioSeleccionado = FoliosData.find(function (item) {
+                return String(item.Folio_Salida_ST) === folio;
+            }) || {};
+            var fechaFolio = folioSeleccionado.Fecha_Salida_ST || 'Sin fecha';
             FolioActivo = { id: folio, nombre: 'Folio ' + folio };
 
             // MARCAR LA TARJETA ACTIVA
@@ -369,7 +373,8 @@
             $('.cont-card[data-folio="' + escapeHtml(folio) + '"]').addClass('selected');
 
             $('#titulo-panel-folios').html(
-                '<i class="fas fa-file-alt mr-1"></i> Folio ' + escapeHtml(folio)
+                '<span><i class="fas fa-file-alt mr-1"></i> Folio ' + escapeHtml(folio) + '</span>' +
+                '<span class="fecha-folio">Fecha de asignacion: ' + escapeHtml(fechaFolio) + '</span>'
             );
 
             $('#spinnerFolios').css('display', 'flex');

@@ -82,6 +82,7 @@ class Navegacion extends Conexion
     {
         $sql = "SELECT
                 t.Folio_Salida_ST,
+                t.Fecha_Salida_ST,
                 COUNT(DISTINCT m.Num_Serie_S) AS CantidadSeries
             FROM transferencias_t t
                 INNER JOIN material_det_salida m ON t.Folio_Salida_ST = m.Folio_Salida_Material_Det_S
@@ -90,7 +91,7 @@ class Navegacion extends Conexion
                     p.Tipo_Proyecto IN ('ONT', 'Modem') AND
                     t.FK_Contra_ST = :contratistaId AND
                     DATE(Fecha_Salida_ST) BETWEEN :fechaInicio AND :fechaFin
-                GROUP BY t.Folio_Salida_ST
+                GROUP BY t.Folio_Salida_ST, t.Fecha_Salida_ST
                 ORDER BY t.Folio_Salida_ST DESC";
 
         $params = array(
@@ -110,6 +111,7 @@ class Navegacion extends Conexion
                     m.Num_Serie_S,
                     p.Producto,
                     s.Folio_Salida_Det,
+                    s.Fecha_Salida_Det,
                     s.FK_Tecnico_Salida_Det,
                     CONCAT(t.Nombre_T, ' ', t.Apellidos_T) AS Tecnico,
                     c.Ont AS Serie_Coordiapp,
