@@ -126,9 +126,10 @@
 
 <!-- CONTENEDOR PRINCIPAL CON TABLA Y TARJETAS -->
 <div id="ont-sin-instalar-wrapper">
+    <div id="ont-sin-instalar-buttons-container"></div>
     <!-- TABLA PARA DESKTOP -->
     <div id="ont-sin-instalar-table-wrapper">
-        <table class="table table-bordered display nowrap" style="width:100%" id="ventas">			
+        <table class="table table-bordered display nowrap" style="width:100%" id="ont-sin-instalar">			
             <thead>
                 <tr>
                     <th>Tecnico</th>
@@ -186,7 +187,7 @@
 </div>
 <script>
 	$(document).ready(function () {
-        let table = new DataTable('#ventas', {
+        let table = new DataTable('#ont-sin-instalar', {
             fixedColumns: {
                 start: 1,
                 end: 1
@@ -221,10 +222,7 @@
                 ],
         });
         
-        table
-            .buttons(0, null)
-            .container()
-            .prependTo(table.table().container());
+        table.buttons(0, null).container().appendTo('#ont-sin-instalar-buttons-container');
 
         // FUNCIÓN PARA GENERAR TARJETAS DESDE DATOS DE LA TABLA
         function renderOntSinInstalarCards() {

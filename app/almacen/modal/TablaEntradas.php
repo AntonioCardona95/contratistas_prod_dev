@@ -139,8 +139,9 @@
 </div>
 
 <div id="contenedor-tabla-entradas" style="opacity: 0; transition: opacity 0.3s ease;">
+    <div id="entradas-buttons-container"></div>
     <div id="entradas-table-wrapper">
-        <table class="table table-bordered display nowrap" style="width:100%" id="ventas">
+        <table class="table table-bordered display nowrap" style="width:100%" id="entradas">
             <thead>
                 <tr>
                     <th>Folio Entrada</th>
@@ -202,7 +203,7 @@
 
 <script>
 	$(document).ready(function () {
-        let table = new DataTable('#ventas', {
+        let table = new DataTable('#entradas', {
             responsive: true,
             language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
             ordering: false,
@@ -232,10 +233,7 @@
                 ],
         });
         
-        table
-            .buttons(0, null)
-            .container()
-            .prependTo(table.table().container());
+        table.buttons(0, null).container().appendTo('#entradas-buttons-container');
 
         function renderEntradaCards() {
             const container = $('#entradas-cards-container');

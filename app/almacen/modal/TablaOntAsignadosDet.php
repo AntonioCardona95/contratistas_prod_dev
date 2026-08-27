@@ -126,9 +126,10 @@
 
 <!-- CONTENEDOR PRINCIPAL CON TABLA Y TARJETAS -->
 <div id="ont-asignados-wrapper">
+    <div id="ont-asignados-buttons-container"></div>
     <!-- TABLA PARA DESKTOP -->
     <div id="ont-asignados-table-wrapper">
-        <table class="table table-bordered display nowrap" style="width:100%" id="ventas">			
+        <table class="table table-bordered display nowrap" style="width:100%" id="ont-asignados">			
             <thead>
                 <tr>
                     <th>Tecnico</th>
@@ -187,7 +188,7 @@
 
 <script>
 	$(document).ready(function () {
-        let table = new DataTable('#ventas', {
+        let table = new DataTable('#ont-asignados', {
             fixedColumns: {
                 start: 1,
                 end: 1
@@ -222,10 +223,7 @@
                 ],
         });
         
-        table
-            .buttons(0, null)
-            .container()
-            .prependTo(table.table().container());
+        table.buttons(0, null).container().appendTo('#ont-asignados-buttons-container');
 
         // FUNCIÓN PARA GENERAR TARJETAS DESDE DATOS DE LA TABLA
         function renderOntAsignadosCards() {

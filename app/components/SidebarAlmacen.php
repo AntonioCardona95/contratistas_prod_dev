@@ -36,6 +36,13 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
 		</div>
 	</li>
 
+	<li class="nav-item <?php echo $paginaActual === 'Navegacion.php' ? 'active' : ''; ?>">
+		<a class="nav-link" href="Navegacion.php">
+			<i class="fa-brands fa-tailwind-css"></i>
+			<span>NAVEGACION</span>
+		</a>
+	</li>
+
 	<li class="nav-item <?php echo $paginaActual === 'entradas.php' ? 'active' : ''; ?>">
 		<a class="nav-link" href="entradas.php">
 			<i class="fa-solid fa-clipboard-check"></i>

@@ -113,9 +113,10 @@
 
 <!-- CONTENEDOR PRINCIPAL CON TABLA Y TARJETAS -->
 <div id="ont-disponibles-wrapper">
+    <div id="ont-disponibles-buttons-container"></div>
     <!-- TABLA PARA DESKTOP -->
     <div id="ont-disponibles-table-wrapper">
-        <table class="table table-bordered display nowrap" style="width:100%" id="ventas">			
+        <table class="table table-bordered display nowrap" style="width:100%" id="ont-disponibles">			
             <thead>
                 <tr>
                     <th>Folio Vale</th>
@@ -178,7 +179,7 @@
 
 <script>
 	$(document).ready(function () {
-        let table = new DataTable('#ventas', {
+        let table = new DataTable('#ont-disponibles', {
             fixedColumns: {
                 start: 1,
                 end: 1
@@ -213,10 +214,7 @@
                 ],
         });
         
-        table
-            .buttons(0, null)
-            .container()
-            .prependTo(table.table().container());
+        table.buttons(0, null).container().appendTo('#ont-disponibles-buttons-container');
 
         // FUNCIÓN PARA GENERAR TARJETAS DESDE DATOS DE LA TABLA
         function renderOntDisponiblesCards() {

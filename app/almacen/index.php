@@ -1,6 +1,5 @@
 <?php
 
-
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
@@ -37,7 +36,7 @@
     <!-- CARGA DE ICONOS Y FUENTES -->
     <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
 
     <!-- ESTILOS BASE DE LA PLANTILLA -->
     <link href="css/sb-admin-2.min.css" rel="stylesheet">
@@ -49,6 +48,12 @@
     <!-- ESTILO PERSONALIZADO PARA EL MENU ACTIVO DE LA SIDEBAR -->
     <link rel="stylesheet" href="css/sidebar-active.css">
 
+    <style>
+        .modal-header-gradient {
+            background: linear-gradient(90deg, #0f172a 0%, #003d99 100%) !important;
+        }
+    </style>
+
 </head>
 
 <body id="page-top">
@@ -56,100 +61,8 @@
     <!-- CONTENEDOR PRINCIPAL DE LA PÁGINA -->
     <div id="wrapper">
 
-        <!-- SIDEBAR DEL MÓDULO DE ALMACÉN -->
-        <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a 100%, #224abe 0%); background-size: cover;">
-
-            <!-- ENCABEZADO DEL MODULO -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
-                <div class="sidebar-brand-text mx-3">MI ALMACEN</div>
-            </a>
-
-            <!-- SEPARADOR SUPERIOR -->
-            <hr class="sidebar-divider my-0">
-
-            <!-- DASHBOARD -->
-            <li class="nav-item active">
-                <a class="nav-link" href="index.php">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-
-            <!-- SEPARADOR DE SECCIÓN -->
-            <hr class="sidebar-divider">
-
-            <!-- TÍTULO DE ACCIONES -->
-            <div class="sidebar-heading">
-                ACCION
-            </div>
-
-            <!-- MENÚ DE MÓDULOS -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
-                    aria-expanded="true" aria-controls="collapsePages">
-                    <i class="fas fa-fw fa-folder"></i>
-                    <span>MODULOS</span>
-                </a>
-                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">MODULOS</h6>
-                        <a class='collapse-item' href='index.php'><i class="fa-solid fa-box-open"></i> ALMACEN</a>
-                        <a class='collapse-item' href='../ordenes/index.php'><i class="fa-solid fa-school-circle-check"></i> OPERACIONES</a>
-                    </div>
-                </div>
-            </li>
-
-            <!-- MÓDULO: MATERIAL RECIBIDO -->
-            <li class="nav-item">
-                <a class="nav-link" href="entradas.php">
-                    <i class="fa-solid fa-clipboard-check"></i>
-                    <span>MATERIAL RECIBIDO</span>
-                </a>
-            </li>
-
-            <!-- MÓDULO: ACEPTAR MATERIAL -->
-             <li class="nav-item">
-                <a class="nav-link" href="aceptarMaterial.php">
-                    <i class="fa-solid fa-feather-pointed"></i>
-                    <span>ACEPTAR MATERIAL</span>
-                </a>
-            </li>
-
-            <!-- MÓDULO: MATERIAL RECHAZADO -->
-             <li class="nav-item">
-                <a class="nav-link" href="materialRechazado.php">
-                    <i class="fa-solid fa-circle-xmark"></i>
-                    <span>MATERIAL RECHAZADO</span>
-                </a>
-            </li>
-
-            <!-- MÓDULO: ASIGNAR MATERIAL -->
-            <li class="nav-item">
-                <a class="nav-link" href="salidas.php">
-                    <i class="fa-solid fa-circle-plus"></i>
-                    <span>ASIGNAR MATERIAL</span>
-                </a>
-            </li>
-
-            <!-- MÓDULO: TÉCNICOS -->
-            <li class="nav-item">
-                <a class="nav-link" href="tecnicos.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>TÉCNICOS</span>
-                </a>
-            </li>
-
-            <!-- SEPARADOR FINAL -->
-            <hr class="sidebar-divider d-none d-md-block">
-
-            <!-- BOTÓN DE OCULTAR MENÚ -->
-            <div class="sidebar-footer text-center">
-                <button class="rounded-circle border-0" id="sidebarToggle" aria-label="Cerrar menú">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-
-        </ul>
+        <!-- SIDEBAR IMPORTADA DESDE COMPONENTES -->
+        <?php include_once(__DIR__ . '/../components/SidebarAlmacen.php'); ?>
         <!-- FIN DE LA SIDEBAR -->
 
         <!-- CONTENEDOR DEL ÁREA DE CONTENIDO -->
@@ -186,13 +99,7 @@
             <!-- FIN DEL CONTENIDO PRINCIPAL -->
 
             <!-- PIE DE PÁGINA -->
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; ENLACE DIGITAL 2025</span>
-                    </div>
-                </div>
-            </footer>
+            <?php include_once(__DIR__ . '/../components/FooterContratistas.php'); ?>
             <!-- FIN DEL PIE -->
 
         </div>
@@ -209,12 +116,63 @@
     <!-- MODAL DE CIERRE DE SESION -->
     <?php include_once(__DIR__ . '/../components/ModalCierreSesion.php'); ?>
 
+    <div class="modal fade" id="modalKpiDetalle" tabindex="-1" role="dialog" aria-labelledby="modalKpiDetalleTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-header-gradient text-white">
+                    <h5 class="modal-title" id="modalKpiDetalleTitulo">Detalle</h5>
+                    <button type="button" class="btn btn-light" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modalKpiDetalleContenido">
+                    <div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
     <script src="vendor/chart.js/Chart.min.js"></script>
     <script src="https://code.highcharts.com/highcharts.js"></script>
     <script>
         $(document).ready(function(){
             LoadKPIS();
+        });
+
+        $(document).on('click', 'a[href="detalle_ont_disponibles.php"], a[href="detalle_ont_asignados.php"], a[href="ont_sin_instalar_det.php"], a[href="ont_instaladas_det.php"]', function (event) {
+            event.preventDefault();
+
+            const rutasDetalle = {
+                'detalle_ont_disponibles.php': ['modal/TablaOntDisponiblesDet.php', 'ONTS SIN ASIGNAR'],
+                'detalle_ont_asignados.php': ['modal/TablaOntAsignadosDet.php', 'ONTS ASIGNADAS'],
+                'ont_sin_instalar_det.php': ['modal/TablaOntSinInstalarDet.php', 'ONTS SIN LIQUIDAR'],
+                'ont_instaladas_det.php': ['modal/TablaOntInstaladosDet.php', 'ONTS LIQUIDADAS']
+            };
+
+            const ruta = $(this).attr('href');
+            const detalle = rutasDetalle[ruta];
+            const contenido = $('#modalKpiDetalleContenido');
+
+            $('#modalKpiDetalleTitulo').text(detalle[1]);
+            contenido.html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>');
+            $('#modalKpiDetalle').modal('show');
+
+            $.ajax({
+                type: 'POST',
+                url: detalle[0],
+                data: $('#FormQueryUnidades').serialize(),
+                success: function (data) {
+                    contenido.html(data);
+                },
+                error: function () {
+                    contenido.html('<div class="alert alert-danger mb-0">No fue posible cargar el detalle.</div>');
+                }
+            });
+        });
+
+        $('#modalKpiDetalle').on('hidden.bs.modal', function () {
+            $('#modalKpiDetalleContenido').empty();
         });
     </script>
 </body>
