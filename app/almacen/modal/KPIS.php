@@ -1,150 +1,144 @@
 <?php
-  define('WP_DEBUG', true);
-  define('WP_DEBUG_DISPLAY', false);
+define('WP_DEBUG', true);
+define('WP_DEBUG_DISPLAY', false);
 
-  ini_set('display_errors', 1);
-  ini_set('display_startup_errors', 1);
-  error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-  require_once("../controller/ClassOps.php");
-  session_start();
-  $Contratista = $_SESSION['Contratista'];
-  $idContratistas = $_SESSION['idContratistas'];
-  
-  //RECIBIMOS PARAMETROS
-  $Fecha1 = $_POST['Fecha1'];
-  $Fecha2 = $_POST['Fecha2']; 
-  @$Division = $_POST['Division'];
-  @$Area = $_POST['Area'];
-  @$Cope = $_POST['Cope'];
+require_once("../controller/ClassIndex.php");
+session_start();
+$Contratista = $_SESSION['Contratista'];
+$idContratistas = $_SESSION['idContratistas'];
 
-  $mes_anterior = date('Y-m-d', strtotime('-1 month'));
+// RECIBIMOS PARAMETROS
+$Fecha1 = $_POST['Fecha1'];
+$Fecha2 = $_POST['Fecha2'];
+@$Division = $_POST['Division'];
+@$Area = $_POST['Area'];
+@$Cope = $_POST['Cope'];
 
-  if(!empty($Fecha1) && !empty($Fecha2)){
-    $Fecha1 = $_POST['Fecha1']." 00:00:00";
-    $Fecha2 = $_POST['Fecha2']." 23:59:59";
-  }else{
-    $Fecha1 = $mes_anterior." 00:00:00";
-    $Fecha2 = date('Y-m-d')." 23:59:59";
-  }
-  
-  $modal = new Ops();
-  $tac = new Tac();
-  
-  //ONT ASIGNADAS A TECNICOS
-  $TotalAsignados = 0;
-  $sqlCompletas = $modal->CountMaterialesAsignados($idContratistas,$Fecha1,$Fecha2);
-  if (is_array($sqlCompletas)) {
-    if(!empty($sqlCompletas)){
-      foreach($sqlCompletas as $row){
-        if (isset($row['TOTAL'])) { $TotalAsignados = (int)$row['TOTAL']; }
-      }
+$mes_anterior = date('Y-m-d', strtotime('-3 month'));
+
+if (!empty($Fecha1) && !empty($Fecha2)) {
+    $Fecha1 = $_POST['Fecha1'] . " 00:00:00";
+    $Fecha2 = $_POST['Fecha2'] . " 23:59:59";
+} else {
+    $Fecha1 = $mes_anterior . " 00:00:00";
+    $Fecha2 = date('Y-m-d') . " 23:59:59";
+}
+
+$index = new Index();
+
+// NUMEROS DE SERIE ASIGNADOS A TECNICOS
+$TotalAsignados = 0;
+$sqlCompletas = $index->CountMaterialesAsignados($idContratistas, $Fecha1, $Fecha2);
+if (is_array($sqlCompletas)) {
+    if (!empty($sqlCompletas)) {
+        foreach ($sqlCompletas as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalAsignados = (int)$row['TOTAL'];
+            }
+        }
     }
-  } else {
+} else {
     $TotalAsignados = (int)$sqlCompletas;
-  }
-  
-  //ONT SIN INSTALAR
-  $TotalSinInstalar = 0;
-  $qrIncompletas = $modal->CountMaterialesSinInstalar($idContratistas,$Fecha1,$Fecha2);
-  if (is_array($qrIncompletas)) {
-    if(!empty($qrIncompletas)){
-        foreach($qrIncompletas as $row){
-            if (isset($row['TOTAL'])) { $TotalSinInstalar = (int)$row['TOTAL']; }
+}
+
+// NUMEROS DE SERIE SIN INSTALAR
+$TotalSinInstalar = 0;
+$qrIncompletas = $index->CountMaterialesSinInstalar($idContratistas, $Fecha1, $Fecha2);
+if (is_array($qrIncompletas)) {
+    if (!empty($qrIncompletas)) {
+        foreach ($qrIncompletas as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalSinInstalar = (int)$row['TOTAL'];
+            }
         }
     }
-  } else {
+} else {
     $TotalSinInstalar = (int)$qrIncompletas;
-  }
+}
 
-  //ONT INSTALADOS COORDIAPP
+  // NUMEROS DE SERIE INSTALADOS COORDIAPP
   $TotalInstalados = 0;
-  $qrInstalados = $modal->CountMaterialesInstalados($idContratistas,$Fecha1,$Fecha2);
+  $qrInstalados = $index->CountMaterialesInstalados($idContratistas, $Fecha1, $Fecha2);
   if (is_array($qrInstalados)) {
-    if(!empty($qrInstalados)){
-        foreach($qrInstalados as $row){
-            if (isset($row['TOTAL'])) { $TotalInstalados = (int)$row['TOTAL']; }
+    if (!empty($qrInstalados)) {
+      foreach ($qrInstalados as $row) {
+        if (isset($row['TOTAL'])) {
+          $TotalInstalados = (int)$row['TOTAL'];
         }
+      }
     }
   } else {
     $TotalInstalados = (int)$qrInstalados;
   }
 
-  //ONT INSTALADOS TAC
+  // NUMEROS DE SERIE INSTALADOS TAC
   $TotalInstaladosTAC = 0;
-  $qrInstaladosTAC = $tac->CountOntInstaladosTAC($idContratistas,$Fecha1,$Fecha2);
-  // el método devuelve un int (total), así que asignamos directamente
+  $qrInstaladosTAC = $index->CountOntInstaladosTAC($idContratistas, $Fecha1, $Fecha2);
+  // El metodo devuelve un int (total), asi que asignamos directamente.
   $TotalInstaladosTAC = (int)$qrInstaladosTAC;
 
-  //ONT DISPONIBLES ERP
+  // NUMEROS DE SERIE DISPONIBLES ERP
   $TotalDisponible = 0;
-  // CountONTDisponibles acepta solo el id del contratista
-  $qrDisponibles = $modal->CountONTDisponibles($idContratistas, $Fecha1, $Fecha2);
+  // CountONTDisponibles acepta solo el id del contratista.
+  $qrDisponibles = $index->CountONTDisponibles($idContratistas, $Fecha1, $Fecha2);
   if (is_array($qrDisponibles)) {
-    if(!empty($qrDisponibles)){
-        foreach($qrDisponibles as $row){
-            if (isset($row['TOTAL'])) { $TotalDisponible = (int)$row['TOTAL']; }
+    if (!empty($qrDisponibles)) {
+      foreach ($qrDisponibles as $row) {
+        if (isset($row['TOTAL'])) {
+          $TotalDisponible = (int)$row['TOTAL'];
         }
+      }
     }
   } else {
     $TotalDisponible = (int)$qrDisponibles;
   }
 
-  //ONT DISPONIBLES ERP
+  // NUMEROS DE SERIE DISPONIBLES ERP
   $TTotalDisponible = 0;
-  // CountONTDisponibles acepta solo el id del contratista
-  $qrDisponiblesT = $modal->CountONTDisponiblesT($idContratistas);
+  // CountONTDisponibles acepta solo el id del contratista.
+  $qrDisponiblesT = $index->CountONTDisponiblesT($idContratistas);
   if (is_array($qrDisponiblesT)) {
-    if(!empty($qrDisponiblesT)){
-        foreach($qrDisponiblesT as $row){
-            if (isset($row['TOTAL'])) { $TTotalDisponible = (int)$row['TOTAL']; }
+    if (!empty($qrDisponiblesT)) {
+      foreach ($qrDisponiblesT as $row) {
+        if (isset($row['TOTAL'])) {
+          $TTotalDisponible = (int)$row['TOTAL'];
         }
+      }
     }
   } else {
     $TTotalDisponible = (int)$qrDisponiblesT;
   }
 
-  //GRAFICA TECNICO MAS PRODUCTIVO
-  $tecnicos_mas_prod = $modal->TecnicosConMasONTDisponibles($idContratistas,$Fecha1,$Fecha2); 
-  $tecnicos_mas_ont_instalados = $modal->TecnicosConMasONTInstaladas($idContratistas,$Fecha1,$Fecha2);
-  //TECNOLOGIA MAS USADA
-  $tecnologia_mas_prod = $modal->InstaladasVSNoInstaladas($idContratistas,$Fecha1,$Fecha2);  
+  $chart_dias = $index->CountMaterialesPorDia($idContratistas, $Fecha1, $Fecha2);
+  $chart_tecnicos = $index->CountMaterialesPorTecnico($idContratistas, $Fecha1, $Fecha2);
 
-  // Prepare data structures for charts (clean, single responsibility)
-  $hc_data1 = [];
-  if (!empty($tecnologia_mas_prod) && is_array($tecnologia_mas_prod)) {
-    foreach ($tecnologia_mas_prod as $row) {
-      $hc_data1[] = [
-        'name' => (string)$row['Ont_Ubicacion'],
-        'y' => (float)$row['TOTAL']
-      ];
-    }
+  $chart_dias_labels = [];
+  $chart_dias_asignadas = [];
+  $chart_dias_sin_liquidar = [];
+  $chart_dias_liquidadas = [];
+  foreach ((array)$chart_dias as $row) {
+    $chart_dias_labels[] = (string)$row['FECHA'];
+    $chart_dias_asignadas[] = (int)$row['ASIGNADAS'];
+    $chart_dias_sin_liquidar[] = (int)$row['SIN_LIQUIDAR'];
+    $chart_dias_liquidadas[] = (int)$row['LIQUIDADAS'];
   }
 
-  // COORDIAPP vs TAC pie (container2)
-  $hc_data2 = [
-    ['name' => 'COORDIAPP', 'y' => (float)$TotalDisponible],
-    ['name' => 'TAC', 'y' => (float)$TotalInstaladosTAC]
-  ];
-
-  // Datos preparados para Chart.js (etiquetas y valores)
-  // Usamos estructuras simples y normalizamos tipos para que json_encode genere arrays limpios
   $chart_tecnicos_labels = [];
-  $chart_tecnicos_data = [];
-  if (!empty($tecnicos_mas_prod) && is_array($tecnicos_mas_prod)) {
-    foreach ($tecnicos_mas_prod as $row) {
-      $chart_tecnicos_labels[] = 'EXP: ' . (string)$row['NExpediente'];
-      $chart_tecnicos_data[] = (int)$row['TOTAL'];
-    }
-  }
-
-  $chart_instalados_labels = [];
-  $chart_instalados_data = [];
-  if (!empty($tecnicos_mas_ont_instalados) && is_array($tecnicos_mas_ont_instalados)) {
-    foreach ($tecnicos_mas_ont_instalados as $row) {
-      $chart_instalados_labels[] = 'EXP: ' . (string)$row['NExpediente'];
-      $chart_instalados_data[] = (int)$row['TOTAL'];
-    }
+  $chart_tecnicos_asignadas = [];
+  $chart_tecnicos_sin_liquidar = [];
+  $chart_tecnicos_liquidadas = [];
+  $chart_tecnicos_efectividad = [];
+  foreach ((array)$chart_tecnicos as $row) {
+    $chart_tecnicos_labels[] = trim((string)$row['NOMBRE_TECNICO']);
+    $chart_tecnicos_asignadas[] = (int)$row['ASIGNADAS'];
+    $chart_tecnicos_sin_liquidar[] = (int)$row['SIN_LIQUIDAR'];
+    $chart_tecnicos_liquidadas[] = (int)$row['LIQUIDADAS'];
+    $chart_tecnicos_efectividad[] = (int)$row['ASIGNADAS'] > 0
+      ? round(((int)$row['LIQUIDADAS'] / (int)$row['ASIGNADAS']) * 100, 1) : 0;
   }
 ?>
 
@@ -156,7 +150,15 @@
   .kpi-card-link {
     display: block;
     height: 100%;
-    color: inherit;
+    color: inherit !important;
+    text-decoration: none;
+  }
+
+  .kpi-card-link:visited,
+  .kpi-card-link:hover,
+  .kpi-card-link:focus,
+  .kpi-card-link:active {
+    color: inherit !important;
     text-decoration: none;
   }
 
@@ -256,6 +258,44 @@
     --kpi-soft-color: rgba(37, 131, 75, 0.11);
   }
 
+  .chart-area {
+    position: relative;
+    min-height: 320px;
+    padding: 1.25rem;
+    border: 1px solid #edf0f4;
+    border-radius: 0 0 12px 12px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+  }
+
+  .chart-area canvas {
+    max-height: 330px;
+  }
+
+  .chart-area + * {
+    border-radius: 12px;
+  }
+
+  #LoadKPIS .card {
+    overflow: hidden;
+    border: 1px solid #e6eaf0;
+    border-radius: 12px;
+    box-shadow: 0 5px 18px rgba(15, 23, 42, 0.07);
+  }
+
+  #LoadKPIS .card-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #edf0f4;
+    background: #ffffff;
+    color: #182235;
+  }
+
+  #LoadKPIS .card-header strong {
+    color: #596579;
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
   @media (max-width: 768px) {
     .kpi-card {
       min-height: 148px;
@@ -274,6 +314,11 @@
     .kpi-card-number {
       font-size: 1.75rem;
     }
+
+    .chart-area {
+      min-height: 270px;
+      padding: 0.75rem;
+    }
   }
 </style>
 
@@ -285,7 +330,7 @@
             <div class="kpi-card kpi-card-danger">
                 <div class="kpi-card-body">
                     <div class="kpi-card-icon"><i class="fas fa-box-open"></i></div>
-                    <div class="kpi-card-label">Onts Total Sin Asignar</div>
+                    <div class="kpi-card-label">Números de serie totales sin asignar</div>
                     <div class="kpi-card-number"><?php echo number_format($TTotalDisponible); ?></div>
                 </div>
             </div>
@@ -297,7 +342,7 @@
         <div class="kpi-card kpi-card-warning">
           <div class="kpi-card-body">
             <div class="kpi-card-icon"><i class="fas fa-clock"></i></div>
-            <div class="kpi-card-label">Onts Sin Asignar (En Fecha)</div>
+            <div class="kpi-card-label">Números de serie sin asignar (en fecha)</div>
             <div class="kpi-card-number"><?php echo number_format($TotalDisponible); ?></div>
                 </div>
             </div>
@@ -309,7 +354,7 @@
         <div class="kpi-card kpi-card-info">
           <div class="kpi-card-body">
             <div class="kpi-card-icon"><i class="fas fa-user-check"></i></div>
-            <div class="kpi-card-label">ONTs Asignadas</div>
+            <div class="kpi-card-label">Números de serie asignados</div>
             <div class="kpi-card-number"><?php echo number_format($TotalAsignados); ?></div>
                 </div>
             </div>
@@ -321,7 +366,7 @@
         <div class="kpi-card kpi-card-primary">
           <div class="kpi-card-body">
             <div class="kpi-card-icon"><i class="fas fa-hourglass-half"></i></div>
-            <div class="kpi-card-label">Onts Sin Liquidar</div>
+            <div class="kpi-card-label">Números de serie sin liquidar</div>
             <div class="kpi-card-number"><?php echo number_format($TotalSinInstalar); ?></div>
                 </div>
             </div>
@@ -333,7 +378,7 @@
         <div class="kpi-card kpi-card-success">
           <div class="kpi-card-body">
             <div class="kpi-card-icon"><i class="fas fa-check-double"></i></div>
-            <div class="kpi-card-label">Onts Liquidadas</div>
+            <div class="kpi-card-label">Números de serie liquidados</div>
             <div class="kpi-card-number"><?php echo number_format($TotalInstalados); ?></div>
                 </div>
             </div>
@@ -341,250 +386,354 @@
     </div>
 
 </div>
-<!-- Content Row -->
+<!-- Seis graficas derivadas de las cinco tarjetas -->
 <div class="row">
-
-  <!-- Pastel Chart -->
-  <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
-          <!-- Card Header - Dropdown -->
-          <div
-              class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-              <h6 class="m-0 font-weight-bold text-primary">CONTROL DE ASIGNACIÓN DE ONTs</h6>
-              <div class="dropdown no-arrow">
-                  <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                  </a>
-              </div>
-          </div>
-          <!-- Card Body -->
-          <div class="card-body">
-            <div id="container" style="width:100%; height:400px;"></div>
-          </div>
+  <div class="col-xl-6 mb-4">
+    <div class="card shadow h-100">
+      <div class="card-header">
+                <strong>Embudo operativo de números de serie</strong>
       </div>
+      <div class="card-body chart-area">
+        <canvas id="chartEmbudo"></canvas>
+      </div>
+    </div>
   </div>
 
-  <div class="col-xl-6 col-lg-6">
-      <div class="card shadow mb-4">
-          <!-- Card Header - Dropdown -->
-          <div
-              class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-              <h6 class="m-0 font-weight-bold text-primary">COHERENCIA DE REPORTE DE ONTs (COORDIAPP. VS. TAC)</h6>
-              <div class="dropdown no-arrow">
-                  <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                      data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                  </a>
-              </div>
-          </div>
-          <!-- Card Body -->
-          <div class="card-body">
-            <div id="container2" style="width:100%; height:400px;"></div>
-          </div>
+  <div class="col-xl-6 mb-4">
+    <div class="card shadow h-100">
+      <div class="card-header">
+        <strong>Asignaciones, pendientes y liquidaciones por dia</strong>
       </div>
+      <div class="card-body chart-area">
+        <canvas id="chartTendencia"></canvas>
+      </div>
+    </div>
   </div>
 
-</div>
-<!-- Content Row -->
-<div class="row">
-
-    <!-- Pastel Chart -->
-    <div class="col-xl-6 col-lg-6">
-        <div class="card shadow mb-4">
-            <!-- Card Header - Dropdown -->
-            <div
-                class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">ONTs ASIGNADAS (INVENTARIO ACTIVO) POR TÉCNICO</h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                </div>
-            </div>
-            <!-- Card Body -->
-            <div class="card-body">
-                <div class="chart-area">
-                    <canvas id="myPieChart"></canvas>
-                </div>
-            </div>
-        </div>
+  <div class="col-xl-6 mb-4">
+    <div class="card shadow h-100">
+      <div class="card-header">
+        <strong>Rendimiento por tecnico</strong>
+      </div>
+      <div class="card-body chart-area">
+        <canvas id="chartRendimiento"></canvas>
+      </div>
     </div>
+  </div>
 
-    <!-- Pastel Chart -->
-    <div class="col-xl-6 col-lg-6">
-        <div class="card shadow mb-4">
-            <!-- Card Header - Dropdown -->
-            <div
-                class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary">ONTs INSTALADAS Y CERRADAS POR TÉCNICO</h6>
-                <div class="dropdown no-arrow">
-                    <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                    </a>
-                </div>
-            </div>
-            <!-- Card Body -->
-            <div class="card-body">
-                <div class="chart-area">
-                    <canvas id="myPieChart2"></canvas>
-                </div>
-            </div>
-        </div>
+  <div class="col-xl-6 mb-4">
+    <div class="card shadow h-100">
+      <div class="card-header">
+        <strong>Efectividad de liquidacion por tecnico</strong>
+      </div>
+      <div class="card-body chart-area">
+        <canvas id="chartEfectividad"></canvas>
+      </div>
     </div>
+  </div>
 
+  <div class="col-xl-6 mb-4">
+    <div class="card shadow h-100">
+      <div class="card-header">
+        <strong>Inventario total contra inventario reciente</strong>
+      </div>
+      <div class="card-body chart-area">
+        <canvas id="chartInventario"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-6 mb-4">
+    <div class="card shadow h-100">
+      <div class="card-header">
+        <strong>Conciliacion COORDIAPP contra TAC</strong>
+      </div>
+      <div class="card-body chart-area">
+        <canvas id="chartConciliacion"></canvas>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-Highcharts.chart('container', {
-    chart: {
-        type: 'pie'
-    },
-    title: {
-        text: 'DISTRIBUCIÓN DE ORDENES DE SERVICIO POR USO DE ONT'
-    },
-    tooltip: {
-        valueSuffix: '%'
-    },
-    plotOptions: {
-        pie: {
-            allowPointSelect: true,
-            cursor: 'pointer',
-            dataLabels: {
-                enabled: true,
-                format: '{point.name}: {point.percentage:.1f}%',
-                style: {
-                    fontSize: '1.2em',
-                    textOutline: 'none',
-                    opacity: 0.7
-                }
-            }
-        }
-    },
-    colors: ['#ff0000', '#3357FF', '#FFC300', '#DAF7A6'], // Colores personalizados
-  series: [{
-    name: 'Percentage',
-    colorByPoint: true,
-    data: <?php echo json_encode($hc_data1, JSON_NUMERIC_CHECK); ?>
-  }]
-});
-</script>
+(function () {
+  var labelsDias = <?php echo json_encode($chart_dias_labels, JSON_UNESCAPED_UNICODE); ?>;
+  var asignadasDias = <?php echo json_encode($chart_dias_asignadas, JSON_NUMERIC_CHECK); ?>;
+  var pendientesDias = <?php echo json_encode($chart_dias_sin_liquidar, JSON_NUMERIC_CHECK); ?>;
+  var liquidadasDias = <?php echo json_encode($chart_dias_liquidadas, JSON_NUMERIC_CHECK); ?>;
+  var labelsTecnicos = <?php echo json_encode($chart_tecnicos_labels, JSON_UNESCAPED_UNICODE); ?>;
+  var asignadasTecnicos = <?php echo json_encode($chart_tecnicos_asignadas, JSON_NUMERIC_CHECK); ?>;
+  var pendientesTecnicos = <?php echo json_encode($chart_tecnicos_sin_liquidar, JSON_NUMERIC_CHECK); ?>;
+  var liquidadasTecnicos = <?php echo json_encode($chart_tecnicos_liquidadas, JSON_NUMERIC_CHECK); ?>;
+  var efectividadTecnicos = <?php echo json_encode($chart_tecnicos_efectividad, JSON_NUMERIC_CHECK); ?>;
+  var charts = [];
+  var colors = {
+    danger: '#c0392b',
+    warning: '#b7791f',
+    info: '#147d92',
+    primary: '#185abc',
+    success: '#25834b'
+  };
 
-<script>
-Highcharts.chart('container2', {
-    chart: {
-        type: 'pie'
-    },
-    title: {
-        text: 'DISTRIBUCIÓN DE ORDENES DE SERVICIO POR USO DE ONT'
-    },
-    tooltip: {
-        valueSuffix: '%'
-    },
-    plotOptions: {
-        pie: {
-            allowPointSelect: true,
-            cursor: 'pointer',
-            dataLabels: {
-                enabled: true,
-                format: '{point.name}: {point.percentage:.1f}%',
-                style: {
-                    fontSize: '1.2em',
-                    textOutline: 'none',
-                    opacity: 0.7
-                }
-            }
-        }
-    },
-    colors: ['#ff0000', '#3357FF', '#FFC300', '#DAF7A6'], // Colores personalizados
-    series: [{
-        name: 'Percentage',
-        colorByPoint: true,
-        data: [
-          {
-            name: '<?php echo addslashes("COORDIAPP"); ?>',
-            y: <?php echo (float)$TotalInstalados; ?>
-          },
-          {
-            name: '<?php echo addslashes("TAC"); ?>',
-            y: <?php echo (float)$TotalInstaladosTAC; ?>
-          }
-        ]
-    }]
-});
-</script>
+  function makeChart(id, type, labels, datasets, options) {
+    var canvas = document.getElementById(id);
 
-<!-- JavaScript común para Chart.js: helpers y construcción de barras reutilizable -->
-<script>
-// Datos JSON inyectados de PHP (listas limpias)
-var chart_tecnicos_labels = <?php echo json_encode($chart_tecnicos_labels, JSON_UNESCAPED_UNICODE); ?>;
-var chart_tecnicos_data = <?php echo json_encode($chart_tecnicos_data, JSON_NUMERIC_CHECK); ?>;
-
-var chart_instalados_labels = <?php echo json_encode($chart_instalados_labels, JSON_UNESCAPED_UNICODE); ?>;
-var chart_instalados_data = <?php echo json_encode($chart_instalados_data, JSON_NUMERIC_CHECK); ?>;
-
-// Configuración por defecto para Chart.js (se aplica a todos los gráficos)
-if (window.Chart && Chart.defaults) {
-  Chart.defaults.global.defaultFontFamily = 'Nunito, -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
-  Chart.defaults.global.defaultFontColor = '#858796';
-}
-
-/**
- * Formatea números con separador de miles.
- * number: número a formatear
- * decimals: cantidad de decimales (opc.)
- */
-function number_format(number, decimals, dec_point, thousands_sep) {
-  number = (number + '').replace(',', '').replace(' ', '');
-  var n = !isFinite(+number) ? 0 : +number,
-    prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
-    sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
-    dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
-    s = '',
-    toFixedFix = function(n, prec) { var k = Math.pow(10, prec); return '' + Math.round(n * k) / k; };
-  s = (prec ? toFixedFix(n, prec) : '' + Math.round(n)).split('.');
-  if (s[0].length > 3) { s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep); }
-  if ((s[1] || '').length < prec) { s[1] = s[1] || ''; s[1] += new Array(prec - s[1].length + 1).join('0'); }
-  return s.join(dec);
-}
-
-/**
- * Construye un gráfico de barras en el canvas indicado.
- * Usamos suggestedMax con 20% de headroom para escalar el eje Y.
- */
-function buildBarChart(canvasId, labels, data, labelText) {
-  var max = (data && data.length) ? Math.max.apply(null, data) : 0;
-  var suggestedMax = Math.ceil(max * 1.2) || 5;
-  var ctx = document.getElementById(canvasId);
-  if (!ctx) return null;
-  return new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: labelText || 'Valor',
-        backgroundColor: '#4e73df',
-        hoverBackgroundColor: '#2e59d9',
-        borderColor: '#4e73df',
-        data: data
-      }]
-    },
-    options: {
-      maintainAspectRatio: false,
-      layout: { padding: { left: 5, right: 10, top: 15, bottom: 0 } },
-      scales: {
-        xAxes: [{ time: { unit: 'month' }, gridLines: { display: false, drawBorder: false }, ticks: { maxTicksLimit: 10 }, maxBarThickness: 25 }],
-        yAxes: [{ ticks: { beginAtZero: true, suggestedMax: suggestedMax, maxTicksLimit: 10, padding: 5, callback: function(value) { return number_format(value); } }, gridLines: { color: 'rgb(234, 236, 244)', zeroLineColor: 'rgb(234, 236, 244)', drawBorder: false, borderDash: [2], zeroLineBorderDash: [2] } }]
-      },
-      legend: { display: false },
-      tooltips: { titleMarginBottom: 10, titleFontColor: '#6e707e', titleFontSize: 14, backgroundColor: 'rgb(255,255,255)', bodyFontColor: '#858796', borderColor: '#dddfeb', borderWidth: 1, xPadding: 15, yPadding: 15, displayColors: false, caretPadding: 10, callbacks: { label: function(tooltipItem, chart) { var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || ''; return datasetLabel + ': ' + number_format(tooltipItem.yLabel); } } }
+    if (!canvas) {
+      return;
     }
-  });
-}
 
-// Crear los dos gráficos de barras usando los datos inyectados desde PHP
-buildBarChart('myPieChart', chart_tecnicos_labels, chart_tecnicos_data, 'ONT');
-buildBarChart('myPieChart2', chart_instalados_labels, chart_instalados_data, 'ONT');
+    charts.push(new Chart(canvas, {
+      type: type,
+      data: {
+        labels: labels,
+        datasets: datasets
+      },
+      options: options || {}
+    }));
+  }
+
+  var common = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          usePointStyle: true,
+          padding: 18
+        }
+      },
+      tooltip: {
+        backgroundColor: '#182235',
+        titleColor: '#ffffff',
+        bodyColor: '#e6eaf0',
+        padding: 12,
+        cornerRadius: 8,
+        displayColors: true
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: '#edf0f4'
+        },
+        ticks: {
+          color: '#596579'
+        }
+      },
+      x: {
+        grid: {
+          display: false
+        },
+        ticks: {
+          color: '#596579',
+          maxRotation: 0,
+          minRotation: 0,
+          autoSkip: false,
+          callback: function (value) {
+            var label = this.getLabelForValue(value);
+            var words = label.split(' ');
+            var lines = [];
+            var currentLine = '';
+
+            words.forEach(function (word) {
+              if ((currentLine + ' ' + word).trim().length > 16 && currentLine) {
+                lines.push(currentLine);
+                currentLine = word;
+              } else {
+                currentLine = (currentLine + ' ' + word).trim();
+              }
+            });
+
+            if (currentLine) {
+              lines.push(currentLine);
+            }
+
+            return lines.slice(0, 3);
+          }
+        }
+      }
+    }
+  };
+
+  makeChart(
+    'chartEmbudo',
+    'bar',
+    ['Asignadas', 'Sin liquidar', 'Liquidadas'],
+    [{
+      label: 'Números de serie',
+      data: [
+        <?php echo (int)$TotalAsignados; ?>,
+        <?php echo (int)$TotalSinInstalar; ?>,
+        <?php echo (int)$TotalInstalados; ?>
+      ],
+            backgroundColor: [colors.info, colors.primary, colors.success],
+            borderRadius: 8,
+            borderSkipped: false,
+            hoverBackgroundColor: [colors.info, colors.primary, colors.success]
+    }],
+    common
+  );
+
+  makeChart('chartTendencia', 'line', labelsDias, [
+    {
+      label: 'Asignadas',
+      data: asignadasDias,
+            borderColor: colors.info,
+            backgroundColor: 'rgba(20, 125, 146, .12)',
+            pointBackgroundColor: colors.info,
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            tension: 0.35,
+            fill: true
+    },
+    {
+      label: 'Sin liquidar',
+      data: pendientesDias,
+            borderColor: colors.danger,
+            backgroundColor: 'transparent',
+            pointBackgroundColor: colors.danger,
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            tension: 0.35
+    },
+    {
+      label: 'Liquidadas',
+      data: liquidadasDias,
+            borderColor: colors.warning,
+            backgroundColor: 'transparent',
+            pointBackgroundColor: colors.warning,
+            pointBorderColor: '#ffffff',
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            tension: 0.35
+    }
+  ], common);
+
+  makeChart('chartRendimiento', 'bar', labelsTecnicos, [
+    {
+      label: 'Asignadas',
+      data: asignadasTecnicos,
+            backgroundColor: colors.info,
+            borderRadius: 6,
+            borderSkipped: false
+    },
+    {
+      label: 'Sin liquidar',
+      data: pendientesTecnicos,
+            backgroundColor: colors.primary,
+            borderRadius: 6,
+            borderSkipped: false
+    },
+    {
+      label: 'Liquidadas',
+      data: liquidadasTecnicos,
+            backgroundColor: colors.success,
+            borderRadius: 6,
+            borderSkipped: false
+    }
+  ], common);
+
+  makeChart(
+    'chartEfectividad',
+    'bar',
+    labelsTecnicos,
+    [{
+      label: 'Efectividad (%)',
+      data: efectividadTecnicos,
+            backgroundColor: colors.success,
+            borderRadius: 6,
+            borderSkipped: false
+    }],
+    {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            display: false
+          },
+          ticks: {
+            color: '#596579',
+            maxRotation: 0,
+            minRotation: 0,
+            autoSkip: false,
+            callback: function (value) {
+              var label = this.getLabelForValue(value);
+              var words = label.split(' ');
+              var lines = [];
+              var currentLine = '';
+
+              words.forEach(function (word) {
+                if ((currentLine + ' ' + word).trim().length > 16 && currentLine) {
+                  lines.push(currentLine);
+                  currentLine = word;
+                } else {
+                  currentLine = (currentLine + ' ' + word).trim();
+                }
+              });
+
+              if (currentLine) {
+                lines.push(currentLine);
+              }
+
+              return lines.slice(0, 3);
+            }
+          }
+        },
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            callback: function (value) {
+              return value + '%';
+            }
+          }
+        }
+      }
+    }
+  );
+
+  makeChart(
+    'chartInventario',
+    'bar',
+    ['Total sin asignar', 'Sin asignar en fecha'],
+    [{
+            label: 'Números de serie',
+      data: [
+        <?php echo (int)$TTotalDisponible; ?>,
+        <?php echo (int)$TotalDisponible; ?>
+      ],
+            backgroundColor: [colors.danger, colors.warning],
+            borderRadius: 8,
+            borderSkipped: false
+    }],
+    common
+  );
+
+  makeChart(
+    'chartConciliacion',
+    'bar',
+    ['COORDIAPP', 'TAC'],
+    [{
+            label: 'Números de serie liquidados',
+      data: [
+        <?php echo (int)$TotalInstalados; ?>,
+        <?php echo (int)$TotalInstaladosTAC; ?>
+      ],
+            backgroundColor: [colors.info, colors.primary],
+            borderRadius: 8,
+            borderSkipped: false
+    }],
+    common
+  );
+})();
 </script>

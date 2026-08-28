@@ -18,7 +18,7 @@
     
     $Fecha1 = $_POST['Fecha1'] ?? '';
     $Fecha2 = $_POST['Fecha2'] ?? '';
-    $mes_anterior = date('Y-m-d', strtotime('-1 month'));
+    $mes_anterior = date('Y-m-d', strtotime('-3 month'));
     
 ?>
 <!DOCTYPE html>
@@ -73,7 +73,7 @@
 
                 <!-- TOPBAR CON FILTROS Y ACCIONES GLOBALES -->
                 <?php
-                    $defaultFecha1 = $_POST['Fecha1'] ?? date('Y-m-d', strtotime('-1 month'));
+                    $defaultFecha1 = $_POST['Fecha1'] ?? date('Y-m-d', strtotime('-3 month'));
                     $defaultFecha2 = $_POST['Fecha2'] ?? date('Y-m-d');
                     $topbar_onchange = 'LoadKPIS';
                     include_once(__DIR__ . '/../components/TopbarContratistas.php');
@@ -133,8 +133,8 @@
     </div>
 
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
-    <script src="vendor/chart.js/Chart.min.js"></script>
-    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <!-- CARGAR CHART.JS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <script>
         $(document).ready(function(){
             LoadKPIS();
