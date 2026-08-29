@@ -1,14 +1,14 @@
 <?php
     session_start();
 
-    require_once __DIR__ . '/../controller/ClassOps.php';
+    require_once __DIR__ . '/../controller/ClassIndex.php';
 
     if (empty($_SESSION['idContratistas'])) {
         header('location: ../../Login/modal/poweroff.php');
         exit;
     }
 
-    $operaciones = new Ops();
+    $operaciones = new Index();
     $tecnicos = $operaciones->Tecnicos($_SESSION['idContratistas']) ?: [];
     $totalTecnicos = count($tecnicos);
 ?>
@@ -165,7 +165,7 @@
         border-color: rgba(29, 130, 245, 0.7);
     }
 
-    .tecnico-card .card-body {
+    .tecnico-card .tecnico-card-body {
         padding: 22px 20px 18px;
     }
 
@@ -328,7 +328,7 @@
             const row = $(this);
             container.append(`
                 <div class="tecnico-card">
-                    <div class="card-body">
+                    <div class="tecnico-card-body">
                         <div class="tecnico-nombre">${row.data('nombre') || 'Sin nombre'}</div>
                         <div class="tecnico-info-item">
                             <span class="tecnico-info-label">Expediente</span>

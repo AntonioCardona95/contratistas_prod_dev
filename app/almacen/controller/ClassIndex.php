@@ -45,6 +45,20 @@ class Index extends Conexion
         }
     }
 
+    // LISTADO DEL MODULO: tecnicos activos del contratista
+    public function Tecnicos($FK_Contratista_Tecnico)
+    {
+        $sql = "SELECT * FROM tecnicos
+                INNER JOIN copes ON FK_Cope_Tecnico = idCope
+                WHERE FK_Contratista_Tecnico = :FK_Contratista_Tecnico
+                AND Estatus_Tecnico = 'ACTIVO'
+                ORDER BY Nombre_T ASC";
+
+        return $this->runQuery($sql, array(
+            'FK_Contratista_Tecnico' => $FK_Contratista_Tecnico
+        ));
+    }
+
     protected function callAnalyticsProcedure($procedure, $params = array())
     {
         $rows = array();

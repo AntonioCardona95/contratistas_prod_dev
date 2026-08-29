@@ -9,7 +9,7 @@
     date_default_timezone_set('America/Monterrey');
 
     // IMPORTAR CLASE
-    require_once("controller/ClassOps.php");
+    require_once("controller/ClassIndex.php");
 
     // SESIÓN
     session_start();
@@ -24,7 +24,7 @@
     }
 
     // OBTENER DATOS DE TÉCNICOS
-    $operaciones = new Ops();
+    $operaciones = new Index();
     $tecnicos = $operaciones->Tecnicos($idContratistas) ?: [];
     $totalTecnicos = count($tecnicos);
 
