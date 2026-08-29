@@ -109,6 +109,21 @@ class Index extends Conexion
         return $this->runQuery($sql, array('FK_Contratista_Salida' => $idContratistas));
     }
 
+    // DETALLE DE LA TARJETA 1: ONTs total sin asignar
+    public function ONTDisponiblesAsignarDet($idContratistas)
+    {
+        $sql = "SELECT Folio_Salida_Material_Det_S, Fecha_Salida_S, Localidad_Material_S, Producto, Modelo, Num_Serie_S 
+                FROM material_det_salida
+                LEFT JOIN salidas_contratistas ON Num_Serie_S = Num_Serie_Salida_Det
+                INNER JOIN producto ON idProducto = FK_Material_S
+                WHERE FK_Contratista_Salida = :FK_Contratista_Salida AND Num_Serie_Salida_Det IS NULL
+                ORDER BY Fecha_Salida_S DESC";
+
+        return $this->runQuery($sql, array(
+            'FK_Contratista_Salida' => $idContratistas
+        ));
+    }
+
     // TARJETA 2: ONTs sin asignar dentro del rango seleccionado
     public function CountONTDisponibles($idContratistas, $Fecha1, $Fecha2)
     {
@@ -117,6 +132,25 @@ class Index extends Conexion
                 WHERE FK_Contratista_Salida = :FK_Contratista_Salida
                 AND Num_Serie_Salida_Det IS NULL
                 AND Fecha_Salida_S BETWEEN :Fecha1 AND :Fecha2";
+
+        return $this->runQuery($sql, array(
+            'FK_Contratista_Salida' => $idContratistas,
+            'Fecha1' => $Fecha1,
+            'Fecha2' => $Fecha2
+        ));
+    }
+
+    // DETALLE DE LA TARJETA 2: ONTs sin asignar dentro del rango seleccionado
+    public function ONTDisponiblesRecientesDet($idContratistas, $Fecha1, $Fecha2)
+    {
+        $sql = "SELECT Folio_Salida_Material_Det_S, Fecha_Salida_S, Localidad_Material_S, Producto, Modelo, Num_Serie_S 
+                FROM material_det_salida
+                LEFT JOIN salidas_contratistas ON Num_Serie_S = Num_Serie_Salida_Det
+                INNER JOIN producto ON idProducto = FK_Material_S
+                WHERE FK_Contratista_Salida = :FK_Contratista_Salida
+                AND Num_Serie_Salida_Det IS NULL
+                AND Fecha_Salida_S BETWEEN :Fecha1 AND :Fecha2
+                ORDER BY Fecha_Salida_S DESC";
 
         return $this->runQuery($sql, array(
             'FK_Contratista_Salida' => $idContratistas,
@@ -139,6 +173,24 @@ class Index extends Conexion
         ));
     }
 
+    // DETALLE DE LA TARJETA 3: ONTs asignadas dentro del rango seleccionado
+    public function ONTAsignadosDet($idContratistas, $Fecha1, $Fecha2)
+    {
+        $sql = "SELECT Producto, Modelo, Num_Serie_Salida_Det, CONCAT(Nombre_T, ' ', Apellidos_T) AS Tecnico, Fecha_Salida_Det 
+                FROM salidas_contratistas
+                INNER JOIN producto ON idProducto = FK_Material_Salidas_Contratistas
+                INNER JOIN tecnicos ON FK_Tecnico_Salida_Det = idTecnico
+                WHERE FK_Contratista_Salida_Det = :FK_Contratista_Salida_Det
+                AND Fecha_Salida_Det BETWEEN :Fecha1 AND :Fecha2
+                ORDER BY Fecha_Salida_Det DESC";
+
+        return $this->runQuery($sql, array(
+            'FK_Contratista_Salida_Det' => $idContratistas,
+            'Fecha1' => $Fecha1,
+            'Fecha2' => $Fecha2
+        ));
+    }
+
     // TARJETA 4: ONTs sin liquidar dentro del rango seleccionado
     public function CountMaterialesSinInstalar($FK_Contratista_Salida_Det, $Fecha1, $Fecha2)
     {
@@ -154,6 +206,25 @@ class Index extends Conexion
         ));
     }
 
+    // DETALLE DE LA TARJETA 4: ONTs sin instalar dentro del rango seleccionado
+    public function ONTSinInstalarDet($idContratistas, $Fecha1, $Fecha2)
+    {
+        $sql = "SELECT Producto, Modelo, Num_Serie_Salida_Det, CONCAT(Nombre_T, ' ', Apellidos_T) AS Tecnico, Fecha_Salida_Det 
+                FROM salidas_contratistas
+                INNER JOIN producto ON idProducto = FK_Material_Salidas_Contratistas
+                INNER JOIN tecnicos ON FK_Tecnico_Salida_Det = idTecnico
+                WHERE FK_Contratista_Salida_Det = :FK_Contratista_Salida_Det
+                AND Fecha_Salida_Det BETWEEN :Fecha1 AND :Fecha2
+                AND Ont_Ubicacion = 'TECNICO'
+                ORDER BY Fecha_Salida_Det DESC";
+
+        return $this->runQuery($sql, array(
+            'FK_Contratista_Salida_Det' => $idContratistas,
+            'Fecha1' => $Fecha1,
+            'Fecha2' => $Fecha2
+        ));
+    }
+
     // TARJETA 5: ONTs liquidadas dentro del rango seleccionado
     public function CountMaterialesInstalados($FK_Contratista_Salida_Det, $Fecha1, $Fecha2)
     {
@@ -164,6 +235,27 @@ class Index extends Conexion
 
         return $this->runQuery($sql, array(
             'FK_Contratista_Salida_Det' => $FK_Contratista_Salida_Det,
+            'Fecha1' => $Fecha1,
+            'Fecha2' => $Fecha2
+        ));
+    }
+
+    // DETALLE DE LA TARJETA 5: ONTs instaladas dentro del rango seleccionado
+    public function ONTInstaladosDet($idContratistas, $Fecha1, $Fecha2)
+    {
+        $sql = "SELECT Folio_Pisa, Fecha_Coordiapp, Producto, Modelo, 
+                Num_Serie_Salida_Det, CONCAT(Nombre_T, ' ', Apellidos_T) AS Tecnico, Fecha_Salida_Det
+                FROM salidas_contratistas
+                INNER JOIN producto ON idProducto = FK_Material_Salidas_Contratistas 
+                INNER JOIN tecnicos ON FK_Tecnico_Salida_Det = idTecnico
+                INNER JOIN tecnico_instalaciones_coordiapp ON Ont = Num_Serie_Salida_Det
+                WHERE FK_Contratista_Salida_Det = :FK_Contratista_Salida_Det 
+                AND Fecha_Salida_Det BETWEEN :Fecha1 and :Fecha2
+                AND Ont_Ubicacion = 'TERMINADO'
+                ORDER BY Fecha_Salida_Det DESC;";
+
+        return $this->runQuery($sql, array(
+            'FK_Contratista_Salida_Det' => $idContratistas,
             'Fecha1' => $Fecha1,
             'Fecha2' => $Fecha2
         ));

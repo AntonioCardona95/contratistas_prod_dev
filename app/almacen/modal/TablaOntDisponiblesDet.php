@@ -4,13 +4,26 @@
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
 
-    require_once("../controller/ClassOps.php");
+    require_once __DIR__ . '/../controller/ClassIndex.php';
 
-    $modal = new Ops();
+    $index = new Index();
     session_start();
     $Contratista = $_SESSION['Contratista'];
     $idContratistas = $_SESSION['idContratistas'];
-	$filas = $modal->ONTDisponiblesAsignarDet($idContratistas);
+
+    $Fecha1 = $_POST['Fecha1'] ?? '';
+    $Fecha2 = $_POST['Fecha2'] ?? '';
+    $mes_anterior = date('Y-m-d', strtotime('-3 month'));
+
+    if (empty($Fecha1) || empty($Fecha2)) {
+        $Fecha1 = $mes_anterior . ' 00:00:00';
+        $Fecha2 = date('Y-m-d') . ' 23:59:59';
+    } else {
+        $Fecha1 = $Fecha1 . ' 00:00:00';
+        $Fecha2 = $Fecha2 . ' 23:59:59';
+    }
+
+    $filas = $index->ONTDisponiblesAsignarDet($idContratistas);
     
 ?>
 
