@@ -6,7 +6,7 @@ ini_set('display_startup_errors', 0);
 error_reporting(E_ALL);
 
 date_default_timezone_set('America/Monterrey');
-include_once("../controller/ClassOps.php");
+include_once("../controller/ClassSalidas.php");
 
 // Sanitization function
 function sanitizeInput($data)
@@ -42,7 +42,7 @@ if (!$FK_Contratista_Salida_Det || !$FK_Tecnico_Salida_Det || empty($numeros_ser
 }
 
 try {
-    $modal = new Ops();
+    $modal = new Salidas();
     $folio = $modal->FolioSeguroSalida();
     if ($folio === false) {
         throw new Exception('No fue posible reservar un folio de salida.');

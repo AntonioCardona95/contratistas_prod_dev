@@ -1,4 +1,5 @@
 <?php
+    require_once __DIR__ . '/../controller/ClassOps.php';
     
     $modalcargar = new Ops();
 

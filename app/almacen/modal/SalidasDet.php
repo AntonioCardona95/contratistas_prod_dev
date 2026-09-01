@@ -5,7 +5,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 session_start();
-require_once(__DIR__ . '/../controller/ClassOps.php');
+require_once(__DIR__ . '/../controller/ClassSalidas.php');
 
 if (empty($_SESSION['idContratistas'])) {
     http_response_code(401);
@@ -21,7 +21,7 @@ if (!$Folio) {
     exit;
 }
 
-$modal = new Ops();
+$modal = new Salidas();
 $salidas_det = $modal->SalidasDet($Folio) ?? [];
 ?>
 

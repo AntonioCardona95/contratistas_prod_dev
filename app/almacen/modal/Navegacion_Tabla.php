@@ -303,8 +303,8 @@ $totalPendientes = $totalSeries - $totalNavegando;
 				<th>Fecha Coordiapp</th>
 				<th>Telefono TAC</th>
 				<th>Fecha liquidacion TAC</th>
-				<th>Telefono ECI</th>
-				<th>Fecha consulta ECI</th>
+				<th>Telefono Navegando</th>
+				<th>Fecha consulta Navegando</th>
 				<th>Navegando</th>
 			</tr>
 		</thead>

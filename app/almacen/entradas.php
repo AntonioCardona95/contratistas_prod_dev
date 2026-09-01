@@ -6,7 +6,7 @@
 
     date_default_timezone_set('America/Monterrey');
     
-    require_once("controller/ClassOps.php");
+    require_once("controller/ClassEntradas.php");
     require_once("modal/cargar.php");
 
     session_start();

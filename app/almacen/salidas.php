@@ -6,7 +6,7 @@
 
     date_default_timezone_set('America/Monterrey');
     
-    require_once("controller/ClassOps.php");
+    require_once("controller/ClassSalidas.php");
     require_once("modal/cargar.php");
 
     session_start();
@@ -16,6 +16,8 @@
     if (empty($idContratistas)) {
         header("location: ../Login/modal/poweroff.php");
     }
+
+    $modal = new Salidas();
 
 ?>
 <!DOCTYPE html>
@@ -283,14 +285,15 @@
                     </button>
                 </div>
                 <!-- filepath: c:\Users\Axel Garcia OPS\Desktop\HTDOCS\contratistas_dash\nueva_salida.php -->
-                <form action="modal/newsalida2.php" method="post" id="FormNuevaSalida" enctype="multipart/form-data" name="formulario">
+                <form action="modal/GuardarSalida.php" method="post" id="FormNuevaSalida" enctype="multipart/form-data" name="formulario">
                     <div class="modal-body">
                         <div class="card-form-shell">
 
                             <!-- Folio Salida -->
                             <div class="form-group">
                                 <label for="Folio_Salida">Folio Salida</label>
-                                <?php UltimaSalida(); ?>
+                                <?php $folio = $modal->FolioProvisionalSalida(); ?>
+                                <input type="number" name="Folio_Salida" id="Folio_Salida" class="form-control" value="<?php echo $folio; ?>" readonly>
                             </div>
 
                             <!-- Contratista -->

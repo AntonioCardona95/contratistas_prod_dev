@@ -4,9 +4,9 @@
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
 
-    require_once("../controller/ClassOps.php");
+    require_once("../controller/ClassEntradas.php");
 
-    $modal = new Ops();
+    $modal = new Entradas();
     session_start();
     $Contratista = $_SESSION['Contratista'];
     $idContratistas = $_SESSION['idContratistas'];
