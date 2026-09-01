@@ -45,7 +45,7 @@
 
     <style>
         .modal-header-gradient {
-            background: linear-gradient(90deg, #007BFF 0%, #007 100%) !important;
+             background: linear-gradient(90deg, #0f172a 0%, #003d99 100%) !important;
         }
     </style>
 

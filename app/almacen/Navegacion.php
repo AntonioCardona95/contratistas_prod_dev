@@ -135,6 +135,10 @@
         #tac_series_tabla th.dt-type-numeric {
             text-align: center !important;
         }
+
+        .modal-header-gradient {
+             background: linear-gradient(90deg, #0f172a 0%, #003d99 100%) !important;
+        }
     </style>
 
 </head>

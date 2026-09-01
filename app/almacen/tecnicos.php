@@ -58,6 +58,12 @@
     <!-- ESTILO PERSONALIZADO PARA EL MENU ACTIVO DE LA SIDEBAR -->
     <link rel="stylesheet" href="css/sidebar-active.css">
 
+    <style>
+        .modal-header-gradient {
+            background: linear-gradient(90deg, #0f172a 0%, #003d99 100%) !important;
+        }
+    </style>
+
 </head>
 <body id="page-top">
 
