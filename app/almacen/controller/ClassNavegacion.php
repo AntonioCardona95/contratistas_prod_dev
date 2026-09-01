@@ -49,7 +49,7 @@ class Navegacion extends Conexion
     {
         $rows = array();
         // TAC y ECI están en analisis_bd, por eso usan otra conexión.
-        $conexionAnalisis = $this->get_conexiondos();
+        $conexionAnalisis = $this->conexion_navegacion();
 
         try {
             $statement = $conexionAnalisis->prepare($sql);
@@ -113,10 +113,9 @@ class Navegacion extends Conexion
                     s.Folio_Salida_Det,
                     s.Fecha_Salida_Det,
                     s.FK_Tecnico_Salida_Det,
-                    CONCAT(t.Nombre_T, ' ', t.Apellidos_T) AS Tecnico,
-                    c.Ont AS Serie_Coordiapp,
-                    c.Telefono AS Telefono_Coordiapp,
-                    c.Fecha_Coordiapp
+                    t.Nombre_T,
+                    t.Apellidos_T,
+                    CONCAT(t.Nombre_T, ' ', t.Apellidos_T) AS Tecnico
                 FROM transferencias_t AS transferencia
                 INNER JOIN material_det_salida AS m
                     ON transferencia.Folio_Salida_ST = m.Folio_Salida_Material_Det_S
@@ -126,8 +125,6 @@ class Navegacion extends Conexion
                     ON m.Num_Serie_S = s.Num_Serie_Salida_Det
                 LEFT JOIN tecnicos AS t
                     ON s.FK_Tecnico_Salida_Det = t.idTecnico
-                LEFT JOIN View_Detalle_Coordiapp_Completadas AS c
-                    ON m.Num_Serie_S = c.Ont
                 WHERE transferencia.Folio_Salida_ST = :folio
                     AND transferencia.FK_Contra_ST = :contratistaId
                     AND p.Tipo_Proyecto IN ('ONT', 'Modem')
@@ -142,7 +139,66 @@ class Navegacion extends Conexion
             return array();
         }
 
-        // 2. Crear listas únicas para consultar TAC y ECI en bloque.
+        // 2. Cargar datos de Coordiapp por lote para evitar el join costoso dentro del folio principal.
+        $coordiappPorSerie = array();
+        $seriesUnicas = array();
+        $telefonosUnicos = array();
+
+        foreach ($series as $serie) {
+            $serieNormalizada = $this->normalizarSerie($serie['Num_Serie_S'] ?? '');
+            $telefonoCoordiapp = $this->normalizarTelefono($serie['Telefono_Coordiapp'] ?? '');
+
+            if ($serieNormalizada !== '') {
+                $seriesUnicas[$serieNormalizada] = true;
+            }
+
+            if ($telefonoCoordiapp !== '') {
+                $telefonosUnicos[$telefonoCoordiapp] = true;
+            }
+        }
+
+        if (!empty($seriesUnicas)) {
+            $parametrosCoordiapp = array();
+            $marcadoresCoordiapp = array();
+            $index = 0;
+
+            foreach (array_keys($seriesUnicas) as $serieNormalizada) {
+                $placeholder = ':coord_' . $index;
+                $marcadoresCoordiapp[] = $placeholder;
+                $parametrosCoordiapp[$placeholder] = $serieNormalizada;
+                $index++;
+            }
+
+            $registrosCoordiapp = $this->runQuery(
+                "SELECT Ont, Telefono, Fecha_Coordiapp
+                 FROM View_Detalle_Coordiapp_Completadas
+                 WHERE Ont IN (" . implode(',', $marcadoresCoordiapp) . ")",
+                $parametrosCoordiapp
+            );
+
+            foreach ($registrosCoordiapp as $registroCoordiapp) {
+                $serieCoordiapp = $this->normalizarSerie($registroCoordiapp['Ont'] ?? '');
+                if ($serieCoordiapp !== '') {
+                    $coordiappPorSerie[$serieCoordiapp] = $registroCoordiapp;
+                    $telefonoCoordiapp = $this->normalizarTelefono($registroCoordiapp['Telefono'] ?? '');
+                    if ($telefonoCoordiapp !== '') {
+                        $telefonosUnicos[$telefonoCoordiapp] = true;
+                    }
+                }
+            }
+        }
+
+        foreach ($series as &$serie) {
+            $serieNormalizada = $this->normalizarSerie($serie['Num_Serie_S'] ?? '');
+            $registroCoordiapp = $coordiappPorSerie[$serieNormalizada] ?? array();
+            $serie['Serie_Coordiapp'] = $registroCoordiapp['Ont'] ?? null;
+            $serie['Telefono_Coordiapp'] = $registroCoordiapp['Telefono'] ?? null;
+            $serie['Fecha_Coordiapp'] = $registroCoordiapp['Fecha_Coordiapp'] ?? null;
+            $serie['Tecnico'] = trim(($serie['Nombre_T'] ?? '') . ' ' . ($serie['Apellidos_T'] ?? ''));
+        }
+        unset($serie);
+
+        // 3. Crear listas únicas para consultar TAC y ECI en bloque.
         $seriesUnicas = array();
         $telefonosUnicos = array();
 
@@ -167,7 +223,7 @@ class Navegacion extends Conexion
             $registrosTac = $this->runAnalysisQuery(
                 "SELECT Num__Serie, TELEFONO, FECHA_LIQ
                  FROM qm_tac
-                 WHERE REPLACE(UPPER(Num__Serie), ' ', '') IN ($marcadoresTac)
+                 WHERE Num__Serie IN ($marcadoresTac)
                  ORDER BY FECHA_LIQ DESC",
                 $seriesParaTac
             );
@@ -185,35 +241,42 @@ class Navegacion extends Conexion
         }
 
         // 4. Buscar en ECI por serie o teléfono, considerando únicamente servicios activos.
+        // Separar por columnas evita el OR y permite que cada consulta use el índice correspondiente.
         $eciPorSerie = array();
-        if (!empty($seriesUnicas) || !empty($telefonosUnicos)) {
-            $condicionesEci = array();
-            $parametrosEci = array();
 
-            if (!empty($seriesUnicas)) {
-                $seriesParaEci = array_keys($seriesUnicas);
-                $marcadoresSerieEci = implode(',', array_fill(0, count($seriesParaEci), '?'));
-                $condicionesEci[] = "REPLACE(UPPER(M_SERIE), ' ', '') IN ($marcadoresSerieEci)";
-                $parametrosEci = array_merge($parametrosEci, $seriesParaEci);
-            }
-
-            if (!empty($telefonosUnicos)) {
-                $telefonosParaEci = array_keys($telefonosUnicos);
-                $marcadoresTelefonoEci = implode(',', array_fill(0, count($telefonosParaEci), '?'));
-                $condicionesEci[] = "REPLACE(REPLACE(REPLACE(TELEFONO, '-', ''), ' ', ''), '+', '') IN ($marcadoresTelefonoEci)";
-                $parametrosEci = array_merge($parametrosEci, $telefonosParaEci);
-            }
-
-            $registrosEci = $this->runAnalysisQuery(
+        if (!empty($seriesUnicas)) {
+            $seriesParaEci = array_keys($seriesUnicas);
+            $marcadoresSerieEci = implode(',', array_fill(0, count($seriesParaEci), '?'));
+            $registrosEciPorSerie = $this->runAnalysisQuery(
                 "SELECT TELEFONO, M_SERIE, FECHA_ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO, TECNOLOGIA
                  FROM seg_ns_eci
-                                 WHERE DID_ACTIVO = 1
-                                     AND (" . implode(' OR ', $condicionesEci) . ")
+                 WHERE DID_ACTIVO = 1
+                     AND M_SERIE IN ($marcadoresSerieEci)
                  ORDER BY F_CONSULTA DESC, FECHA_ULTIMO_EVENTO DESC",
-                $parametrosEci
+                $seriesParaEci
             );
 
-            foreach ($registrosEci as $registroEci) {
+            foreach ($registrosEciPorSerie as $registroEci) {
+                $serieEci = $this->normalizarSerie($registroEci['M_SERIE'] ?? '');
+                if ($serieEci !== '' && !isset($eciPorSerie[$serieEci])) {
+                    $eciPorSerie[$serieEci] = $registroEci;
+                }
+            }
+        }
+
+        if (!empty($telefonosUnicos)) {
+            $telefonosParaEci = array_keys($telefonosUnicos);
+            $marcadoresTelefonoEci = implode(',', array_fill(0, count($telefonosParaEci), '?'));
+            $registrosEciPorTelefono = $this->runAnalysisQuery(
+                "SELECT TELEFONO, M_SERIE, FECHA_ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO, TECNOLOGIA
+                 FROM seg_ns_eci
+                 WHERE DID_ACTIVO = 1
+                     AND TELEFONO IN ($marcadoresTelefonoEci)
+                 ORDER BY F_CONSULTA DESC, FECHA_ULTIMO_EVENTO DESC",
+                $telefonosParaEci
+            );
+
+            foreach ($registrosEciPorTelefono as $registroEci) {
                 $serieEci = $this->normalizarSerie($registroEci['M_SERIE'] ?? '');
                 if ($serieEci !== '' && !isset($eciPorSerie[$serieEci])) {
                     $eciPorSerie[$serieEci] = $registroEci;
