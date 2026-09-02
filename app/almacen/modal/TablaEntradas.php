@@ -28,6 +28,12 @@
 ?>
 
 <style>
+    @media (max-width: 768px) {
+        .dt-buttons {
+            margin-bottom: 15px;
+        }
+    }
+
     #entradas-table-wrapper {
         width: 100%;
         overflow-x: auto;

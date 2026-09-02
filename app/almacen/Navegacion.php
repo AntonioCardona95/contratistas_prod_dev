@@ -139,6 +139,15 @@
         .modal-header-gradient {
              background: linear-gradient(90deg, #0f172a 0%, #003d99 100%) !important;
         }
+
+        @media (max-width: 768px) {
+            
+            h1{
+                font-size: 15px;
+                text-align: center;
+                margin-top: 20px;
+            }
+        }
     </style>
 
 </head>

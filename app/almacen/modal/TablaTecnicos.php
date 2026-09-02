@@ -108,15 +108,20 @@
     }
 
     #tecnicos-grid-container {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
         gap: 20px;
         margin: 20px 0;
     }
 
     @media (max-width: 1200px) {
         #tecnicos-grid-container {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            justify-content: center;
+        }
+
+        .tecnico-card {
+            flex-basis: calc(50% - 10px);
         }
     }
 
@@ -137,11 +142,17 @@
         }
 
         #tecnicos-grid-container {
-            grid-template-columns: 1fr;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .tecnico-card {
+            flex-basis: 100%;
         }
     }
 
     .tecnico-card {
+        flex: 0 1 calc(33.333% - 14px);
         background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
         border-radius: 16px;
         box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
@@ -265,7 +276,7 @@
                         $nombreCompleto = trim(($tecnico['Nombre_T'] ?? '') . ' ' . ($tecnico['Apellidos_T'] ?? ''));
                         $telefono = $tecnico['Celular_T'] ?? $tecnico['Telefono'] ?? 'N/A';
                         $expediente = $tecnico['NExpediente'] ?? 'N/A';
-                        $cope = $tecnico['Cope'] ?? 'SIN COPE';
+                        $cope = $tecnico['COPE'] ?? 'SIN COPE';
                     ?>
                     <tr data-nombre="<?= htmlspecialchars($nombreCompleto, ENT_QUOTES, 'UTF-8') ?>"
                         data-expediente="<?= htmlspecialchars($expediente, ENT_QUOTES, 'UTF-8') ?>"
@@ -281,7 +292,7 @@
         </table>
     </div>
 
-    <div id="tecnicos-grid-container" class="row g-4"></div>
+    <div id="tecnicos-grid-container"></div>
 <?php endif; ?>
 
 <?php if ($totalTecnicos > 0) : ?>

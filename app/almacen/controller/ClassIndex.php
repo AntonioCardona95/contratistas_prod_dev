@@ -49,7 +49,7 @@ class Index extends Conexion
     public function Tecnicos($FK_Contratista_Tecnico)
     {
         $sql = "SELECT * FROM tecnicos
-                INNER JOIN copes ON FK_Cope_Tecnico = idCope
+                INNER JOIN copes ON FK_Cope_Tecnico = id
                 WHERE FK_Contratista_Tecnico = :FK_Contratista_Tecnico
                 AND Estatus_Tecnico = 'ACTIVO'
                 ORDER BY Nombre_T ASC";
