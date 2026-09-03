@@ -64,7 +64,7 @@ function LoadKPIS(){
         url:'modal/KPIS.php',
         data: parametros,
          beforeSend: function(objeto){
-            $("#LoadKPIS").html("<center><img src='../image/loading-46.gif'></center>");
+                $("#LoadKPIS").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
         },
         success:function(data){
             $("#LoadKPIS").html(data);
