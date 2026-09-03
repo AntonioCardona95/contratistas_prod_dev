@@ -271,6 +271,22 @@ if (is_array($qrIncompletas)) {
     max-height: 330px;
   }
 
+  .technician-chart-scroll {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .technician-chart-inner {
+    position: relative;
+    height: 330px;
+    min-width: 100%;
+  }
+
+  .technician-chart-inner canvas {
+    max-height: none;
+  }
+
   .chart-area + * {
     border-radius: 12px;
   }
@@ -326,7 +342,7 @@ if (is_array($qrIncompletas)) {
 <div class="row kpi-cards-row">
 
     <div class="col-xl col-md-6 mb-4">
-        <a href="detalle_ont_disponibles.php" class="kpi-card-link">
+        <a href="detalle_ont_disponibles.php" data-detalle="total" class="kpi-card-link">
             <div class="kpi-card kpi-card-danger">
                 <div class="kpi-card-body">
                     <div class="kpi-card-icon"><i class="fas fa-box-open"></i></div>
@@ -338,7 +354,7 @@ if (is_array($qrIncompletas)) {
     </div>
 
     <div class="col-xl col-md-6 mb-4">
-      <a href="detalle_ont_disponibles.php" class="kpi-card-link">
+      <a href="detalle_ont_disponibles.php" data-detalle="fecha" class="kpi-card-link">
         <div class="kpi-card kpi-card-warning">
           <div class="kpi-card-body">
             <div class="kpi-card-icon"><i class="fas fa-clock"></i></div>
@@ -416,7 +432,11 @@ if (is_array($qrIncompletas)) {
         <strong>Rendimiento por tecnico</strong>
       </div>
       <div class="card-body chart-area">
-        <canvas id="chartRendimiento"></canvas>
+        <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de técnicos">
+          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_tecnicos_labels) * 115); ?>px;">
+            <canvas id="chartRendimiento"></canvas>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -427,7 +447,11 @@ if (is_array($qrIncompletas)) {
         <strong>Efectividad de liquidacion por tecnico</strong>
       </div>
       <div class="card-body chart-area">
-        <canvas id="chartEfectividad"></canvas>
+        <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de técnicos">
+          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_tecnicos_labels) * 115); ?>px;">
+            <canvas id="chartEfectividad"></canvas>
+          </div>
+        </div>
       </div>
     </div>
   </div>

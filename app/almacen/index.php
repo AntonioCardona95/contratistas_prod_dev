@@ -152,6 +152,7 @@
 
             const ruta = $(this).attr('href');
             const detalle = rutasDetalle[ruta];
+            const tipoDetalle = $(this).data('detalle') || '';
             const contenido = $('#modalKpiDetalleContenido');
 
             $('#modalKpiDetalleTitulo').text(detalle[1]);
@@ -161,7 +162,7 @@
             $.ajax({
                 type: 'POST',
                 url: detalle[0],
-                data: $('#FormQueryUnidades').serialize(),
+                data: $('#FormQueryUnidades').serialize() + '&TipoDetalle=' + encodeURIComponent(tipoDetalle),
                 success: function (data) {
                     contenido.html(data);
                 },

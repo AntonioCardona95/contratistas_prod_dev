@@ -13,6 +13,7 @@
 
     $Fecha1 = $_POST['Fecha1'] ?? '';
     $Fecha2 = $_POST['Fecha2'] ?? '';
+    $TipoDetalle = $_POST['TipoDetalle'] ?? 'total';
     $mes_anterior = date('Y-m-d', strtotime('-3 month'));
 
     if (empty($Fecha1) || empty($Fecha2)) {
@@ -23,7 +24,11 @@
         $Fecha2 = $Fecha2 . ' 23:59:59';
     }
 
-    $filas = $index->ONTDisponiblesAsignarDet($idContratistas);
+    if ($TipoDetalle === 'fecha') {
+        $filas = $index->ONTDisponiblesRecientesDet($idContratistas, $Fecha1, $Fecha2);
+    } else {
+        $filas = $index->ONTDisponiblesAsignarDet($idContratistas);
+    }
     
 ?>
 
