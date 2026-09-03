@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once("../controller/ClassOps.php");
+require_once("../controller/ClassAceptacion.php");
 require_once("../controller/ClassNotificaciones.php");
 
 header('Content-Type: application/json');
@@ -20,7 +20,7 @@ if (!$folio) {
     exit;
 }
 
-$modal = new Ops();
+$modal = new Aceptacion();
 $resultado = $modal->ProcesarRespuestaParcial($folio, $idContratistas, $seriesAceptadas, $seriesRechazadas, $ajustesCantidad, $rechazarTodo);
 
 if ($resultado['success']) {

@@ -4,8 +4,8 @@
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
 
-    require_once("../controller/ClassOps.php");
-    $modal = new Ops();
+    require_once("../controller/ClassRechazo.php");
+    $modal = new Rechazo();
 
     session_start();
     $idContratistas = $_SESSION['idContratistas'];

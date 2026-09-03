@@ -6,7 +6,7 @@
 
     date_default_timezone_set('America/Monterrey');
 
-    require_once("controller/ClassOps.php");
+    require_once("controller/ClassRechazo.php");
 
     session_start();
     $Contratista = $_SESSION['Contratista'];
