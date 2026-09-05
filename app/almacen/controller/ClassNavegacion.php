@@ -89,7 +89,7 @@ class Navegacion extends Conexion
                 INNER JOIN producto p ON m.FK_Material_S = p.idProducto
                 WHERE
                     p.Tipo_Proyecto IN ('ONT', 'Modem') AND
-                    t.FK_Contra_ST = :contratistaId AND
+                    t.FK_Contra_ST = COALESCE(NULLIF(:contratistaId, 0), t.FK_Contra_ST) AND
                     DATE(Fecha_Salida_ST) BETWEEN :fechaInicio AND :fechaFin
                 GROUP BY t.Folio_Salida_ST, t.Fecha_Salida_ST
                 ORDER BY t.Folio_Salida_ST DESC";
@@ -126,7 +126,7 @@ class Navegacion extends Conexion
                 LEFT JOIN tecnicos AS t
                     ON s.FK_Tecnico_Salida_Det = t.idTecnico
                 WHERE transferencia.Folio_Salida_ST = :folio
-                    AND transferencia.FK_Contra_ST = :contratistaId
+                    AND transferencia.FK_Contra_ST = COALESCE(NULLIF(:contratistaId, 0), transferencia.FK_Contra_ST)
                     AND p.Tipo_Proyecto IN ('ONT', 'Modem')
                 ORDER BY p.Producto, m.Num_Serie_S";
 

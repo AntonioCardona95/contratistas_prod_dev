@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../config/ContratistaContexto.php';
+requerirSesionAlmacen();
 $paginaActual = basename($_SERVER['PHP_SELF']);
 ?>
 
@@ -36,12 +38,14 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
 		</div>
 	</li>
 
+	<?php if (esAdministradorContratista()): ?>
 	<li class="nav-item <?php echo $paginaActual === 'Navegacion.php' ? 'active' : ''; ?>">
 		<a class="nav-link" href="Navegacion.php">
 			<i class="fa-brands fa-tailwind-css"></i>
 			<span>NAVEGACION</span>
 		</a>
 	</li>
+	<?php endif; ?>
 
 	<li class="nav-item <?php echo $paginaActual === 'entradas.php' ? 'active' : ''; ?>">
 		<a class="nav-link" href="entradas.php">
@@ -77,6 +81,15 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
 			<span>TÉCNICOS</span>
 		</a>
 	</li>
+
+	<?php if (esAdministradorContratista()): ?>
+	<li class="nav-item <?php echo $paginaActual === 'traspasos.php' ? 'active' : ''; ?>">
+		<a class="nav-link" href="traspasos.php">
+			<i class="fa-solid fa-right-left"></i>
+			<span>TRASPASOS</span>
+		</a>
+	</li>
+	<?php endif; ?>
 
 	<hr class="sidebar-divider d-none d-md-block">
 

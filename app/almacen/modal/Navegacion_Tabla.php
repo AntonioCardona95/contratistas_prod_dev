@@ -1,14 +1,15 @@
 <?php
 require_once(__DIR__ . '/../controller/ClassNavegacion.php');
+require_once(__DIR__ . '/../../config/ContratistaContexto.php');
 
 if (session_status() === PHP_SESSION_NONE) {
 	session_start();
 }
 
 $folio = isset($_POST['folio']) ? filter_var($_POST['folio'], FILTER_VALIDATE_INT) : false;
-$contratistaId = $_SESSION['idContratistas'] ?? 0;
+$contratistaId = obtenerIdContratistaContexto();
 
-if (!$folio || !$contratistaId) {
+if (!$folio || empty($_SESSION['idContratistas']) || !esAdministradorContratista()) {
 	http_response_code(400);
 	echo '<div class="alert alert-warning m-3">El folio no es valido.</div>';
 	exit;

@@ -59,7 +59,7 @@
             CONCAT(Contratista, ' ', apellido_paterno, ' ', apellido_materno) AS Contratista FROM `salidas_contratista_t`
             INNER JOIN tecnicos ON FK_Tecnico_T = idTecnico
             INNER JOIN contratistas ON FK_Contratista_T = idContratistas
-            WHERE FK_Contratista_T = :FK_Contratista_T AND Fecha_T BETWEEN :Fecha1 and :Fecha2
+            WHERE FK_Contratista_T = COALESCE(NULLIF(:FK_Contratista_T, 0), FK_Contratista_T) AND Fecha_T BETWEEN :Fecha1 and :Fecha2
             ORDER BY Fecha_T DESC;";
 
             return $this->runQuery($sql, [

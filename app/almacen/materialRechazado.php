@@ -7,14 +7,12 @@
     date_default_timezone_set('America/Monterrey');
 
     require_once("controller/ClassRechazo.php");
+    require_once(__DIR__ . '/../config/ContratistaContexto.php');
 
     session_start();
     $Contratista = $_SESSION['Contratista'];
-    $idContratistas = $_SESSION['idContratistas'];
-
-    if (empty($idContratistas)) {
-        header("location: ../Login/modal/poweroff.php");
-    }
+    requerirSesionAlmacen();
+    $idContratistas = obtenerIdContratistaContexto();
 
     // FUNCION JS QUE EL TOPBAR VA A LLAMAR AL CAMBIAR FECHAS O BUSCAR
     $topbar_onchange = 'LoadRechazados';

@@ -1,8 +1,8 @@
 <?php
 
-    require_once(__DIR__ . '/ClassOps.php');
+    require_once(__DIR__ . '/../../cnx/cnx.php');
 
-    class Aceptacion extends Ops
+    class Aceptacion extends Conexion
     {
         // ====== FUNCIONES GENERICAS DE CONSULTA Y EJECUCION ====== //
 
@@ -72,7 +72,7 @@
                     FROM temp_transferencias_t t
                     INNER JOIN almacenes a ON t.FK_Almacen_ST = a.idAlmacenes
                     LEFT JOIN unegocio uNeg ON t.FK_UNS_T = uNeg.idUN
-                    WHERE t.FK_Contra_ST = :idContratistas
+                    WHERE t.FK_Contra_ST = COALESCE(NULLIF(:idContratistas, 0), t.FK_Contra_ST)
                     AND t.Status_Temp IN ('pendiente','parcial')
                     AND (
                         EXISTS (SELECT 1 FROM temp_material_det_salida m

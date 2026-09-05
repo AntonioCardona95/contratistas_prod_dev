@@ -5,11 +5,12 @@
     error_reporting(E_ALL);
 
     require_once("../controller/ClassOps.php");
+    require_once(__DIR__ . '/../../config/ContratistaContexto.php');
 
     $modal = new Ops();
     session_start();
     $Contratista = $_SESSION['Contratista'];
-    $idContratistas = $_SESSION['idContratistas'];
+    $idContratistas = obtenerIdContratistaContexto();
 
     $Fecha1 = $_POST['Fecha1'];
     $Fecha2 = $_POST['Fecha2'];

@@ -5,10 +5,11 @@
     error_reporting(E_ALL);
 
     require_once("../controller/ClassAceptacion.php");
+    require_once(__DIR__ . '/../../config/ContratistaContexto.php');
     $modal = new Aceptacion();
 
     session_start();
-    $idContratistas = $_SESSION['idContratistas'];
+    $idContratistas = obtenerIdContratistaContexto();
 
     $Fecha1 = $_POST['Fecha1'] ?? null;
     $Fecha2 = $_POST['Fecha2'] ?? null;

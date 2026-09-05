@@ -50,7 +50,7 @@ class Index extends Conexion
     {
         $sql = "SELECT * FROM tecnicos
                 INNER JOIN copes ON FK_Cope_Tecnico = id
-                WHERE FK_Contratista_Tecnico = :FK_Contratista_Tecnico
+                WHERE FK_Contratista_Tecnico = COALESCE(NULLIF(:FK_Contratista_Tecnico, 0), FK_Contratista_Tecnico)
                 AND Estatus_Tecnico = 'ACTIVO'
                 ORDER BY Nombre_T ASC";
 
@@ -104,7 +104,7 @@ class Index extends Conexion
         $sql = "SELECT COUNT(*) AS TOTAL FROM material_det_salida
                 LEFT JOIN salidas_contratistas ON Num_Serie_S = Num_Serie_Salida_Det
                 WHERE Num_Serie_Salida_Det IS NULL
-                AND FK_Contratista_Salida = :FK_Contratista_Salida";
+                AND FK_Contratista_Salida = COALESCE(NULLIF(:FK_Contratista_Salida, 0), FK_Contratista_Salida)";
 
         return $this->runQuery($sql, array('FK_Contratista_Salida' => $idContratistas));
     }
@@ -116,7 +116,7 @@ class Index extends Conexion
                 FROM material_det_salida
                 LEFT JOIN salidas_contratistas ON Num_Serie_S = Num_Serie_Salida_Det
                 INNER JOIN producto ON idProducto = FK_Material_S
-                WHERE FK_Contratista_Salida = :FK_Contratista_Salida AND Num_Serie_Salida_Det IS NULL
+                WHERE FK_Contratista_Salida = COALESCE(NULLIF(:FK_Contratista_Salida, 0), FK_Contratista_Salida) AND Num_Serie_Salida_Det IS NULL
                 ORDER BY Fecha_Salida_S DESC";
 
         return $this->runQuery($sql, array(
@@ -129,7 +129,7 @@ class Index extends Conexion
     {
         $sql = "SELECT COUNT(*) AS TOTAL FROM material_det_salida
                 LEFT JOIN salidas_contratistas ON Num_Serie_S = Num_Serie_Salida_Det
-                WHERE FK_Contratista_Salida = :FK_Contratista_Salida
+                WHERE FK_Contratista_Salida = COALESCE(NULLIF(:FK_Contratista_Salida, 0), FK_Contratista_Salida)
                 AND Num_Serie_Salida_Det IS NULL
                 AND Fecha_Salida_S BETWEEN :Fecha1 AND :Fecha2";
 
@@ -147,7 +147,7 @@ class Index extends Conexion
                 FROM material_det_salida
                 LEFT JOIN salidas_contratistas ON Num_Serie_S = Num_Serie_Salida_Det
                 INNER JOIN producto ON idProducto = FK_Material_S
-                WHERE FK_Contratista_Salida = :FK_Contratista_Salida
+                WHERE FK_Contratista_Salida = COALESCE(NULLIF(:FK_Contratista_Salida, 0), FK_Contratista_Salida)
                 AND Num_Serie_Salida_Det IS NULL
                 AND Fecha_Salida_S BETWEEN :Fecha1 AND :Fecha2
                 ORDER BY Fecha_Salida_S DESC";
@@ -163,7 +163,7 @@ class Index extends Conexion
     public function CountMaterialesAsignados($FK_Contratista_Salida_Det, $Fecha1, $Fecha2)
     {
         $sql = "SELECT COUNT(*) AS TOTAL FROM salidas_contratistas
-                WHERE FK_Contratista_Salida_Det = :FK_Contratista_Salida_Det
+                WHERE FK_Contratista_Salida_Det = COALESCE(NULLIF(:FK_Contratista_Salida_Det, 0), FK_Contratista_Salida_Det)
                 AND Fecha_Salida_Det BETWEEN :Fecha1 AND :Fecha2";
 
         return $this->runQuery($sql, array(
@@ -180,7 +180,7 @@ class Index extends Conexion
                 FROM salidas_contratistas
                 INNER JOIN producto ON idProducto = FK_Material_Salidas_Contratistas
                 INNER JOIN tecnicos ON FK_Tecnico_Salida_Det = idTecnico
-                WHERE FK_Contratista_Salida_Det = :FK_Contratista_Salida_Det
+                WHERE FK_Contratista_Salida_Det = COALESCE(NULLIF(:FK_Contratista_Salida_Det, 0), FK_Contratista_Salida_Det)
                 AND Fecha_Salida_Det BETWEEN :Fecha1 AND :Fecha2
                 ORDER BY Fecha_Salida_Det DESC";
 
@@ -195,7 +195,7 @@ class Index extends Conexion
     public function CountMaterialesSinInstalar($FK_Contratista_Salida_Det, $Fecha1, $Fecha2)
     {
         $sql = "SELECT COUNT(*) AS TOTAL FROM salidas_contratistas
-                WHERE FK_Contratista_Salida_Det = :FK_Contratista_Salida_Det
+                WHERE FK_Contratista_Salida_Det = COALESCE(NULLIF(:FK_Contratista_Salida_Det, 0), FK_Contratista_Salida_Det)
                 AND Fecha_Salida_Det BETWEEN :Fecha1 AND :Fecha2
                 AND Ont_Ubicacion = 'TECNICO'";
 
@@ -213,7 +213,7 @@ class Index extends Conexion
                 FROM salidas_contratistas
                 INNER JOIN producto ON idProducto = FK_Material_Salidas_Contratistas
                 INNER JOIN tecnicos ON FK_Tecnico_Salida_Det = idTecnico
-                WHERE FK_Contratista_Salida_Det = :FK_Contratista_Salida_Det
+                WHERE FK_Contratista_Salida_Det = COALESCE(NULLIF(:FK_Contratista_Salida_Det, 0), FK_Contratista_Salida_Det) 
                 AND Fecha_Salida_Det BETWEEN :Fecha1 AND :Fecha2
                 AND Ont_Ubicacion = 'TECNICO'
                 ORDER BY Fecha_Salida_Det DESC";
@@ -229,7 +229,7 @@ class Index extends Conexion
     public function CountMaterialesInstalados($FK_Contratista_Salida_Det, $Fecha1, $Fecha2)
     {
         $sql = "SELECT COUNT(*) AS TOTAL FROM salidas_contratistas
-                WHERE FK_Contratista_Salida_Det = :FK_Contratista_Salida_Det
+                WHERE FK_Contratista_Salida_Det = COALESCE(NULLIF(:FK_Contratista_Salida_Det, 0), FK_Contratista_Salida_Det)
                 AND Fecha_Salida_Det BETWEEN :Fecha1 AND :Fecha2
                 AND Ont_Ubicacion = 'TERMINADO'";
 
@@ -249,7 +249,7 @@ class Index extends Conexion
                 INNER JOIN producto ON idProducto = FK_Material_Salidas_Contratistas 
                 INNER JOIN tecnicos ON FK_Tecnico_Salida_Det = idTecnico
                 INNER JOIN tecnico_instalaciones_coordiapp ON Ont = Num_Serie_Salida_Det
-                WHERE FK_Contratista_Salida_Det = :FK_Contratista_Salida_Det 
+                WHERE FK_Contratista_Salida_Det = COALESCE(NULLIF(:FK_Contratista_Salida_Det, 0), FK_Contratista_Salida_Det)
                 AND Fecha_Salida_Det BETWEEN :Fecha1 and :Fecha2
                 AND Ont_Ubicacion = 'TERMINADO'
                 ORDER BY Fecha_Salida_Det DESC;";
@@ -269,7 +269,7 @@ class Index extends Conexion
                        SUM(CASE WHEN Ont_Ubicacion = 'TECNICO' THEN 1 ELSE 0 END) AS SIN_LIQUIDAR,
                        SUM(CASE WHEN Ont_Ubicacion = 'TERMINADO' THEN 1 ELSE 0 END) AS LIQUIDADAS
                 FROM salidas_contratistas
-                WHERE FK_Contratista_Salida_Det = :idContratistas
+                WHERE FK_Contratista_Salida_Det = COALESCE(NULLIF(:idContratistas, 0), FK_Contratista_Salida_Det)
                 AND Fecha_Salida_Det BETWEEN :Fecha1 AND :Fecha2
                 GROUP BY DATE(Fecha_Salida_Det)
                 ORDER BY FECHA";
@@ -291,7 +291,7 @@ class Index extends Conexion
                        SUM(CASE WHEN Ont_Ubicacion = 'TERMINADO' THEN 1 ELSE 0 END) AS LIQUIDADAS
                 FROM salidas_contratistas
                 INNER JOIN tecnicos ON FK_Tecnico_Salida_Det = idTecnico
-                WHERE FK_Contratista_Salida_Det = :idContratistas
+                WHERE FK_Contratista_Salida_Det = COALESCE(NULLIF(:idContratistas, 0), FK_Contratista_Salida_Det)
                 AND Fecha_Salida_Det BETWEEN :Fecha1 AND :Fecha2
                 GROUP BY idTecnico, NExpediente, Nombre_T, Apellidos_T
                 ORDER BY ASIGNADAS DESC";

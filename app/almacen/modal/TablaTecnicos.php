@@ -2,14 +2,12 @@
     session_start();
 
     require_once __DIR__ . '/../controller/ClassIndex.php';
+    require_once __DIR__ . '/../../config/ContratistaContexto.php';
 
-    if (empty($_SESSION['idContratistas'])) {
-        header('location: ../../Login/modal/poweroff.php');
-        exit;
-    }
+    requerirSesionAlmacen();
 
     $operaciones = new Index();
-    $tecnicos = $operaciones->Tecnicos($_SESSION['idContratistas']) ?: [];
+    $tecnicos = $operaciones->Tecnicos(obtenerIdContratistaContexto()) ?: [];
     $totalTecnicos = count($tecnicos);
 ?>
 

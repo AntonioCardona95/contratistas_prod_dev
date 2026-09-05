@@ -7,14 +7,12 @@
     date_default_timezone_set('America/Monterrey');
     
     require_once("controller/ClassOps.php");
+    require_once(__DIR__ . '/../config/ContratistaContexto.php');
 
     session_start();
     $Contratista = $_SESSION['Contratista'];
-    $idContratistas = $_SESSION['idContratistas'];
-
-    if (empty($idContratistas)) {
-        header("location: ../Login/modal/poweroff.php");
-    }
+    requerirSesionAlmacen();
+    $idContratistas = obtenerIdContratistaContexto();
     
     $Fecha1 = $_POST['Fecha1'] ?? '';
     $Fecha2 = $_POST['Fecha2'] ?? '';
@@ -85,6 +83,7 @@
                     <!-- ENCABEZADO DE LA SECCIÓN -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">GESTIÓN OPERATIVA DE EQUIPO Y SERVICIOS (ONT)</h1>
+                        <?php $selectorCallback = 'LoadKPIS'; include_once(__DIR__ . '/../components/SelectorContratista.php'); ?>
                     </div>
                     
                     <!-- CONTENEDOR DINÁMICO QUE CARGA LOS KPI Y GRÁFICAS -->

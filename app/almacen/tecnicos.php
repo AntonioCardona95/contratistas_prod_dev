@@ -10,18 +10,14 @@
 
     // IMPORTAR CLASE
     require_once("controller/ClassIndex.php");
+    require_once(__DIR__ . '/../config/ContratistaContexto.php');
 
     // SESIÓN
     session_start();
     // VARIABLES DE SESIÓN
     $Contratista = $_SESSION['Contratista'] ?? '';
-    $idContratistas = $_SESSION['idContratistas'] ?? null;
-
-    // VALIDAR SESIÓN
-    if (empty($idContratistas)) {
-        header('location: ../Login/modal/poweroff.php');
-        exit;
-    }
+    $idContratistas = obtenerIdContratistaContexto();
+    requerirSesionAlmacen();
 
     // OBTENER DATOS DE TÉCNICOS
     $operaciones = new Index();
@@ -89,7 +85,8 @@
                     <!-- TARJETA PRINCIPAL DE LISTADO -->
                     <div class="card shadow mb-4 table-container">
                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                            <h2 class="m-0 font-weight-bold text-gray-800">TECNICOS</h2>
+                            <h1 class="m-0 font-weight-bold text-gray-800">TECNICOS</h1>
+                            <?php $selectorCallback = 'LoadTecnicos'; include_once(__DIR__ . '/../components/SelectorContratista.php'); ?>
                         </div>
                         <div class="card-body p-0">
                             <!-- CONTENEDOR DONDE SE CARGA LA TABLA DINÁMICAMENTE -->

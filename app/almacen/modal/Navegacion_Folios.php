@@ -1,6 +1,7 @@
 <?php
 // IMPORTAR LA CLASE DE NAVEGACIÓN
     require_once("../controller/ClassNavegacion.php");
+    require_once(__DIR__ . '/../../config/ContratistaContexto.php');
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -11,12 +12,12 @@ header('Content-Type: application/json');
 
 // OBTENER EL ID DEL USUARIO DESDE LA SESIÓN
 try {
-    if (empty($_SESSION['idContratistas'])) {
+    if (empty($_SESSION['idContratistas']) || !esAdministradorContratista()) {
         echo json_encode(['error' => 'Usuario no autenticado.']);
         exit;
     }
 
-    $idContratistas = $_SESSION['idContratistas'];
+    $idContratistas = obtenerIdContratistaContexto();
     $fecha_inicio = $_GET['fecha_inicio'] ?? null;
     $fecha_fin = $_GET['fecha_fin'] ?? null;
 

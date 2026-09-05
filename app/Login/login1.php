@@ -83,6 +83,8 @@ if (!empty($_POST['User_Contratista']) && !empty($_POST['Pass_Contratista'])) {
             $_SESSION['User_Contratista'] = $row['User_Contratista'];
             $_SESSION['Contratista'] = $row['Contratista'];
             $_SESSION['idContratistas'] = $row['idContratistas'];
+            $_SESSION['rol'] = $row['rol'] ?? 'CONTRATISTA';
+            $_SESSION['contratistaSeleccionado'] = 0;
 
             // 🚩 Nueva condición: si el usuario es USERP, redirige a indexp.php
             if ($row['User_Contratista'] === 'USERP') {

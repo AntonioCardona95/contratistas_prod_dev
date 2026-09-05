@@ -7,15 +7,13 @@
     date_default_timezone_set('America/Monterrey');
     
     require_once("controller/ClassSalidas.php");
+    require_once(__DIR__ . '/../config/ContratistaContexto.php');
     require_once("modal/cargar.php");
 
     session_start();
     $Contratista = $_SESSION['Contratista'];
-    $idContratistas = $_SESSION['idContratistas'];
-
-    if (empty($idContratistas)) {
-        header("location: ../Login/modal/poweroff.php");
-    }
+    requerirSesionAlmacen();
+    $idContratistas = obtenerIdContratistaContexto();
 
     $modal = new Salidas();
 

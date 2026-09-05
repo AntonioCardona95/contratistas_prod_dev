@@ -59,7 +59,7 @@
             CONCAT(Contratista, ' ', apellido_paterno, ' ', apellido_materno) as Contratista FROM transferencias_t
             INNER JOIN almacenes ON FK_Almacen_ST = idAlmacenes
             INNER JOIN contratistas ON FK_Contra_ST = idContratistas
-            WHERE FK_Contra_ST = :FK_Contra_ST AND Fecha_Salida_ST BETWEEN :Fecha1 AND :Fecha2
+            WHERE FK_Contra_ST = COALESCE(NULLIF(:FK_Contra_ST, 0), FK_Contra_ST) AND Fecha_Salida_ST BETWEEN :Fecha1 AND :Fecha2
             ORDER BY Folio_Salida_ST DESC;";
 
             return $this->runQuery($sql, [
