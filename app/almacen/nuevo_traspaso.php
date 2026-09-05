@@ -189,7 +189,7 @@ if (empty($idContratistas)) {
                     <h1 class="h3 mb-2 text-gray-800">TRASPASO DE ONT ENTRE TECNICOS</h1>
 
                     <!-- filepath: c:\Users\Axel Garcia OPS\Desktop\HTDOCS\contratistas_dash\nueva_salida.php -->
-                    <form action="modal/newtraspaso2.php" method="post" id="FormQueryUnidades" enctype="multipart/form-data" name="formulario" onsubmit="return confirm('¿Está seguro de registrar?');">
+                    <form action="modal/GuardarTraspaso.php" method="post" id="FormQueryUnidades" enctype="multipart/form-data" name="formulario" onsubmit="return confirm('¿Está seguro de registrar?');">
 
                         <div class="container mt-4">
 

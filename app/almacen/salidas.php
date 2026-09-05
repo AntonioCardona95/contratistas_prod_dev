@@ -239,6 +239,10 @@
                 <!-- TOPBAR CON ACCIONES DEL MODULO -->
                 <?php
                     // Esta pantalla define su acción del topbar y agrega el botón para registrar una nueva salida.
+                    $topbar_defaults = [
+                        'Fecha1' => date('Y-m-d', strtotime('-3 months')),
+                        'Fecha2' => date('Y-m-d')
+                    ];
                     $topbar_onchange = 'LoadSalidas';
                     $topbar_actions = '<a type="button" class="btn btn-success" data-toggle="modal" data-target="#modalNuevaSalida"><i class="fas fa-plus"></i> NUEVA SALIDA</a>';
                     include_once(__DIR__ . '/../components/TopbarContratistas.php');

@@ -13,7 +13,8 @@ if (empty($_SESSION['idContratistas'])) {
     exit;
 }
 
-$idContratista = filter_input(INPUT_POST, 'idContratista', FILTER_VALIDATE_INT);
+$idContratistaPost = $_POST['idContratista'] ?? 0;
+$idContratista = filter_var($idContratistaPost === '' ? 0 : $idContratistaPost, FILTER_VALIDATE_INT);
 if ($idContratista === false || $idContratista === null || !cambiarContratistaContexto($idContratista)) {
     http_response_code(403);
     echo json_encode(['ok' => false, 'mensaje' => 'No está autorizado para seleccionar ese contratista.']);

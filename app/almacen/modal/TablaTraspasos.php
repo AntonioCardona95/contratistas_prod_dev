@@ -4,10 +4,10 @@
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
 
-    require_once("../controller/ClassOps.php");
+    require_once("../controller/ClassTraspasos.php");
     require_once(__DIR__ . '/../../config/ContratistaContexto.php');
 
-    $modal = new Ops();
+    $modal = new Traspasos();
     session_start();
     $Contratista = $_SESSION['Contratista'];
     $idContratistas = obtenerIdContratistaContexto();

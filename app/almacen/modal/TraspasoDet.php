@@ -4,7 +4,7 @@
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
 
-    require_once("../controller/ClassOps.php");
+    require_once("../controller/ClassTraspasos.php");
     session_start();
 
     $Contratista = $_SESSION['Contratista'];
@@ -17,7 +17,7 @@
 
     $Folio = $_GET['id'];
 
-    $modal = new Ops();
+    $modal = new Traspasos();
     $salidas_det = $modal->TraspasoDet($Folio);
 
 ?>
