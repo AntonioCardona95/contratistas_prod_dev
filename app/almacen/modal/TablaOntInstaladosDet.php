@@ -35,6 +35,16 @@
         overflow-x: auto;
     }
 
+    #ont-instaladas_wrapper .dt-scroll-head th,
+    #ont-instaladas_wrapper .dt-scroll-foot th,
+    #ont-instaladas_wrapper .dt-scroll-body td,
+    #ont-instaladas thead th,
+    #ont-instaladas tfoot th,
+    #ont-instaladas tbody td {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
     #ont-instaladas-cards-container {
         display: none;
         grid-template-columns: repeat(3, 1fr);

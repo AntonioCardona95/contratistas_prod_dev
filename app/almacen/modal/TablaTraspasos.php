@@ -27,6 +27,17 @@
         $filas = $modal->Traspasos($idContratistas,$Fecha1,$Fecha2);
     }
 ?>
+<style>
+    #ventas_wrapper .dt-scroll-head th,
+    #ventas_wrapper .dt-scroll-foot th,
+    #ventas_wrapper .dt-scroll-body td,
+    #ventas thead th,
+    #ventas tfoot th,
+    #ventas tbody td {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+</style>
 <table class="table table-bordered display nowrap" style="width:100%" id="ventas">			
     <thead>
         <tr>

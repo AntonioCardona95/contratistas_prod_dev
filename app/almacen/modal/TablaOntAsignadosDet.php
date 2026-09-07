@@ -35,6 +35,16 @@
         overflow-x: auto;
     }
 
+    #ont-asignados_wrapper .dt-scroll-head th,
+    #ont-asignados_wrapper .dt-scroll-foot th,
+    #ont-asignados_wrapper .dt-scroll-body td,
+    #ont-asignados thead th,
+    #ont-asignados tfoot th,
+    #ont-asignados tbody td {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
     #ont-asignados-cards-container {
         display: none;
         grid-template-columns: repeat(3, 1fr);

@@ -40,6 +40,16 @@
         overflow-x: auto;
     }
 
+    #entradas_wrapper .dt-scroll-head th,
+    #entradas_wrapper .dt-scroll-foot th,
+    #entradas_wrapper .dt-scroll-body td,
+    #entradas thead th,
+    #entradas tfoot th,
+    #entradas tbody td {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
     #entradas-cards-container {
         display: none;
         grid-template-columns: repeat(3, 1fr);

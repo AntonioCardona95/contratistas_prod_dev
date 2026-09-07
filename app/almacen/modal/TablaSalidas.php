@@ -40,6 +40,16 @@
         overflow-x: auto;
     }
 
+    #salidas_wrapper .dt-scroll-head th,
+    #salidas_wrapper .dt-scroll-foot th,
+    #salidas_wrapper .dt-scroll-body td,
+    #salidas thead th,
+    #salidas tfoot th,
+    #salidas tbody td {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
     #salidas-cards-container {
         display: none;
         grid-template-columns: repeat(3, 1fr);

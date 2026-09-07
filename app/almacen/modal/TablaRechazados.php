@@ -38,6 +38,16 @@
         overflow-x: auto;
     }
 
+    #rechazados_wrapper .dt-scroll-head th,
+    #rechazados_wrapper .dt-scroll-foot th,
+    #rechazados_wrapper .dt-scroll-body td,
+    #rechazados thead th,
+    #rechazados tfoot th,
+    #rechazados tbody td {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
     #rechazados-cards-container {
         display: none;
         grid-template-columns: repeat(3, 1fr);

@@ -52,6 +52,16 @@
         overflow-x: auto;
     }
 
+    #pendientes_wrapper .dt-scroll-head th,
+    #pendientes_wrapper .dt-scroll-foot th,
+    #pendientes_wrapper .dt-scroll-body td,
+    #pendientes thead th,
+    #pendientes tfoot th,
+    #pendientes tbody td {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
     .modal-dialog.modal-extra-wide {
         max-width: 60vw !important;
         width: 60vw !important;

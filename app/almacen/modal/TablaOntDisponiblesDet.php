@@ -40,6 +40,16 @@
         overflow-x: auto;
     }
 
+    #ont-disponibles_wrapper .dt-scroll-head th,
+    #ont-disponibles_wrapper .dt-scroll-foot th,
+    #ont-disponibles_wrapper .dt-scroll-body td,
+    #ont-disponibles thead th,
+    #ont-disponibles tfoot th,
+    #ont-disponibles tbody td {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
     #ont-disponibles-cards-container {
         display: none;
         grid-template-columns: repeat(3, 1fr);

@@ -307,6 +307,10 @@
         initComplete: function () {
             const api = this.api();
             $('#TecnicosTable').hide();
+        
+            // Mueve el contenedor de tarjetas al centro de la estructura de DataTables
+            $('#TecnicosTable').after($('#tecnicos-grid-container'));
+
             $('.dt-search input').attr('placeholder', 'Buscar por nombre, expediente o telefono');
             renderCards(api);
         }
