@@ -85,7 +85,7 @@
                     <!-- TARJETA PRINCIPAL DE LISTADO -->
                     <div class="card shadow mb-4 table-container">
                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                            <h1 class="m-0 font-weight-bold text-gray-800">TECNICOS</h1>
+                            <h2 class="m-0 font-weight-bold text-gray-800">TECNICOS <i class="fa-solid fa-user"></i></h2> 
                             <?php $selectorCallback = 'LoadTecnicos'; include_once(__DIR__ . '/../components/SelectorContratista.php'); ?>
                         </div>
                         <div class="card-body p-0">

@@ -63,21 +63,21 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
 
 	<li class="nav-item <?php echo $paginaActual === 'materialRechazado.php' ? 'active' : ''; ?>">
 		<a class="nav-link" href="materialRechazado.php">
-			<i class="fa-solid fa-circle-xmark"></i>
+			<i class="fa-solid fa-school-circle-xmark"></i>
 			<span>MATERIAL RECHAZADO</span>
 		</a>
 	</li>
 
 	<li class="nav-item <?php echo $paginaActual === 'salidas.php' ? 'active' : ''; ?>">
 		<a class="nav-link" href="salidas.php">
-			<i class="fa-solid fa-circle-plus"></i>
+			<i class="fa-solid fa-square-plus"></i>
 			<span>ASIGNAR MATERIAL</span>
 		</a>
 	</li>
 
 	<li class="nav-item <?php echo $paginaActual === 'tecnicos.php' ? 'active' : ''; ?>">
 		<a class="nav-link" href="tecnicos.php">
-			<i class="fas fa-fw fa-table"></i>
+			<i class="fa-solid fa-user"></i>
 			<span>TÉCNICOS</span>
 		</a>
 	</li>

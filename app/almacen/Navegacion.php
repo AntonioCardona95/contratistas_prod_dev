@@ -177,9 +177,9 @@
 
                     <!-- TITULO DEL MODULO -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">
+                        <h2 class="h3 mb-0 text-gray-800">
                             Navegacion de Numeros de Serie <i class="fa-brands fa-tailwind-css"></i>
-                        </h1>
+                        </h2>
                         <?php $selectorCallback = 'CargarFolios'; include_once(__DIR__ . '/../components/SelectorContratista.php'); ?>
                     </div>
 

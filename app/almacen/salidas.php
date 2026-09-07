@@ -252,7 +252,7 @@
                     <!-- TARJETA PRINCIPAL DE LISTADO -->
                     <div class="card shadow mb-4 table-container">
                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                            <h2 class="m-0 font-weight-bold text-gray-800"> MATERIAL ASIGNADO A MIS TECNICOS</h2>
+                            <h2 class="m-0 font-weight-bold text-gray-800"> MATERIAL ASIGNADO A MIS TECNICOS <i class="fa-solid fa-square-plus"></i></h2>
                         </div>
                         <div class="card-body p-0">
                             <!-- CONTENEDOR DONDE SE CARGA LA TABLA DINÁMICAMENTE -->
