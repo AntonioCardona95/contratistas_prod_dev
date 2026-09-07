@@ -81,6 +81,7 @@
                     <div class="card shadow mb-4 table-container">
                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
                             <h2 class="m-0 font-weight-bold text-gray-800">ENTRADAS DE MATERIAL <i class="fa-solid fa-clipboard-check"></i></h2>
+                            <?php $selectorCallback = 'LoadEntradas'; include_once(__DIR__ . '/../components/SelectorContratista.php'); ?>
                         </div>
                         <div class="card-body p-0">
                             <!-- CONTENEDOR DE LA TABLA -->

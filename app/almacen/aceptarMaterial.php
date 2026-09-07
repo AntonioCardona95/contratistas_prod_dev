@@ -76,6 +76,7 @@
                     <div class="card shadow mb-4 table-container">
                         <div class="card-header py-3 d-flex justify-content-between align-items-center">
                             <h2 class="m-0 font-weight-bold text-gray-800"> MATERIAL PENDIENTE DE ACEPTAR <i class="fa-solid fa-feather-pointed"></i></h2>
+                            <?php $selectorCallback = 'LoadPendientes'; include_once(__DIR__ . '/../components/SelectorContratista.php'); ?>
                         </div>
                         <div class="card-body p-0">
                             <!-- CONTENEDOR DONDE SE CARGA LA TABLA MEDIANTE AJAX -->
