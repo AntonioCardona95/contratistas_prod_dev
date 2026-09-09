@@ -78,6 +78,17 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			min-width: 1900px;
 		}
 
+		/* CENTRAR ENCABEZADOS Y CELDAS DE LA TABLA, INCLUYENDO EL ENCABEZADO DE DATATABLES. */
+		#tac_series_tabla_wrapper .dt-scroll-head th,
+		#tac_series_tabla_wrapper .dt-scroll-foot th,
+		#tac_series_tabla_wrapper .dt-scroll-body td,
+		#tac_series_tabla thead th,
+		#tac_series_tabla tfoot th,
+		#tac_series_tabla tbody td {
+			text-align: center !important;
+			vertical-align: middle !important;
+		}
+
 		#tac-series-cards-container {
 			display: none;
 			grid-template-columns: 1fr;
@@ -186,6 +197,12 @@ $totalPendientes = $totalSeries - $totalNavegando;
 		#tac_series_tabla th:nth-child(12),
 		#tac_series_tabla td:nth-child(12) {
 			min-width: 140px;
+			text-align: center;
+		}
+
+		#tac_series_tabla th:nth-child(13),
+		#tac_series_tabla td:nth-child(13) {
+			min-width: 230px;
 			text-align: center;
 		}
 
@@ -307,10 +324,11 @@ $totalPendientes = $totalSeries - $totalNavegando;
 				<th>Telefono Navegando</th>
 				<th>Fecha consulta Navegando</th>
 				<th>Navegando</th>
+				<th>Duplicados</th>
 			</tr>
 		</thead>
 		<tbody>
-			<?php foreach ($series as $serie): ?>
+			<?php foreach ($series as $indice => $serie): ?>
 				<?php
 					$numeroSerie = $serie['Num_Serie_S'] ?? '';
 					$navegando = (int)($serie['Navegando'] ?? 0) === 1;
@@ -337,6 +355,21 @@ $totalPendientes = $totalSeries - $totalNavegando;
 								No
 							<?php endif; ?>
 						</span>
+					</td>
+					<td>
+						<?php if (!empty($serie['Duplicado_Tac'])): ?>
+							<button type="button" class="btn btn-warning btn-sm ver-duplicado mr-1" data-tipo-duplicado="tac" data-indice-serie="<?= $indice ?>">
+								<i class="fas fa-list mr-1" aria-hidden="true"></i>Duplicado TAC
+							</button>
+						<?php endif; ?>
+						<?php if (!empty($serie['Duplicado_Coordiapp'])): ?>
+							<button type="button" class="btn btn-info btn-sm ver-duplicado" data-tipo-duplicado="coordiapp" data-indice-serie="<?= $indice ?>">
+								<i class="fas fa-list mr-1" aria-hidden="true"></i>Duplicado Coordiapp
+							</button>
+						<?php endif; ?>
+						<?php if (empty($serie['Duplicado_Tac']) && empty($serie['Duplicado_Coordiapp'])): ?>
+							<span class="text-muted">Sin duplicados</span>
+						<?php endif; ?>
 					</td>
 				</tr>
 			<?php endforeach; ?>
@@ -374,6 +407,20 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			<div class="tac-resumen-valor">
 				<span id="total-pendientes-valor"><?= $totalPendientes ?></span>
 			</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="modalDuplicadosNavegacion" tabindex="-1" role="dialog" aria-labelledby="modalDuplicadosNavegacionTitulo" aria-hidden="true">
+	<div class="modal-dialog modal-lg" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="modalDuplicadosNavegacionTitulo">Detalle de duplicados</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body" id="modalDuplicadosNavegacionContenido"></div>
 		</div>
 	</div>
 </div>
@@ -427,6 +474,40 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			return $('<div>').text(valor ?? '').html();
 		}
 
+		function mostrarDetallesDuplicado(tipo, indice) {
+			const serie = series[indice] || {};
+			const esTac = tipo === 'tac';
+			const registros = esTac
+				? (serie.Detalles_Duplicado_Tac || [])
+				: (serie.Detalles_Duplicado_Coordiapp || []);
+			const nombreFuente = esTac ? 'TAC' : 'Coordiapp';
+			let contenido = '<p><strong>Numero de serie:</strong> ' + escaparHtml(serie.Num_Serie_S) + '</p>';
+			contenido += '<p><strong>Fuente:</strong> ' + nombreFuente + '</p>';
+			contenido += '<div class="table-responsive"><table class="table table-sm table-bordered mb-0"><thead><tr>';
+			contenido += '<th>Numero de serie</th><th>Telefono</th>';
+			contenido += esTac ? '<th>Fecha liquidacion</th><th>Estado</th>' : '<th>Fecha Coordiapp</th>';
+			contenido += '</tr></thead><tbody>';
+
+			registros.forEach(function (registro) {
+				contenido += '<tr>';
+				contenido += '<td>' + escaparHtml(esTac ? registro.Num__Serie : registro.Ont) + '</td>';
+				contenido += '<td>' + escaparHtml(registro.TELEFONO || registro.Telefono || 'Sin dato') + '</td>';
+				contenido += esTac
+					? '<td>' + escaparHtml(registro.FECHA_LIQ || 'Sin dato') + '</td><td>' + escaparHtml(registro.Calificador_Edo || 'Sin dato') + '</td>'
+					: '<td>' + escaparHtml(registro.Fecha_Coordiapp || 'Sin dato') + '</td>';
+				contenido += '</tr>';
+			});
+
+			contenido += '</tbody></table></div>';
+			$('#modalDuplicadosNavegacionTitulo').text('Detalle duplicado ' + nombreFuente);
+			$('#modalDuplicadosNavegacionContenido').html(contenido);
+			$('#modalDuplicadosNavegacion').modal('show');
+		}
+
+		$('#tac_series_tabla').on('click', '.ver-duplicado', function () {
+			mostrarDetallesDuplicado($(this).data('tipo-duplicado'), Number($(this).data('indice-serie')));
+		});
+
 		function renderizarTarjetas(filtroActual) {
 			const tarjetas = $('#tac-series-cards-container');
 			tarjetas.empty();
@@ -464,12 +545,21 @@ $totalPendientes = $totalSeries - $totalNavegando;
 							'<div class="tac-serie-card-field"><span>Fecha liquidacion TAC</span><strong>' + escaparHtml(serie.Fecha_Liquidacion_Tac || 'Sin dato') + '</strong></div>' +
 							'<div class="tac-serie-card-field"><span>Telefono ECI</span><strong>' + escaparHtml(serie.Telefono_Eci || 'Sin dato') + '</strong></div>' +
 							'<div class="tac-serie-card-field"><span>Fecha consulta ECI</span><strong>' + escaparHtml(serie.Fecha_Consulta_Eci || 'Sin dato') + '</strong></div>' +
+							'<div class="tac-serie-card-field"><span>Duplicados</span><strong>' +
+								(serie.Duplicado_Tac ? '<button type="button" class="btn btn-warning btn-sm ver-duplicado mr-1" data-tipo-duplicado="tac" data-indice-serie="' + indice + '">Duplicado TAC</button>' : '') +
+								(serie.Duplicado_Coordiapp ? '<button type="button" class="btn btn-info btn-sm ver-duplicado" data-tipo-duplicado="coordiapp" data-indice-serie="' + indice + '">Duplicado Coordiapp</button>' : '') +
+								(!serie.Duplicado_Tac && !serie.Duplicado_Coordiapp ? 'Sin duplicados' : '') +
+							'</strong></div>' +
 						'</div>' +
 					'</article>';
 
 				tarjetas.append(tarjeta);
 			});
 		}
+
+		$('#tac-series-cards-container').on('click', '.ver-duplicado', function () {
+			mostrarDetallesDuplicado($(this).data('tipo-duplicado'), Number($(this).data('indice-serie')));
+		});
 
 		renderizarTarjetas(filtroEstado);
 

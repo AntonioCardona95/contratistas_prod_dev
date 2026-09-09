@@ -203,7 +203,7 @@
                                 <!-- BUSCADOR LOCAL -->
                                 <div class="p-2 border-bottom">
                                     <input type="text" id="buscadorFolio" class="form-control form-control-sm"
-                                        placeholder="Buscar folio..." oninput="filtrarTarjetas(this.value)">
+                                        placeholder="Buscar folio...">
                                 </div>
 
                                 <!-- CONTENEDOR DE LAS TARJETAS DE FOLIOS -->
@@ -305,6 +305,7 @@
                     // ACTUALIZAR CONTADOR DE FOLIOS
                     $('#badge-total-cont').text(data.length);
                     // RENDERIZAR LAS TARJETAS DE FOLIOS
+                    limpiarFiltroFolios();
                     renderizarTarjetas(data);
 
                     // Si había uno activo, mantenerlo seleccionado y recargar sus folios
@@ -365,10 +366,37 @@
 
         function filtrarTarjetas(valor) {
             var filtro = String(valor || '').toLowerCase().trim();
+            var coincidencias = 0;
+
             $('#lista-folios .cont-card').each(function () {
-                var folio = String($(this).data('folio') || '').toLowerCase();
-                $(this).toggle(folio.indexOf(filtro) !== -1);
+                var folio = String($(this).attr('data-folio') || '').toLowerCase();
+                var coincide = folio.indexOf(filtro) !== -1;
+
+                $(this).toggle(coincide);
+                if (coincide) {
+                    coincidencias++;
+                }
             });
+
+            $('#mensaje-sin-folios').remove();
+            if (coincidencias === 0 && $('#lista-folios .cont-card').length > 0) {
+                $('#lista-folios').append(
+                    '<div id="mensaje-sin-folios" class="text-center text-muted py-3">' +
+                    'No se encontraron folios</div>'
+                );
+            }
+        }
+
+        // FILTRAR FOLIOS EN TIEMPO REAL, INCLUSO CUANDO LAS TARJETAS SE RECARGAN POR AJAX.
+        $(document).on('input', '#buscadorFolio', function () {
+            filtrarTarjetas(this.value);
+        });
+
+        // LIMPIAR EL FILTRO CUANDO SE VUELVE A CARGAR LA LISTA DE FOLIOS.
+        function limpiarFiltroFolios() {
+            $('#buscadorFolio').val('');
+            $('#mensaje-sin-folios').remove();
+            $('#lista-folios .cont-card').show();
         }
 
         // SELECCIONAR FOLIO

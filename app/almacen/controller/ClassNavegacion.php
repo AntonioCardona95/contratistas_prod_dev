@@ -106,7 +106,8 @@ class Navegacion extends Conexion
     // OBTENER LAS SERIES Y SU ESTADO PARA UN FOLIO
     public function ObtenerDetalleFolio($folio, $contratistaId)
     {
-        // 1. Obtener las series del folio desde las tablas de almacén.
+        // 1. OBTENER LAS SERIES DEL FOLIO DESDE LAS TABLAS DE ALMACÉN.
+        // SOLO SE CONSIDERAN MATERIALES DEL TIPO ONT Y MODEM.
         $sql = "SELECT
                     m.Num_Serie_S,
                     p.Producto,
@@ -139,11 +140,15 @@ class Navegacion extends Conexion
             return array();
         }
 
-        // 2. Cargar datos de Coordiapp por lote para evitar el join costoso dentro del folio principal.
+        // 2. CARGAR LOS DATOS DE COORDIAPP POR LOTE PARA EVITAR UN JOIN COSTOSO.
+        // SE CONSERVAN TODOS LOS REGISTROS ENCONTRADOS PARA PODER DETECTAR DUPLICADOS.
         $coordiappPorSerie = array();
+        $coordiappRegistrosPorSerie = array();
+        $duplicadosCoordiappPorSerie = array();
         $seriesUnicas = array();
         $telefonosUnicos = array();
 
+        // CREAR LA LISTA DE SERIES NORMALIZADAS QUE SE CONSULTARÁ EN COORDIAPP.
         foreach ($series as $serie) {
             $serieNormalizada = $this->normalizarSerie($serie['Num_Serie_S'] ?? '');
             $telefonoCoordiapp = $this->normalizarTelefono($serie['Telefono_Coordiapp'] ?? '');
@@ -176,29 +181,43 @@ class Navegacion extends Conexion
                 $parametrosCoordiapp
             );
 
+            // AGRUPAR TODOS LOS REGISTROS DE COORDIAPP POR NÚMERO DE SERIE.
             foreach ($registrosCoordiapp as $registroCoordiapp) {
                 $serieCoordiapp = $this->normalizarSerie($registroCoordiapp['Ont'] ?? '');
                 if ($serieCoordiapp !== '') {
-                    $coordiappPorSerie[$serieCoordiapp] = $registroCoordiapp;
-                    $telefonoCoordiapp = $this->normalizarTelefono($registroCoordiapp['Telefono'] ?? '');
-                    if ($telefonoCoordiapp !== '') {
-                        $telefonosUnicos[$telefonoCoordiapp] = true;
-                    }
+                    $coordiappRegistrosPorSerie[$serieCoordiapp][] = $registroCoordiapp;
                 }
             }
         }
 
+        // UNA SERIE ES DUPLICADA EN COORDIAPP SI TIENE TELÉFONOS DIFERENTES.
+        foreach ($coordiappRegistrosPorSerie as $serieCoordiapp => $registrosCoordiappSerie) {
+            $coordiappPorSerie[$serieCoordiapp] = $registrosCoordiappSerie[0];
+            $telefonosCoordiappSerie = array();
+
+            foreach ($registrosCoordiappSerie as $registroCoordiapp) {
+                $telefonosCoordiappSerie[] = $this->normalizarTelefono($registroCoordiapp['Telefono'] ?? '');
+            }
+
+            if (count(array_unique($telefonosCoordiappSerie)) > 1) {
+                $duplicadosCoordiappPorSerie[$serieCoordiapp] = $registrosCoordiappSerie;
+            }
+        }
+
+        // ASIGNAR EL REGISTRO PRINCIPAL Y LOS DETALLES DE DUPLICADO A CADA SERIE.
         foreach ($series as &$serie) {
             $serieNormalizada = $this->normalizarSerie($serie['Num_Serie_S'] ?? '');
             $registroCoordiapp = $coordiappPorSerie[$serieNormalizada] ?? array();
             $serie['Serie_Coordiapp'] = $registroCoordiapp['Ont'] ?? null;
             $serie['Telefono_Coordiapp'] = $registroCoordiapp['Telefono'] ?? null;
             $serie['Fecha_Coordiapp'] = $registroCoordiapp['Fecha_Coordiapp'] ?? null;
+            $serie['Duplicado_Coordiapp'] = isset($duplicadosCoordiappPorSerie[$serieNormalizada]) ? 1 : 0;
+            $serie['Detalles_Duplicado_Coordiapp'] = $duplicadosCoordiappPorSerie[$serieNormalizada] ?? array();
             $serie['Tecnico'] = trim(($serie['Nombre_T'] ?? '') . ' ' . ($serie['Apellidos_T'] ?? ''));
         }
         unset($serie);
 
-        // 3. Crear listas únicas para consultar TAC y ECI en bloque.
+        // 3. CREAR LISTAS ÚNICAS PARA CONSULTAR TAC Y ECI EN BLOQUE.
         $seriesUnicas = array();
         $telefonosUnicos = array();
 
@@ -215,33 +234,76 @@ class Navegacion extends Conexion
             }
         }
 
-        // 3. Buscar en TAC por número de serie y obtener teléfono y fecha de liquidación.
+        // 3. BUSCAR EN TAC POR NÚMERO DE SERIE, TELÉFONO Y FECHA DE LIQUIDACIÓN.
+        // SOLO SE TOMAN REGISTROS CON ESTADO COMPLETADA.
         $tacPorSerie = array();
+        $tacRegistrosPorSerie = array();
+        $duplicadosTacPorSerie = array();
         if (!empty($seriesUnicas)) {
             $seriesParaTac = array_keys($seriesUnicas);
             $marcadoresTac = implode(',', array_fill(0, count($seriesParaTac), '?'));
             $registrosTac = $this->runAnalysisQuery(
-                "SELECT Num__Serie, TELEFONO, FECHA_LIQ
+                "SELECT Num__Serie, TELEFONO, FECHA_LIQ, Calificador_Edo
                  FROM qm_tac
                  WHERE Num__Serie IN ($marcadoresTac)
+                    AND Calificador_Edo = 'COMPLETADA'
                  ORDER BY FECHA_LIQ DESC",
                 $seriesParaTac
             );
 
+            // AGRUPAR TODOS LOS REGISTROS TAC ENCONTRADOS PARA CADA SERIE.
             foreach ($registrosTac as $registroTac) {
                 $serieTac = $this->normalizarSerie($registroTac['Num__Serie'] ?? '');
-                if ($serieTac !== '' && !isset($tacPorSerie[$serieTac])) {
-                    $tacPorSerie[$serieTac] = $registroTac;
-                    $telefonoTac = $this->normalizarTelefono($registroTac['TELEFONO'] ?? '');
-                    if ($telefonoTac !== '') {
-                        $telefonosUnicos[$telefonoTac] = true;
-                    }
+                if ($serieTac !== '') {
+                    $tacRegistrosPorSerie[$serieTac][] = $registroTac;
                 }
             }
         }
 
-        // 4. Buscar en ECI por serie o teléfono, considerando únicamente servicios activos.
-        // Separar por columnas evita el OR y permite que cada consulta use el índice correspondiente.
+        // UNA SERIE ES DUPLICADA EN TAC SI PRESENTA TELÉFONOS DIFERENTES.
+        foreach ($tacRegistrosPorSerie as $serieTac => $registrosTacSerie) {
+            $tacPorSerie[$serieTac] = $registrosTacSerie[0];
+            $telefonosTacSerie = array();
+
+            foreach ($registrosTacSerie as $registroTac) {
+                $telefonosTacSerie[] = $this->normalizarTelefono($registroTac['TELEFONO'] ?? '');
+            }
+
+            if (count(array_unique($telefonosTacSerie)) > 1) {
+                $duplicadosTacPorSerie[$serieTac] = $registrosTacSerie;
+            }
+        }
+
+        // GUARDAR LA BANDERA Y TODOS LOS DETALLES DE LOS DUPLICADOS TAC.
+        foreach ($series as &$serie) {
+            $serieNormalizada = $this->normalizarSerie($serie['Num_Serie_S'] ?? '');
+            $serie['Duplicado_Tac'] = isset($duplicadosTacPorSerie[$serieNormalizada]) ? 1 : 0;
+            $serie['Detalles_Duplicado_Tac'] = $duplicadosTacPorSerie[$serieNormalizada] ?? array();
+        }
+        unset($serie);
+
+        // LAS SERIES DUPLICADAS NO DEBEN PARTICIPAR EN LA CONSULTA DE ECI.
+        // ESTO EVITA DETERMINAR SI NAVEGAN USANDO TELÉFONOS AMBIGUOS.
+        $seriesUnicasParaEci = array();
+        $telefonosUnicos = array();
+        foreach ($series as $serie) {
+            $serieNormalizada = $this->normalizarSerie($serie['Num_Serie_S'] ?? '');
+            $esDuplicada = !empty($serie['Duplicado_Tac']) || !empty($serie['Duplicado_Coordiapp']);
+
+            if ($serieNormalizada !== '' && !$esDuplicada) {
+                $seriesUnicasParaEci[$serieNormalizada] = true;
+                foreach (array($serie['Telefono_Coordiapp'] ?? '', $tacPorSerie[$serieNormalizada]['TELEFONO'] ?? '') as $telefono) {
+                    $telefonoNormalizado = $this->normalizarTelefono($telefono);
+                    if ($telefonoNormalizado !== '') {
+                        $telefonosUnicos[$telefonoNormalizado] = true;
+                    }
+                }
+            }
+        }
+        $seriesUnicas = $seriesUnicasParaEci;
+
+        // 4. BUSCAR EN ECI POR SERIE O TELÉFONO, CONSIDERANDO ÚNICAMENTE SERVICIOS ACTIVOS.
+        // SEPARAR POR COLUMNAS EVITA EL OR Y PERMITE USAR EL ÍNDICE CORRESPONDIENTE.
         $eciPorSerie = array();
 
         if (!empty($seriesUnicas)) {
@@ -284,7 +346,7 @@ class Navegacion extends Conexion
             }
         }
 
-        // 5. Resolver el estado de navegación de cada serie.
+        // 5. RESOLVER EL ESTADO DE NAVEGACIÓN DE CADA SERIE.
         foreach ($series as &$serie) {
             $serieNormalizada = $this->normalizarSerie($serie['Num_Serie_S'] ?? '');
             $registroTac = $tacPorSerie[$serieNormalizada] ?? array();
@@ -295,7 +357,7 @@ class Navegacion extends Conexion
             $telefonoEci = $this->normalizarTelefono($registroEci['TELEFONO'] ?? '');
             $telefonosRegistrados = array_values(array_filter(array($telefonoCoordiapp, $telefonoTac, $telefonoEci)));
 
-            // Si existen teléfonos en varias plataformas, todos deben coincidir.
+            // SI EXISTEN TELÉFONOS EN VARIAS PLATAFORMAS, TODOS DEBEN COINCIDIR.
             $telefonosCoinciden = count(array_unique($telefonosRegistrados)) <= 1;
 
             $fechaCoordiapp = $serie['Fecha_Coordiapp'] ?? null;
@@ -308,7 +370,7 @@ class Navegacion extends Conexion
                 }
             }
 
-            // La consulta ECI debe ser al menos tres días posterior a TAC/Coordiapp.
+            // LA CONSULTA ECI DEBE SER AL MENOS TRES DÍAS POSTERIOR A TAC/COORDIAPP.
             $fechaConsultaEci = $registroEci['F_CONSULTA'] ?? null;
             $fechaEciValida = false;
             if (!empty($fechaConsultaEci)) {
@@ -321,9 +383,10 @@ class Navegacion extends Conexion
             $serie['Fecha_Consulta_Eci'] = $fechaConsultaEci;
             $serie['Estado_Eci'] = $registroEci['DID_ACTIVO'] ?? null;
 
-            // Navega solo si ECI está activo, existe, los teléfonos coinciden y la fecha es válida.
+            // NAVEGA SOLO SI NO HAY DUPLICADOS, ECI ESTÁ ACTIVO, LOS TELÉFONOS COINCIDEN Y LA FECHA ES VÁLIDA.
             $eciActivo = !empty($registroEci) && (int)($registroEci['DID_ACTIVO'] ?? 0) === 1;
-            $serie['Navegando'] = $eciActivo && $telefonosCoinciden && $fechaEciValida ? 1 : 0;
+            $esDuplicada = !empty($serie['Duplicado_Tac']) || !empty($serie['Duplicado_Coordiapp']);
+            $serie['Navegando'] = !$esDuplicada && $eciActivo && $telefonosCoinciden && $fechaEciValida ? 1 : 0;
         }
         unset($serie);
 
