@@ -199,10 +199,8 @@ $salidas_det = $modal->SalidasDet($Folio) ?? [];
     if (typeof DataTable !== 'undefined' && salidas.length > 0) {
         const tabla = new DataTable('#salidasDetalleTabla', {
             responsive: true,
-            language: {
-                url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'
-            },
-            ordering: false,
+            language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
+            ordering: true,
             searching: true,
             paging: true,
             scrollX: true,

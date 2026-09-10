@@ -135,84 +135,90 @@
     }
 </style>
 
-<!-- CONTENEDOR PRINCIPAL CON TABLA Y TARJETAS -->
-<div id="ont-sin-instalar-wrapper">
-    <div id="ont-sin-instalar-buttons-container"></div>
-    <!-- TABLA PARA DESKTOP -->
-    <div id="ont-sin-instalar-table-wrapper">
-        <table class="table table-bordered display nowrap" style="width:100%" id="ont-sin-instalar">			
-            <thead>
-                <tr>
-                    <th>Tecnico</th>
-                    <th>Material</th> 
-                    <th>SKU</th>
-                    <th>Numero de Serie</th>
-                    <th>Fecha Asignacion</th>
-                </tr>
-            </thead>
-            <tfoot>
-                <tr>
-                    <th>Tecnico</th>
-                    <th>Material</th> 
-                    <th>SKU</th>
-                    <th>Numero de Serie</th>
-                    <th>Fecha Asignacion</th>
-                </tr>
-            </tfoot>
-            <tbody>
-                <?php
-                    if(!empty($filas)){
-                        foreach($filas as $row){
-                            echo "
-                            <tr 
-                                data-tecnico='".$row['Tecnico']."'
-                                data-material='".$row['Producto']."'
-                                data-sku='".$row['Modelo']."'
-                                data-serie='".$row['Num_Serie_Salida_Det']."'
-                                data-fecha-asignacion='".$row['Fecha_Salida_Det']."'>
-                                <td>".$row['Tecnico']."</td>
-                                <td>".$row['Producto']."</td>
-                                <td>".$row['Modelo']."</td>
-                                <td>".$row['Num_Serie_Salida_Det']."</td>
-                                <td>".$row['Fecha_Salida_Det']."</td>
-                            </tr>";
-                        }
-                    }
-                ?>
-            </tbody>
-        </table>
+<div id="ont-sin-instalar-loading" style="text-align: center; padding: 20px;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Cargando...</span>
     </div>
-
-    <!-- BUSCADOR MÓVIL -->
-    <div id="ont-sin-instalar-mobile-search">
-        <div class="input-group">
-            <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fas fa-search"></i></span>
-            </div>
-            <input type="text" id="ont-sin-instalar-search-input" class="form-control" placeholder="Buscar ONT...">
-        </div>
-    </div>
-
-    <!-- CONTENEDOR DE TARJETAS PARA MÓVIL -->
-    <div id="ont-sin-instalar-cards-container"></div>
+    <p>Cargando datos, por favor espere...</p>
 </div>
+
+<div class="contenedor-tabla-ont-sin-instalar" style="opacity: 0; transition: opacity 0.3s ease;">
+    <!-- CONTENEDOR PRINCIPAL CON TABLA Y TARJETAS -->
+    <div id="ont-sin-instalar-wrapper">
+        <div id="ont-sin-instalar-buttons-container"></div>
+        <!-- TABLA PARA DESKTOP -->
+        <div id="ont-sin-instalar-table-wrapper">
+            <table class="table table-bordered display nowrap" style="width:100%" id="ont-sin-instalar">			
+                <thead>
+                    <tr>
+                        <th>Tecnico</th>
+                        <th>Material</th> 
+                        <th>SKU</th>
+                        <th>Numero de Serie</th>
+                        <th>Fecha Asignacion</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Tecnico</th>
+                        <th>Material</th> 
+                        <th>SKU</th>
+                        <th>Numero de Serie</th>
+                        <th>Fecha Asignacion</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    <?php
+                        if(!empty($filas)){
+                            foreach($filas as $row){
+                                echo "
+                                <tr 
+                                    data-tecnico='".$row['Tecnico']."'
+                                    data-material='".$row['Producto']."'
+                                    data-sku='".$row['Modelo']."'
+                                    data-serie='".$row['Num_Serie_Salida_Det']."'
+                                    data-fecha-asignacion='".$row['Fecha_Salida_Det']."'>
+                                    <td>".$row['Tecnico']."</td>
+                                    <td>".$row['Producto']."</td>
+                                    <td>".$row['Modelo']."</td>
+                                    <td>".$row['Num_Serie_Salida_Det']."</td>
+                                    <td>".$row['Fecha_Salida_Det']."</td>
+                                </tr>";
+                            }
+                        }
+                    ?>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- BUSCADOR MÓVIL -->
+        <div id="ont-sin-instalar-mobile-search">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                </div>
+                <input type="text" id="ont-sin-instalar-search-input" class="form-control" placeholder="Buscar ONT...">
+            </div>
+        </div>
+
+        <!-- CONTENEDOR DE TARJETAS PARA MÓVIL -->
+        <div id="ont-sin-instalar-cards-container"></div>
+    </div>
+</div>
+
 <script>
 	$(document).ready(function () {
         let table = new DataTable('#ont-sin-instalar', {
-            fixedColumns: {
-                start: 1,
-                end: 1
-            },
             responsive:true,
-            'language':{
-                url:'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'
-            },
-            "ordering": false,
-            "searching": true,
-			"scrollY": true,
-			"scrollX": true,
-            "initComplete": function(settings, json) {
+            language:{ url:'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
+            ordering: true,
+            searching: true,
+			scrollY: true,
+			scrollX: true,
+            initComplete: function(settings, json) {
                 renderOntSinInstalarCards();
+                $('#ont-sin-instalar-loading').hide();
+                $('.contenedor-tabla-ont-sin-instalar').css('opacity', '1');
             }
         });
     

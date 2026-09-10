@@ -140,89 +140,94 @@
     }
 </style>
 
-<!-- CONTENEDOR PRINCIPAL CON TABLA Y TARJETAS -->
-<div id="ont-disponibles-wrapper">
-    <div id="ont-disponibles-buttons-container"></div>
-    <!-- TABLA PARA DESKTOP -->
-    <div id="ont-disponibles-table-wrapper">
-        <table class="table table-bordered display nowrap" style="width:100%" id="ont-disponibles">			
-            <thead>
-                <tr>
-                    <th>Folio Vale</th>
-                    <th>Fecha Entrega</th>
-                    <th>Almacen Origen</th>
-                    <th>Material</th> 
-                    <th>SKU</th>
-                    <th>Numero de Serie</th>
-                </tr>
-            </thead>
-            <tfoot>
-                <tr>
-                    <th>Folio Vale</th>
-                    <th>Fecha Entrega</th>
-                    <th>Almacen Origen</th>
-                    <th>Material</th> 
-                    <th>SKU</th>
-                    <th>Numero de Serie</th>
-                </tr>
-            </tfoot>
-            <tbody>
-                <?php
-                    if(!empty($filas)){
-                        foreach($filas as $row){
-                            echo "
-                            <tr 
-                                data-folio='".$row['Folio_Salida_Material_Det_S']."'
-                                data-fecha='".$row['Fecha_Salida_S']."'
-                                data-almacen='".$row['Localidad_Material_S']."'
-                                data-material='".$row['Producto']."'
-                                data-sku='".$row['Modelo']."'
-                                data-serie='".$row['Num_Serie_S']."'>
-                                <td>".$row['Folio_Salida_Material_Det_S']."</td>
-                                <td>".$row['Fecha_Salida_S']."</td>
-                                <td>".$row['Localidad_Material_S']."</td>
-                                <td>".$row['Producto']."</td>
-                                <td>".$row['Modelo']."</td>
-                                <td>".$row['Num_Serie_S']."</td>
-                            </tr>";
+<div id="ont-disponibles-loading" style="text-align: center; padding: 20px;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Cargando...</span>
+    </div>
+    <p>Cargando datos, por favor espere...</p>
+</div>
+
+<div class="contenedor-tabla-ont-disponibles" style="opacity: 0; transition: opacity 0.3s ease;">
+    <!-- CONTENEDOR PRINCIPAL CON TABLA Y TARJETAS -->
+    <div id="ont-disponibles-wrapper">
+        <div id="ont-disponibles-buttons-container"></div>
+        <!-- TABLA PARA DESKTOP -->
+        <div id="ont-disponibles-table-wrapper">
+            <table class="table table-bordered display nowrap" style="width:100%" id="ont-disponibles">			
+                <thead>
+                    <tr>
+                        <th>Folio Vale</th>
+                        <th>Fecha Entrega</th>
+                        <th>Almacen Origen</th>
+                        <th>Material</th> 
+                        <th>SKU</th>
+                        <th>Numero de Serie</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <th>Folio Vale</th>
+                        <th>Fecha Entrega</th>
+                        <th>Almacen Origen</th>
+                        <th>Material</th> 
+                        <th>SKU</th>
+                        <th>Numero de Serie</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    <?php
+                        if(!empty($filas)){
+                            foreach($filas as $row){
+                                echo "
+                                <tr 
+                                    data-folio='".$row['Folio_Salida_Material_Det_S']."'
+                                    data-fecha='".$row['Fecha_Salida_S']."'
+                                    data-almacen='".$row['Localidad_Material_S']."'
+                                    data-material='".$row['Producto']."'
+                                    data-sku='".$row['Modelo']."'
+                                    data-serie='".$row['Num_Serie_S']."'>
+                                    <td>".$row['Folio_Salida_Material_Det_S']."</td>
+                                    <td>".$row['Fecha_Salida_S']."</td>
+                                    <td>".$row['Localidad_Material_S']."</td>
+                                    <td>".$row['Producto']."</td>
+                                    <td>".$row['Modelo']."</td>
+                                    <td>".$row['Num_Serie_S']."</td>
+                                </tr>";
+                            }
                         }
-                    }
-                ?>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- BUSCADOR MÓVIL -->
-    <div id="ont-disponibles-mobile-search">
-        <div class="input-group">
-            <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fas fa-search"></i></span>
-            </div>
-            <input type="text" id="ont-disponibles-search-input" class="form-control" placeholder="Buscar ONT...">
+                    ?>
+                </tbody>
+            </table>
         </div>
-    </div>
 
-    <!-- CONTENEDOR DE TARJETAS PARA MÓVIL -->
-    <div id="ont-disponibles-cards-container"></div>
+        <!-- BUSCADOR MÓVIL -->
+        <div id="ont-disponibles-mobile-search">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                </div>
+                <input type="text" id="ont-disponibles-search-input" class="form-control" placeholder="Buscar ONT...">
+            </div>
+        </div>
+
+        <!-- CONTENEDOR DE TARJETAS PARA MÓVIL -->
+        <div id="ont-disponibles-cards-container"></div>
+    </div>
 </div>
 
 <script>
 	$(document).ready(function () {
         let table = new DataTable('#ont-disponibles', {
-            fixedColumns: {
-                start: 1,
-                end: 1
-            },
             responsive:true,
-            'language':{
-                url:'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'
-            },
-            "ordering": false,
-            "searching": true,
-			"scrollY": true,
-			"scrollX": true,
-            "initComplete": function(settings, json) {
+            language:{ url:'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'},
+            ordering: true,
+            searching: true,
+			scrollY: true,
+			scrollX: true,
+            initComplete: function(settings, json) {
                 renderOntDisponiblesCards();
+                $('#ont-disponibles-loading').hide();
+                $('.contenedor-tabla-ont-disponibles').css('opacity', '1');
             }
         });
     

@@ -216,10 +216,8 @@ $traspasos = $modal->TraspasoDet($Folio) ?? [];
     if (typeof DataTable !== 'undefined' && traspasos.length > 0) {
         const tabla = new DataTable('#traspasosDetalle' + folio, {
             responsive: true,
-            language: {
-                url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'
-            },
-            ordering: false,
+            language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'},
+            ordering: true,
             searching: true,
             paging: true,
             scrollX: true,

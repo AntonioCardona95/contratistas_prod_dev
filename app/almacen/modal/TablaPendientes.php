@@ -313,7 +313,7 @@
         var table = new DataTable('#pendientes', {
             responsive: true,
             language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
-            ordering: false,
+            ordering: true,
             searching: true,
             scrollY: true,
             scrollX: true,

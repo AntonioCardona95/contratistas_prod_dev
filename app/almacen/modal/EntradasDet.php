@@ -326,7 +326,7 @@ $series = $modal->ObtenerSeriesEntrada($Folio) ?? [];
         const tablaMateriales = new DataTable('#ventasMateriales' + folio, {
             responsive: true,
             language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
-            ordering: false,
+            ordering: true,
             searching: true,
             scrollX: true,
             pageLength: 10,

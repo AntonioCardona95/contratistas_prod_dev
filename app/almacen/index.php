@@ -125,7 +125,6 @@
                     </button>
                 </div>
                 <div class="modal-body" id="modalKpiDetalleContenido">
-                    <div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
                 </div>
             </div>
         </div>
@@ -143,19 +142,23 @@
             event.preventDefault();
 
             const rutasDetalle = {
-                'detalle_ont_disponibles.php': ['modal/TablaOntDisponiblesDet.php', 'ONTS SIN ASIGNAR'],
-                'detalle_ont_asignados.php': ['modal/TablaOntAsignadosDet.php', 'ONTS ASIGNADAS'],
-                'ont_sin_instalar_det.php': ['modal/TablaOntSinInstalarDet.php', 'ONTS SIN LIQUIDAR'],
-                'ont_instaladas_det.php': ['modal/TablaOntInstaladosDet.php', 'ONTS LIQUIDADAS']
+                'detalle_ont_disponibles.php': {
+                    total: ['modal/TablaOntDisponiblesDet.php', 'ONTS SIN ASIGNAR', 'fas fa-box-open'],
+                    fecha: ['modal/TablaOntDisponiblesDet.php', 'ONTS SIN ASIGNAR EN FECHA', 'fas fa-clock']
+                },
+                'detalle_ont_asignados.php': ['modal/TablaOntAsignadosDet.php', 'ONTS ASIGNADAS', 'fas fa-user-check'],
+                'ont_sin_instalar_det.php': ['modal/TablaOntSinInstalarDet.php', 'ONTS SIN LIQUIDAR', 'fas fa-hourglass-half'],
+                'ont_instaladas_det.php': ['modal/TablaOntInstaladosDet.php', 'ONTS LIQUIDADAS', 'fas fa-check-double']
             };
 
             const ruta = $(this).attr('href');
-            const detalle = rutasDetalle[ruta];
             const tipoDetalle = $(this).data('detalle') || '';
+            const rutaDetalle = rutasDetalle[ruta];
+            const detalle = Array.isArray(rutaDetalle) ? rutaDetalle : rutaDetalle[tipoDetalle] || rutaDetalle.total;
             const contenido = $('#modalKpiDetalleContenido');
 
-            $('#modalKpiDetalleTitulo').text(detalle[1]);
-            contenido.html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>');
+            $('#modalKpiDetalleTitulo').html('<i class="' + detalle[2] + ' mr-2"></i>' + detalle[1]);
+            contenido.empty();
             $('#modalKpiDetalle').modal('show');
 
             $.ajax({

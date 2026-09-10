@@ -48,71 +48,84 @@
         border: 1px solid white;
     }
 
-    #ventas_wrapper .dt-scroll-head th,
-    #ventas_wrapper .dt-scroll-foot th,
-    #ventas_wrapper .dt-scroll-body td,
-    #ventas thead th,
-    #ventas tfoot th,
-    #ventas tbody td {
+    /* CENTRADO DE DATOS */
+    #traspasos_wrapper .dt-scroll-head th,
+    #traspasos_wrapper .dt-scroll-foot th,
+    #traspasos_wrapper .dt-scroll-body td,
+    #traspasos thead th,
+    #traspasos tfoot th,
+    #traspasos tbody td {
         text-align: center !important;
         vertical-align: middle !important;
     }
+
 </style>
-<table class="table table-bordered display nowrap" style="width:100%" id="ventas">			
-    <thead>
-        <tr>
-            <th>Folio Traspaso</th> 
-            <th>Contratista</th>
-            <th>Tecnico Origen</th>
-            <th>Tecnico Destino</th>
-            <th>Cantidad</th>
-            <th>Fecha</th>
-            <th>Accion</th>
-        </tr>
-    </thead>
-    <tfoot>
-        <tr>
-            <th>Folio Traspaso</th> 
-            <th>Contratista</th>
-            <th>Tecnico Origen</th>
-            <th>Tecnico Destino</th>
-            <th>Cantidad</th>
-            <th>Fecha</th>
-            <th>Accion</th>
-        </tr>
-    </tfoot>
-    <tbody>
-        <?php foreach ($filas ?? [] as $row): ?>
-            <?php
-                $comentario = trim((string)($row['Comentarios_Traspaso'] ?? ''));
-                $tieneComentario = $comentario !== '';
-                $claseNotificacion = $tieneComentario ? 'tiene-comentario' : '';
-            ?>
+
+<div id="traspasos-loading" style="text-align: center; padding: 20px;">
+    <div class="spinner-border text-primary" role="status">
+        <span class="sr-only">Cargando...</span>
+    </div>
+    <p>Cargando datos, por favor espere...</p>
+</div>
+
+<div id="contenedor-tabla-traspasos" style="opacity: 0; transition: opacity 0.3s ease;">
+
+    <table class="table table-bordered display nowrap" style="width:100%" id="traspasos">			
+        <thead>
             <tr>
-                <td><?= htmlspecialchars($row['Folio_Traspaso_T'] ?? '') ?></td>
-                <td><?= htmlspecialchars($row['Contratista'] ?? '') ?></td>
-                <td><?= htmlspecialchars($row['TecnicoOrigen'] ?? '') ?></td>
-                <td><?= htmlspecialchars($row['TecnicoDestino'] ?? '') ?></td>
-                <td><?= htmlspecialchars($row['Cantidad_Traspaso'] ?? '') ?></td>
-                <td><?= htmlspecialchars($row['Fecha_Traspaso'] ?? '') ?></td>
-                <td class="acciones-traspaso">
-                    <button type="button"
-                        class="btn btn-info comentario-btn <?= $claseNotificacion ?>"
-                        data-comentario="<?= htmlspecialchars($comentario, ENT_QUOTES, 'UTF-8') ?>"
-                        aria-label="Ver comentario"
-                        title="<?= $tieneComentario ? 'Ver comentario' : 'Sin comentario' ?>">
-                        <i class="fas fa-comment-alt"></i>
-                    </button>
-                    <a href="modal/TraspasoDet.php?id=<?= (int)$row['Folio_Traspaso_T'] ?>">
-                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalForm">
-                            <i class="fa-solid fa-file-lines"></i>
-                        </button>
-                    </a>
-                </td>
+                <th>Folio Traspaso</th> 
+                <th>Contratista</th>
+                <th>Tecnico Origen</th>
+                <th>Tecnico Destino</th>
+                <th>Cantidad</th>
+                <th>Fecha</th>
+                <th>Accion</th>
             </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>Folio Traspaso</th> 
+                <th>Contratista</th>
+                <th>Tecnico Origen</th>
+                <th>Tecnico Destino</th>
+                <th>Cantidad</th>
+                <th>Fecha</th>
+                <th>Accion</th>
+            </tr>
+        </tfoot>
+        <tbody>
+            <?php foreach ($filas ?? [] as $row): ?>
+                <?php
+                    $comentario = trim((string)($row['Comentarios_Traspaso'] ?? ''));
+                    $tieneComentario = $comentario !== '';
+                    $claseNotificacion = $tieneComentario ? 'tiene-comentario' : '';
+                ?>
+                <tr>
+                    <td><?= htmlspecialchars($row['Folio_Traspaso_T'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($row['Contratista'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($row['TecnicoOrigen'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($row['TecnicoDestino'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($row['Cantidad_Traspaso'] ?? '') ?></td>
+                    <td><?= htmlspecialchars($row['Fecha_Traspaso'] ?? '') ?></td>
+                    <td class="acciones-traspaso">
+                        <button type="button"
+                            class="btn btn-info comentario-btn <?= $claseNotificacion ?>"
+                            data-comentario="<?= htmlspecialchars($comentario, ENT_QUOTES, 'UTF-8') ?>"
+                            aria-label="Ver comentario"
+                            title="<?= $tieneComentario ? 'Ver comentario' : 'Sin comentario' ?>">
+                            <i class="fas fa-comment-alt"></i>
+                        </button>
+                        <a href="modal/TraspasoDet.php?id=<?= (int)$row['Folio_Traspaso_T'] ?>">
+                            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalForm">
+                                <i class="fa-solid fa-file-lines"></i>
+                            </button>
+                        </a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
 
 <!-- MODAL DE COMENTARIOS -->
 <div class="modal fade" id="modalComentario" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
@@ -133,19 +146,21 @@
 
 <script>
 	$(document).ready(function () {
-        let table = new DataTable('#ventas', {
+        let table = new DataTable('#traspasos', {
             fixedColumns: {
                 start: 1,
                 end: 1
             },
             responsive:true,
-            'language':{
-                'URL':'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'
-            },
-            "ordering": false,
-            "searching": true,
-				"scrollY": true,
-				"scrollX": true
+            language:{ url:'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'},
+            ordering: true,
+            searching: true,
+		    scrollY: true,
+			scrollX: true,
+            initComplete: function(settings, json) {
+                $('#traspasos-loading').hide();
+                $('#contenedor-tabla-traspasos').css('opacity', '1');
+            }
         });
     
         new DataTable.Buttons(table, {
