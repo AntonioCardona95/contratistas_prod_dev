@@ -28,6 +28,26 @@
     }
 ?>
 <style>
+    .comentario-btn {
+        position: relative;
+    }
+
+    .acciones-traspaso .btn + .btn {
+        margin-left: .25rem;
+    }
+
+    .tiene-comentario::after {
+        content: '';
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        width: 10px;
+        height: 10px;
+        background-color: red;
+        border-radius: 50%;
+        border: 1px solid white;
+    }
+
     #ventas_wrapper .dt-scroll-head th,
     #ventas_wrapper .dt-scroll-foot th,
     #ventas_wrapper .dt-scroll-body td,
@@ -47,7 +67,6 @@
             <th>Tecnico Destino</th>
             <th>Cantidad</th>
             <th>Fecha</th>
-            <th>Comentarios</th>
             <th>Accion</th>
         </tr>
     </thead>
@@ -59,34 +78,59 @@
             <th>Tecnico Destino</th>
             <th>Cantidad</th>
             <th>Fecha</th>
-            <th>Comentarios</th>
             <th>Accion</th>
         </tr>
     </tfoot>
-    <?php
-        if(!empty($filas)){
-            foreach($filas as $row){
-                echo "
-                    <tr>
-                        <td>".$row['Folio_Traspaso_T']."</td>
-                        <td>".$row['Contratista']."</td>
-                        <td>".$row['TecnicoOrigen']."</td>
-                        <td>".$row['TecnicoDestino']."</td>
-                        <td>".$row['Cantidad_Traspaso']."</td>
-                        <td>".$row['Fecha_Traspaso']."</td>
-                        <td>".$row['Comentarios_Traspaso']."</td>
-                        <td>
-                            <a href='modal/TraspasoDet.php?id=".$row['Folio_Traspaso_T']."'>
-                                <button type='button' class='btn btn-danger' data-toggle='modal' data-target='#modalForm'>
-                                    <i class='fa-solid fa-file-lines'></i>
-                                </button>
-                            </a>
-                        </td>
-                    </tr>";
-            }
-        }
-    ?>
+    <tbody>
+        <?php foreach ($filas ?? [] as $row): ?>
+            <?php
+                $comentario = trim((string)($row['Comentarios_Traspaso'] ?? ''));
+                $tieneComentario = $comentario !== '';
+                $claseNotificacion = $tieneComentario ? 'tiene-comentario' : '';
+            ?>
+            <tr>
+                <td><?= htmlspecialchars($row['Folio_Traspaso_T'] ?? '') ?></td>
+                <td><?= htmlspecialchars($row['Contratista'] ?? '') ?></td>
+                <td><?= htmlspecialchars($row['TecnicoOrigen'] ?? '') ?></td>
+                <td><?= htmlspecialchars($row['TecnicoDestino'] ?? '') ?></td>
+                <td><?= htmlspecialchars($row['Cantidad_Traspaso'] ?? '') ?></td>
+                <td><?= htmlspecialchars($row['Fecha_Traspaso'] ?? '') ?></td>
+                <td class="acciones-traspaso">
+                    <button type="button"
+                        class="btn btn-info comentario-btn <?= $claseNotificacion ?>"
+                        data-comentario="<?= htmlspecialchars($comentario, ENT_QUOTES, 'UTF-8') ?>"
+                        aria-label="Ver comentario"
+                        title="<?= $tieneComentario ? 'Ver comentario' : 'Sin comentario' ?>">
+                        <i class="fas fa-comment-alt"></i>
+                    </button>
+                    <a href="modal/TraspasoDet.php?id=<?= (int)$row['Folio_Traspaso_T'] ?>">
+                        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#modalForm">
+                            <i class="fa-solid fa-file-lines"></i>
+                        </button>
+                    </a>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
 </table>
+
+<!-- MODAL DE COMENTARIOS -->
+<div class="modal fade" id="modalComentario" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-header-gradient text-white border-0 align-items-center">
+                <h5 class="modal-title" id="comentarioModalLabel">
+                    <i class="fas fa-comment-alt"></i> Comentarios
+                </h5>
+                <button type="button" class="btn btn-light" data-dismiss="modal" aria-label="Cerrar" id="cerrarModalComentario">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="comentarioTexto"></div>
+        </div>
+    </div>
+</div>
+
 <script>
 	$(document).ready(function () {
         let table = new DataTable('#ventas', {
@@ -119,5 +163,19 @@
             .buttons(0, null)
             .container()
             .prependTo(table.table().container());
+
 	});
+
+    $(document).off('click.traspasosComentarios', '.comentario-btn')
+        .on('click.traspasosComentarios', '.comentario-btn', function () {
+            const comentario = String($(this).data('comentario') || '').trim();
+            $('#comentarioTexto').text(comentario || 'Sin comentarios registrados');
+            $('#modalComentario').modal('show');
+        });
+
+    $(document).off('click.cerrarComentario', '#cerrarModalComentario')
+        .on('click.cerrarComentario', '#cerrarModalComentario', function () {
+            $('#modalComentario').modal('hide');
+        });
+    
 </script>

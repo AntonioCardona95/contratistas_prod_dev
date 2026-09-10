@@ -1,350 +1,245 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
+session_start();
+require_once(__DIR__ . '/../controller/ClassTraspasos.php');
 
-    require_once("../controller/ClassTraspasos.php");
-    session_start();
+if (empty($_SESSION['idContratistas'])) {
+    http_response_code(401);
+    echo '<div class="alert alert-warning mb-0">Sesion no valida.</div>';
+    exit;
+}
 
-    $Contratista = $_SESSION['Contratista'];
-    $idContratistas = $_SESSION['idContratistas'];
-    
-    if (empty($Contratista)) {
+$Folio = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
-        header("location: ../../index.html");
+if (!$Folio) {
+    http_response_code(400);
+    echo '<div class="alert alert-warning mb-0">El folio no es valido.</div>';
+    exit;
+}
+
+$modal = new Traspasos();
+$traspasos = $modal->TraspasoDet($Folio) ?? [];
+?>
+
+<style>
+    .dataTables_wrapper .dt-buttons .btn {
+        margin-right: .25rem;
     }
 
-    $Folio = $_GET['id'];
+    #traspasos-det-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
 
-    $modal = new Traspasos();
-    $salidas_det = $modal->TraspasoDet($Folio);
+    #traspasos-det-cards-container {
+        display: none;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+        width: 100%;
+    }
 
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
+    .traspasos-det-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .1);
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
 
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    .traspasos-det-card-header {
+        background: linear-gradient(90deg, #0f172a 0%, #003d99 100%);
+        color: #fff;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
 
-    <title>ERP - ALMACEN</title>
+    .traspasos-det-card-header h5 {
+        margin: 0;
+        font-size: .95rem;
+        font-weight: 600;
+        flex: 1;
+    }
 
-    <!-- Custom fonts for this template -->
-    <link href="../vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
-    <link
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
-        rel="stylesheet">
-    <script src="https://kit.fontawesome.com/b5137b0dd6.js" crossorigin="anonymous"></script>
+    .traspasos-det-card-header .badge-folio {
+        background: rgba(255, 255, 255, .2);
+        border-radius: 6px;
+        padding: 3px 8px;
+        font-size: .75rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
 
-    <!-- Custom styles for this template -->
-    <link href="../css/sb-admin-2.min.css" rel="stylesheet">
+    .traspasos-det-card-body {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
 
-    <!-- Custom styles for this page -->
-    <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
- 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
-    
-    <script src="https://kit.fontawesome.com/b5137b0dd6.js" crossorigin="anonymous"></script>
+    .traspasos-det-field {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 6px 0;
+        font-size: .9rem;
+    }
 
-</head>
+    .traspasos-det-field-label {
+        color: #6c757d;
+        font-size: .8rem;
+        text-transform: uppercase;
+        font-weight: 500;
+        min-width: 120px;
+    }
 
-<body id="page-top">
+    .traspasos-det-field-value {
+        color: #1f2937;
+        font-size: .9rem;
+        font-weight: 600;
+        text-align: right;
+        word-break: break-word;
+    }
 
-    <!-- Page Wrapper -->
-    <div id="wrapper">
+    @media (max-width: 1200px) {
+        #traspasos-det-cards-container {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+    }
 
-        <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+    @media (max-width: 768px) {
+        #traspasos-det-table-wrapper {
+            display: none !important;
+        }
 
-            <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="../index.html">
-                <div class="sidebar-brand-text mx-3">ALMACEN</div>
-            </a>
+        #traspasos-det-cards-container {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+    }
 
-            <!-- Divider -->
-            <hr class="sidebar-divider my-0">
+    @media (max-width: 576px) {
+        .traspasos-det-card-header {
+            padding: 10px 12px;
+        }
 
-            <!-- Nav Item - Dashboard -->
-            <li class="nav-item active">
-                <a class="nav-link" href="../index.php">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span></a>
-            </li>
+        .traspasos-det-card-body {
+            padding: 12px;
+            gap: 6px;
+        }
 
-            <!-- Divider -->
-            <hr class="sidebar-divider">
+        .traspasos-det-field {
+            flex-direction: column;
+            align-items: flex-start;
+        }
 
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                ACCION
-            </div>
+        .traspasos-det-field-value {
+            text-align: left;
+            width: 100%;
+        }
+    }
+</style>
 
-            <!-- Nav Item - Pages Collapse Menu -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages"
-                    aria-expanded="true" aria-controls="collapsePages">
-                    <i class="fas fa-fw fa-folder"></i>
-                    <span>MODULOS</span>
-                </a>
-                <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">MODULOS</h6>
-                        <a class='collapse-item' href='../index.php'><i class="fa-solid fa-box-open"></i> ALMACEN</a>
-                        <a class='collapse-item' href='../../ops/index.php'><i class="fa-solid fa-school-circle-check"></i> OPERACIONES</a>
-                    </div>
-                </div>
-            </li>
+<div class="traspaso-detalle-contenido">
+    <div id="traspasos-det-buttons-container" class="mb-3"></div>
 
-            <!-- Nav Item - Tables -->
-            <li class="nav-item">
-                <a class="nav-link" href="../entradas.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>ENTRADAS DE MATERIALES</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="../salidas.php">
-                    <i class="fas fa-fw fa-table"></i>
-                    <span>MATERIAL ASIGNADO A MIS TECNICOS</span>
-                </a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
-
-            <!-- Sidebar Toggler (Sidebar) -->
-            <div class="text-center d-none d-md-inline">
-                <button class="rounded-circle border-0" id="sidebarToggle"></button>
-            </div>
-
-        </ul>
-        <!-- End of Sidebar -->
-
-        <!-- Content Wrapper -->
-        <div id="content-wrapper" class="d-flex flex-column">
-
-            <!-- Main Content -->
-            <div id="content">
-
-                <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-
-                    <!-- Sidebar Toggle (Topbar) -->
-                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-                        <i class="fa fa-bars"></i>
-                    </button>
-
-                    <!-- Topbar Search -->
-                    <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search" id="FormQueryUnidades">
-                        <div class="input-group">
-
-                            <input type="date" name="Fecha1" id="Fecha1" class="form-control bg-light border-0 small" onchange="LoadSalidas();" 
-                                aria-label="AL" aria-describedby="basic-addon2">
-
-                            <input type="date" name="Fecha2" id="Fecha2" class="form-control bg-light border-0 small" onchange="LoadSalidas();" 
-                                aria-label="AL" aria-describedby="basic-addon2">
-
-                            <div class="input-group-append">
-                                <button class="btn btn-primary" type="button">
-                                    <i class="fas fa-search fa-sm"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-
-                    <!-- Topbar Navbar -->
-                    <ul class="navbar-nav ml-auto">
-
-                        <div class="topbar-divider d-none d-sm-block"></div>
-
-                        <!-- Nav Item - User Information -->
-                        <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small"><?php echo $Contratista;?></span>
-                                <img class="img-profile rounded-circle"
-                                    src="../img/undraw_profile.svg">
-                            </a>
-                            <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    PERFIL
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    CERRAR SESION
-                                </a>
-                            </div>
-                        </li>
-
-                    </ul>
-
-                </nav>
-                <!-- End of Topbar -->
-
-                <!-- Begin Page Content -->
-                <div class="container-fluid">
-
-                    <!-- Page Heading -->
-                    <h1 class="h3 mb-2 text-gray-800">MATERIAL ASIGNADO FOLIO TRASPASO: <?php echo $Folio; ?></h1>
-
-                    <!-- DataTales Example -->
-                    <table class="table table-bordered display nowrap" style="width:100%" id="ventas">			
-                        <thead>
-                            <tr>
-                                <th>Folio Traspaso</th> 
-                                <th>Contratista</th>
-                                <th>Tecnico Origen</th>
-                                <th>Tecnico Destino</th>
-                                <th>Numero Serie</th>
-                                <th>Fecha</th>
-                            </tr>
-                        </thead>
-                        <tfoot>
-                            <tr>
-                                <th>Folio Traspaso</th> 
-                                <th>Contratista</th>
-                                <th>Tecnico Origen</th>
-                                <th>Tecnico Destino</th>
-                                <th>Numero Serie</th>
-                                <th>Fecha</th>
-                            </tr>
-                        </tfoot>
-                        <?php
-                            if(!empty($salidas_det)){
-                                foreach($salidas_det as $row){
-
-                                    echo "
-                                    <tr>
-                                        <td>".$row['Folio_Traspaso']."</td>
-                                        <td>".$row['Contratista']."</td>
-                                        <td>".$row['TecnicoOrigen']."</td>
-                                        <td>".$row['TecnicoDestino']."</td>
-                                        <td>".$row['Numero_Serie_Tras']."</td>
-                                        <td>".$row['Fecha_Tras']."</td>
-                                    </tr>";
-                                }
-                            }
-                        ?>
-                    </table>
-
-                </div>
-                <!-- /.container-fluid -->
-
-            </div>
-            <!-- End of Main Content -->
-
-            <!-- Footer -->
-            <footer class="sticky-footer bg-white">
-                <div class="container my-auto">
-                    <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; ENLACE DIGITAL 2025</span>
-                    </div>
-                </div>
-            </footer>
-            <!-- End of Footer -->
-
-        </div>
-        <!-- End of Content Wrapper -->
-
-    </div>
-    <!-- End of Page Wrapper -->
-
-    <!-- Scroll to Top Button-->
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
-    
-    <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">CERRAR SESION</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">PRESIONA SALIR, PARA CERRAR LA SESSION.</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">CANCELAR</button>
-                    <a class="btn btn-primary" href="../../Login/modal/poweroff.php">SALIR</a>
-                </div>
-            </div>
-        </div>
+    <div id="traspasos-det-table-wrapper">
+        <table class="table table-bordered display nowrap" style="width:100%" id="traspasosDetalle<?= $Folio ?>">
+            <thead>
+                <tr>
+                    <th>Folio Traspaso</th>
+                    <th>Contratista</th>
+                    <th>Tecnico Origen</th>
+                    <th>Tecnico Destino</th>
+                    <th>Numero Serie</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($traspasos as $traspaso): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($traspaso['Folio_Traspaso'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($traspaso['Contratista'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($traspaso['TecnicoOrigen'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($traspaso['TecnicoDestino'] ?? '') ?></td>
+                        <td><span class="badge badge-primary"><?= htmlspecialchars($traspaso['Numero_Serie_Tras'] ?? '') ?></span></td>
+                        <td><?= htmlspecialchars($traspaso['Fecha_Tras'] ?? '') ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
     </div>
 
-    <!-- Bootstrap core JavaScript-->
-    <script src="../vendor/jquery/jquery.min.js"></script>
-    <script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <div id="traspasos-det-cards-container"></div>
+</div>
 
-    <!-- Core plugin JavaScript-->
-    <script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
+<script>
+(function () {
+    const traspasos = <?= json_encode($traspasos, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) ?>;
+    const folio = <?= json_encode((string)$Folio) ?>;
+    const tarjetas = $('#traspasos-det-cards-container');
 
-    <!-- Custom scripts for all pages-->
-    <script src="../js/sb-admin-2.min.js"></script>
+    function crearCampo(etiqueta, valor) {
+        return '<div class="traspasos-det-field">' +
+            '<span class="traspasos-det-field-label">' + etiqueta + '</span>' +
+            '<strong class="traspasos-det-field-value">' + (valor || 'N/A') + '</strong>' +
+            '</div>';
+    }
 
-    <!-- Page level plugins -->
-    <script src="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.js" integrity="sha384-2Ul6oqy3mEjM7dBJzKOck1Qb/mzlO+k/0BQv3D3C7u+Ri9+7OBINGa24AeOv5rgu" crossorigin="anonymous"></script>
-    <script src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.colVis.min.js"></script>
-    <script src="https://cdn.datatables.net/fixedcolumns/5.0.4/js/fixedColumns.dataTables.js"></script>
-    <script src="https://cdn.datatables.net/fixedcolumns/5.0.4/js/dataTables.fixedColumns.js"></script> 
-    
-    <!-- Page level custom scripts -->
-    <script>
-        $(document).ready(function () {
-            let table = new DataTable('#ventas', {
-                fixedColumns: {
-                    start: 1,
-                    end: 1
-                },
-                responsive:true,
-                'language':{
-                    'URL':'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'
-                },
-                "ordering": false,
-                "searching": true,
-                    "scrollY": true,
-                    "scrollX": true
-            });
-        
-            new DataTable.Buttons(table, {
-                    buttons: [
-                        {
-                            extend:    'excelHtml5',
-                            text:      '<i class="fas fa-file-excel"></i> ',
-                            titleAttr: 'Exportar a Excel',
-                            className: 'btn btn-success'
-                        },
-                        {
-                            extend:    'pdfHtml5',
-                            text:      '<i class="fas fa-file-pdf"></i> ',
-                            titleAttr: 'Exportar a PDF',
-                            className: 'btn btn-danger'
-                        }
-                    ],
-            });
-            
-            table
-                .buttons(0, null)
-                .container()
-                .prependTo(table.table().container());
+    traspasos.forEach(function (traspaso, indice) {
+        tarjetas.append(
+            '<div class="traspasos-det-card">' +
+                '<div class="traspasos-det-card-header">' +
+                    '<h5><i class="fas fa-right-left"></i> Traspaso ' + (indice + 1) + '</h5>' +
+                    '<span class="badge-folio">#' + (indice + 1) + '</span>' +
+                '</div>' +
+                '<div class="traspasos-det-card-body">' +
+                    crearCampo('Folio', traspaso.Folio_Traspaso) +
+                    crearCampo('Contratista', traspaso.Contratista) +
+                    crearCampo('Tecnico origen', traspaso.TecnicoOrigen) +
+                    crearCampo('Tecnico destino', traspaso.TecnicoDestino) +
+                    crearCampo('Numero de serie', traspaso.Numero_Serie_Tras) +
+                    crearCampo('Fecha', traspaso.Fecha_Tras) +
+                '</div>' +
+            '</div>'
+        );
+    });
+
+    if (typeof DataTable !== 'undefined' && traspasos.length > 0) {
+        const tabla = new DataTable('#traspasosDetalle' + folio, {
+            responsive: true,
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'
+            },
+            ordering: false,
+            searching: true,
+            paging: true,
+            scrollX: true,
+            pageLength: 10,
+            initComplete: function () {
+                this.api().columns.adjust();
+            }
         });
-    </script>
 
-</body>
-
-</html>
+        if (typeof DataTable.Buttons !== 'undefined') {
+            const botones = new DataTable.Buttons(tabla, {
+                buttons: [{
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel"></i> Exportar a Excel',
+                    titleAttr: 'Exportar a Excel',
+                    className: 'btn btn-success btn-sm'
+                }]
+            });
+            botones.container().appendTo('#traspasos-det-buttons-container');
+        }
+    }
+}());
+</script>
