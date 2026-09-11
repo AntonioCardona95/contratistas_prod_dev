@@ -274,6 +274,7 @@
 
         var FolioActivo = null;
         var FoliosData = [];
+        var FiltroFolio = '';
 
         $(document).ready(function(){
             CargarFolios();
@@ -305,7 +306,6 @@
                     // ACTUALIZAR CONTADOR DE FOLIOS
                     $('#badge-total-cont').text(data.length);
                     // RENDERIZAR LAS TARJETAS DE FOLIOS
-                    limpiarFiltroFolios();
                     renderizarTarjetas(data);
 
                     // Si había uno activo, mantenerlo seleccionado y recargar sus folios
@@ -336,16 +336,22 @@
 
         //  RENDERIZAR TARJETAS DE FOLIOS
         function renderizarTarjetas(lista) {
+            var filtro = String(FiltroFolio || '').toLowerCase().trim();
+            var listaFiltrada = lista.filter(function (folio) {
+                return String(folio.Folio_Salida_ST || '').toLowerCase().indexOf(filtro) !== -1;
+            });
 
-            if (lista.length === 0) {
+            if (listaFiltrada.length === 0) {
                 $('#lista-folios').html(
-                    '<div class="text-center text-muted py-5">No hay vales en el periodo</div>'
+                    '<div class="text-center text-muted py-5">' +
+                    (filtro ? 'No se encontraron folios' : 'No hay vales en el periodo') +
+                    '</div>'
                 );
                 return;
             }
 
             var html = '';
-            lista.forEach(function (folio) {
+            listaFiltrada.forEach(function (folio) {
                 var numeroFolio = String(folio.Folio_Salida_ST || '');
                 var cantidadSeries = Number(folio.CantidadSeries || 0);
                 var isActive = (FolioActivo && String(FolioActivo.id) === numeroFolio) ? 'selected' : '';
@@ -365,39 +371,14 @@
         }
 
         function filtrarTarjetas(valor) {
-            var filtro = String(valor || '').toLowerCase().trim();
-            var coincidencias = 0;
-
-            $('#lista-folios .cont-card').each(function () {
-                var folio = String($(this).attr('data-folio') || '').toLowerCase();
-                var coincide = folio.indexOf(filtro) !== -1;
-
-                $(this).toggle(coincide);
-                if (coincide) {
-                    coincidencias++;
-                }
-            });
-
-            $('#mensaje-sin-folios').remove();
-            if (coincidencias === 0 && $('#lista-folios .cont-card').length > 0) {
-                $('#lista-folios').append(
-                    '<div id="mensaje-sin-folios" class="text-center text-muted py-3">' +
-                    'No se encontraron folios</div>'
-                );
-            }
+            FiltroFolio = String(valor || '');
+            renderizarTarjetas(FoliosData);
         }
 
         // FILTRAR FOLIOS EN TIEMPO REAL, INCLUSO CUANDO LAS TARJETAS SE RECARGAN POR AJAX.
         $(document).on('input', '#buscadorFolio', function () {
             filtrarTarjetas(this.value);
         });
-
-        // LIMPIAR EL FILTRO CUANDO SE VUELVE A CARGAR LA LISTA DE FOLIOS.
-        function limpiarFiltroFolios() {
-            $('#buscadorFolio').val('');
-            $('#mensaje-sin-folios').remove();
-            $('#lista-folios .cont-card').show();
-        }
 
         // SELECCIONAR FOLIO
         function seleccionarFolio(id) {

@@ -45,6 +45,21 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			animation: pulso-navegacion 2s ease-in-out infinite;
 		}
 
+		#tac_series_tabla tbody tr.serie-alerta-eci {
+			background-color: #ffe1e1 !important;
+			box-shadow: inset 5px 0 0 #e74a3b;
+		}
+
+		.duplicado-registro-elegido {
+			background-color: #dff6ff !important;
+			color: #0056b3;
+			font-weight: 700;
+		}
+
+		.modal-header-gradient {
+			background: linear-gradient(90deg, #0f172a 0%, #003d99 100%) !important;
+		}
+
 		#tac-controls-container {
 			display: flex;
 			align-items: center;
@@ -107,6 +122,11 @@ $totalPendientes = $totalSeries - $totalNavegando;
 		.tac-serie-card.navegando {
 			border-left-color: #0aa2c0;
 			background: #dff6ff;
+		}
+
+		.tac-serie-card.alerta-eci {
+			border-left-color: #e74a3b;
+			background: #ffe1e1;
 		}
 
 		.tac-serie-card-header {
@@ -332,8 +352,9 @@ $totalPendientes = $totalSeries - $totalNavegando;
 				<?php
 					$numeroSerie = $serie['Num_Serie_S'] ?? '';
 					$navegando = (int)($serie['Navegando'] ?? 0) === 1;
+					$alertaEciPendiente = (int)($serie['Alerta_Eci_Pendiente'] ?? 0) === 1;
 				?>
-				<tr class="<?= $navegando ? 'serie-navegando' : '' ?>">
+				<tr class="<?= $navegando ? 'serie-navegando' : ($alertaEciPendiente ? 'serie-alerta-eci' : '') ?>">
 					<td><?= htmlspecialchars($serie['Producto'] ?? '') ?></td>
 					<td><?= htmlspecialchars($numeroSerie) ?></td>
 					<td><?= htmlspecialchars($serie['Folio_Salida_Det'] ?? 'Sin asignar') ?></td>
@@ -414,11 +435,11 @@ $totalPendientes = $totalSeries - $totalNavegando;
 <div class="modal fade" id="modalDuplicadosNavegacion" tabindex="-1" role="dialog" aria-labelledby="modalDuplicadosNavegacionTitulo" aria-hidden="true">
 	<div class="modal-dialog modal-lg" role="document">
 		<div class="modal-content">
-			<div class="modal-header">
+			<div class="modal-header modal-header-gradient text-white border-0">
 				<h5 class="modal-title" id="modalDuplicadosNavegacionTitulo">Detalle de duplicados</h5>
-				<button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
-					<span aria-hidden="true">&times;</span>
-				</button>
+				<button class="btn btn-light" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">x</span>
+                    </button>
 			</div>
 			<div class="modal-body" id="modalDuplicadosNavegacionContenido"></div>
 		</div>
@@ -480,6 +501,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			const registros = esTac
 				? (serie.Detalles_Duplicado_Tac || [])
 				: (serie.Detalles_Duplicado_Coordiapp || []);
+			const telefonoEci = String(serie.Telefono_Eci || '').replace(/\D/g, '');
 			const nombreFuente = esTac ? 'TAC' : 'Coordiapp';
 			let contenido = '<p><strong>Numero de serie:</strong> ' + escaparHtml(serie.Num_Serie_S) + '</p>';
 			contenido += '<p><strong>Fuente:</strong> ' + nombreFuente + '</p>';
@@ -489,7 +511,9 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			contenido += '</tr></thead><tbody>';
 
 			registros.forEach(function (registro) {
-				contenido += '<tr>';
+				const telefonoRegistro = String(registro.TELEFONO || registro.Telefono || '').replace(/\D/g, '');
+				const esRegistroElegido = telefonoEci !== '' && telefonoRegistro === telefonoEci;
+				contenido += '<tr class="' + (esRegistroElegido ? 'duplicado-registro-elegido' : '') + '">';
 				contenido += '<td>' + escaparHtml(esTac ? registro.Num__Serie : registro.Ont) + '</td>';
 				contenido += '<td>' + escaparHtml(registro.TELEFONO || registro.Telefono || 'Sin dato') + '</td>';
 				contenido += esTac
@@ -524,7 +548,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 				}
 
 				const estado = estaNavegando ? 'Navegando' : 'No navegando';
-				const claseTarjeta = estaNavegando ? ' navegando' : '';
+				const claseTarjeta = estaNavegando ? ' navegando' : (Number(serie.Alerta_Eci_Pendiente || 0) === 1 ? ' alerta-eci' : '');
 
 				const tarjeta =
 					'<article class="tac-serie-card' + claseTarjeta + '">' +
@@ -563,13 +587,13 @@ $totalPendientes = $totalSeries - $totalNavegando;
 
 		renderizarTarjetas(filtroEstado);
 
-		$.fn.dataTable.ext.search.push(function (configuracion, datos, indiceFila) {
-			if (configuracion.nTable.id !== 'tac_series_tabla' || filtroEstado === '') {
+		tabla.search.fixed('estadoNavegacion', function (textoBusqueda, datos, indiceFila) {
+			if (filtroEstado === '') {
 				return true;
 			}
 
-			const fila = configuracion.aoData[indiceFila].nTr;
-			const estaNavegando = fila.classList.contains('serie-navegando');
+			const fila = tabla.row(indiceFila).node();
+			const estaNavegando = fila && fila.classList.contains('serie-navegando');
 
 			return filtroEstado === 'navegando'
 				? estaNavegando
