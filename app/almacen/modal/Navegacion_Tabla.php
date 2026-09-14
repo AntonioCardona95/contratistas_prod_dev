@@ -45,9 +45,19 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			animation: pulso-navegacion 2s ease-in-out infinite;
 		}
 
-		#tac_series_tabla tbody tr.serie-alerta-eci {
+		#tac_series_tabla tbody tr.serie-rojo {
 			background-color: #ffe1e1 !important;
 			box-shadow: inset 5px 0 0 #e74a3b;
+		}
+
+		#tac_series_tabla tbody tr.serie-gris {
+			background-color: #e9ecef !important;
+			box-shadow: inset 5px 0 0 #6c757d;
+		}
+
+		#tac_series_tabla tbody tr.serie-amarillo {
+			background-color: #fff3cd !important;
+			box-shadow: inset 5px 0 0 #f6c23e;
 		}
 
 		.duplicado-registro-elegido {
@@ -86,7 +96,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 		}
 
 		#filtro-estado-series {
-			max-width: 220px;
+			max-width: 260px;
 		}
 
 		#tac_series_tabla {
@@ -122,6 +132,21 @@ $totalPendientes = $totalSeries - $totalNavegando;
 		.tac-serie-card.navegando {
 			border-left-color: #0aa2c0;
 			background: #dff6ff;
+		}
+
+		.tac-serie-card.alerta-eci {
+			border-left-color: #e74a3b;
+			background: #ffe1e1;
+		}
+
+		.tac-serie-card.gris {
+			border-left-color: #6c757d;
+			background: #e9ecef;
+		}
+
+		.tac-serie-card.amarillo {
+			border-left-color: #f6c23e;
+			background: #fff3cd;
 		}
 
 		.tac-serie-card.alerta-eci {
@@ -325,7 +350,11 @@ $totalPendientes = $totalSeries - $totalNavegando;
 		<select id="filtro-estado-series" class="form-control">
 			<option value="">Todos</option>
 			<option value="navegando">Navegando (<?= $totalNavegando ?>)</option>
-			<option value="pendiente">No navegando (<?= $totalPendientes ?>)</option>
+			<option value="no-navegando">No navegando (<?= $totalPendientes ?>)</option>
+			<option value="rojo">Rojo: seguimiento</option>
+			<option value="gris">Gris: telefonos diferentes</option>
+			<option value="amarillo">Amarillo: Navegacion reciente</option>
+			<option value="blanco">Blanco: sin liquidacion</option>
 		</select>
 	</div>
 
@@ -344,6 +373,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 				<th>Telefono Navegando</th>
 				<th>Fecha consulta Navegando</th>
 				<th>Navegando</th>
+				<th>Motivo</th>
 				<th>Duplicados</th>
 			</tr>
 		</thead>
@@ -352,9 +382,10 @@ $totalPendientes = $totalSeries - $totalNavegando;
 				<?php
 					$numeroSerie = $serie['Num_Serie_S'] ?? '';
 					$navegando = (int)($serie['Navegando'] ?? 0) === 1;
-					$alertaEciPendiente = (int)($serie['Alerta_Eci_Pendiente'] ?? 0) === 1;
+					$estadoNavegacion = $serie['Estado_Navegacion'] ?? 'blanco';
+					$motivos = $serie['Motivos_No_Navegacion'] ?? array();
 				?>
-				<tr class="<?= $navegando ? 'serie-navegando' : ($alertaEciPendiente ? 'serie-alerta-eci' : '') ?>">
+				<tr class="serie-<?= htmlspecialchars($estadoNavegacion) ?>" data-estado-navegacion="<?= htmlspecialchars($estadoNavegacion) ?>">
 					<td><?= htmlspecialchars($serie['Producto'] ?? '') ?></td>
 					<td><?= htmlspecialchars($numeroSerie) ?></td>
 					<td><?= htmlspecialchars($serie['Folio_Salida_Det'] ?? 'Sin asignar') ?></td>
@@ -376,6 +407,9 @@ $totalPendientes = $totalSeries - $totalNavegando;
 								No
 							<?php endif; ?>
 						</span>
+					</td>
+					<td class="motivo-navegacion">
+						<?= $navegando ? 'Navegando correctamente' : htmlspecialchars(implode('; ', $motivos)) ?>
 					</td>
 					<td>
 						<?php if (!empty($serie['Duplicado_Tac'])): ?>
@@ -538,17 +572,23 @@ $totalPendientes = $totalSeries - $totalNavegando;
 
 			series.forEach(function (serie, indice) {
 				const estaNavegando = Number(serie.Navegando || 0) === 1;
+				const estadoNavegacion = serie.Estado_Navegacion || 'blanco';
 
 				if (filtroActual === 'navegando' && !estaNavegando) {
 					return;
 				}
 
-				if (filtroActual === 'pendiente' && estaNavegando) {
+				if (filtroActual === 'no-navegando' && estaNavegando) {
+					return;
+				}
+
+				if (['rojo', 'gris', 'amarillo', 'blanco'].indexOf(filtroActual) !== -1 && estadoNavegacion !== filtroActual) {
 					return;
 				}
 
 				const estado = estaNavegando ? 'Navegando' : 'No navegando';
-				const claseTarjeta = estaNavegando ? ' navegando' : (Number(serie.Alerta_Eci_Pendiente || 0) === 1 ? ' alerta-eci' : '');
+				const claseTarjeta = estaNavegando ? ' navegando' : ' ' + (estadoNavegacion === 'rojo' ? 'alerta-eci' : estadoNavegacion);
+				const motivos = (serie.Motivos_No_Navegacion || []).join('; ');
 
 				const tarjeta =
 					'<article class="tac-serie-card' + claseTarjeta + '">' +
@@ -569,6 +609,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 							'<div class="tac-serie-card-field"><span>Fecha liquidacion TAC</span><strong>' + escaparHtml(serie.Fecha_Liquidacion_Tac || 'Sin dato') + '</strong></div>' +
 							'<div class="tac-serie-card-field"><span>Telefono ECI</span><strong>' + escaparHtml(serie.Telefono_Eci || 'Sin dato') + '</strong></div>' +
 							'<div class="tac-serie-card-field"><span>Fecha consulta ECI</span><strong>' + escaparHtml(serie.Fecha_Consulta_Eci || 'Sin dato') + '</strong></div>' +
+							'<div class="tac-serie-card-field"><span>Motivo</span><strong>' + escaparHtml(estaNavegando ? 'Navegando correctamente' : motivos) + '</strong></div>' +
 							'<div class="tac-serie-card-field"><span>Duplicados</span><strong>' +
 								(serie.Duplicado_Tac ? '<button type="button" class="btn btn-warning btn-sm ver-duplicado mr-1" data-tipo-duplicado="tac" data-indice-serie="' + indice + '">Duplicado TAC</button>' : '') +
 								(serie.Duplicado_Coordiapp ? '<button type="button" class="btn btn-info btn-sm ver-duplicado" data-tipo-duplicado="coordiapp" data-indice-serie="' + indice + '">Duplicado Coordiapp</button>' : '') +
@@ -593,11 +634,17 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			}
 
 			const fila = tabla.row(indiceFila).node();
-			const estaNavegando = fila && fila.classList.contains('serie-navegando');
+			const estadoFila = fila ? fila.getAttribute('data-estado-navegacion') : '';
 
-			return filtroEstado === 'navegando'
-				? estaNavegando
-				: !estaNavegando;
+			if (filtroEstado === 'navegando') {
+				return estadoFila === 'navegando';
+			}
+
+			if (filtroEstado === 'no-navegando') {
+				return estadoFila !== 'navegando';
+			}
+
+			return estadoFila === filtroEstado;
 		});
 
 		$('#filtro-estado-series').on('change', function () {

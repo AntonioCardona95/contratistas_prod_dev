@@ -179,6 +179,9 @@
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h2 class="h3 mb-0 text-gray-800">
                             Navegacion de Numeros de Serie <i class="fa-brands fa-tailwind-css"></i>
+                            <button type="button" class="btn btn-link btn-sm p-0 ml-1 text-info" data-toggle="modal" data-target="#modalLeyendaNavegacion" aria-label="Ver significado de los colores" title="Significado de los colores">
+                                <i class="fas fa-question-circle" aria-hidden="true"></i>
+                            </button>
                         </h2>
                         <?php $selectorCallback = 'CargarFolios'; include_once(__DIR__ . '/../components/SelectorContratista.php'); ?>
                     </div>
@@ -267,6 +270,24 @@
     
     <!-- MODAL DE CIERRE DE SESION -->
     <?php include_once(__DIR__ . '/../components/ModalCierreSesion.php'); ?>
+
+    <div class="modal fade" id="modalLeyendaNavegacion" tabindex="-1" role="dialog" aria-labelledby="modalLeyendaNavegacionTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-header-gradient text-white border-0">
+                    <h5 class="modal-title" id="modalLeyendaNavegacionTitulo">Significado de los colores</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <p><span class="badge badge-info mr-2">Azul</span> La serie esta navegando correctamente.</p>
+                    <p><span class="badge badge-danger mr-2">Rojo</span> Tiene una liquidacion de mas de 14 dias y no aparece Navegando. Requiere seguimiento.</p>
+                    <p><span class="badge badge-secondary mr-2">Gris</span> Existe Navegacion, pero algun telefono de TAC o Coordiapp no coincide.</p>
+                    <p><span class="badge badge-warning mr-2">Amarillo</span> Los telefonos coinciden, pero la Navegacion aun no cumple 3 dias desde la liquidacion.</p>
+                    <p><span class="badge badge-light border mr-2">Blanco</span> No hay Liquidacion para clasificar la serie.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
 

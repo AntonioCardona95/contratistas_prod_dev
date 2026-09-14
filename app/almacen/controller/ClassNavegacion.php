@@ -360,7 +360,6 @@ class Navegacion extends Conexion
             $registroEciMasReciente = array();
 
             foreach ($registrosEciSerie as $registroEci) {
-                $telefonoEci = $this->normalizarTelefono($registroEci['TELEFONO'] ?? '');
                 $fechaConsultaEci = strtotime($registroEci['F_CONSULTA'] ?? '');
                 $fechaConsultaEci = $fechaConsultaEci === false ? 0 : $fechaConsultaEci;
 
@@ -379,8 +378,6 @@ class Navegacion extends Conexion
             $registroTac = $tacPorSerie[$serieNormalizada] ?? array();
             $registroEci = $eciPorSerie[$serieNormalizada] ?? array();
 
-            $telefonoCoordiapp = $this->normalizarTelefono($serie['Telefono_Coordiapp'] ?? '');
-            $telefonoTac = $this->normalizarTelefono($registroTac['TELEFONO'] ?? '');
             $telefonoEci = $this->normalizarTelefono($registroEci['TELEFONO'] ?? '');
 
             // CUANDO ECI RESUELVE UN DUPLICADO, MOSTRAR EN LA TABLA EL REGISTRO
@@ -403,15 +400,6 @@ class Navegacion extends Conexion
 
             $telefonoCoordiappSeleccionado = $this->normalizarTelefono($registroCoordiappSeleccionado['Telefono'] ?? '');
             $telefonoTacSeleccionado = $this->normalizarTelefono($registroTacSeleccionado['TELEFONO'] ?? '');
-            $telefonosFuente = array_values(array_filter(array($telefonoCoordiapp, $telefonoTac)));
-            $telefonosFuenteSeleccionados = array_values(array_filter(array($telefonoCoordiappSeleccionado, $telefonoTacSeleccionado)));
-            $telefonosRegistrados = array_values(array_filter(array($telefonoCoordiappSeleccionado, $telefonoTacSeleccionado, $telefonoEci)));
-            $esDuplicada = !empty($serie['Duplicado_Tac']) || !empty($serie['Duplicado_Coordiapp']);
-
-            // SI EXISTEN TELÉFONOS EN VARIAS PLATAFORMAS, TODOS DEBEN COINCIDIR.
-            $telefonosCoinciden = $esDuplicada
-                ? ($telefonoEci !== '' && in_array($telefonoEci, array_merge($telefonosFuente, $telefonosFuenteSeleccionados), true))
-                : count(array_unique($telefonosRegistrados)) <= 1;
 
             $fechaCoordiapp = $registroCoordiappSeleccionado['Fecha_Coordiapp'] ?? null;
             $fechaTac = $registroTacSeleccionado['FECHA_LIQ'] ?? null;
@@ -458,9 +446,62 @@ class Navegacion extends Conexion
                 $serie['Alerta_Eci_Pendiente'] = strtotime($fechaLiquidacionMasAntigua) <= strtotime('-14 days') ? 1 : 0;
             }
 
-            // NAVEGA SI ECI ESTÁ ACTIVO, EL TELEFONO ES CONSISTENTE Y LA FECHA ES VÁLIDA.
+            $motivosNoNavegacion = array();
+            $hayCoordiapp = $telefonoCoordiappSeleccionado !== '';
+            $hayTac = $telefonoTacSeleccionado !== '';
+            $hayEci = !empty($registroEci);
+            $fuentesConTelefono = array_values(array_filter(array(
+                $telefonoCoordiappSeleccionado,
+                $telefonoTacSeleccionado,
+                $telefonoEci
+            )));
+            $telefonosCoinciden = count(array_unique($fuentesConTelefono)) <= 1;
+
+            if ($hayEci && $hayCoordiapp && $telefonoCoordiappSeleccionado !== $telefonoEci) {
+                $motivosNoNavegacion[] = 'El telefono de Coordiapp no coincide el de la Navegacion';
+            }
+
+            if ($hayEci && $hayTac && $telefonoTacSeleccionado !== $telefonoEci) {
+                $motivosNoNavegacion[] = 'El telefono de TAC no coincide con el Navegando';
+            }
+
+            if (!empty($serie['Duplicado_Coordiapp'])) {
+                $motivosNoNavegacion[] = 'Serie duplicada en Coordiapp';
+            }
+
+            if (!empty($serie['Duplicado_Tac'])) {
+                $motivosNoNavegacion[] = 'Serie duplicada en TAC';
+            }
+
+            if ($hayEci && ($hayCoordiapp || $hayTac) && $telefonosCoinciden && !$fechaEciValida) {
+                $motivosNoNavegacion[] = 'La Navegacion aun no cumple 3 dias desde la liquidacion';
+            }
+
+            if (!$hayCoordiapp && !$hayTac && !$hayEci) {
+                $motivosNoNavegacion[] = 'Sin registros en Coordiapp, TAC o Navegacion';
+            }
+
+            if ((int)$serie['Alerta_Eci_Pendiente'] === 1) {
+                $motivosNoNavegacion[] = 'Liquidacion con mas de 14 dias sin Navegacion';
+            }
+
+            // NAVEGA SI ECI ESTA ACTIVO, EL TELEFONO ES CONSISTENTE Y LA FECHA ES VALIDA.
             $eciActivo = !empty($registroEci) && (int)($registroEci['DID_ACTIVO'] ?? 0) === 1;
-            $serie['Navegando'] = $eciActivo && $telefonosCoinciden && $fechaEciValida ? 1 : 0;
+            $navegando = $eciActivo && $telefonosCoinciden && $fechaEciValida;
+            $serie['Navegando'] = $navegando ? 1 : 0;
+            $serie['Motivos_No_Navegacion'] = $navegando ? array() : $motivosNoNavegacion;
+
+            if ($navegando) {
+                $serie['Estado_Navegacion'] = 'navegando';
+            } elseif ((int)$serie['Alerta_Eci_Pendiente'] === 1) {
+                $serie['Estado_Navegacion'] = 'rojo';
+            } elseif ($hayEci && ($hayCoordiapp || $hayTac) && !$telefonosCoinciden) {
+                $serie['Estado_Navegacion'] = 'gris';
+            } elseif ($hayEci && ($hayCoordiapp || $hayTac) && $telefonosCoinciden && !$fechaEciValida) {
+                $serie['Estado_Navegacion'] = 'amarillo';
+            } else {
+                $serie['Estado_Navegacion'] = 'blanco';
+            }
         }
         unset($serie);
 
