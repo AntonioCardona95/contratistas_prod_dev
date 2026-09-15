@@ -540,7 +540,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			let contenido = '<p><strong>Numero de serie:</strong> ' + escaparHtml(serie.Num_Serie_S) + '</p>';
 			contenido += '<p><strong>Fuente:</strong> ' + nombreFuente + '</p>';
 			contenido += '<div class="table-responsive"><table class="table table-sm table-bordered mb-0"><thead><tr>';
-			contenido += '<th>Numero de serie</th><th>Telefono</th>';
+			contenido += '<th>Numero de serie</th><th>Telefono</th><th>Tipo de tarea</th>';
 			contenido += esTac ? '<th>Fecha liquidacion</th><th>Estado</th>' : '<th>Fecha Coordiapp</th>';
 			contenido += '</tr></thead><tbody>';
 
@@ -550,6 +550,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 				contenido += '<tr class="' + (esRegistroElegido ? 'duplicado-registro-elegido' : '') + '">';
 				contenido += '<td>' + escaparHtml(esTac ? registro.Num__Serie : registro.Ont) + '</td>';
 				contenido += '<td>' + escaparHtml(registro.TELEFONO || registro.Telefono || 'Sin dato') + '</td>';
+				contenido += '<td>' + escaparHtml(esTac ? registro.Tipo_de_Tarea_Clasificado : registro.Tipo_Tarea_Clasificado || 'Otros') + '</td>';
 				contenido += esTac
 					? '<td>' + escaparHtml(registro.FECHA_LIQ || 'Sin dato') + '</td><td>' + escaparHtml(registro.Calificador_Edo || 'Sin dato') + '</td>'
 					: '<td>' + escaparHtml(registro.Fecha_Coordiapp || 'Sin dato') + '</td>';

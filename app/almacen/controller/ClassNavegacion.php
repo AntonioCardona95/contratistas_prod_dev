@@ -75,6 +75,37 @@ class Navegacion extends Conexion
         return preg_replace('/\D/', '', (string)$telefono);
     }
 
+    protected function clasificarTipoTarea($tipoTarea)
+    {
+        $tipo = strtoupper(trim((string)$tipoTarea));
+
+        if ($tipo === '') {
+            return 'Otros';
+        }
+
+        if (preg_match('/^A4/', $tipo)) {
+            return 'A4';
+        }
+
+        if (preg_match('/^(FC|TI|TS|TV)/', $tipo)) {
+            return 'Migraciones';
+        }
+
+        if (preg_match('/^(CD|D)/', $tipo)) {
+            return 'Cambios';
+        }
+
+        if (preg_match('/^(Q|R|C|EB|EI|EU|GD|MG|F597|F841)/', $tipo)) {
+            return 'Quejas';
+        }
+
+        if (preg_match('/^A(?!4)/', $tipo)) {
+            return 'Altas';
+        }
+
+        return 'Otros';
+    }
+
     //================ CONSULTAS DE NAVAGACION ===================
 
     // OBTENER FOLIOS PARA UN CONTRATISTA
@@ -175,7 +206,7 @@ class Navegacion extends Conexion
             }
 
             $registrosCoordiapp = $this->runQuery(
-                "SELECT Ont, Telefono, Fecha_Coordiapp
+                "SELECT Ont, Telefono, Fecha_Coordiapp, Tipo_Tarea
                  FROM View_Detalle_Coordiapp_Completadas
                  WHERE Ont IN (" . implode(',', $marcadoresCoordiapp) . ")",
                 $parametrosCoordiapp
@@ -185,6 +216,7 @@ class Navegacion extends Conexion
             foreach ($registrosCoordiapp as $registroCoordiapp) {
                 $serieCoordiapp = $this->normalizarSerie($registroCoordiapp['Ont'] ?? '');
                 if ($serieCoordiapp !== '') {
+                    $registroCoordiapp['Tipo_Tarea_Clasificado'] = $this->clasificarTipoTarea($registroCoordiapp['Tipo_Tarea'] ?? '');
                     $coordiappRegistrosPorSerie[$serieCoordiapp][] = $registroCoordiapp;
                 }
             }
@@ -243,7 +275,7 @@ class Navegacion extends Conexion
             $seriesParaTac = array_keys($seriesUnicas);
             $marcadoresTac = implode(',', array_fill(0, count($seriesParaTac), '?'));
             $registrosTac = $this->runAnalysisQuery(
-                "SELECT Num__Serie, TELEFONO, FECHA_LIQ, Calificador_Edo
+                "SELECT Num__Serie, TELEFONO, FECHA_LIQ, Calificador_Edo, Tipo_de_Tarea
                  FROM qm_tac
                  WHERE Num__Serie IN ($marcadoresTac)
                     AND Calificador_Edo = 'COMPLETADA'
@@ -255,6 +287,7 @@ class Navegacion extends Conexion
             foreach ($registrosTac as $registroTac) {
                 $serieTac = $this->normalizarSerie($registroTac['Num__Serie'] ?? '');
                 if ($serieTac !== '') {
+                    $registroTac['Tipo_de_Tarea_Clasificado'] = $this->clasificarTipoTarea($registroTac['Tipo_de_Tarea'] ?? '');
                     $tacRegistrosPorSerie[$serieTac][] = $registroTac;
                 }
             }
