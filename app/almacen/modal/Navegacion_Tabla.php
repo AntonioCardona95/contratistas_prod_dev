@@ -202,7 +202,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 
 		#tac_series_tabla th:nth-child(1),
 		#tac_series_tabla td:nth-child(1) {
-			min-width: 220px;
+			min-width: 70px;
 		}
 
 		#tac_series_tabla th:nth-child(2),
@@ -217,7 +217,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 
 		#tac_series_tabla th:nth-child(4),
 		#tac_series_tabla td:nth-child(4) {
-			min-width: 260px;
+			min-width: 200px;
 			white-space: normal;
 		}
 
@@ -361,6 +361,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 	<table id="tac_series_tabla" class="table table-bordered table-hover" style="width:100%">
 		<thead>
 			<tr>
+				<th>Folio Salida</th>
 				<th>Modelo</th>
 				<th>Numero de serie</th>
 				<th>Folio asignacion</th>
@@ -386,6 +387,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 					$motivos = $serie['Motivos_No_Navegacion'] ?? array();
 				?>
 				<tr class="serie-<?= htmlspecialchars($estadoNavegacion) ?>" data-estado-navegacion="<?= htmlspecialchars($estadoNavegacion) ?>">
+					<td><?= htmlspecialchars($serie['Folio_Salida_Material_Det_S'] ?? 'Sin folio') ?></td>
 					<td><?= htmlspecialchars($serie['Producto'] ?? '') ?></td>
 					<td><?= htmlspecialchars($numeroSerie) ?></td>
 					<td><?= htmlspecialchars($serie['Folio_Salida_Det'] ?? 'Sin asignar') ?></td>

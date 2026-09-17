@@ -49,7 +49,7 @@ class Navegacion extends Conexion
     {
         $rows = array();
         // TAC y ECI están en analisis_bd, por eso usan otra conexión.
-        $conexionAnalisis = $this->conexion_navegacion();
+        $conexionAnalisis = $this->get_conexion_analytics();
 
         try {
             $statement = $conexionAnalisis->prepare($sql);
@@ -121,8 +121,8 @@ class Navegacion extends Conexion
                 WHERE
                     p.Tipo_Proyecto IN ('ONT', 'Modem') AND
                     t.FK_Contra_ST = COALESCE(NULLIF(:contratistaId, 0), t.FK_Contra_ST) AND
-                    DATE(Fecha_Salida_ST) BETWEEN :fechaInicio AND :fechaFin
-                GROUP BY t.Folio_Salida_ST, t.Fecha_Salida_ST
+                    DATE(m.Fecha_Salida_S) BETWEEN :fechaInicio AND :fechaFin
+                GROUP BY t.Folio_Salida_ST
                 ORDER BY t.Folio_Salida_ST DESC";
 
         $params = array(
@@ -141,6 +141,7 @@ class Navegacion extends Conexion
         // SOLO SE CONSIDERAN MATERIALES DEL TIPO ONT Y MODEM.
         $sql = "SELECT
                     m.Num_Serie_S,
+                    m.Folio_Salida_Material_Det_S,
                     p.Producto,
                     s.Folio_Salida_Det,
                     s.Fecha_Salida_Det,
