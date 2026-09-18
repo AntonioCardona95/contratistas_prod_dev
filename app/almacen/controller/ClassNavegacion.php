@@ -137,6 +137,26 @@ class Navegacion extends Conexion
     // OBTENER LAS SERIES Y SU ESTADO PARA UN FOLIO
     public function ObtenerDetalleFolio($folio, $contratistaId)
     {
+        return $this->ObtenerDetalleFolios(array($folio), $contratistaId);
+    }
+
+    // OBTENER LAS SERIES Y SU ESTADO PARA VARIOS FOLIOS EN UNA SOLA EJECUCION
+    public function ObtenerDetalleFolios($folios, $contratistaId)
+    {
+        $folios = array_values(array_filter(array_map('intval', (array)$folios)));
+        if (empty($folios)) {
+            return array();
+        }
+
+        $marcadoresFolios = array();
+        $parametrosFolios = array();
+        foreach ($folios as $indice => $folioId) {
+            $marcador = ':folio_' . $indice;
+            $marcadoresFolios[] = $marcador;
+            $parametrosFolios[$marcador] = $folioId;
+        }
+        $parametrosFolios[':contratistaId'] = $contratistaId;
+
         // 1. OBTENER LAS SERIES DEL FOLIO DESDE LAS TABLAS DE ALMACÉN.
         // SOLO SE CONSIDERAN MATERIALES DEL TIPO ONT Y MODEM.
         $sql = "SELECT
@@ -158,15 +178,12 @@ class Navegacion extends Conexion
                     ON m.Num_Serie_S = s.Num_Serie_Salida_Det
                 LEFT JOIN tecnicos AS t
                     ON s.FK_Tecnico_Salida_Det = t.idTecnico
-                WHERE transferencia.Folio_Salida_ST = :folio
+                WHERE transferencia.Folio_Salida_ST IN (" . implode(',', $marcadoresFolios) . ")
                     AND transferencia.FK_Contra_ST = COALESCE(NULLIF(:contratistaId, 0), transferencia.FK_Contra_ST)
                     AND p.Tipo_Proyecto IN ('ONT', 'Modem')
-                ORDER BY p.Producto, m.Num_Serie_S";
+                ORDER BY transferencia.Folio_Salida_ST DESC, p.Producto, m.Num_Serie_S";
 
-        $series = $this->runQuery($sql, array(
-            ':folio' => $folio,
-            ':contratistaId' => $contratistaId
-        ));
+        $series = $this->runQuery($sql, $parametrosFolios);
 
         if (empty($series)) {
             return array();
@@ -519,6 +536,10 @@ class Navegacion extends Conexion
                 $motivosNoNavegacion[] = 'Liquidacion con mas de 14 dias sin Navegacion';
             }
 
+            if (!$hayEci && ($hayCoordiapp || $hayTac) && (int)$serie['Alerta_Eci_Pendiente'] !== 1) {
+                $motivosNoNavegacion[] = 'Liquidacion reciente sin Navegacion';
+            }
+
             // NAVEGA SI ECI ESTA ACTIVO, EL TELEFONO ES CONSISTENTE Y LA FECHA ES VALIDA.
             $eciActivo = !empty($registroEci) && (int)($registroEci['DID_ACTIVO'] ?? 0) === 1;
             $navegando = $eciActivo && $telefonosCoinciden && $fechaEciValida;
@@ -533,6 +554,8 @@ class Navegacion extends Conexion
                 $serie['Estado_Navegacion'] = 'gris';
             } elseif ($hayEci && ($hayCoordiapp || $hayTac) && $telefonosCoinciden && !$fechaEciValida) {
                 $serie['Estado_Navegacion'] = 'amarillo';
+            } elseif (!$hayEci && ($hayCoordiapp || $hayTac)) {
+                $serie['Estado_Navegacion'] = 'verde';
             } else {
                 $serie['Estado_Navegacion'] = 'blanco';
             }

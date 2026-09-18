@@ -60,6 +60,11 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			box-shadow: inset 5px 0 0 #f6c23e;
 		}
 
+		#tac_series_tabla tbody tr.serie-verde {
+			background-color: #d4edda !important;
+			box-shadow: inset 5px 0 0 #28a745;
+		}
+
 		.duplicado-registro-elegido {
 			background-color: #dff6ff !important;
 			color: #0056b3;
@@ -149,9 +154,9 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			background: #fff3cd;
 		}
 
-		.tac-serie-card.alerta-eci {
-			border-left-color: #e74a3b;
-			background: #ffe1e1;
+		.tac-serie-card.verde {
+			border-left-color: #28a745;
+			background: #d4edda;
 		}
 
 		.tac-serie-card-header {
@@ -354,6 +359,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			<option value="rojo">Rojo: seguimiento</option>
 			<option value="gris">Gris: telefonos diferentes</option>
 			<option value="amarillo">Amarillo: Navegacion reciente</option>
+			<option value="verde">Verde: pendiente reciente</option>
 			<option value="blanco">Blanco: sin liquidacion</option>
 		</select>
 	</div>
@@ -496,19 +502,17 @@ $totalPendientes = $totalSeries - $totalNavegando;
 
 		const opcionesTabla = {
 			responsive: true,
-			language: {
-				url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'
-			},
+			language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
 			ordering: true,
 			searching: true,
 			paging: true,
 			lengthChange: true,
 			scrollX: true,
-			lengthMenu: [10, 25, 50, 100],
 			pageLength: 10,
+			info: true,
 			dom: '<"d-flex justify-content-between align-items-center mb-2" lf>' +
 				'rt' +
-				'<"row"<"col-md-12 text-right mt-2"p>>'
+				'<"row"<"col-md-6 text-left mt-2"i><"col-md-6 text-right mt-2"p>>'
 		};
 
 		const tabla = new DataTable('#tac_series_tabla', opcionesTabla);
@@ -518,7 +522,15 @@ $totalPendientes = $totalSeries - $totalNavegando;
 					extend: 'excelHtml5',
 					text: '<i class="fas fa-file-excel"></i> Exportar Excel',
 					titleAttr: 'Exportar a Excel',
-					className: 'btn btn-success btn-sm'
+					className: 'btn btn-success btn-sm',
+					title: 'Navegacion de Numeros de Serie',
+					customize: function (xlsx) {
+
+            			var sheet = xlsx.xl.worksheets['sheet1.xml'];
+
+            			// CENTRAR HORIZONTALMENTE
+            			$('row c', sheet).attr('s', '51');
+        			},
 				}
 			]
 		});
@@ -585,7 +597,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 					return;
 				}
 
-				if (['rojo', 'gris', 'amarillo', 'blanco'].indexOf(filtroActual) !== -1 && estadoNavegacion !== filtroActual) {
+				if (['rojo', 'gris', 'amarillo', 'verde', 'blanco'].indexOf(filtroActual) !== -1 && estadoNavegacion !== filtroActual) {
 					return;
 				}
 

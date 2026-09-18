@@ -182,6 +182,9 @@
                             <button type="button" class="btn btn-link btn-sm p-0 ml-1 text-info" data-toggle="modal" data-target="#modalLeyendaNavegacion" aria-label="Ver significado de los colores" title="Significado de los colores">
                                 <i class="fas fa-question-circle" aria-hidden="true"></i>
                             </button>
+                            <button type="button" class="btn btn-primary btn-sm ml-2" id="btn-vista-masiva" title="Consultar todos los folios del periodo">
+                                <i class="fas fa-layer-group mr-1"></i> Vista masiva
+                            </button>
                         </h2>
                         <?php $selectorCallback = 'CargarFolios'; include_once(__DIR__ . '/../components/SelectorContratista.php'); ?>
                     </div>
@@ -190,7 +193,7 @@
                     <div class="row">
 
                         <!-- COLUMNA IZQUIERDA: LISTA DE FOLIOS ASIGNADOS -->
-                        <div class="col-md-3 col-lg-2 mb-4">
+                        <div class="col-md-3 col-lg-2 mb-4" id="columna-folios">
 
                             <div class="panel-folios h-100">
 
@@ -221,7 +224,7 @@
                         </div>
 
                         <!-- COLUMNA DERECHA: FOLIOS DEL CONTRATISTA -->
-                        <div class="col-md-9 col-lg-10 mb-4">
+                        <div class="col-md-9 col-lg-10 mb-4" id="columna-contenido-tabla">
                             <div class="panel-folios position-relative">
                                 <div class="panel-header d-flex align-items-center justify-content-between">
                                     <h6 class="m-0 font-weight-bold text-success" id="titulo-panel-folios">
@@ -283,6 +286,7 @@
                     <p><span class="badge badge-danger mr-2">Rojo</span> Tiene una liquidacion de mas de 14 dias y no aparece Navegando. Requiere seguimiento.</p>
                     <p><span class="badge badge-secondary mr-2">Gris</span> Existe Navegacion, pero algun telefono de TAC o Coordiapp no coincide.</p>
                     <p><span class="badge badge-warning mr-2">Amarillo</span> Los telefonos coinciden, pero la Navegacion aun no cumple 3 dias desde la liquidacion.</p>
+                    <p><span class="badge badge-success mr-2" style="background-color:#28a745;">Verde</span> Hay TAC o Coordiapp reciente, pero aun no aparece Navegacion.</p>
                     <p><span class="badge badge-light border mr-2">Blanco</span> No hay Liquidacion para clasificar la serie.</p>
                 </div>
             </div>
@@ -296,6 +300,7 @@
         var FolioActivo = null;
         var FoliosData = [];
         var FiltroFolio = '';
+        var modoMasivo = false;
 
         $(document).ready(function(){
             CargarFolios();
@@ -304,6 +309,11 @@
 
         // CARGAR LISTA DE FOLIOS
         function CargarFolios() {
+            if (modoMasivo) {
+                cargarVistaMasiva();
+                return;
+            }
+
             // OBTENER LAS FECHAS DE LOS FILTROS
             var fecha_inicio = $('#Fecha1').val();
             var fecha_fin    = $('#Fecha2').val();
@@ -399,6 +409,61 @@
         // FILTRAR FOLIOS EN TIEMPO REAL, INCLUSO CUANDO LAS TARJETAS SE RECARGAN POR AJAX.
         $(document).on('input', '#buscadorFolio', function () {
             filtrarTarjetas(this.value);
+        });
+
+        function cargarVistaMasiva() {
+            modoMasivo = true;
+            FolioActivo = null;
+            var fecha_inicio = $('#Fecha1').val();
+            var fecha_fin = $('#Fecha2').val();
+
+            $('#columna-folios').hide();
+            $('#columna-contenido-tabla').removeClass('col-md-9 col-lg-10').addClass('col-12');
+            $('#btn-vista-masiva').html('<i class="fas fa-arrow-left mr-1"></i> Regresar a folios');
+            $('#btn-vista-masiva').attr('title', 'Regresar a la búsqueda por folio');
+            $('#titulo-panel-folios').html('<span><i class="fas fa-layer-group mr-1"></i> Navegacion masiva</span>');
+            $('#spinnerFolios').css('display', 'flex');
+            $('#contenido-folios').css('opacity', '0.4');
+
+            $.ajax({
+                url: 'modal/Navegacion_Masiva.php',
+                type: 'POST',
+                data: { fecha_inicio: fecha_inicio, fecha_fin: fecha_fin },
+                success: function (html) {
+                    $('#contenido-folios').html(html).css('opacity', '1');
+                    $('#spinnerFolios').hide();
+                    $('.cont-card').removeClass('selected');
+                },
+                error: function () {
+                    $('#contenido-folios').html(
+                        '<div class="alert alert-danger m-3">Error al cargar la vista masiva</div>'
+                    ).css('opacity', '1');
+                    $('#spinnerFolios').hide();
+                }
+            });
+        }
+
+        function regresarABusquedaFolios() {
+            modoMasivo = false;
+            FolioActivo = null;
+            $('#columna-contenido-tabla').removeClass('col-12').addClass('col-md-9 col-lg-10');
+            $('#columna-folios').show();
+            $('#btn-vista-masiva').html('<i class="fas fa-layer-group mr-1"></i> Vista masiva');
+            $('#btn-vista-masiva').attr('title', 'Consultar todos los folios del periodo');
+            $('#titulo-panel-folios').html('<i class="fas fa-file-alt mr-1"></i> Selecciona un vale');
+            $('#contenido-folios').html(
+                '<div class="placeholder-tac">' +
+                '<i class="fas fa-hand-point-left"></i>' +
+                '<p>Selecciona un vale para ver sus numeros de serie asignadas</p></div>'
+            );
+        }
+
+        $(document).on('click', '#btn-vista-masiva', function () {
+            if (modoMasivo) {
+                regresarABusquedaFolios();
+            } else {
+                cargarVistaMasiva();
+            }
         });
 
         // SELECCIONAR FOLIO
