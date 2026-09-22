@@ -81,7 +81,7 @@
                     
                     
                     <!-- CONTENEDOR DINÁMICO QUE CARGA LOS KPI Y GRÁFICAS -->
-                    <div id="LoadKPIS">
+                    <div id="LoadProduccion">
 
                     </div>
 
