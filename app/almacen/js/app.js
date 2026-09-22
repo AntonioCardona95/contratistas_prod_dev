@@ -72,18 +72,27 @@ function LoadKPIS(){
     });
 }
 
-
 function LoadProduccion(){
+    var fecha1 = $("#Fecha1").val();
+    var fecha2 = $("#Fecha2").val();
+
+    // Validar que ambas fechas estén seleccionadas antes de consultar
+    if (!fecha1 || !fecha2) {
+        alert("Por favor selecciona ambas fechas (desde y hasta) para realizar la búsqueda.");
+        return false;
+    }
+
     var parametros = $("#FormQueryUnidades").serialize();
     $("#LoadProduccion").fadeIn('slow');
+
     $.ajax({
-        type:'POST',
-        url:'modal/KpisProduccion.php',
+        type: 'POST',
+        url: 'modal/KpisProduccion.php',
         data: parametros,
-         beforeSend: function(objeto){
-                $("#LoadProduccion").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
+        beforeSend: function(objeto){
+            $("#LoadProduccion").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
         },
-        success:function(data){
+        success: function(data){
             $("#LoadProduccion").html(data);
         }
     });
