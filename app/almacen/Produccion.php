@@ -57,60 +57,76 @@
 <body id="page-top">
 
     <!-- CONTENEDOR PRINCIPAL DE LA PÁGINA -->
-    <div id="wrapper">
+<div id="wrapper">
 
-        <!-- SIDEBAR IMPORTADA DESDE COMPONENTES -->
-        <?php include_once(__DIR__ . '/../components/SidebarAlmacen.php'); ?>
-        <!-- FIN DE LA SIDEBAR -->
+    <!-- SIDEBAR IMPORTADA DESDE COMPONENTES -->
+    <?php include_once(__DIR__ . '/../components/SidebarAlmacen.php'); ?>
+    <!-- FIN DE LA SIDEBAR -->
 
-        <!-- CONTENEDOR DEL ÁREA DE CONTENIDO -->
-        <div id="content-wrapper" class="d-flex flex-column">
+    <!-- CONTENEDOR DEL ÁREA DE CONTENIDO -->
+    <div id="content-wrapper" class="d-flex flex-column">
 
-            <!-- CONTENIDO PRINCIPAL -->
-            <div id="content">
+        <!-- CONTENIDO PRINCIPAL -->
+        <div id="content">
 
-                <!-- TOPBAR CON FILTROS Y ACCIONES GLOBALES -->
-                <?php
-                    $defaultFecha1 = $_POST['Fecha1'] ?? date('Y-m-d', strtotime('-3 month'));
-                    $defaultFecha2 = $_POST['Fecha2'] ?? date('Y-m-d');
-                    $topbar_onchange = 'LoadKPIS';
-                    include_once(__DIR__ . '/../components/TopbarContratistas.php');
-                ?>
+            <!-- TOPBAR CON FILTROS Y ACCIONES GLOBALES -->
+            <?php
+                $defaultFecha1 = $_POST['Fecha1'] ?? date('Y-m-d', strtotime('-3 month'));
+                $defaultFecha2 = $_POST['Fecha2'] ?? date('Y-m-d');
+                $topbar_onchange = 'LoadKPIS';
+                include_once(__DIR__ . '/../components/TopbarContratistas.php');
+            ?>
 
-                <!-- INICIO DEL CONTENIDO DE LA PÁGINA -->
-                <div class="container-fluid">
+            <!-- INICIO DEL CONTENIDO DE LA PÁGINA -->
+            <div class="container-fluid">
 
-                    <!-- ENCABEZADO DE LA SECCIÓN -->
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">GESTIÓN OPERATIVA DE EQUIPO Y SERVICIOS (ONT)</h1>
-                        <?php $selectorCallback = 'LoadKPIS'; include_once(__DIR__ . '/../components/SelectorContratista.php'); ?>
-                    </div>
-                    
-                    <!-- CONTENEDOR DINÁMICO QUE CARGA LOS KPI Y GRÁFICAS -->
-                    <div id="LoadKPIS">
-
-                    </div>
+                <!-- ENCABEZADO DE LA SECCIÓN -->
+                <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                    <h1 class="h3 mb-0 text-gray-800">GESTIÓN OPERATIVA DE EQUIPO Y SERVICIOS (ONT)</h1>
+                    <?php $selectorCallback = 'LoadKPIS'; include_once(__DIR__ . '/../components/SelectorContratista.php'); ?>
+                </div>
+                
+                <!-- CONTENEDOR DINÁMICO QUE CARGA LOS KPI Y GRÁFICAS -->
+                <div id="LoadKPIS">
 
                 </div>
-                <!-- FIN DEL CONTENIDO -->
+
+                <!-- BOTÓN GENERAR ARCHIVO -->
+                <div class="form-row mb-3">
+                    <div class="col">
+                        <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($defaultFecha1) ?>" class="form-control bg-light border-0 small">
+                    </div>
+                    <div class="col">
+                        <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($defaultFecha2) ?>" class="form-control bg-light border-0 small">
+                    </div>
+                    <div class="col-auto">
+                        <button id="btnGenerarArchivo" class="btn btn-success" type="button">
+                            Generar Archivo
+                        </button>
+                    </div>
+                </div>
 
             </div>
-            <!-- FIN DEL CONTENIDO PRINCIPAL -->
-
-            <!-- PIE DE PÁGINA -->
-            <?php include_once(__DIR__ . '/../components/FooterContratistas.php'); ?>
-            <!-- FIN DEL PIE -->
+            <!-- FIN DEL CONTENIDO -->
 
         </div>
-        <!-- FIN DEL CONTENEDOR DEL CONTENIDO -->
+        <!-- FIN DEL CONTENIDO PRINCIPAL -->
+
+        <!-- PIE DE PÁGINA -->
+        <?php include_once(__DIR__ . '/../components/FooterContratistas.php'); ?>
+        <!-- FIN DEL PIE -->
 
     </div>
-    <!-- FIN DEL CONTENEDOR PRINCIPAL -->
+    <!-- FIN DEL CONTENEDOR DEL CONTENIDO -->
 
-    <!-- BOTÓN PARA VOLVER AL INICIO -->
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
+</div>
+<!-- FIN DEL CONTENEDOR PRINCIPAL -->
+
+<!-- BOTÓN PARA VOLVER AL INICIO -->
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
     
     <!-- MODAL DE CIERRE DE SESION -->
     <?php include_once(__DIR__ . '/../components/ModalCierreSesion.php'); ?>
