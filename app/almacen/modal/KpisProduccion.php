@@ -46,7 +46,73 @@ if (is_array($sqlCompletas)) {
     $TotalAsignados = (int)$sqlCompletas;
 }
 
+// NUMEROS DE SERIE SIN INSTALAR
+$TotalSinInstalar = 0;
+$qrIncompletas = $index->CountMaterialesSinInstalar($idContratistas, $Fecha1, $Fecha2);
+if (is_array($qrIncompletas)) {
+    if (!empty($qrIncompletas)) {
+        foreach ($qrIncompletas as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalSinInstalar = (int)$row['TOTAL'];
+            }
+        }
+    }
+} else {
+    $TotalSinInstalar = (int)$qrIncompletas;
+}
 
+  // NUMEROS DE SERIE INSTALADOS COORDIAPP
+  $TotalInstalados = 0;
+  $qrInstalados = $index->CountMaterialesInstalados($idContratistas, $Fecha1, $Fecha2);
+  if (is_array($qrInstalados)) {
+    if (!empty($qrInstalados)) {
+      foreach ($qrInstalados as $row) {
+        if (isset($row['TOTAL'])) {
+          $TotalInstalados = (int)$row['TOTAL'];
+        }
+      }
+    }
+  } else {
+    $TotalInstalados = (int)$qrInstalados;
+  }
+
+  // NUMEROS DE SERIE INSTALADOS TAC
+  $TotalInstaladosTAC = 0;
+  $qrInstaladosTAC = $index->CountOntInstaladosTAC($idContratistas, $Fecha1, $Fecha2);
+  // El metodo devuelve un int (total), asi que asignamos directamente.
+  $TotalInstaladosTAC = (int)$qrInstaladosTAC;
+
+  // NUMEROS DE SERIE DISPONIBLES ERP
+  $TotalDisponible = 0;
+  // CountONTDisponibles acepta solo el id del contratista.
+  $qrDisponibles = $index->CountONTDisponibles($idContratistas, $Fecha1, $Fecha2);
+  if (is_array($qrDisponibles)) {
+    if (!empty($qrDisponibles)) {
+      foreach ($qrDisponibles as $row) {
+        if (isset($row['TOTAL'])) {
+          $TotalDisponible = (int)$row['TOTAL'];
+        }
+      }
+    }
+  } else {
+    $TotalDisponible = (int)$qrDisponibles;
+  }
+
+  // NUMEROS DE SERIE DISPONIBLES ERP
+  $TTotalDisponible = 0;
+  // CountONTDisponibles acepta solo el id del contratista.
+  $qrDisponiblesT = $index->CountONTDisponiblesT($idContratistas);
+  if (is_array($qrDisponiblesT)) {
+    if (!empty($qrDisponiblesT)) {
+      foreach ($qrDisponiblesT as $row) {
+        if (isset($row['TOTAL'])) {
+          $TTotalDisponible = (int)$row['TOTAL'];
+        }
+      }
+    }
+  } else {
+    $TTotalDisponible = (int)$qrDisponiblesT;
+  }
 ?>
 
 <style>
@@ -272,7 +338,42 @@ if (is_array($sqlCompletas)) {
         </a>
     </div>
 
-    
+    <div class="col-xl col-md-6 mb-4">
+      <a href="detalle_ont_asignados.php" class="kpi-card-link">
+        <div class="kpi-card kpi-card-info">
+          <div class="kpi-card-body">
+            <div class="kpi-card-icon"><i class="fas fa-user-check"></i></div>
+            <div class="kpi-card-label">Números de serie asignados</div>
+            <div class="kpi-card-number"><?php echo number_format($TotalAsignados); ?></div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-xl col-md-6 mb-4">
+      <a href="ont_sin_instalar_det.php" class="kpi-card-link">
+        <div class="kpi-card kpi-card-primary">
+          <div class="kpi-card-body">
+            <div class="kpi-card-icon"><i class="fas fa-hourglass-half"></i></div>
+            <div class="kpi-card-label">Números de serie sin liquidar</div>
+            <div class="kpi-card-number"><?php echo number_format($TotalSinInstalar); ?></div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-xl col-md-6 mb-4">
+      <a href="ont_instaladas_det.php" class="kpi-card-link">
+        <div class="kpi-card kpi-card-success">
+          <div class="kpi-card-body">
+            <div class="kpi-card-icon"><i class="fas fa-check-double"></i></div>
+            <div class="kpi-card-label">Números de serie liquidados</div>
+            <div class="kpi-card-number"><?php echo number_format($TotalInstalados); ?></div>
+                </div>
+            </div>
+        </a>
+    </div>
+
 </div>
 <!-- Seis graficas derivadas de las cinco tarjetas -->
 <div class="row">
