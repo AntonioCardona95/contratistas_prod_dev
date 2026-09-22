@@ -187,7 +187,7 @@ if (is_array($qrDisponiblesT)) {
 <!-- Content Row -->
 <div class="row kpi-cards-row">
 
-    <div class="col-xl-6 col-md-6 mb-4">
+    <div class="col-xl col-md-6 mb-4">
         <a href="detalle_ont_disponibles.php" data-detalle="total" class="kpi-card-link">
             <div class="kpi-card kpi-card-danger">
                 <div class="kpi-card-body">
@@ -199,7 +199,7 @@ if (is_array($qrDisponiblesT)) {
         </a>
     </div>
 
-    <div class="col-xl-6 col-md-6 mb-4">
+    <div class="col-xl col-md-6 mb-4">
       <a href="detalle_ont_disponibles.php" data-detalle="fecha" class="kpi-card-link">
         <div class="kpi-card kpi-card-warning">
           <div class="kpi-card-body">
