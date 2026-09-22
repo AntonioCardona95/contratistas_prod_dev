@@ -108,22 +108,6 @@
     
     <!-- MODAL DE CIERRE DE SESION -->
     <?php include_once(__DIR__ . '/../components/ModalCierreSesion.php'); ?>
-
-    <div class="modal fade" id="modalKpiDetalle" tabindex="-1" role="dialog" aria-labelledby="modalKpiDetalleTitulo" aria-hidden="true">
-        <div class="modal-dialog modal-xl" role="document">
-            <div class="modal-content">
-                <div class="modal-header modal-header-gradient text-white">
-                    <h5 class="modal-title" id="modalKpiDetalleTitulo">Detalle</h5>
-                    <button type="button" class="btn btn-light" data-dismiss="modal" aria-label="Cerrar">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" id="modalKpiDetalleContenido">
-                </div>
-            </div>
-        </div>
-    </div>
-
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
     <!-- CARGAR CHART.JS -->
     <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script> -->
