@@ -91,7 +91,7 @@
 
                 </div>
 
-                <!-- BOTÓN GENERAR ARCHIVO -->
+                <!-- BOTÓN GENERAR ARCHIVO (reemplaza la lupita) -->
                 <div class="form-row mb-3">
                     <div class="col">
                         <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($defaultFecha1) ?>" class="form-control bg-light border-0 small">
