@@ -72,7 +72,7 @@
                 <!-- TOPBAR CON FILTROS Y ACCIONES GLOBALES -->
                 <?php
                    
-                    $topbar_onchange = 'LoadKPIS';
+                    
                     include_once(__DIR__ . '/../components/TopbarContratistas.php');
                 ?>
 
