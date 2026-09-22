@@ -272,42 +272,7 @@ if (is_array($sqlCompletas)) {
         </a>
     </div>
 
-    <div class="col-xl col-md-6 mb-4">
-      <a href="detalle_ont_asignados.php" class="kpi-card-link">
-        <div class="kpi-card kpi-card-info">
-          <div class="kpi-card-body">
-            <div class="kpi-card-icon"><i class="fas fa-user-check"></i></div>
-            <div class="kpi-card-label">Números de serie asignados</div>
-            <div class="kpi-card-number"><?php echo number_format($TotalAsignados); ?></div>
-                </div>
-            </div>
-        </a>
-    </div>
-
-    <div class="col-xl col-md-6 mb-4">
-      <a href="ont_sin_instalar_det.php" class="kpi-card-link">
-        <div class="kpi-card kpi-card-primary">
-          <div class="kpi-card-body">
-            <div class="kpi-card-icon"><i class="fas fa-hourglass-half"></i></div>
-            <div class="kpi-card-label">Números de serie sin liquidar</div>
-            <div class="kpi-card-number"><?php echo number_format($TotalSinInstalar); ?></div>
-                </div>
-            </div>
-        </a>
-    </div>
-
-    <div class="col-xl col-md-6 mb-4">
-      <a href="ont_instaladas_det.php" class="kpi-card-link">
-        <div class="kpi-card kpi-card-success">
-          <div class="kpi-card-body">
-            <div class="kpi-card-icon"><i class="fas fa-check-double"></i></div>
-            <div class="kpi-card-label">Números de serie liquidados</div>
-            <div class="kpi-card-number"><?php echo number_format($TotalInstalados); ?></div>
-                </div>
-            </div>
-        </a>
-    </div>
-
+    
 </div>
 <!-- Seis graficas derivadas de las cinco tarjetas -->
 <div class="row">
