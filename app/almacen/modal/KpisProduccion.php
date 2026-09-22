@@ -31,116 +31,35 @@ if (!empty($Fecha1) && !empty($Fecha2)) {
 
 $index = new Index();
 
-// NUMEROS DE SERIE ASIGNADOS A TECNICOS
-$TotalAsignados = 0;
-$sqlCompletas = $index->CountMaterialesAsignados($idContratistas, $Fecha1, $Fecha2);
-if (is_array($sqlCompletas)) {
-    if (!empty($sqlCompletas)) {
-        foreach ($sqlCompletas as $row) {
-            if (isset($row['TOTAL'])) {
-                $TotalAsignados = (int)$row['TOTAL'];
-            }
-        }
-    }
-} else {
-    $TotalAsignados = (int)$sqlCompletas;
-}
-
-// NUMEROS DE SERIE SIN INSTALAR
-$TotalSinInstalar = 0;
-$qrIncompletas = $index->CountMaterialesSinInstalar($idContratistas, $Fecha1, $Fecha2);
-if (is_array($qrIncompletas)) {
-    if (!empty($qrIncompletas)) {
-        foreach ($qrIncompletas as $row) {
-            if (isset($row['TOTAL'])) {
-                $TotalSinInstalar = (int)$row['TOTAL'];
-            }
-        }
-    }
-} else {
-    $TotalSinInstalar = (int)$qrIncompletas;
-}
-
-  // NUMEROS DE SERIE INSTALADOS COORDIAPP
-  $TotalInstalados = 0;
-  $qrInstalados = $index->CountMaterialesInstalados($idContratistas, $Fecha1, $Fecha2);
-  if (is_array($qrInstalados)) {
-    if (!empty($qrInstalados)) {
-      foreach ($qrInstalados as $row) {
-        if (isset($row['TOTAL'])) {
-          $TotalInstalados = (int)$row['TOTAL'];
-        }
-      }
-    }
-  } else {
-    $TotalInstalados = (int)$qrInstalados;
-  }
-
-  // NUMEROS DE SERIE INSTALADOS TAC
-  $TotalInstaladosTAC = 0;
-  $qrInstaladosTAC = $index->CountOntInstaladosTAC($idContratistas, $Fecha1, $Fecha2);
-  // El metodo devuelve un int (total), asi que asignamos directamente.
-  $TotalInstaladosTAC = (int)$qrInstaladosTAC;
-
-  // NUMEROS DE SERIE DISPONIBLES ERP
-  $TotalDisponible = 0;
-  // CountONTDisponibles acepta solo el id del contratista.
-  $qrDisponibles = $index->CountONTDisponibles($idContratistas, $Fecha1, $Fecha2);
-  if (is_array($qrDisponibles)) {
+// NUMEROS DE SERIE DISPONIBLES ERP (EN FECHA)
+$TotalDisponible = 0;
+$qrDisponibles = $index->CountONTDisponibles($idContratistas, $Fecha1, $Fecha2);
+if (is_array($qrDisponibles)) {
     if (!empty($qrDisponibles)) {
-      foreach ($qrDisponibles as $row) {
-        if (isset($row['TOTAL'])) {
-          $TotalDisponible = (int)$row['TOTAL'];
+        foreach ($qrDisponibles as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalDisponible = (int)$row['TOTAL'];
+            }
         }
-      }
     }
-  } else {
+} else {
     $TotalDisponible = (int)$qrDisponibles;
-  }
+}
 
-  // NUMEROS DE SERIE DISPONIBLES ERP
-  $TTotalDisponible = 0;
-  // CountONTDisponibles acepta solo el id del contratista.
-  $qrDisponiblesT = $index->CountONTDisponiblesT($idContratistas);
-  if (is_array($qrDisponiblesT)) {
+// NUMEROS DE SERIE DISPONIBLES ERP (TOTALES)
+$TTotalDisponible = 0;
+$qrDisponiblesT = $index->CountONTDisponiblesT($idContratistas);
+if (is_array($qrDisponiblesT)) {
     if (!empty($qrDisponiblesT)) {
-      foreach ($qrDisponiblesT as $row) {
-        if (isset($row['TOTAL'])) {
-          $TTotalDisponible = (int)$row['TOTAL'];
+        foreach ($qrDisponiblesT as $row) {
+            if (isset($row['TOTAL'])) {
+                $TTotalDisponible = (int)$row['TOTAL'];
+            }
         }
-      }
     }
-  } else {
+} else {
     $TTotalDisponible = (int)$qrDisponiblesT;
-  }
-
-  $chart_dias = $index->CountMaterialesPorDia($idContratistas, $Fecha1, $Fecha2);
-  $chart_tecnicos = $index->CountMaterialesPorTecnico($idContratistas, $Fecha1, $Fecha2);
-
-  $chart_dias_labels = [];
-  $chart_dias_asignadas = [];
-  $chart_dias_sin_liquidar = [];
-  $chart_dias_liquidadas = [];
-  foreach ((array)$chart_dias as $row) {
-    $chart_dias_labels[] = (string)$row['FECHA'];
-    $chart_dias_asignadas[] = (int)$row['ASIGNADAS'];
-    $chart_dias_sin_liquidar[] = (int)$row['SIN_LIQUIDAR'];
-    $chart_dias_liquidadas[] = (int)$row['LIQUIDADAS'];
-  }
-
-  $chart_tecnicos_labels = [];
-  $chart_tecnicos_asignadas = [];
-  $chart_tecnicos_sin_liquidar = [];
-  $chart_tecnicos_liquidadas = [];
-  $chart_tecnicos_efectividad = [];
-  foreach ((array)$chart_tecnicos as $row) {
-    $chart_tecnicos_labels[] = trim((string)$row['NOMBRE_TECNICO']);
-    $chart_tecnicos_asignadas[] = (int)$row['ASIGNADAS'];
-    $chart_tecnicos_sin_liquidar[] = (int)$row['SIN_LIQUIDAR'];
-    $chart_tecnicos_liquidadas[] = (int)$row['LIQUIDADAS'];
-    $chart_tecnicos_efectividad[] = (int)$row['ASIGNADAS'] > 0
-      ? round(((int)$row['LIQUIDADAS'] / (int)$row['ASIGNADAS']) * 100, 1) : 0;
-  }
+}
 ?>
 
 <style>
@@ -244,75 +163,6 @@ if (is_array($qrIncompletas)) {
     --kpi-soft-color: rgba(183, 121, 31, 0.13);
   }
 
-  .kpi-card-info {
-    --kpi-color: #147d92;
-    --kpi-soft-color: rgba(20, 125, 146, 0.11);
-  }
-
-  .kpi-card-primary {
-    --kpi-color: #185abc;
-    --kpi-soft-color: rgba(24, 90, 188, 0.11);
-  }
-
-  .kpi-card-success {
-    --kpi-color: #25834b;
-    --kpi-soft-color: rgba(37, 131, 75, 0.11);
-  }
-
-  .chart-area {
-    position: relative;
-    min-height: 320px;
-    padding: 1.25rem;
-    border: 1px solid #edf0f4;
-    border-radius: 0 0 12px 12px;
-    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
-  }
-
-  .chart-area canvas {
-    max-height: 330px;
-  }
-
-  .technician-chart-scroll {
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-
-  .technician-chart-inner {
-    position: relative;
-    height: 330px;
-    min-width: 100%;
-  }
-
-  .technician-chart-inner canvas {
-    max-height: none;
-  }
-
-  .chart-area + * {
-    border-radius: 12px;
-  }
-
-  #LoadKPIS .card {
-    overflow: hidden;
-    border: 1px solid #e6eaf0;
-    border-radius: 12px;
-    box-shadow: 0 5px 18px rgba(15, 23, 42, 0.07);
-  }
-
-  #LoadKPIS .card-header {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid #edf0f4;
-    background: #ffffff;
-    color: #182235;
-  }
-
-  #LoadKPIS .card-header strong {
-    color: #596579;
-    font-size: 0.82rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
   @media (max-width: 768px) {
     .kpi-card {
       min-height: 148px;
@@ -331,18 +181,13 @@ if (is_array($qrIncompletas)) {
     .kpi-card-number {
       font-size: 1.75rem;
     }
-
-    .chart-area {
-      min-height: 270px;
-      padding: 0.75rem;
-    }
   }
 </style>
 
 <!-- Content Row -->
 <div class="row kpi-cards-row">
 
-    <div class="col-xl col-md-6 mb-4">
+    <div class="col-xl-6 col-md-6 mb-4">
         <a href="detalle_ont_disponibles.php" data-detalle="total" class="kpi-card-link">
             <div class="kpi-card kpi-card-danger">
                 <div class="kpi-card-body">
@@ -354,54 +199,16 @@ if (is_array($qrIncompletas)) {
         </a>
     </div>
 
-    <div class="col-xl col-md-6 mb-4">
+    <div class="col-xl-6 col-md-6 mb-4">
       <a href="detalle_ont_disponibles.php" data-detalle="fecha" class="kpi-card-link">
         <div class="kpi-card kpi-card-warning">
           <div class="kpi-card-body">
             <div class="kpi-card-icon"><i class="fas fa-clock"></i></div>
             <div class="kpi-card-label">Números de serie sin asignar (en fecha)</div>
             <div class="kpi-card-number"><?php echo number_format($TotalDisponible); ?></div>
-                </div>
-            </div>
-        </a>
-    </div>
-
-    <div class="col-xl col-md-6 mb-4">
-      <a href="detalle_ont_asignados.php" class="kpi-card-link">
-        <div class="kpi-card kpi-card-info">
-          <div class="kpi-card-body">
-            <div class="kpi-card-icon"><i class="fas fa-user-check"></i></div>
-            <div class="kpi-card-label">Números de serie asignados</div>
-            <div class="kpi-card-number"><?php echo number_format($TotalAsignados); ?></div>
-                </div>
-            </div>
-        </a>
-    </div>
-
-    <div class="col-xl col-md-6 mb-4">
-      <a href="ont_sin_instalar_det.php" class="kpi-card-link">
-        <div class="kpi-card kpi-card-primary">
-          <div class="kpi-card-body">
-            <div class="kpi-card-icon"><i class="fas fa-hourglass-half"></i></div>
-            <div class="kpi-card-label">Números de serie sin liquidar</div>
-            <div class="kpi-card-number"><?php echo number_format($TotalSinInstalar); ?></div>
-                </div>
-            </div>
-        </a>
-    </div>
-
-    <div class="col-xl col-md-6 mb-4">
-      <a href="ont_instaladas_det.php" class="kpi-card-link">
-        <div class="kpi-card kpi-card-success">
-          <div class="kpi-card-body">
-            <div class="kpi-card-icon"><i class="fas fa-check-double"></i></div>
-            <div class="kpi-card-label">Números de serie liquidados</div>
-            <div class="kpi-card-number"><?php echo number_format($TotalInstalados); ?></div>
-                </div>
-            </div>
-        </a>
+          </div>
+        </div>
+      </a>
     </div>
 
 </div>
-
-
