@@ -2144,6 +2144,81 @@ private function alertaOntAlmacen($data, &$alertas)
 
 
 
+// PRUEBAS //
+
+/*private function alertaOntAlmacen($data, &$alertas)
+{
+    // =========================
+    //  VIENE DE COORDIAPP O TAC
+    // =========================
+    $ont = isset($data['coord']['Ont']) 
+        ? strtoupper(trim($data['coord']['Ont'])) 
+        : '';
+
+    // Si coord viene vacío → usar TAC
+    if ($ont === '' || $ont === 'N/A' || $ont === 'NULL') {
+        $ont = isset($data['tac']['Num__Serie']) 
+            ? strtoupper(trim($data['tac']['Num__Serie'])) 
+            : '';
+    }
+
+    // Si sigue vacío → alerta directa
+    if ($ont === '' || $ont === 'N/A' || $ont === 'NULL') {
+        $alertas[] = 'ONT_NO_ENCONTRADA_EN_ALMACEN';
+        return;
+    }
+
+    // =========================
+    //  NORMALIZAR
+    // =========================
+    $ont = $this->normalizarSerie($ont);
+
+    $conexion = $this->get_conexion();
+
+    // Buscar primero en material_det_salida (cuando ya salió al contratista)
+    $stmt = $conexion->prepare("
+        SELECT FK_Contratista_Salida
+        FROM material_det_salida
+        WHERE Num_Serie_S = ?
+        LIMIT 1
+    ");
+    $stmt->execute([$ont]);
+    $rowSalida = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($rowSalida) {
+        if (empty($rowSalida['FK_Contratista_Salida'])) {
+            $alertas[] = 'ONT_NO_ASIGNADA_AL_CONTRATISTA';
+            return;
+        }
+
+        if ((int)$rowSalida['FK_Contratista_Salida'] !== (int)$data['idContratista']) {
+            $alertas[] = 'ONT_ASIGNADA_A_OTRO_CONTRATISTA';
+            return;
+        }
+
+        return; // todo correcto
+    }
+
+    // Si no está en salida, verificar si existe en almacén
+    $stmt = $conexion->prepare("
+        SELECT idMaterial
+        FROM materiales_det
+        WHERE Num_Serie = ?
+        LIMIT 1
+    ");
+    $stmt->execute([$ont]);
+    $rowAlmacen = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($rowAlmacen) {
+        $alertas[] = 'ONT_NO_ASIGNADA_AL_CONTRATISTA';
+    } else {
+        $alertas[] = 'ONT_NO_ENCONTRADA_EN_ALMACEN';
+    }
+} */
+
+
+
+
 
 
 
