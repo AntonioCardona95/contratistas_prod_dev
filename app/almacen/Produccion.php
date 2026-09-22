@@ -81,10 +81,7 @@
                 <div class="container-fluid">
 
                     <!-- ENCABEZADO DE LA SECCIÓN -->
-                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">GESTIÓN OPERATIVA DE EQUIPO Y SERVICIOS (ONT)</h1>
-                        <?php $selectorCallback = 'LoadKPIS'; include_once(__DIR__ . '/../components/SelectorContratista.php'); ?>
-                    </div>
+                    
                     
                     <!-- CONTENEDOR DINÁMICO QUE CARGA LOS KPI Y GRÁFICAS -->
                     <div id="LoadKPIS">
