@@ -15,7 +15,7 @@ if (!empty($topbar_defaults) && is_array($topbar_defaults)) {
 if (empty($tbFecha1)) $tbFecha1 = $defaultFecha1 ?? ($_POST['Fecha1'] ?? '');
 if (empty($tbFecha2)) $tbFecha2 = $defaultFecha2 ?? ($_POST['Fecha2'] ?? '');
 
-// Nombre de la función JS que se debe invocar al cambiar las fechas o al buscar.
+// Nombre de la función JS que se debe invocar al presionar la lupa o enviar el formulario.
 $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadProduccion';
 $topbar_hide_search = !empty($topbar_hide_search);
 ?>
@@ -30,21 +30,19 @@ $topbar_hide_search = !empty($topbar_hide_search);
 
     <?php if (!$topbar_hide_search): ?>
         <!-- Topbar Search -->
-        <form id="FormQueryUnidades" class="d-flex form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search topbar-search-form">
+        <form id="FormQueryUnidades" class="d-flex form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search topbar-search-form" onsubmit="event.preventDefault(); if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
             <div class="input-group topbar-date-group">
+                <!-- Se quitaron los eventos onchange para no disparar la búsqueda al seleccionar la primera fecha -->
                 <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" 
                        class="form-control bg-light border-0 small mr-2 topbar-date-input" 
-                       onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" 
-                       aria-label="AL" aria-describedby="basic-addon2">
+                       aria-label="DESDE" aria-describedby="basic-addon2">
 
                 <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" 
                        class="form-control bg-light border-0 small mr-2 topbar-date-input" 
-                       onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" 
-                       aria-label="AL" aria-describedby="basic-addon2">
+                       aria-label="HASTA" aria-describedby="basic-addon2">
 
                 <div class="input-group-append mr-2">
-                    <button class="btn btn-primary" type="button" 
-                            onclick="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
+                    <button class="btn btn-primary" type="submit">
                         <i class="fas fa-search fa-sm"></i>
                     </button>
                 </div>
@@ -62,6 +60,7 @@ $topbar_hide_search = !empty($topbar_hide_search);
             </div>
         <?php endif; ?>
     <?php endif; ?>
+</nav>
 
     <!-- Topbar Navbar -->
     <ul class="navbar-nav ml-auto align-items-center topbar-icons">
