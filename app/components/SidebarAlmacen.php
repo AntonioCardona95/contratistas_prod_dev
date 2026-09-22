@@ -47,6 +47,16 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
 	</li>
 	<?php endif; ?>
 
+	
+	<?php if (esAdministradorContratista()): ?>
+	<li class="nav-item <?php echo $paginaActual === 'Produccion.php' ? 'active' : ''; ?>">
+		<a class="nav-link" href="Produccion.php">
+			<i class="fa-brands fa-tailwind-css"></i>
+			<span>PRODUCCIÓN</span>
+		</a>
+	</li>
+	<?php endif; ?>
+
 	<li class="nav-item <?php echo $paginaActual === 'entradas.php' ? 'active' : ''; ?>">
 		<a class="nav-link" href="entradas.php">
 			<i class="fa-solid fa-clipboard-check"></i>
