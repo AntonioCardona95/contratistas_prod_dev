@@ -72,6 +72,23 @@ function LoadKPIS(){
     });
 }
 
+
+function LoadProduccion(){
+    var parametros = $("#FormQueryUnidades").serialize();
+    $("#LoadProduccion").fadeIn('slow');
+    $.ajax({
+        type:'POST',
+        url:'modal/Produccion.php',
+        data: parametros,
+         beforeSend: function(objeto){
+                $("#LoadProduccion").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
+        },
+        success:function(data){
+            $("#LoadProduccion").html(data);
+        }
+    });
+}
+
 function LoadPendientes(){
     var parametros = $("#FormQueryUnidades").serialize();
     $("#LoadPendientes").fadeIn('slow');
