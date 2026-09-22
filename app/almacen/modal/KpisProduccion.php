@@ -23,12 +23,13 @@ $Fecha2 = $_POST['Fecha2'] ?? '';
 @$Area = $_POST['Area'];
 @$Cope = $_POST['Cope'];
 
-$mes_anterior = date('Y-m-d', strtotime('-3 month'));
-
+// Se aseguran las horas completas del día (00:00:00 a 23:59:59)
 if (!empty($Fecha1) && !empty($Fecha2)) {
-    $Fecha1 = $_POST['Fecha1'] . " 00:00:00";
-    $Fecha2 = $_POST['Fecha2'] . " 23:59:59";
+    $Fecha1 = $Fecha1 . " 00:00:00";
+    $Fecha2 = $Fecha2 . " 23:59:59";
 } else {
+    // Si entra por primera vez sin parámetros, toma por defecto los últimos 3 meses hasta hoy
+    $mes_anterior = date('Y-m-d', strtotime('-3 month'));
     $Fecha1 = $mes_anterior . " 00:00:00";
     $Fecha2 = date('Y-m-d') . " 23:59:59";
 }
