@@ -67,6 +67,14 @@ if (is_array($qrDisponiblesT)) {
     margin-bottom: 1.25rem;
   }
 
+  /* Fuerza el ancho exacto equivalente a 1/5 del contenedor (el tamaño original de cuando eran 5 tarjetas) */
+  .col-kpi-5 {
+    flex: 0 0 20%;
+    max-width: 20%;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+  }
+
   .kpi-card-link {
     display: block;
     height: 100%;
@@ -163,7 +171,19 @@ if (is_array($qrDisponiblesT)) {
     --kpi-soft-color: rgba(183, 121, 31, 0.13);
   }
 
+  @media (max-width: 992px) {
+    .col-kpi-5 {
+      flex: 0 0 50%;
+      max-width: 50%;
+    }
+  }
+
   @media (max-width: 768px) {
+    .col-kpi-5 {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+
     .kpi-card {
       min-height: 148px;
     }
@@ -187,7 +207,7 @@ if (is_array($qrDisponiblesT)) {
 <!-- Content Row -->
 <div class="row kpi-cards-row">
 
-    <div class="col-xl col-md-6 mb-4">
+    <div class="col-kpi-5 mb-4">
         <a href="detalle_ont_disponibles.php" data-detalle="total" class="kpi-card-link">
             <div class="kpi-card kpi-card-danger">
                 <div class="kpi-card-body">
@@ -199,7 +219,7 @@ if (is_array($qrDisponiblesT)) {
         </a>
     </div>
 
-    <div class="col-xl col-md-6 mb-4">
+    <div class="col-kpi-5 mb-4">
       <a href="detalle_ont_disponibles.php" data-detalle="fecha" class="kpi-card-link">
         <div class="kpi-card kpi-card-warning">
           <div class="kpi-card-body">
