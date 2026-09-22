@@ -114,33 +114,7 @@ if (is_array($qrIncompletas)) {
     $TTotalDisponible = (int)$qrDisponiblesT;
   }
 
-  $chart_dias = $index->CountMaterialesPorDia($idContratistas, $Fecha1, $Fecha2);
-  $chart_tecnicos = $index->CountMaterialesPorTecnico($idContratistas, $Fecha1, $Fecha2);
-
-  $chart_dias_labels = [];
-  $chart_dias_asignadas = [];
-  $chart_dias_sin_liquidar = [];
-  $chart_dias_liquidadas = [];
-  foreach ((array)$chart_dias as $row) {
-    $chart_dias_labels[] = (string)$row['FECHA'];
-    $chart_dias_asignadas[] = (int)$row['ASIGNADAS'];
-    $chart_dias_sin_liquidar[] = (int)$row['SIN_LIQUIDAR'];
-    $chart_dias_liquidadas[] = (int)$row['LIQUIDADAS'];
-  }
-
-  $chart_tecnicos_labels = [];
-  $chart_tecnicos_asignadas = [];
-  $chart_tecnicos_sin_liquidar = [];
-  $chart_tecnicos_liquidadas = [];
-  $chart_tecnicos_efectividad = [];
-  foreach ((array)$chart_tecnicos as $row) {
-    $chart_tecnicos_labels[] = trim((string)$row['NOMBRE_TECNICO']);
-    $chart_tecnicos_asignadas[] = (int)$row['ASIGNADAS'];
-    $chart_tecnicos_sin_liquidar[] = (int)$row['SIN_LIQUIDAR'];
-    $chart_tecnicos_liquidadas[] = (int)$row['LIQUIDADAS'];
-    $chart_tecnicos_efectividad[] = (int)$row['ASIGNADAS'] > 0
-      ? round(((int)$row['LIQUIDADAS'] / (int)$row['ASIGNADAS']) * 100, 1) : 0;
-  }
+  
 ?>
 
 <style>
