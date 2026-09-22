@@ -16,7 +16,7 @@ if (empty($tbFecha1)) $tbFecha1 = $defaultFecha1 ?? ($_POST['Fecha1'] ?? '');
 if (empty($tbFecha2)) $tbFecha2 = $defaultFecha2 ?? ($_POST['Fecha2'] ?? '');
 
 // Nombre de la función JS que se debe invocar al cambiar las fechas o al buscar.
-$onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
+$onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadProduccion';
 $topbar_hide_search = !empty($topbar_hide_search);
 ?>
 
@@ -32,10 +32,19 @@ $topbar_hide_search = !empty($topbar_hide_search);
         <!-- Topbar Search -->
         <form id="FormQueryUnidades" class="d-flex form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search topbar-search-form">
             <div class="input-group topbar-date-group">
-                <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
-                <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
+                <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" 
+                       class="form-control bg-light border-0 small mr-2 topbar-date-input" 
+                       onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" 
+                       aria-label="AL" aria-describedby="basic-addon2">
+
+                <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" 
+                       class="form-control bg-light border-0 small mr-2 topbar-date-input" 
+                       onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" 
+                       aria-label="AL" aria-describedby="basic-addon2">
+
                 <div class="input-group-append mr-2">
-                    <button class="btn btn-primary" type="button" onclick="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
+                    <button class="btn btn-primary" type="button" 
+                            onclick="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
                         <i class="fas fa-search fa-sm"></i>
                     </button>
                 </div>
@@ -102,6 +111,20 @@ $topbar_hide_search = !empty($topbar_hide_search);
     </ul>
 
 </nav>
+
+<!-- Script para imprimir fechas seleccionadas -->
+<!-- <script>
+function LoadProduccion() {
+    const fecha1 = document.getElementById("Fecha1").value;
+    const fecha2 = document.getElementById("Fecha2").value;
+
+    console.log("Fecha1:", fecha1);
+    console.log("Fecha2:", fecha2);
+
+    alert("Fechas seleccionadas:\nDesde: " + fecha1 + "\nHasta: " + fecha2);
+}
+</script> -->
+
 <!-- End of Topbar -->
 
 <script>
