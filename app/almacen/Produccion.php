@@ -71,8 +71,7 @@
 
                 <!-- TOPBAR CON FILTROS Y ACCIONES GLOBALES -->
                 <?php
-                    //$defaultFecha1 = $_POST['Fecha1'] ?? date('Y-m-d', strtotime('-3 month'));
-                    //$defaultFecha2 = $_POST['Fecha2'] ?? date('Y-m-d');
+                   
                     $topbar_onchange = 'LoadKPIS';
                     include_once(__DIR__ . '/../components/TopbarContratistas.php');
                 ?>
