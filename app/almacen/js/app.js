@@ -78,7 +78,7 @@ function LoadProduccion(){
     $("#LoadProduccion").fadeIn('slow');
     $.ajax({
         type:'POST',
-        url:'modal/Produccion.php',
+        url:'modal/KpisProduccion.php',
         data: parametros,
          beforeSend: function(objeto){
                 $("#LoadProduccion").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
