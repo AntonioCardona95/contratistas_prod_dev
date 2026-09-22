@@ -1,8 +1,6 @@
-<?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+<link rel="stylesheet" href="../css/kpis-produccion.css">
 
+<?php
 define('WP_DEBUG', true);
 define('WP_DEBUG_DISPLAY', false);
 
@@ -12,13 +10,13 @@ error_reporting(E_ALL);
 
 require_once("../controller/ClassIndex.php");
 require_once(__DIR__ . '/../../config/ContratistaContexto.php');
-
-$Contratista = $_SESSION['Contratista'] ?? null;
+session_start();
+$Contratista = $_SESSION['Contratista'];
 $idContratistas = obtenerIdContratistaContexto();
 
 // RECIBIMOS PARAMETROS
-$Fecha1 = $_POST['Fecha1'] ?? '';
-$Fecha2 = $_POST['Fecha2'] ?? '';
+$Fecha1 = $_POST['Fecha1'];
+$Fecha2 = $_POST['Fecha2'];
 @$Division = $_POST['Division'];
 @$Area = $_POST['Area'];
 @$Cope = $_POST['Cope'];
@@ -65,8 +63,6 @@ if (is_array($qrDisponiblesT)) {
     $TTotalDisponible = (int)$qrDisponiblesT;
 }
 ?>
-
-<link rel="stylesheet" href="css/kpis-produccion.css">
 
 <!-- Content Row -->
 <div class="row kpi-cards-row">

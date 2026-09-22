@@ -113,7 +113,7 @@ $topbar_hide_search = !empty($topbar_hide_search);
 </nav>
 
 <!-- Script para imprimir fechas seleccionadas -->
-<!-- <script>
+<!--<script>
 function LoadProduccion() {
     const fecha1 = document.getElementById("Fecha1").value;
     const fecha2 = document.getElementById("Fecha2").value;
