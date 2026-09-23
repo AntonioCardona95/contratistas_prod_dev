@@ -71,6 +71,17 @@ if (is_array($qrDisponiblesT)) {
 <!-- Content Row -->
 <div class="row kpi-cards-row">
 
+    <!-- NUEVA CARD DE PRUEBA -->
+    <div class="col-kpi-5 mb-4">
+        <div class="kpi-card kpi-card-info">
+            <div class="kpi-card-body">
+                <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
+                <div class="kpi-card-label">Total Produccion</div>
+                <div class="kpi-card-number">0</div>
+            </div>
+        </div>
+    </div>
+
     <div class="col-kpi-5 mb-4">
         <a href="detalle_ont_disponibles.php" data-detalle="total" class="kpi-card-link">
             <div class="kpi-card kpi-card-danger">
