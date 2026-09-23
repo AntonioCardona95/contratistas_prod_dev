@@ -16,8 +16,6 @@ require_once(__DIR__ . '/../../config/ContratistaContexto.php');
 
 require_once("../controller/ClassConsultasProduccion.php");
 
-$consultas = new ClassConsultasProduccion();
-
 $Contratista = $_SESSION['Contratista'] ?? null;
 $idContratistas = obtenerIdContratistaContexto();
 
@@ -39,15 +37,28 @@ if (!empty($Fecha1) && !empty($Fecha2)) {
 }
 
 $index = new Index();
+$consultas = new ClassConsultasProduccion();
 
-// TOTAL PRODUCCIÓN EN EL RANGO DE FECHAS
+// --- Producción por fechas (inicia en 0) ---
 $TotalProduccion = 0;
-$qrProduccion = $consultas->CountProduccionTotal($Fecha1, $Fecha2);
+if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
+    $qrProduccion = $consultas->CountProduccionPorFechas($Fecha1, $Fecha2);
+    if (is_array($qrProduccion) && !empty($qrProduccion)) {
+        foreach ($qrProduccion as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalProduccion = (int)$row['TOTAL'];
+            }
+        }
+    }
+}
 
-if (is_array($qrProduccion) && !empty($qrProduccion)) {
-    foreach ($qrProduccion as $row) {
+// --- Producción acumulada (siempre cargada desde inicio) ---
+$ProduccionAcumulada = 0;
+$qrProduccionTotal = $consultas->CountProduccionTotal();
+if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
+    foreach ($qrProduccionTotal as $row) {
         if (isset($row['TOTAL'])) {
-            $TotalProduccion = (int)$row['TOTAL'];
+            $ProduccionAcumulada = (int)$row['TOTAL'];
         }
     }
 }
@@ -89,16 +100,28 @@ if (is_array($qrDisponiblesT)) {
 <!-- Content Row -->
 <div class="row kpi-cards-row">
 
-    <!-- NUEVA CARD DE PRUEBA -->
-    <div class="col-kpi-5 mb-4">
+   <!-- Producción por fechas (inicia en 0) -->
+<div class="col-kpi-5 mb-4">
     <div class="kpi-card kpi-card-info">
         <div class="kpi-card-body">
             <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
-            <div class="kpi-card-label">Total Producción</div>
+            <div class="kpi-card-label">Total Producción (por fechas)</div>
             <div class="kpi-card-number"><?php echo number_format($TotalProduccion); ?></div>
         </div>
     </div>
 </div>
+
+<!-- Producción acumulada (siempre cargada) -->
+<div class="col-kpi-5 mb-4">
+    <div class="kpi-card kpi-card-success">
+        <div class="kpi-card-body">
+            <div class="kpi-card-icon"><i class="fas fa-database"></i></div>
+            <div class="kpi-card-label">Producción acumulada</div>
+            <div class="kpi-card-number"><?php echo number_format($ProduccionAcumulada); ?></div>
+        </div>
+    </div>
+</div>
+
 
     <div class="col-kpi-5 mb-4">
         <a href="detalle_ont_disponibles.php" data-detalle="total" class="kpi-card-link">
