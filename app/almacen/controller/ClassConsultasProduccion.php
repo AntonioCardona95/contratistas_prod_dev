@@ -117,6 +117,25 @@ public function CountProduccionTotal()
     return $this->runQuery($sql, array(), 'analisis');
 }
 
+// TEMPORAL DE PRUBA PRODUCCION //
+public function GetProduccionPorFechas($fechaInicio, $fechaFin, $limit = 5)
+{
+    $sql = "SELECT *
+            FROM seg_ns_prod_eval
+            WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin
+            ORDER BY FECHA_LIQ ASC
+            LIMIT :limit";
+
+    $params = array(
+        ':fechaInicio' => $fechaInicio,
+        ':fechaFin'    => $fechaFin,
+        ':limit'       => (int)$limit
+    );
+
+    return $this->runQuery($sql, $params, 'analisis');
+}
+
+
 
 
 
