@@ -141,6 +141,10 @@ public function GetProduccionPorFechas($fechaInicio, $fechaFin)
 
 public function GetNumSeriesEnAlmacen(array $numSeries)
 {
+    echo "<pre>Entrando a GetNumSeriesEnAlmacen\n";
+    echo "Cantidad de NumSeries recibidos: " . count($numSeries) . "\n";
+    var_dump(array_slice($numSeries, 0, 5)); // muestra 5
+    echo "</pre>";
     if (empty($numSeries)) return [];
 
     // Generar placeholders dinámicos
