@@ -93,6 +93,17 @@ if (is_array($qrDisponiblesT)) {
 } else {
     $TTotalDisponible = (int)$qrDisponiblesT;
 }
+
+// EJEMPLO: obtener 5 registros para depuración
+$ejemploRegistros = $consultas->GetProduccionPorFechas($Fecha1, $Fecha2, 5);
+
+echo "<pre>";
+echo "=== EJEMPLO DE REGISTROS ===\n";
+var_dump($ejemploRegistros);
+echo "</pre>";
+
+
+
 ?>
 
 <link rel="stylesheet" href="css/kpis-produccion.css">
