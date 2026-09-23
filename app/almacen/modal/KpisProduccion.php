@@ -100,16 +100,6 @@ if (is_array($qrDisponiblesT)) {
 <!-- Content Row -->
 <div class="row kpi-cards-row">
 
-   <!-- Producción por fechas (inicia en 0) -->
-<div class="col-kpi-5 mb-4">
-    <div class="kpi-card kpi-card-info">
-        <div class="kpi-card-body">
-            <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
-            <div class="kpi-card-label">Total Producción (por fechas)</div>
-            <div class="kpi-card-number"><?php echo number_format($TotalProduccion); ?></div>
-        </div>
-    </div>
-</div>
 
 <!-- Producción acumulada (siempre cargada) -->
 <div class="col-kpi-5 mb-4">
@@ -121,6 +111,18 @@ if (is_array($qrDisponiblesT)) {
         </div>
     </div>
 </div>
+
+   <!-- Producción por fechas (inicia en 0) -->
+<div class="col-kpi-5 mb-4">
+    <div class="kpi-card kpi-card-info">
+        <div class="kpi-card-body">
+            <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
+            <div class="kpi-card-label">Total Producción (por fechas)</div>
+            <div class="kpi-card-number"><?php echo number_format($TotalProduccion); ?></div>
+        </div>
+    </div>
+</div>
+
 
 
     <div class="col-kpi-5 mb-4">
