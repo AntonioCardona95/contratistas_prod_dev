@@ -49,7 +49,7 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         }
     }
 
-    // 🚀 Traer registros y procesarlos
+    //  Traer registros y procesarlos
     $registros = $consultas->GetProduccionPorFechas($Fecha1, $Fecha2);
     $numSeries = array_column($registros, 'Num__Serie');
 
@@ -71,7 +71,7 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         }
     }
 
-    // 🔎 DEPURACIÓN: ver cómo llegan los registros
+    //  DEPURACIÓN: ver cómo llegan los registros
     /*echo "<pre>";
     echo "=== EJEMPLO DE REGISTROS ===\n";
     var_dump(array_slice($registros, 0, 5)); // solo 5 para no saturar
