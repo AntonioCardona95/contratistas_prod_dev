@@ -148,8 +148,8 @@ public function GetProduccionPorFechas($fechaInicio, $fechaFin)
 
     $params = array(
         ':fechaInicio' => $fechaInicio,
-        ':fechaFin'    => $fechaFin,
-        ':limit'       => (int)$limit
+        ':fechaFin'    => $fechaFin
+        
     );
 
     return $this->runQuery($sql, $params, 'analisis');
