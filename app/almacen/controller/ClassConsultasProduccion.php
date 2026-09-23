@@ -176,6 +176,9 @@ public function GetNumSeriesEnAlmacen(array $numSeries)
 
 public function InsertProduccionDiaria(array $registro, bool $tieneSenalamiento)
 {
+    echo "<pre>Entrando a InsertProduccionDiaria\n";
+    echo "Folio: {$registro['Folio_Pisa']} - Teléfono: {$registro['TELEFONO']} - NumSerie: {$registro['Num__Serie']}\n";
+    echo "Tiene señalamiento: " . ($tieneSenalamiento ? 'SI' : 'NO') . "\n</pre>";
     $sql = "INSERT INTO seg_produccion_diaria (
                 Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
                 FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
@@ -216,6 +219,9 @@ public function InsertProduccionDiaria(array $registro, bool $tieneSenalamiento)
 
 public function InsertSenalamiento(array $registro, string $tipoSenalamiento)
 {
+    echo "<pre>Entrando a InsertSenalamiento\n";
+    echo "Folio: {$registro['Folio_Pisa']} - Teléfono: {$registro['TELEFONO']} - NumSerie: {$registro['Num__Serie']}\n";
+    echo "Tipo señalamiento: $tipoSenalamiento\n</pre>";
     $sql = "INSERT INTO seg_produccion_senalamiento (
                 Folio_Pisa, TELEFONO, FECHA_LIQ,
                 Tipo_Senalamiento, Detalle, Fecha_Registro
