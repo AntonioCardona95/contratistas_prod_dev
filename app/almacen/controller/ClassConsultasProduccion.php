@@ -134,8 +134,12 @@ public function GetNumSeriesEnAlmacen(array $numSeries)
 
 
 // TEMPORAL DE PRUBA PRODUCCION //
-public function GetProduccionPorFechas($fechaInicio, $fechaFin, $limit = 5)
+public function GetProduccionPorFechas($fechaInicio, $fechaFin)
 {
+    echo "<pre>Entrando a GetProduccionPorFechas\n";
+    echo "FechaInicio: $fechaInicio\n";
+    echo "FechaFin: $fechaFin\n</pre>";
+
     $sql = "SELECT *
             FROM seg_ns_prod_eval
             WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin
