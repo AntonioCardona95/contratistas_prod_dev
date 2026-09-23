@@ -13,6 +13,11 @@ error_reporting(E_ALL);
 require_once("../controller/ClassIndex.php");
 require_once(__DIR__ . '/../../config/ContratistaContexto.php');
 
+
+require_once("../controller/ClassConsultasProduccion.php");
+
+$consultas = new ClassConsultasProduccion();
+
 $Contratista = $_SESSION['Contratista'] ?? null;
 $idContratistas = obtenerIdContratistaContexto();
 
@@ -34,6 +39,19 @@ if (!empty($Fecha1) && !empty($Fecha2)) {
 }
 
 $index = new Index();
+
+// TOTAL PRODUCCIÓN EN EL RANGO DE FECHAS
+$TotalProduccion = 0;
+$qrProduccion = $consultas->CountProduccionTotal($Fecha1, $Fecha2);
+
+if (is_array($qrProduccion) && !empty($qrProduccion)) {
+    foreach ($qrProduccion as $row) {
+        if (isset($row['TOTAL'])) {
+            $TotalProduccion = (int)$row['TOTAL'];
+        }
+    }
+}
+
 
 // NUMEROS DE SERIE DISPONIBLES ERP (EN FECHA)
 $TotalDisponible = 0;
@@ -73,14 +91,14 @@ if (is_array($qrDisponiblesT)) {
 
     <!-- NUEVA CARD DE PRUEBA -->
     <div class="col-kpi-5 mb-4">
-        <div class="kpi-card kpi-card-info">
-            <div class="kpi-card-body">
-                <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
-                <div class="kpi-card-label">Total Produccion</div>
-                <div class="kpi-card-number">0</div>
-            </div>
+    <div class="kpi-card kpi-card-info">
+        <div class="kpi-card-body">
+            <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
+            <div class="kpi-card-label">Total Producción</div>
+            <div class="kpi-card-number"><?php echo number_format($TotalProduccion); ?></div>
         </div>
     </div>
+</div>
 
     <div class="col-kpi-5 mb-4">
         <a href="detalle_ont_disponibles.php" data-detalle="total" class="kpi-card-link">
