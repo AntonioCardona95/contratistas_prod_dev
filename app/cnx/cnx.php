@@ -133,4 +133,28 @@ class Conexion
             die("Error de conexión a la base de datos remota: " . $e->getMessage());
         }
     }
+
+
+    public function get_conexion_nass()
+    {
+
+        
+        //$user = "user1";
+        $user = "erpintr1";
+        $pass = "$7nM7g9d5";
+        $host = "198.251.78.237";
+        $db = "admin_nass";
+        $dsn = "mysql:host=$host;dbname=$db;charset=utf8";
+
+        try {
+            $conexion = new PDO( $dsn, $user, $pass, [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+            ] );
+            return $conexion;
+        } catch (PDOException $e) {
+            // Loguear el error en producción en vez de mostrarlo
+            die("Error de conexión a la base de datos remota: " . $e->getMessage());
+        }
+    }
 }
