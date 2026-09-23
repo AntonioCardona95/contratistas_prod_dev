@@ -117,6 +117,38 @@ public function CountProduccionTotal()
     return $this->runQuery($sql, array(), 'analisis');
 }
 
+public function GetProduccionPorFechas($fechaInicio, $fechaFin)
+{
+    $sql = "SELECT 
+                Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
+                FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
+                idContratista, Contratista, Tecnico, NOM_DIVISION, NOM_AREA,
+                Num__Serie, DISTRITO, TERMINAL
+            FROM seg_ns_prod_eval
+            WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+
+    $params = [
+        ':fechaInicio' => $fechaInicio,
+        ':fechaFin'    => $fechaFin
+    ];
+
+    return $this->runQuery($sql, $params, 'analisis');
+}
+
+
+public function GetNumSeriesEnAlmacen(array $numSeries)
+{
+    if (empty($numSeries)) return [];
+
+    // Generar placeholders dinámicos
+    $placeholders = implode(',', array_fill(0, count($numSeries), '?'));
+    $sql = "SELECT Num_Serie FROM materiales_det WHERE Num_Serie IN ($placeholders)";
+
+    $rows = $this->runQuery($sql, $numSeries, 'default');
+    return array_column($rows, 'Num_Serie'); // devuelve solo los encontrados
+}
+
+
 // TEMPORAL DE PRUBA PRODUCCION //
 public function GetProduccionPorFechas($fechaInicio, $fechaFin, $limit = 5)
 {
@@ -134,6 +166,68 @@ public function GetProduccionPorFechas($fechaInicio, $fechaFin, $limit = 5)
 
     return $this->runQuery($sql, $params, 'analisis');
 }
+
+public function InsertProduccionDiaria(array $registro, bool $tieneSenalamiento)
+{
+    $sql = "INSERT INTO seg_produccion_diaria (
+                Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
+                FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
+                idContratista, Contratista, Tecnico, NOM_DIVISION, NOM_AREA,
+                Num__Serie, DISTRITO, TERMINAL, Fecha_Insercion, Tiene_Senalamiento
+            ) VALUES (
+                :Expediente, :Folio_Pisa, :TELEFONO, :Tipo_de_Tarea, :NOM_CT,
+                :FECHA_LIQ, :FECHA_LIQD, :Semana, :Sem, :Anio,
+                :idContratista, :Contratista, :Tecnico, :NOM_DIVISION, :NOM_AREA,
+                :Num__Serie, :DISTRITO, :TERMINAL, NOW(), :Tiene_Senalamiento
+            )";
+
+    $params = [
+        ':Expediente'         => $registro['Expediente'],
+        ':Folio_Pisa'         => $registro['Folio_Pisa'],
+        ':TELEFONO'           => $registro['TELEFONO'],
+        ':Tipo_de_Tarea'      => $registro['Tipo_de_Tarea'],
+        ':NOM_CT'             => $registro['NOM_CT'],
+        ':FECHA_LIQ'          => $registro['FECHA_LIQ'],
+        ':FECHA_LIQD'         => $registro['FECHA_LIQD'],
+        ':Semana'             => $registro['Semana'],
+        ':Sem'                => $registro['Sem'],
+        ':Anio'               => $registro['Anio'],
+        ':idContratista'      => $registro['idContratista'],
+        ':Contratista'        => $registro['Contratista'],
+        ':Tecnico'            => $registro['Tecnico'],
+        ':NOM_DIVISION'       => $registro['NOM_DIVISION'],
+        ':NOM_AREA'           => $registro['NOM_AREA'],
+        ':Num__Serie'         => $registro['Num__Serie'],
+        ':DISTRITO'           => $registro['DISTRITO'],
+        ':TERMINAL'           => $registro['TERMINAL'],
+        ':Tiene_Senalamiento' => $tieneSenalamiento ? 1 : 0
+    ];
+
+    return $this->runExecute($sql, $params, 'default');
+}
+
+
+public function InsertSenalamiento(array $registro, string $tipoSenalamiento)
+{
+    $sql = "INSERT INTO seg_produccion_senalamiento (
+                Folio_Pisa, TELEFONO, FECHA_LIQ,
+                Tipo_Senalamiento, Detalle, Fecha_Registro
+            ) VALUES (
+                :Folio_Pisa, :TELEFONO, :FECHA_LIQ,
+                :Tipo_Senalamiento, :Detalle, NOW()
+            )";
+
+    $params = [
+        ':Folio_Pisa'        => $registro['Folio_Pisa'],
+        ':TELEFONO'          => $registro['TELEFONO'],
+        ':FECHA_LIQ'         => $registro['FECHA_LIQ'],
+        ':Tipo_Senalamiento' => $tipoSenalamiento,
+        ':Detalle'           => "Num__Serie=" . $registro['Num__Serie'] . " no encontrado en almacén"
+    ];
+
+    return $this->runExecute($sql, $params, 'default');
+}
+
 
 
 
