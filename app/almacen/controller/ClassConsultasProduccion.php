@@ -92,7 +92,9 @@ class ClassConsultasProduccion extends Conexion
         }
     }
 
-    public function CountProduccionTotal($fechaInicio, $fechaFin)
+
+    // Producción filtrada por fechas (inicia en 0 hasta que selecciones fechas)
+public function CountProduccionPorFechas($fechaInicio, $fechaFin)
 {
     $sql = "SELECT COUNT(1) AS TOTAL
             FROM seg_ns_prod_eval
@@ -103,9 +105,18 @@ class ClassConsultasProduccion extends Conexion
         ':fechaFin'    => $fechaFin
     );
 
-    // Usamos la conexión 'analisis' porque ahí está la tabla
     return $this->runQuery($sql, $params, 'analisis');
 }
+
+// Producción total acumulada (sin filtro de fechas)
+public function CountProduccionTotal()
+{
+    $sql = "SELECT COUNT(1) AS TOTAL
+            FROM seg_ns_prod_eval";
+
+    return $this->runQuery($sql, array(), 'analisis');
+}
+
 
 
 
