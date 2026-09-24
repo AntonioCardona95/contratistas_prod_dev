@@ -57,6 +57,57 @@ class ClassConsultasProduccion extends Conexion
     }
 
     protected function runExecute($sql, $params = array(), $conexionTipo = 'default')
+{
+    switch ($conexionTipo) {
+        case 'analisis':
+        case 'analytics':
+            $conexion = $this->get_conexion_analisis();
+            break;
+        case 'nass':
+            $conexion = $this->get_conexion_nass();
+            break;
+        case 'dos':
+            $conexion = $this->get_conexiondos();
+            break;
+        default:
+            $conexion = $this->get_conexion();
+            break;
+    }
+
+    try {
+        $stmt = $conexion->prepare($sql);
+
+        // --- DEBUG: imprime la base activa ---
+        $dbName = $conexion->query("SELECT DATABASE()")->fetchColumn();
+        echo "<pre>Usando base de datos: $dbName</pre>";
+
+        // --- DEBUG: imprime SQL y parámetros ---
+        echo "<pre>SQL preparado:\n$sql\n</pre>";
+        echo "<pre>Parámetros:\n" . print_r($params, true) . "</pre>";
+
+        foreach ($params as $key => $val) {
+            if (is_int($key)) {
+                $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+            } else {
+                $param = ':' . ltrim($key, ':');
+                $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+            }
+        }
+
+        $stmt->execute();
+
+        $lastId = (int)$conexion->lastInsertId();
+        echo "<pre>✅ runExecute ejecutado. lastInsertId = $lastId</pre>";
+
+        return $lastId;
+    } catch (PDOException $e) {
+        echo "<pre>❌ Error en runExecute: " . $e->getMessage() . "</pre>";
+        return 0;
+    }
+}
+
+
+    /*protected function runExecute($sql, $params = array(), $conexionTipo = 'default')
     {
         switch ($conexionTipo) {
             case 'analisis':
@@ -90,7 +141,7 @@ class ClassConsultasProduccion extends Conexion
             error_log("[ClassConsultasProduccion::runExecute] Error: " . $e->getMessage() . " SQL: " . $sql);
             return 0;
         }
-    }
+    } */
 
 
     // Producción filtrada por fechas (inicia en 0 hasta que selecciones fechas)
@@ -176,6 +227,7 @@ public function GetNumSeriesEnAlmacen(array $numSeries)
 
 public function InsertProduccionDiaria(array $registro, bool $tieneSenalamiento)
 {
+    
     /*echo "<pre>Entrando a InsertProduccionDiaria\n";
     echo "Folio: {$registro['Folio_Pisa']} - Teléfono: {$registro['TELEFONO']} - NumSerie: {$registro['Num__Serie']}\n";
     echo "Tiene señalamiento: " . ($tieneSenalamiento ? 'SI' : 'NO') . "\n</pre>"; */
