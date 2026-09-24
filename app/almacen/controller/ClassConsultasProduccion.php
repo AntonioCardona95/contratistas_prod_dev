@@ -181,7 +181,7 @@ class ClassConsultasProduccion extends Conexion
     }
 
     /**
-     * Inserción en lote diferenciando claramente discrepancias de ECI vs Almacén
+     * Inserción masiva procesando datos, orígenes y registrando señalamientos
      */
     public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes)
     {
@@ -212,7 +212,10 @@ class ClassConsultasProduccion extends Conexion
                     $serieProdOrig = $reg['Serie_Original_Prod'] ?? '';
                     $origen = $reg['Origen_Serie'] ?? 'PRODUCCION';
                     
+                    // Verificar existencia en almacén
                     $faltaAlmacen = $this->esSerieInvalida($serieEvaluada) || !isset($mapExistentes[$serieEvaluada]);
+                    
+                    // Tiene señalamiento si hubo discrepancia ECI o si no existe en almacén
                     $tieneSenalamiento = ($reg['Tiene_Senalamiento_Conflicto'] ?? false) || $faltaAlmacen;
 
                     $values[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
@@ -230,7 +233,7 @@ class ClassConsultasProduccion extends Conexion
                 $stmtDiaria->execute($params);
             }
 
-            // 2. Definir y acumular los señalamientos
+            // 2. Definición y acumulación de los registros para seg_produccion_senalamiento
             $senalamientos = [];
 
             foreach ($registros as $reg) {
@@ -239,7 +242,7 @@ class ClassConsultasProduccion extends Conexion
                 $origen = $reg['Origen_Serie'] ?? 'PRODUCCION';
                 $existeEnAlmacen = isset($mapExistentes[$serieEvaluada]);
 
-                // SEÑALAMIENTO A: Discrepancia entre la Serie de Producción y ECI
+                // SEÑALAMIENTO A: Discrepancia real entre Producción y ECI
                 if (!empty($reg['Tiene_Senalamiento_Conflicto'])) {
                     $estadoAlmacenTexto = $existeEnAlmacen ? "SÍ existe en almacén" : "NO existe en almacén";
                     
@@ -252,14 +255,14 @@ class ClassConsultasProduccion extends Conexion
                     ];
                 }
 
-                // SEÑALAMIENTO B: No encontrado en Almacén o serie vacía
+                // SEÑALAMIENTO B: La serie evaluada NO fue encontrada en Almacén
                 if ($this->esSerieInvalida($serieEvaluada)) {
                     $senalamientos[] = [
                         'Folio_Pisa'        => $reg['Folio_Pisa'],
                         'TELEFONO'          => $reg['TELEFONO'],
                         'FECHA_LIQ'         => $reg['FECHA_LIQ'],
                         'Tipo_Senalamiento' => 'NO ENCONTRADO EN ALMACEN',
-                        'Detalle'           => "Número de serie sin asignar o no obtenido (Origen: " . $origen . ")"
+                        'Detalle'           => "Número de serie no obtenido en Producción ni en ECI"
                     ];
                 } elseif (!$existeEnAlmacen) {
                     $senalamientos[] = [
@@ -267,12 +270,12 @@ class ClassConsultasProduccion extends Conexion
                         'TELEFONO'          => $reg['TELEFONO'],
                         'FECHA_LIQ'         => $reg['FECHA_LIQ'],
                         'Tipo_Senalamiento' => 'NO ENCONTRADO EN ALMACEN',
-                        'Detalle'           => "Num__Serie=" . $serieEvaluada . " (Origen: " . $origen . ") no fue encontrada en almacén"
+                        'Detalle'           => "Serie " . $serieEvaluada . " (Origen: " . $origen . ") NO fue encontrada en almacén"
                     ];
                 }
             }
 
-            // 3. Inserción en batch de señalamientos
+            // 3. Inserción masiva en seg_produccion_senalamiento
             if (!empty($senalamientos)) {
                 $chunksSenalamiento = array_chunk($senalamientos, $batchSize);
                 $sqlSenalBase = "INSERT INTO seg_produccion_senalamiento (
