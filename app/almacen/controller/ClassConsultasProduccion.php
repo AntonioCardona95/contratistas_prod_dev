@@ -185,6 +185,10 @@ class ClassConsultasProduccion extends Conexion
      */
     public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes)
     {
+         // Depuración: mostrar solo los primeros 5 registros
+    echo "<pre>";
+    print_r(array_slice($registros, 0, 5));
+    echo "</pre>";
         if (empty($registros)) return true;
 
         $conexion = $this->conexion(); // Conexión 'erpprint'
