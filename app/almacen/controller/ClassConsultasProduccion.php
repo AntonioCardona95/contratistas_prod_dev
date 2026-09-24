@@ -91,7 +91,7 @@ class ClassConsultasProduccion extends Conexion
         }
     }
 
-    // Producción filtrada por fechas (inicia en 0 hasta que selecciones fechas)
+    // Producción filtrada por fechas
     public function CountProduccionPorFechas($fechaInicio, $fechaFin)
     {
         $sql = "SELECT COUNT(1) AS TOTAL
@@ -106,7 +106,7 @@ class ClassConsultasProduccion extends Conexion
         return $this->runQuery($sql, $params, 'analisis');
     }
 
-    // Producción total acumulada (sin filtro de fechas)
+    // Producción total acumulada
     public function CountProduccionTotal()
     {
         $sql = "SELECT COUNT(1) AS TOTAL
@@ -133,25 +133,71 @@ class ClassConsultasProduccion extends Conexion
         return $this->runQuery($sql, $params, 'analisis');
     }
 
+    /**
+     * Evalúa si un número de serie se considera vacío o no obtenido
+     */
+    public function esSerieInvalida(?string $serie): bool
+    {
+        if (empty($serie)) return true;
+        
+        $serieLimpia = strtoupper(trim($serie));
+        $invalidas = ['NS_NOOBTENIDO', 'NS_NO OBTENIDO', 'NS NO OBTENIDO', 'NS NOOBTENIDO', 'N/A', 'NULL', 'UNDEFINED', '0'];
+        
+        return in_array($serieLimpia, $invalidas, true);
+    }
+
+    /**
+     * Busca las series de una lista de teléfonos en la tabla seg_ns_eci (solo activos y más recientes)
+     */
+    public function GetSeriesPorTelefonosEci(array $telefonos): array
+    {
+        if (empty($telefonos)) return [];
+
+        $telefonos = array_unique(array_filter($telefonos));
+        if (empty($telefonos)) return [];
+
+        $placeholders = implode(',', array_fill(0, count($telefonos), '?'));
+        
+        $sql = "SELECT TELEFONO, M_SERIE, F_CONSULTA
+                FROM seg_ns_eci
+                WHERE DID_ACTIVO = 1
+                  AND TELEFONO IN ($placeholders)
+                ORDER BY F_CONSULTA DESC";
+
+        $rows = $this->runQuery($sql, array_values($telefonos), 'analisis');
+
+        $mapTelefonoSerie = [];
+        foreach ($rows as $row) {
+            $tel = trim($row['TELEFONO']);
+            $serie = trim($row['M_SERIE']);
+
+            // Se asigna la más reciente por el ORDER BY
+            if (!isset($mapTelefonoSerie[$tel]) && !$this->esSerieInvalida($serie)) {
+                $mapTelefonoSerie[$tel] = $serie;
+            }
+        }
+
+        return $mapTelefonoSerie;
+    }
+
     public function GetNumSeriesEnAlmacen(array $numSeries)
     {
+        $numSeries = array_unique(array_filter($numSeries));
         if (empty($numSeries)) return [];
 
         $placeholders = implode(',', array_fill(0, count($numSeries), '?'));
         $sql = "SELECT Num_Serie FROM materiales_det WHERE Num_Serie IN ($placeholders)";
 
-        $rows = $this->runQuery($sql, $numSeries, 'erpprint');
+        // CORRECCIÓN: Usar array_values() para reindexar de 0 a N-1
+        $rows = $this->runQuery($sql, array_values($numSeries), 'erpprint');
         return array_column($rows, 'Num_Serie');
     }
 
     /**
-     * Inserción en lote (Batch)  usando transacciones PDO
+     * Inserción en lote (Batch) usando transacciones PDO
      */
     public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes)
     {
-        // registros el arreglo con todos los registros que se van a insertar
-        //map existentes array asociativo de números de serie que ya existen en almacén, 
-        //para decidir si se marca señalamiento o no
         if (empty($registros)) return true;
 
         $conexion = $this->conexion(); // Conexión 'erpprint'
@@ -160,7 +206,6 @@ class ClassConsultasProduccion extends Conexion
             $conexion->beginTransaction();
 
             $batchSize = 200;
-            // dividir el arreglo de registros en bloques de 200
             $chunks = array_chunk($registros, $batchSize);
 
             // 1. Inserción masiva en seg_produccion_diaria
@@ -170,13 +215,16 @@ class ClassConsultasProduccion extends Conexion
                                 idContratista, Contratista, Tecnico, NOM_DIVISION, NOM_AREA,
                                 Num__Serie, DISTRITO, TERMINAL, Fecha_Insercion, Tiene_Senalamiento
                             ) VALUES ";
-            // Recorrer cada bloque de 200
+
             foreach ($chunks as $chunk) {
                 $values = [];
                 $params = [];
 
                 foreach ($chunk as $reg) {
-                    $tieneSenalamiento = !isset($mapExistentes[$reg['Num__Serie']]);
+                    $serie = $reg['Num__Serie'] ?? '';
+                    // CORRECCIÓN: Validación segura con esSerieInvalida y isset
+                    $tieneSenalamiento = $this->esSerieInvalida($serie) || !isset($mapExistentes[$serie]);
+                    
                     $values[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
 
                     array_push(
@@ -184,7 +232,7 @@ class ClassConsultasProduccion extends Conexion
                         $reg['Expediente'], $reg['Folio_Pisa'], $reg['TELEFONO'], $reg['Tipo_de_Tarea'], $reg['NOM_CT'],
                         $reg['FECHA_LIQ'], $reg['FECHA_LIQD'], $reg['Semana'], $reg['Sem'], $reg['Anio'],
                         $reg['idContratista'], $reg['Contratista'], $reg['Tecnico'], $reg['NOM_DIVISION'], $reg['NOM_AREA'],
-                        $reg['Num__Serie'], $reg['DISTRITO'], $reg['TERMINAL'], $tieneSenalamiento ? 1 : 0
+                        $serie, $reg['DISTRITO'], $reg['TERMINAL'], $tieneSenalamiento ? 1 : 0
                     );
                 }
 
@@ -194,7 +242,8 @@ class ClassConsultasProduccion extends Conexion
 
             // 2. Inserción masiva en seg_produccion_senalamiento
             $senalamientos = array_filter($registros, function ($reg) use ($mapExistentes) {
-                return !isset($mapExistentes[$reg['Num__Serie']]);
+                $serie = $reg['Num__Serie'] ?? '';
+                return $this->esSerieInvalida($serie) || !isset($mapExistentes[$serie]);
             });
 
             if (!empty($senalamientos)) {
@@ -208,6 +257,11 @@ class ClassConsultasProduccion extends Conexion
                     $params = [];
 
                     foreach ($chunk as $reg) {
+                        $serie = $reg['Num__Serie'] ?? '';
+                        $detalle = $this->esSerieInvalida($serie)
+                            ? "Num__Serie sin asignar o no obtenido"
+                            : "Num__Serie=" . $serie . " no encontrado en almacén";
+
                         $values[] = "(?, ?, ?, ?, ?, NOW())";
                         array_push(
                             $params,
@@ -215,7 +269,7 @@ class ClassConsultasProduccion extends Conexion
                             $reg['TELEFONO'],
                             $reg['FECHA_LIQ'],
                             'NO ENCONTRADO EN ALMACEN',
-                            "Num__Serie=" . $reg['Num__Serie'] . " no encontrado en almacén"
+                            $detalle
                         );
                     }
 
@@ -266,7 +320,7 @@ class ClassConsultasProduccion extends Conexion
             ':Tecnico'             => $registro['Tecnico'],
             ':NOM_DIVISION'        => $registro['NOM_DIVISION'],
             ':NOM_AREA'            => $registro['NOM_AREA'],
-            ':Num__Serie'          => $registro['Num__Serie'],
+            ':Num__Serie'          => $registro['Num__Serie'] ?? '',
             ':DISTRITO'            => $registro['DISTRITO'],
             ':TERMINAL'            => $registro['TERMINAL'],
             ':Tiene_Senalamiento' => $tieneSenalamiento ? 1 : 0
@@ -290,7 +344,7 @@ class ClassConsultasProduccion extends Conexion
             ':TELEFONO'          => $registro['TELEFONO'],
             ':FECHA_LIQ'         => $registro['FECHA_LIQ'],
             ':Tipo_Senalamiento' => $tipoSenalamiento,
-            ':Detalle'           => "Num__Serie=" . $registro['Num__Serie'] . " no encontrado en almacén"
+            ':Detalle'           => "Num__Serie=" . ($registro['Num__Serie'] ?? '') . " no encontrado en almacén"
         ];
 
         return $this->runExecute($sql, $params, 'erpprint');
