@@ -138,9 +138,6 @@ class ClassConsultasProduccion extends Conexion
         return in_array($serieLimpia, $invalidas, true);
     }
 
-    /**
-     * Consulta las series registradas en ECI para una lista de teléfonos
-     */
     public function GetSeriesPorTelefonosEci(array $telefonos): array
     {
         if (empty($telefonos)) return [];
@@ -184,7 +181,7 @@ class ClassConsultasProduccion extends Conexion
     }
 
     /**
-     * Inserción masiva procesando origen de serie y señalamientos acumulados
+     * Inserción en lote diferenciando claramente discrepancias de ECI vs Almacén
      */
     public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes)
     {
@@ -198,12 +195,12 @@ class ClassConsultasProduccion extends Conexion
             $batchSize = 200;
             $chunks = array_chunk($registros, $batchSize);
 
-            // 1. Inserción masiva en seg_produccion_diaria agregando Origen_Serie
+            // 1. Inserción masiva en seg_produccion_diaria
             $sqlDiariaBase = "INSERT INTO seg_produccion_diaria (
                                 Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
                                 FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
                                 idContratista, Contratista, Tecnico, NOM_DIVISION, NOM_AREA,
-                                Num__Serie, Origen_Serie, DISTRITO, TERMINAL, Fecha_Insercion, Tiene_Senalamiento
+                                Num__Serie, Serie_Produccion_Orig, Origen_Serie, DISTRITO, TERMINAL, Fecha_Insercion, Tiene_Senalamiento
                             ) VALUES ";
 
             foreach ($chunks as $chunk) {
@@ -211,21 +208,21 @@ class ClassConsultasProduccion extends Conexion
                 $params = [];
 
                 foreach ($chunk as $reg) {
-                    $serie = $reg['Num__Serie'] ?? '';
+                    $serieEvaluada = $reg['Num__Serie'] ?? '';
+                    $serieProdOrig = $reg['Serie_Original_Prod'] ?? '';
                     $origen = $reg['Origen_Serie'] ?? 'PRODUCCION';
                     
-                    // Tiene señalamiento si ya fue marcado por conflicto ECI o si no existe en almacén
-                    $faltaAlmacen = $this->esSerieInvalida($serie) || !isset($mapExistentes[$serie]);
+                    $faltaAlmacen = $this->esSerieInvalida($serieEvaluada) || !isset($mapExistentes[$serieEvaluada]);
                     $tieneSenalamiento = ($reg['Tiene_Senalamiento_Conflicto'] ?? false) || $faltaAlmacen;
 
-                    $values[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
+                    $values[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
 
                     array_push(
                         $params,
                         $reg['Expediente'], $reg['Folio_Pisa'], $reg['TELEFONO'], $reg['Tipo_de_Tarea'], $reg['NOM_CT'],
                         $reg['FECHA_LIQ'], $reg['FECHA_LIQD'], $reg['Semana'], $reg['Sem'], $reg['Anio'],
                         $reg['idContratista'], $reg['Contratista'], $reg['Tecnico'], $reg['NOM_DIVISION'], $reg['NOM_AREA'],
-                        $serie, $origen, $reg['DISTRITO'], $reg['TERMINAL'], $tieneSenalamiento ? 1 : 0
+                        $serieEvaluada, $serieProdOrig, $origen, $reg['DISTRITO'], $reg['TERMINAL'], $tieneSenalamiento ? 1 : 0
                     );
                 }
 
@@ -233,44 +230,49 @@ class ClassConsultasProduccion extends Conexion
                 $stmtDiaria->execute($params);
             }
 
-            // 2. Recolectar registros que generan señalamientos
+            // 2. Definir y acumular los señalamientos
             $senalamientos = [];
 
             foreach ($registros as $reg) {
-                $serie = $reg['Num__Serie'] ?? '';
-                
-                // Señalamiento 1: Discrepancia entre la serie de Producción y ECI
+                $serieEvaluada = $reg['Num__Serie'] ?? '';
+                $serieProdOrig = $reg['Serie_Original_Prod'] ?? '';
+                $origen = $reg['Origen_Serie'] ?? 'PRODUCCION';
+                $existeEnAlmacen = isset($mapExistentes[$serieEvaluada]);
+
+                // SEÑALAMIENTO A: Discrepancia entre la Serie de Producción y ECI
                 if (!empty($reg['Tiene_Senalamiento_Conflicto'])) {
+                    $estadoAlmacenTexto = $existeEnAlmacen ? "SÍ existe en almacén" : "NO existe en almacén";
+                    
                     $senalamientos[] = [
-                        'Folio_Pisa'         => $reg['Folio_Pisa'],
-                        'TELEFONO'           => $reg['TELEFONO'],
-                        'FECHA_LIQ'          => $reg['FECHA_LIQ'],
-                        'Tipo_Senalamiento'  => 'DISCREPANCIA SERIE ECI',
-                        'Detalle'            => "Serie Producción (" . $reg['Serie_Original_Prod'] . ") difiere de Serie ECI (" . $serie . ")"
+                        'Folio_Pisa'        => $reg['Folio_Pisa'],
+                        'TELEFONO'          => $reg['TELEFONO'],
+                        'FECHA_LIQ'         => $reg['FECHA_LIQ'],
+                        'Tipo_Senalamiento' => 'DISCREPANCIA SERIE ECI',
+                        'Detalle'           => "Serie Producción (" . $serieProdOrig . ") difiere de Serie ECI (" . $serieEvaluada . "). La serie de ECI " . $estadoAlmacenTexto . "."
                     ];
                 }
 
-                // Señalamiento 2: No encontrado en Almacén o serie vacía
-                if ($this->esSerieInvalida($serie)) {
+                // SEÑALAMIENTO B: No encontrado en Almacén o serie vacía
+                if ($this->esSerieInvalida($serieEvaluada)) {
                     $senalamientos[] = [
-                        'Folio_Pisa'         => $reg['Folio_Pisa'],
-                        'TELEFONO'           => $reg['TELEFONO'],
-                        'FECHA_LIQ'          => $reg['FECHA_LIQ'],
-                        'Tipo_Senalamiento'  => 'NO ENCONTRADO EN ALMACEN',
-                        'Detalle'            => "Num__Serie sin asignar o no obtenido"
+                        'Folio_Pisa'        => $reg['Folio_Pisa'],
+                        'TELEFONO'          => $reg['TELEFONO'],
+                        'FECHA_LIQ'         => $reg['FECHA_LIQ'],
+                        'Tipo_Senalamiento' => 'NO ENCONTRADO EN ALMACEN',
+                        'Detalle'           => "Número de serie sin asignar o no obtenido (Origen: " . $origen . ")"
                     ];
-                } elseif (!isset($mapExistentes[$serie])) {
+                } elseif (!$existeEnAlmacen) {
                     $senalamientos[] = [
-                        'Folio_Pisa'         => $reg['Folio_Pisa'],
-                        'TELEFONO'           => $reg['TELEFONO'],
-                        'FECHA_LIQ'          => $reg['FECHA_LIQ'],
-                        'Tipo_Senalamiento'  => 'NO ENCONTRADO EN ALMACEN',
-                        'Detalle'            => "Num__Serie=" . $serie . " (Origen: " . ($reg['Origen_Serie'] ?? 'PRODUCCION') . ") no encontrado en almacén"
+                        'Folio_Pisa'        => $reg['Folio_Pisa'],
+                        'TELEFONO'          => $reg['TELEFONO'],
+                        'FECHA_LIQ'         => $reg['FECHA_LIQ'],
+                        'Tipo_Senalamiento' => 'NO ENCONTRADO EN ALMACEN',
+                        'Detalle'           => "Num__Serie=" . $serieEvaluada . " (Origen: " . $origen . ") no fue encontrada en almacén"
                     ];
                 }
             }
 
-            // 3. Inserción masiva en seg_produccion_senalamiento
+            // 3. Inserción en batch de señalamientos
             if (!empty($senalamientos)) {
                 $chunksSenalamiento = array_chunk($senalamientos, $batchSize);
                 $sqlSenalBase = "INSERT INTO seg_produccion_senalamiento (
