@@ -1,6 +1,6 @@
 <?php
 
-    class Conexion
+   /* class Conexion
     {
         public function get_conexion()
         {
@@ -20,6 +20,6 @@
                 return $e->getMessage();
             }
         }
-    }
+    } */
 
 ?>
