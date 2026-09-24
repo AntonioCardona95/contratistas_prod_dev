@@ -79,11 +79,11 @@ class ClassConsultasProduccion extends Conexion
 
         // --- DEBUG: imprime la base activa ---
         $dbName = $conexion->query("SELECT DATABASE()")->fetchColumn();
-        echo "<pre>Usando base de datos: $dbName</pre>";
+        echo "<pre>📌 Usando base de datos: $dbName</pre>";
 
         // --- DEBUG: imprime SQL y parámetros ---
-        echo "<pre>SQL preparado:\n$sql\n</pre>";
-        echo "<pre>Parámetros:\n" . print_r($params, true) . "</pre>";
+        echo "<pre>📌 SQL preparado:\n$sql</pre>";
+        echo "<pre>📌 Parámetros:\n" . print_r($params, true) . "</pre>";
 
         foreach ($params as $key => $val) {
             if (is_int($key)) {
@@ -97,7 +97,11 @@ class ClassConsultasProduccion extends Conexion
         $stmt->execute();
 
         $lastId = (int)$conexion->lastInsertId();
-        echo "<pre>✅ runExecute ejecutado. lastInsertId = $lastId</pre>";
+        if ($lastId > 0) {
+            echo "<pre>✅ runExecute ejecutado correctamente. lastInsertId = $lastId</pre>";
+        } else {
+            echo "<pre>⚠️ runExecute ejecutado, pero no se generó lastInsertId (posible PK duplicada o tabla sin AUTO_INCREMENT)</pre>";
+        }
 
         return $lastId;
     } catch (PDOException $e) {
