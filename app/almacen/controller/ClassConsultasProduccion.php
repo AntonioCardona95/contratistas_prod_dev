@@ -145,10 +145,13 @@ class ClassConsultasProduccion extends Conexion
     }
 
     /**
-     * Inserción en lote (Batch) rápida usando transacciones PDO
+     * Inserción en lote (Batch)  usando transacciones PDO
      */
     public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes)
     {
+        // registros el arreglo con todos los registros que se van a insertar
+        //map existentes array asociativo de números de serie que ya existen en almacén, 
+        //para decidir si se marca señalamiento o no
         if (empty($registros)) return true;
 
         $conexion = $this->conexion(); // Conexión 'erpprint'
@@ -157,6 +160,7 @@ class ClassConsultasProduccion extends Conexion
             $conexion->beginTransaction();
 
             $batchSize = 200;
+            // dividir el arreglo de registros en bloques de 200
             $chunks = array_chunk($registros, $batchSize);
 
             // 1. Inserción masiva en seg_produccion_diaria
@@ -166,7 +170,7 @@ class ClassConsultasProduccion extends Conexion
                                 idContratista, Contratista, Tecnico, NOM_DIVISION, NOM_AREA,
                                 Num__Serie, DISTRITO, TERMINAL, Fecha_Insercion, Tiene_Senalamiento
                             ) VALUES ";
-
+            // Recorrer cada bloque de 200
             foreach ($chunks as $chunk) {
                 $values = [];
                 $params = [];
