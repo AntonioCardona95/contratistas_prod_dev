@@ -21,7 +21,7 @@ class Conexion
     }
 
 
-public function get_conexionn()
+/*public function get_conexionn()
 {
     try {
         $user = "erpintr1";
@@ -36,7 +36,7 @@ public function get_conexionn()
     } catch(PDOException $e) {
         throw new Exception("Error de conexión: " . $e->getMessage());
     }
-}
+} */
 
 
 
