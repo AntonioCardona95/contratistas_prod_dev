@@ -26,8 +26,6 @@ class ClassConsultasProduccion extends Conexion
                 $conexion = $this->get_conexiondos();
                 break;
             case 'erpprint':
-                $conexion = $this->get_conexionn();
-                break;
             default:
                 $conexion = $this->get_conexion();
                 break;
@@ -70,8 +68,6 @@ class ClassConsultasProduccion extends Conexion
                 $conexion = $this->get_conexiondos();
                 break;
             case 'erpprint':
-                $conexion = $this->get_conexionn();
-                break;
             default:
                 $conexion = $this->get_conexion();
                 break;
@@ -100,6 +96,7 @@ class ClassConsultasProduccion extends Conexion
             return 0;
         }
     }
+}
 
 
     // Producción filtrada por fechas (inicia en 0 hasta que selecciones fechas)
