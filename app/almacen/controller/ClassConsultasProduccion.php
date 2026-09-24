@@ -117,6 +117,7 @@ public function CountProduccionTotal()
     return $this->runQuery($sql, array(), 'analisis');
 }
 
+
 public function GetProduccionPorFechas($fechaInicio, $fechaFin)
 {
     $sql = "SELECT 
@@ -134,31 +135,36 @@ public function GetProduccionPorFechas($fechaInicio, $fechaFin)
 
     try {
         $rows = $this->runQuery($sql, $params, 'analisis');
+        echo "<pre>✅ GetProduccionPorFechas ejecutada correctamente. Registros obtenidos: " . count($rows) . "</pre>";
         return $rows;
     } catch (PDOException $e) {
-        echo "<pre>Error en GetProduccionPorFechas: " . $e->getMessage() . "</pre>";
+        echo "<pre>❌ Error en GetProduccionPorFechas: " . $e->getMessage() . "</pre>";
         return [];
     }
 }
 
 
 
+
 public function GetNumSeriesEnAlmacen(array $numSeries)
 {
-    if (empty($numSeries)) return [];
+    if (empty($numSeries)) {
+        echo "<pre>⚠️ GetNumSeriesEnAlmacen recibió un array vacío</pre>";
+        return [];
+    }
 
     $placeholders = implode(',', array_fill(0, count($numSeries), '?'));
     $sql = "SELECT Num_Serie FROM materiales_det WHERE Num_Serie IN ($placeholders)";
 
     try {
         $rows = $this->runQuery($sql, $numSeries, 'default');
+        echo "<pre>✅ GetNumSeriesEnAlmacen ejecutada correctamente. Números encontrados: " . count($rows) . "</pre>";
         return array_column($rows, 'Num_Serie');
     } catch (PDOException $e) {
-        echo "<pre>Error en GetNumSeriesEnAlmacen: " . $e->getMessage() . "</pre>";
+        echo "<pre>❌ Error en GetNumSeriesEnAlmacen: " . $e->getMessage() . "</pre>";
         return [];
     }
 }
-
 
 
 // TEMPORAL DE PRUBA PRODUCCION //
@@ -217,12 +223,14 @@ public function InsertProduccionDiaria(array $registro, bool $tieneSenalamiento)
 
     try {
         $result = $this->runExecute($sql, $params, 'default');
+        echo "<pre>✅ InsertProduccionDiaria ejecutada correctamente para Folio {$registro['Folio_Pisa']} - Teléfono {$registro['TELEFONO']}</pre>";
         return $result;
     } catch (PDOException $e) {
-        echo "<pre>Error en InsertProduccionDiaria: " . $e->getMessage() . "</pre>";
+        echo "<pre>❌ Error en InsertProduccionDiaria (Folio {$registro['Folio_Pisa']}): " . $e->getMessage() . "</pre>";
         return false;
     }
 }
+
 
 
 
@@ -246,12 +254,14 @@ public function InsertSenalamiento(array $registro, string $tipoSenalamiento)
 
     try {
         $result = $this->runExecute($sql, $params, 'default');
+        echo "<pre>✅ InsertSenalamiento ejecutada correctamente para Folio {$registro['Folio_Pisa']} - Teléfono {$registro['TELEFONO']}</pre>";
         return $result;
     } catch (PDOException $e) {
-        echo "<pre>Error en InsertSenalamiento: " . $e->getMessage() . "</pre>";
+        echo "<pre>❌ Error en InsertSenalamiento (Folio {$registro['Folio_Pisa']}): " . $e->getMessage() . "</pre>";
         return false;
     }
 }
+
 
 
 
