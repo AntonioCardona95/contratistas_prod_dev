@@ -17,7 +17,6 @@ require_once("../controller/ClassConsultasProduccion.php");
 $Contratista = $_SESSION['Contratista'] ?? null;
 $idContratistas = obtenerIdContratistaContexto();
 
-// RECIBIMOS PARAMETROS
 $Fecha1 = $_POST['Fecha1'] ?? '';
 $Fecha2 = $_POST['Fecha2'] ?? '';
 @$Division = $_POST['Division'];
@@ -37,7 +36,6 @@ if (!empty($Fecha1) && !empty($Fecha2)) {
 $index = new Index();
 $consultas = new ClassConsultasProduccion();
 
-// --- Producción por fechas ---
 $TotalProduccion = 0;
 if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
     $qrProduccion = $consultas->CountProduccionPorFechas($Fecha1, $Fecha2);
@@ -49,47 +47,56 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         }
     }
 
-    // Traer registros de producción
     $registros = $consultas->GetProduccionPorFechas($Fecha1, $Fecha2);
 
     if (!empty($registros)) {
-        // Step 1: Detectar registros que no tienen número de serie válido
-        $telefonosParaEci = [];
-        foreach ($registros as $key => $reg) {
-            if ($consultas->esSerieInvalida($reg['Num__Serie'] ?? '')) {
-                if (!empty($reg['TELEFONO'])) {
-                    $telefonosParaEci[] = $reg['TELEFONO'];
+        // Step 1: Extraer todos los teléfonos para verificar en ECI
+        $telefonos = array_column($registros, 'TELEFONO');
+        $mapEci = $consultas->GetSeriesPorTelefonosEci($telefonos);
+
+        // Step 2: Comparar series y definir Origen y Serie Final a validar
+        foreach ($registros as &$reg) {
+            $serieProd = trim($reg['Num__Serie'] ?? '');
+            $tel = trim($reg['TELEFONO'] ?? '');
+            $serieEci = $mapEci[$tel] ?? null;
+
+            $reg['Serie_Original_Prod'] = $serieProd;
+            $reg['Tiene_Senalamiento_Conflicto'] = false;
+
+            if ($consultas->esSerieInvalida($serieProd)) {
+                // Caso A: Producción no traía serie válida
+                if ($serieEci !== null) {
+                    $reg['Num__Serie'] = $serieEci;
+                    $reg['Origen_Serie'] = 'ECI';
+                } else {
+                    $reg['Origen_Serie'] = 'NINGUNO';
+                }
+            } else {
+                // Caso B: Producción sí traía serie válida
+                if ($serieEci !== null && strtoupper($serieProd) !== strtoupper($serieEci)) {
+                    // Conflicto: La serie de ECI no coincide con Producción. Prevalece ECI.
+                    $reg['Num__Serie'] = $serieEci;
+                    $reg['Origen_Serie'] = 'ECI';
+                    $reg['Tiene_Senalamiento_Conflicto'] = true;
+                } else {
+                    // Coincide o no existe en ECI, se conserva Producción
+                    $reg['Origen_Serie'] = 'PRODUCCION';
                 }
             }
         }
+        unset($reg); // Destruir referencia
 
-        // Step 2: Si hay teléfonos faltantes, buscar sus series en seg_ns_eci
-        if (!empty($telefonosParaEci)) {
-            $mapTelefonosEci = $consultas->GetSeriesPorTelefonosEci($telefonosParaEci);
-
-            // Reasignar el número de serie recuperado a los registros correspondientes
-            foreach ($registros as $key => &$reg) {
-                if ($consultas->esSerieInvalida($reg['Num__Serie'] ?? '')) {
-                    $tel = $reg['TELEFONO'] ?? '';
-                    if (isset($mapTelefonosEci[$tel])) {
-                        $reg['Num__Serie'] = $mapTelefonosEci[$tel];
-                    }
-                }
-            }
-            unset($reg); // Romper referencia
-        }
-
-        // Step 3: Recolectar las series (ya corregidas) y buscar en Almacén
+        // Step 3: Recolectar la lista de series resultantes y consultar Almacén
         $numSeries = array_column($registros, 'Num__Serie');
         $existentes = $consultas->GetNumSeriesEnAlmacen($numSeries);
         $mapExistentes = array_flip($existentes);
 
-        // Step 4: Inserción masiva única
+        // Step 4: Inserción masiva procesando datos y señalamientos
         $consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes);
     }
 }
 
-// --- Producción acumulada ---
+// --- KPI Consultas ---
 $ProduccionAcumulada = 0;
 $qrProduccionTotal = $consultas->CountProduccionTotal();
 if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
@@ -100,7 +107,6 @@ if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
     }
 }
 
-// NUMEROS DE SERIE DISPONIBLES ERP (EN FECHA)
 $TotalDisponible = 0;
 $qrDisponibles = $index->CountONTDisponibles($idContratistas, $Fecha1, $Fecha2);
 if (is_array($qrDisponibles)) {
@@ -115,7 +121,6 @@ if (is_array($qrDisponibles)) {
     $TotalDisponible = (int)$qrDisponibles;
 }
 
-// NUMEROS DE SERIE DISPONIBLES ERP (TOTALES)
 $TTotalDisponible = 0;
 $qrDisponiblesT = $index->CountONTDisponiblesT($idContratistas);
 if (is_array($qrDisponiblesT)) {
@@ -133,10 +138,7 @@ if (is_array($qrDisponiblesT)) {
 
 <link rel="stylesheet" href="css/kpis-produccion.css">
 
-<!-- Content Row -->
 <div class="row kpi-cards-row">
-
-    <!-- Producción acumulada -->
     <div class="col-kpi-5 mb-4">
         <div class="kpi-card kpi-card-success">
             <div class="kpi-card-body">
@@ -147,7 +149,6 @@ if (is_array($qrDisponiblesT)) {
         </div>
     </div>
 
-    <!-- Producción por fechas -->
     <div class="col-kpi-5 mb-4">
         <div class="kpi-card kpi-card-info">
             <div class="kpi-card-body">
@@ -158,7 +159,6 @@ if (is_array($qrDisponiblesT)) {
         </div>
     </div>
 
-    <!-- Números de serie totales sin asignar -->
     <div class="col-kpi-5 mb-4">
         <a href="detalle_ont_disponibles.php" data-detalle="total" class="kpi-card-link">
             <div class="kpi-card kpi-card-danger">
@@ -171,7 +171,6 @@ if (is_array($qrDisponiblesT)) {
         </a>
     </div>
 
-    <!-- Números de serie sin asignar en fecha -->
     <div class="col-kpi-5 mb-4">
         <a href="detalle_ont_disponibles.php" data-detalle="fecha" class="kpi-card-link">
             <div class="kpi-card kpi-card-warning">
@@ -183,5 +182,4 @@ if (is_array($qrDisponiblesT)) {
             </div>
         </a>
     </div>
-
 </div>
