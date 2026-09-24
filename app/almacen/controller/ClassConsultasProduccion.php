@@ -160,7 +160,7 @@ public function GetNumSeriesEnAlmacen(array $numSeries)
     $placeholders = implode(',', array_fill(0, count($numSeries), '?'));
     $sql = "SELECT Num_Serie FROM materiales_det WHERE Num_Serie IN ($placeholders)";
 
-    $rows = $this->runQuery($sql, $numSeries, 'default');
+    $rows = $this->runQuery($sql, $numSeries, 'erpprint');
     return array_column($rows, 'Num_Serie'); // devuelve solo los encontrados
 }
 
