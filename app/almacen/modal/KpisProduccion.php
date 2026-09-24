@@ -50,52 +50,36 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
     $registros = $consultas->GetProduccionPorFechas($Fecha1, $Fecha2);
 
     if (!empty($registros)) {
-        // Step 1: Obtener series en ECI correspondientes a los teléfonos
+        // Step 1: Mapear series de ECI por teléfono
         $telefonos = array_column($registros, 'TELEFONO');
         $mapEci = $consultas->GetSeriesPorTelefonosEci($telefonos);
 
-        // Step 2: Determinar cuál serie evaluar y respaldar la original
+        // Step 2: Recolectar TODAS las series a buscar en Almacén (Producción + ECI)
+        $seriesABuscar = [];
+
         foreach ($registros as &$reg) {
-            $serieProdOriginal = trim($reg['Num__Serie'] ?? '');
             $tel = trim($reg['TELEFONO'] ?? '');
-            $serieEci = $mapEci[$tel] ?? null;
+            
+            $serieProd = trim($reg['Num__Serie'] ?? '');
+            $serieEci  = $mapEci[$tel] ?? null;
 
-            // Guardar exactamente lo que venía de producción
-            $reg['Serie_Original_Prod'] = $serieProdOriginal;
-            $reg['Tiene_Senalamiento_Conflicto'] = false;
+            $reg['Serie_Produccion'] = $serieProd;
+            $reg['Serie_Eci']        = $serieEci;
 
-            $prodEsInvalida = $consultas->esSerieInvalida($serieProdOriginal);
-
-            if ($prodEsInvalida) {
-                // Caso A: Producción traía valor inválido/vacío ("NS NO OBTENIDO", NULL, etc)
-                if ($serieEci !== null) {
-                    $reg['Num__Serie'] = $serieEci;
-                    $reg['Origen_Serie'] = 'ECI';
-                } else {
-                    $reg['Origen_Serie'] = 'NINGUNO';
-                }
-            } else {
-                // Caso B: Producción traía número de serie válido
-                if ($serieEci !== null && strtoupper($serieProdOriginal) !== strtoupper($serieEci)) {
-                    // Manda ECI: Priorizamos la de ECI para la búsqueda en Almacén
-                    $reg['Num__Serie'] = $serieEci;
-                    $reg['Origen_Serie'] = 'ECI';
-                    $reg['Tiene_Senalamiento_Conflicto'] = true; // Conflicto detectado
-                } else {
-                    // Coinciden o no existe en ECI: Permanece la de Producción
-                    $reg['Num__Serie'] = $serieProdOriginal;
-                    $reg['Origen_Serie'] = 'PRODUCCION';
-                }
+            if (!$consultas->esSerieInvalida($serieProd)) {
+                $seriesABuscar[] = $serieProd;
+            }
+            if ($serieEci !== null && !$consultas->esSerieInvalida($serieEci)) {
+                $seriesABuscar[] = $serieEci;
             }
         }
         unset($reg);
 
-        // Step 3: Obtener disponibilidad en Almacén para las series finales seleccionadas
-        $numSeries = array_column($registros, 'Num__Serie');
-        $existentes = $consultas->GetNumSeriesEnAlmacen($numSeries);
-        $mapExistentes = array_flip($existentes);
+        // Step 3: Consultar existencias independientes en Almacén
+        $existentesEnAlmacen = $consultas->GetNumSeriesEnAlmacen($seriesABuscar);
+        $mapExistentes = array_flip($existentesEnAlmacen);
 
-        // Step 4: Guardar registros y señalamientos en lote
+        // Step 4: Procesar e insertar evaluando discrepancias y existencias por separado
         $consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes);
     }
 }
