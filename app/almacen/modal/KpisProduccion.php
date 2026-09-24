@@ -37,7 +37,7 @@ if (!empty($Fecha1) && !empty($Fecha2)) {
 $index = new Index();
 $consultas = new ClassConsultasProduccion();
 
-// --- Producción por fechas (inicia en 0) ---
+// --- Producción por fechas ---
 $TotalProduccion = 0;
 if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
     $qrProduccion = $consultas->CountProduccionPorFechas($Fecha1, $Fecha2);
@@ -49,21 +49,47 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         }
     }
 
-    // Traer registros y procesarlos en bloque
+    // Traer registros de producción
     $registros = $consultas->GetProduccionPorFechas($Fecha1, $Fecha2);
-    $numSeries = array_column($registros, 'Num__Serie');
 
-    if (!empty($numSeries)) {
-        // Buscar en almacén los números de serie presentes
+    if (!empty($registros)) {
+        // Step 1: Detectar registros que no tienen número de serie válido
+        $telefonosParaEci = [];
+        foreach ($registros as $key => $reg) {
+            if ($consultas->esSerieInvalida($reg['Num__Serie'] ?? '')) {
+                if (!empty($reg['TELEFONO'])) {
+                    $telefonosParaEci[] = $reg['TELEFONO'];
+                }
+            }
+        }
+
+        // Step 2: Si hay teléfonos faltantes, buscar sus series en seg_ns_eci
+        if (!empty($telefonosParaEci)) {
+            $mapTelefonosEci = $consultas->GetSeriesPorTelefonosEci($telefonosParaEci);
+
+            // Reasignar el número de serie recuperado a los registros correspondientes
+            foreach ($registros as $key => &$reg) {
+                if ($consultas->esSerieInvalida($reg['Num__Serie'] ?? '')) {
+                    $tel = $reg['TELEFONO'] ?? '';
+                    if (isset($mapTelefonosEci[$tel])) {
+                        $reg['Num__Serie'] = $mapTelefonosEci[$tel];
+                    }
+                }
+            }
+            unset($reg); // Romper referencia
+        }
+
+        // Step 3: Recolectar las series (ya corregidas) y buscar en Almacén
+        $numSeries = array_column($registros, 'Num__Serie');
         $existentes = $consultas->GetNumSeriesEnAlmacen($numSeries);
         $mapExistentes = array_flip($existentes);
 
-        // Inserción masiva única (súper veloz)
+        // Step 4: Inserción masiva única
         $consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes);
     }
 }
 
-// --- Producción acumulada (siempre cargada desde inicio) ---
+// --- Producción acumulada ---
 $ProduccionAcumulada = 0;
 $qrProduccionTotal = $consultas->CountProduccionTotal();
 if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
