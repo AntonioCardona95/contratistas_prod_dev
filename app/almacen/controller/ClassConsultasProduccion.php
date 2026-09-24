@@ -13,50 +13,6 @@ class ClassConsultasProduccion extends Conexion
      * Ejecuta consultas SELECT usando la conexión principal PDO
      */
     protected function runQuery($sql, $params = array(), $conexionTipo = 'default')
-    {
-        $rows = array();
-
-        switch ($conexionTipo) {
-            case 'analisis':
-            case 'analytics':
-                $conexion = $this->get_conexion_analisis();
-                break;
-            case 'nass':
-                $conexion = $this->get_conexion_nass();
-                break;
-            case 'dos':
-                $conexion = $this->get_conexiondos();
-                break;
-            default:
-                $conexion = $this->get_conexion();
-                break;
-        }
-
-        try {
-            $stmt = $conexion->prepare($sql);
-            foreach ($params as $key => $val) {
-                if (is_int($key)) {
-                    $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
-                } else {
-                    $param = ':' . ltrim($key, ':');
-                    $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
-                }
-            }
-            $stmt->execute();
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            if (method_exists($stmt, 'closeCursor')) {
-                $stmt->closeCursor();
-            }
-        } catch (PDOException $e) {
-            error_log("[ClassConsultasProduccion::runQuery] Error: " . $e->getMessage() . " SQL: " . $sql);
-            return array();
-        }
-
-        return is_array($rows) ? $rows : array();
-    }
-
-    protected function runExecute($sql, $params = array(), $conexionTipo = 'default')
 {
     switch ($conexionTipo) {
         case 'analisis':
@@ -69,6 +25,9 @@ class ClassConsultasProduccion extends Conexion
         case 'dos':
             $conexion = $this->get_conexiondos();
             break;
+        case 'erpprint':
+            $conexion = $this->get_conexionn();
+            break;
         default:
             $conexion = $this->get_conexion();
             break;
@@ -76,15 +35,6 @@ class ClassConsultasProduccion extends Conexion
 
     try {
         $stmt = $conexion->prepare($sql);
-
-        // --- DEBUG: imprime la base activa ---
-        $dbName = $conexion->query("SELECT DATABASE()")->fetchColumn();
-        echo "<pre>📌 Usando base de datos: $dbName</pre>";
-
-        // --- DEBUG: imprime SQL y parámetros ---
-        echo "<pre>📌 SQL preparado:\n$sql</pre>";
-        echo "<pre>📌 Parámetros:\n" . print_r($params, true) . "</pre>";
-
         foreach ($params as $key => $val) {
             if (is_int($key)) {
                 $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
@@ -93,59 +43,54 @@ class ClassConsultasProduccion extends Conexion
                 $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
             }
         }
-
         $stmt->execute();
-
-        $lastId = (int)$conexion->lastInsertId();
-        if ($lastId > 0) {
-            echo "<pre>✅ runExecute ejecutado correctamente. lastInsertId = $lastId</pre>";
-        } else {
-            echo "<pre>⚠️ runExecute ejecutado, pero no se generó lastInsertId (posible PK duplicada o tabla sin AUTO_INCREMENT)</pre>";
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (method_exists($stmt, 'closeCursor')) {
+            $stmt->closeCursor();
         }
-
-        return $lastId;
+        return $rows;
     } catch (PDOException $e) {
-        echo "<pre>❌ Error en runExecute: " . $e->getMessage() . "</pre>";
-        return 0;
+        return array();
     }
 }
 
+protected function runExecute($sql, $params = array(), $conexionTipo = 'default')
+{
+    switch ($conexionTipo) {
+        case 'analisis':
+        case 'analytics':
+            $conexion = $this->get_conexion_analisis();
+            break;
+        case 'nass':
+            $conexion = $this->get_conexion_nass();
+            break;
+        case 'dos':
+            $conexion = $this->get_conexiondos();
+            break;
+        case 'erpprint':
+            $conexion = $this->get_conexionn();
+            break;
+        default:
+            $conexion = $this->get_conexion();
+            break;
+    }
 
-    /*protected function runExecute($sql, $params = array(), $conexionTipo = 'default')
-    {
-        switch ($conexionTipo) {
-            case 'analisis':
-            case 'analytics':
-                $conexion = $this->get_conexion_analisis();
-                break;
-            case 'nass':
-                $conexion = $this->get_conexion_nass();
-                break;
-            case 'dos':
-                $conexion = $this->get_conexiondos();
-                break;
-            default:
-                $conexion = $this->get_conexion();
-                break;
-        }
-
-        try {
-            $stmt = $conexion->prepare($sql);
-            foreach ($params as $key => $val) {
-                if (is_int($key)) {
-                    $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
-                } else {
-                    $param = ':' . ltrim($key, ':');
-                    $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
-                }
+    try {
+        $stmt = $conexion->prepare($sql);
+        foreach ($params as $key => $val) {
+            if (is_int($key)) {
+                $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+            } else {
+                $param = ':' . ltrim($key, ':');
+                $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
             }
-            $stmt->execute();
-            return (int)$conexion->lastInsertId();
-        } catch (PDOException $e) {
-            error_log("[ClassConsultasProduccion::runExecute] Error: " . $e->getMessage() . " SQL: " . $sql);
-            return 0;
         }
-    } */
+        $stmt->execute();
+        return (int)$conexion->lastInsertId();
+    } catch (PDOException $e) {
+        return 0;
+    }
+}
 
 
     // Producción filtrada por fechas (inicia en 0 hasta que selecciones fechas)
