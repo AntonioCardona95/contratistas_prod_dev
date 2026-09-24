@@ -50,11 +50,11 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
     $registros = $consultas->GetProduccionPorFechas($Fecha1, $Fecha2);
 
     if (!empty($registros)) {
-        // Step 1: Extraer todos los teléfonos para verificar en ECI
+        // Step 1: Mapear todas las series de ECI según los teléfonos
         $telefonos = array_column($registros, 'TELEFONO');
         $mapEci = $consultas->GetSeriesPorTelefonosEci($telefonos);
 
-        // Step 2: Comparar series y definir Origen y Serie Final a validar
+        // Step 2: Determinar qué número de serie se evaluará
         foreach ($registros as &$reg) {
             $serieProd = trim($reg['Num__Serie'] ?? '');
             $tel = trim($reg['TELEFONO'] ?? '');
@@ -64,7 +64,7 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
             $reg['Tiene_Senalamiento_Conflicto'] = false;
 
             if ($consultas->esSerieInvalida($serieProd)) {
-                // Caso A: Producción no traía serie válida
+                // Si producción venía vacía/inválida y ECI sí tiene serie
                 if ($serieEci !== null) {
                     $reg['Num__Serie'] = $serieEci;
                     $reg['Origen_Serie'] = 'ECI';
@@ -72,26 +72,26 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
                     $reg['Origen_Serie'] = 'NINGUNO';
                 }
             } else {
-                // Caso B: Producción sí traía serie válida
+                // Si producción traía una serie válida
                 if ($serieEci !== null && strtoupper($serieProd) !== strtoupper($serieEci)) {
-                    // Conflicto: La serie de ECI no coincide con Producción. Prevalece ECI.
+                    // MANDA ECI: Se asigna la de ECI y se marca la discrepancia
                     $reg['Num__Serie'] = $serieEci;
                     $reg['Origen_Serie'] = 'ECI';
                     $reg['Tiene_Senalamiento_Conflicto'] = true;
                 } else {
-                    // Coincide o no existe en ECI, se conserva Producción
+                    // Coinciden o no hay registro en ECI
                     $reg['Origen_Serie'] = 'PRODUCCION';
                 }
             }
         }
-        unset($reg); // Destruir referencia
+        unset($reg);
 
-        // Step 3: Recolectar la lista de series resultantes y consultar Almacén
+        // Step 3: Buscar las series finales (priorizadas) en Almacén
         $numSeries = array_column($registros, 'Num__Serie');
         $existentes = $consultas->GetNumSeriesEnAlmacen($numSeries);
         $mapExistentes = array_flip($existentes);
 
-        // Step 4: Inserción masiva procesando datos y señalamientos
+        // Step 4: Guardar todo en lote
         $consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes);
     }
 }
