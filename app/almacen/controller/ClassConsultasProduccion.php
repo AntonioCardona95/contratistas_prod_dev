@@ -5,7 +5,6 @@
  * Clase encargada de la gestión de Nóminas y Contratistas
  */
 
-<?php
 require_once($_SERVER['DOCUMENT_ROOT'] . "/cnx/cnx.php");
 
 class ClassConsultasProduccion extends Conexion
