@@ -1,8 +1,7 @@
 <?php
 
 /**
- * Autor: Tu Nombre / Equipo de Desarrollo
- * Clase encargada de la gestión de Nóminas y Contratistas
+ * Clase encargada de la gestión de Producción y Consultas
  */
 
 require_once($_SERVER['DOCUMENT_ROOT'] . "/cnx/cnx.php");
@@ -48,10 +47,8 @@ class ClassConsultasProduccion extends Conexion
             if (method_exists($stmt, 'closeCursor')) {
                 $stmt->closeCursor();
             }
-            echo "<pre>✅ runQuery ejecutado correctamente</pre>";
             return $rows;
         } catch (PDOException $e) {
-            echo "<pre>❌ Error en runQuery: " . $e->getMessage() . "</pre>";
             return array();
         }
     }
@@ -88,174 +85,210 @@ class ClassConsultasProduccion extends Conexion
                 }
             }
             $stmt->execute();
-            $lastId = (int)$conexion->lastInsertId();
-            if ($lastId > 0) {
-                echo "<pre>✅ runExecute ejecutado correctamente. lastInsertId = $lastId</pre>";
-            } else {
-                echo "<pre>⚠️ runExecute ejecutado, pero no se generó lastInsertId</pre>";
-            }
-            return $lastId;
+            return (int)$conexion->lastInsertId();
         } catch (PDOException $e) {
-            echo "<pre>❌ Error en runExecute: " . $e->getMessage() . "</pre>";
             return 0;
         }
     }
 
-
-
     // Producción filtrada por fechas (inicia en 0 hasta que selecciones fechas)
-public function CountProduccionPorFechas($fechaInicio, $fechaFin)
-{
-    $sql = "SELECT COUNT(1) AS TOTAL
-            FROM seg_ns_prod_eval
-            WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+    public function CountProduccionPorFechas($fechaInicio, $fechaFin)
+    {
+        $sql = "SELECT COUNT(1) AS TOTAL
+                FROM seg_ns_prod_eval
+                WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
 
-    $params = array(
-        ':fechaInicio' => $fechaInicio,
-        ':fechaFin'    => $fechaFin
-    );
+        $params = array(
+            ':fechaInicio' => $fechaInicio,
+            ':fechaFin'    => $fechaFin
+        );
 
-    return $this->runQuery($sql, $params, 'analisis');
-}
+        return $this->runQuery($sql, $params, 'analisis');
+    }
 
-// Producción total acumulada (sin filtro de fechas)
-public function CountProduccionTotal()
-{
-    $sql = "SELECT COUNT(1) AS TOTAL
-            FROM seg_ns_prod_eval";
+    // Producción total acumulada (sin filtro de fechas)
+    public function CountProduccionTotal()
+    {
+        $sql = "SELECT COUNT(1) AS TOTAL
+                FROM seg_ns_prod_eval";
 
-    return $this->runQuery($sql, array(), 'analisis');
-}
+        return $this->runQuery($sql, array(), 'analisis');
+    }
 
-public function GetProduccionPorFechas($fechaInicio, $fechaFin)
-{
-    /*echo "<pre>Entrando a GetProduccionPorFechas\n";
-    echo "FechaInicio: $fechaInicio\n";
-    echo "FechaFin: $fechaFin\n</pre>"; */
-    $sql = "SELECT 
-                Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
-                FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
-                idContratista, Contratista, Tecnico, NOM_DIVISION, NOM_AREA,
-                Num__Serie, DISTRITO, TERMINAL
-            FROM seg_ns_prod_eval
-            WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+    public function GetProduccionPorFechas($fechaInicio, $fechaFin)
+    {
+        $sql = "SELECT 
+                    Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
+                    FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
+                    idContratista, Contratista, Tecnico, NOM_DIVISION, NOM_AREA,
+                    Num__Serie, DISTRITO, TERMINAL
+                FROM seg_ns_prod_eval
+                WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
 
-    $params = [
-        ':fechaInicio' => $fechaInicio,
-        ':fechaFin'    => $fechaFin
-    ];
+        $params = [
+            ':fechaInicio' => $fechaInicio,
+            ':fechaFin'    => $fechaFin
+        ];
 
-    return $this->runQuery($sql, $params, 'analisis');
-}
+        return $this->runQuery($sql, $params, 'analisis');
+    }
 
+    public function GetNumSeriesEnAlmacen(array $numSeries)
+    {
+        if (empty($numSeries)) return [];
 
-public function GetNumSeriesEnAlmacen(array $numSeries)
-{
-    /*echo "<pre>Entrando a GetNumSeriesEnAlmacen\n";
-    echo "Cantidad de NumSeries recibidos: " . count($numSeries) . "\n";
-    var_dump(array_slice($numSeries, 0, 5)); // muestra 5
-    echo "</pre>"; */
-    if (empty($numSeries)) return [];
+        $placeholders = implode(',', array_fill(0, count($numSeries), '?'));
+        $sql = "SELECT Num_Serie FROM materiales_det WHERE Num_Serie IN ($placeholders)";
 
-    // Generar placeholders dinámicos
-    $placeholders = implode(',', array_fill(0, count($numSeries), '?'));
-    $sql = "SELECT Num_Serie FROM materiales_det WHERE Num_Serie IN ($placeholders)";
+        $rows = $this->runQuery($sql, $numSeries, 'erpprint');
+        return array_column($rows, 'Num_Serie');
+    }
 
-    $rows = $this->runQuery($sql, $numSeries, 'erpprint');
-    return array_column($rows, 'Num_Serie'); // devuelve solo los encontrados
-}
+    /**
+     * Inserción en lote (Batch) rápida usando transacciones PDO
+     */
+    public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes)
+    {
+        if (empty($registros)) return true;
 
+        $conexion = $this->conexion(); // Conexión 'erpprint'
 
-// TEMPORAL DE PRUBA PRODUCCION //
-/*public function GetProduccionPorFechas($fechaInicio, $fechaFin, $limit = 5)
-{
-    $sql = "SELECT *
-            FROM seg_ns_prod_eval
-            WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin
-            ORDER BY FECHA_LIQ ASC
-            LIMIT :limit";
+        try {
+            $conexion->beginTransaction();
 
-    $params = array(
-        ':fechaInicio' => $fechaInicio,
-        ':fechaFin'    => $fechaFin,
-        ':limit'       => (int)$limit
-    );
+            $batchSize = 200;
+            $chunks = array_chunk($registros, $batchSize);
 
-    return $this->runQuery($sql, $params, 'analisis');
-} */
+            // 1. Inserción masiva en seg_produccion_diaria
+            $sqlDiariaBase = "INSERT INTO seg_produccion_diaria (
+                                Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
+                                FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
+                                idContratista, Contratista, Tecnico, NOM_DIVISION, NOM_AREA,
+                                Num__Serie, DISTRITO, TERMINAL, Fecha_Insercion, Tiene_Senalamiento
+                            ) VALUES ";
 
-public function InsertProduccionDiaria(array $registro, bool $tieneSenalamiento)
-{
-    
-    /*echo "<pre>Entrando a InsertProduccionDiaria\n";
-    echo "Folio: {$registro['Folio_Pisa']} - Teléfono: {$registro['TELEFONO']} - NumSerie: {$registro['Num__Serie']}\n";
-    echo "Tiene señalamiento: " . ($tieneSenalamiento ? 'SI' : 'NO') . "\n</pre>"; */
-    $sql = "INSERT INTO seg_produccion_diaria (
-                Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
-                FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
-                idContratista, Contratista, Tecnico, NOM_DIVISION, NOM_AREA,
-                Num__Serie, DISTRITO, TERMINAL, Fecha_Insercion, Tiene_Senalamiento
-            ) VALUES (
-                :Expediente, :Folio_Pisa, :TELEFONO, :Tipo_de_Tarea, :NOM_CT,
-                :FECHA_LIQ, :FECHA_LIQD, :Semana, :Sem, :Anio,
-                :idContratista, :Contratista, :Tecnico, :NOM_DIVISION, :NOM_AREA,
-                :Num__Serie, :DISTRITO, :TERMINAL, NOW(), :Tiene_Senalamiento
-            )";
+            foreach ($chunks as $chunk) {
+                $values = [];
+                $params = [];
 
-    $params = [
-        ':Expediente'         => $registro['Expediente'],
-        ':Folio_Pisa'         => $registro['Folio_Pisa'],
-        ':TELEFONO'           => $registro['TELEFONO'],
-        ':Tipo_de_Tarea'      => $registro['Tipo_de_Tarea'],
-        ':NOM_CT'             => $registro['NOM_CT'],
-        ':FECHA_LIQ'          => $registro['FECHA_LIQ'],
-        ':FECHA_LIQD'         => $registro['FECHA_LIQD'],
-        ':Semana'             => $registro['Semana'],
-        ':Sem'                => $registro['Sem'],
-        ':Anio'               => $registro['Anio'],
-        ':idContratista'      => $registro['idContratista'],
-        ':Contratista'        => $registro['Contratista'],
-        ':Tecnico'            => $registro['Tecnico'],
-        ':NOM_DIVISION'       => $registro['NOM_DIVISION'],
-        ':NOM_AREA'           => $registro['NOM_AREA'],
-        ':Num__Serie'         => $registro['Num__Serie'],
-        ':DISTRITO'           => $registro['DISTRITO'],
-        ':TERMINAL'           => $registro['TERMINAL'],
-        ':Tiene_Senalamiento' => $tieneSenalamiento ? 1 : 0
-    ];
+                foreach ($chunk as $reg) {
+                    $tieneSenalamiento = !isset($mapExistentes[$reg['Num__Serie']]);
+                    $values[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
 
-    return $this->runExecute($sql, $params, 'erpprint');
-}
+                    array_push(
+                        $params,
+                        $reg['Expediente'], $reg['Folio_Pisa'], $reg['TELEFONO'], $reg['Tipo_de_Tarea'], $reg['NOM_CT'],
+                        $reg['FECHA_LIQ'], $reg['FECHA_LIQD'], $reg['Semana'], $reg['Sem'], $reg['Anio'],
+                        $reg['idContratista'], $reg['Contratista'], $reg['Tecnico'], $reg['NOM_DIVISION'], $reg['NOM_AREA'],
+                        $reg['Num__Serie'], $reg['DISTRITO'], $reg['TERMINAL'], $tieneSenalamiento ? 1 : 0
+                    );
+                }
 
+                $stmtDiaria = $conexion->prepare($sqlDiariaBase . implode(',', $values));
+                $stmtDiaria->execute($params);
+            }
 
-public function InsertSenalamiento(array $registro, string $tipoSenalamiento)
-{
-    /*echo "<pre>Entrando a InsertSenalamiento\n";
-    echo "Folio: {$registro['Folio_Pisa']} - Teléfono: {$registro['TELEFONO']} - NumSerie: {$registro['Num__Serie']}\n";
-    echo "Tipo señalamiento: $tipoSenalamiento\n</pre>"; */
-    $sql = "INSERT INTO seg_produccion_senalamiento (
-                Folio_Pisa, TELEFONO, FECHA_LIQ,
-                Tipo_Senalamiento, Detalle, Fecha_Registro
-            ) VALUES (
-                :Folio_Pisa, :TELEFONO, :FECHA_LIQ,
-                :Tipo_Senalamiento, :Detalle, NOW()
-            )";
+            // 2. Inserción masiva en seg_produccion_senalamiento
+            $senalamientos = array_filter($registros, function ($reg) use ($mapExistentes) {
+                return !isset($mapExistentes[$reg['Num__Serie']]);
+            });
 
-    $params = [
-        ':Folio_Pisa'        => $registro['Folio_Pisa'],
-        ':TELEFONO'          => $registro['TELEFONO'],
-        ':FECHA_LIQ'         => $registro['FECHA_LIQ'],
-        ':Tipo_Senalamiento' => $tipoSenalamiento,
-        ':Detalle'           => "Num__Serie=" . $registro['Num__Serie'] . " no encontrado en almacén"
-    ];
+            if (!empty($senalamientos)) {
+                $chunksSenalamiento = array_chunk($senalamientos, $batchSize);
+                $sqlSenalBase = "INSERT INTO seg_produccion_senalamiento (
+                                    Folio_Pisa, TELEFONO, FECHA_LIQ, Tipo_Senalamiento, Detalle, Fecha_Registro
+                                ) VALUES ";
 
-    return $this->runExecute($sql, $params, 'erpprint');
-}
+                foreach ($chunksSenalamiento as $chunk) {
+                    $values = [];
+                    $params = [];
 
+                    foreach ($chunk as $reg) {
+                        $values[] = "(?, ?, ?, ?, ?, NOW())";
+                        array_push(
+                            $params,
+                            $reg['Folio_Pisa'],
+                            $reg['TELEFONO'],
+                            $reg['FECHA_LIQ'],
+                            'NO ENCONTRADO EN ALMACEN',
+                            "Num__Serie=" . $reg['Num__Serie'] . " no encontrado en almacén"
+                        );
+                    }
 
+                    $stmtSenal = $conexion->prepare($sqlSenalBase . implode(',', $values));
+                    $stmtSenal->execute($params);
+                }
+            }
 
+            $conexion->commit();
+            return true;
 
+        } catch (Exception $e) {
+            if ($conexion->inTransaction()) {
+                $conexion->rollBack();
+            }
+            error_log("Error en InsertBatchProduccionYSenalamiento: " . $e->getMessage());
+            return false;
+        }
+    }
 
+    public function InsertProduccionDiaria(array $registro, bool $tieneSenalamiento)
+    {
+        $sql = "INSERT INTO seg_produccion_diaria (
+                    Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
+                    FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
+                    idContratista, Contratista, Tecnico, NOM_DIVISION, NOM_AREA,
+                    Num__Serie, DISTRITO, TERMINAL, Fecha_Insercion, Tiene_Senalamiento
+                ) VALUES (
+                    :Expediente, :Folio_Pisa, :TELEFONO, :Tipo_de_Tarea, :NOM_CT,
+                    :FECHA_LIQ, :FECHA_LIQD, :Semana, :Sem, :Anio,
+                    :idContratista, :Contratista, :Tecnico, :NOM_DIVISION, :NOM_AREA,
+                    :Num__Serie, :DISTRITO, :TERMINAL, NOW(), :Tiene_Senalamiento
+                )";
 
+        $params = [
+            ':Expediente'          => $registro['Expediente'],
+            ':Folio_Pisa'          => $registro['Folio_Pisa'],
+            ':TELEFONO'            => $registro['TELEFONO'],
+            ':Tipo_de_Tarea'       => $registro['Tipo_de_Tarea'],
+            ':NOM_CT'              => $registro['NOM_CT'],
+            ':FECHA_LIQ'           => $registro['FECHA_LIQ'],
+            ':FECHA_LIQD'          => $registro['FECHA_LIQD'],
+            ':Semana'              => $registro['Semana'],
+            ':Sem'                 => $registro['Sem'],
+            ':Anio'                => $registro['Anio'],
+            ':idContratista'       => $registro['idContratista'],
+            ':Contratista'         => $registro['Contratista'],
+            ':Tecnico'             => $registro['Tecnico'],
+            ':NOM_DIVISION'        => $registro['NOM_DIVISION'],
+            ':NOM_AREA'            => $registro['NOM_AREA'],
+            ':Num__Serie'          => $registro['Num__Serie'],
+            ':DISTRITO'            => $registro['DISTRITO'],
+            ':TERMINAL'            => $registro['TERMINAL'],
+            ':Tiene_Senalamiento' => $tieneSenalamiento ? 1 : 0
+        ];
 
+        return $this->runExecute($sql, $params, 'erpprint');
+    }
+
+    public function InsertSenalamiento(array $registro, string $tipoSenalamiento)
+    {
+        $sql = "INSERT INTO seg_produccion_senalamiento (
+                    Folio_Pisa, TELEFONO, FECHA_LIQ,
+                    Tipo_Senalamiento, Detalle, Fecha_Registro
+                ) VALUES (
+                    :Folio_Pisa, :TELEFONO, :FECHA_LIQ,
+                    :Tipo_Senalamiento, :Detalle, NOW()
+                )";
+
+        $params = [
+            ':Folio_Pisa'        => $registro['Folio_Pisa'],
+            ':TELEFONO'          => $registro['TELEFONO'],
+            ':FECHA_LIQ'         => $registro['FECHA_LIQ'],
+            ':Tipo_Senalamiento' => $tipoSenalamiento,
+            ':Detalle'           => "Num__Serie=" . $registro['Num__Serie'] . " no encontrado en almacén"
+        ];
+
+        return $this->runExecute($sql, $params, 'erpprint');
+    }
 }
