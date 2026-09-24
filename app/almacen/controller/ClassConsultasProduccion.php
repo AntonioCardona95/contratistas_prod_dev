@@ -119,9 +119,6 @@ public function CountProduccionTotal()
 
 public function GetProduccionPorFechas($fechaInicio, $fechaFin)
 {
-    echo "<pre>Entrando a GetProduccionPorFechas\n";
-    echo "FechaInicio: $fechaInicio\n";
-    echo "FechaFin: $fechaFin\n</pre>";
     $sql = "SELECT 
                 Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
                 FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
@@ -135,25 +132,33 @@ public function GetProduccionPorFechas($fechaInicio, $fechaFin)
         ':fechaFin'    => $fechaFin
     ];
 
-    return $this->runQuery($sql, $params, 'analisis');
+    try {
+        $rows = $this->runQuery($sql, $params, 'analisis');
+        return $rows;
+    } catch (PDOException $e) {
+        echo "<pre>Error en GetProduccionPorFechas: " . $e->getMessage() . "</pre>";
+        return [];
+    }
 }
+
 
 
 public function GetNumSeriesEnAlmacen(array $numSeries)
 {
-    echo "<pre>Entrando a GetNumSeriesEnAlmacen\n";
-    echo "Cantidad de NumSeries recibidos: " . count($numSeries) . "\n";
-    var_dump(array_slice($numSeries, 0, 5)); // muestra 5
-    echo "</pre>";
     if (empty($numSeries)) return [];
 
-    // Generar placeholders dinámicos
     $placeholders = implode(',', array_fill(0, count($numSeries), '?'));
     $sql = "SELECT Num_Serie FROM materiales_det WHERE Num_Serie IN ($placeholders)";
 
-    $rows = $this->runQuery($sql, $numSeries, 'default');
-    return array_column($rows, 'Num_Serie'); // devuelve solo los encontrados
+    try {
+        $rows = $this->runQuery($sql, $numSeries, 'default');
+        return array_column($rows, 'Num_Serie');
+    } catch (PDOException $e) {
+        echo "<pre>Error en GetNumSeriesEnAlmacen: " . $e->getMessage() . "</pre>";
+        return [];
+    }
 }
+
 
 
 // TEMPORAL DE PRUBA PRODUCCION //
@@ -176,9 +181,6 @@ public function GetNumSeriesEnAlmacen(array $numSeries)
 
 public function InsertProduccionDiaria(array $registro, bool $tieneSenalamiento)
 {
-    echo "<pre>Entrando a InsertProduccionDiaria\n";
-    echo "Folio: {$registro['Folio_Pisa']} - Teléfono: {$registro['TELEFONO']} - NumSerie: {$registro['Num__Serie']}\n";
-    echo "Tiene señalamiento: " . ($tieneSenalamiento ? 'SI' : 'NO') . "\n</pre>";
     $sql = "INSERT INTO seg_produccion_diaria (
                 Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
                 FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
@@ -213,15 +215,19 @@ public function InsertProduccionDiaria(array $registro, bool $tieneSenalamiento)
         ':Tiene_Senalamiento' => $tieneSenalamiento ? 1 : 0
     ];
 
-    return $this->runExecute($sql, $params, 'default');
+    try {
+        $result = $this->runExecute($sql, $params, 'default');
+        return $result;
+    } catch (PDOException $e) {
+        echo "<pre>Error en InsertProduccionDiaria: " . $e->getMessage() . "</pre>";
+        return false;
+    }
 }
+
 
 
 public function InsertSenalamiento(array $registro, string $tipoSenalamiento)
 {
-    echo "<pre>Entrando a InsertSenalamiento\n";
-    echo "Folio: {$registro['Folio_Pisa']} - Teléfono: {$registro['TELEFONO']} - NumSerie: {$registro['Num__Serie']}\n";
-    echo "Tipo señalamiento: $tipoSenalamiento\n</pre>";
     $sql = "INSERT INTO seg_produccion_senalamiento (
                 Folio_Pisa, TELEFONO, FECHA_LIQ,
                 Tipo_Senalamiento, Detalle, Fecha_Registro
@@ -238,7 +244,13 @@ public function InsertSenalamiento(array $registro, string $tipoSenalamiento)
         ':Detalle'           => "Num__Serie=" . $registro['Num__Serie'] . " no encontrado en almacén"
     ];
 
-    return $this->runExecute($sql, $params, 'default');
+    try {
+        $result = $this->runExecute($sql, $params, 'default');
+        return $result;
+    } catch (PDOException $e) {
+        echo "<pre>Error en InsertSenalamiento: " . $e->getMessage() . "</pre>";
+        return false;
+    }
 }
 
 
