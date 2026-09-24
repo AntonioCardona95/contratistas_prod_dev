@@ -223,7 +223,7 @@ public function InsertProduccionDiaria(array $registro, bool $tieneSenalamiento)
         ':Tiene_Senalamiento' => $tieneSenalamiento ? 1 : 0
     ];
 
-    return $this->runExecute($sql, $params, 'erpprint');
+    return $this->runExecute($sql, $params, 'default');
 }
 
 
@@ -248,7 +248,7 @@ public function InsertSenalamiento(array $registro, string $tipoSenalamiento)
         ':Detalle'           => "Num__Serie=" . $registro['Num__Serie'] . " no encontrado en almacén"
     ];
 
-    return $this->runExecute($sql, $params, 'erpprint');
+    return $this->runExecute($sql, $params, 'default');
 }
 
 
