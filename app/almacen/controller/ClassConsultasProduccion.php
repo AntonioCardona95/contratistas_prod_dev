@@ -5,6 +5,7 @@
  * Clase encargada de la gestión de Nóminas y Contratistas
  */
 
+<?php
 require_once($_SERVER['DOCUMENT_ROOT'] . "/cnx/cnx.php");
 
 class ClassConsultasProduccion extends Conexion
@@ -26,6 +27,8 @@ class ClassConsultasProduccion extends Conexion
                 $conexion = $this->get_conexiondos();
                 break;
             case 'erpprint':
+                $conexion = $this->conexion();
+                break;
             default:
                 $conexion = $this->get_conexion();
                 break;
@@ -68,6 +71,8 @@ class ClassConsultasProduccion extends Conexion
                 $conexion = $this->get_conexiondos();
                 break;
             case 'erpprint':
+                $conexion = $this->conexion();
+                break;
             default:
                 $conexion = $this->get_conexion();
                 break;
@@ -96,7 +101,7 @@ class ClassConsultasProduccion extends Conexion
             return 0;
         }
     }
-
+}
 
 
     // Producción filtrada por fechas (inicia en 0 hasta que selecciones fechas)
