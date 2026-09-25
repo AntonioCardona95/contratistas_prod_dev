@@ -134,7 +134,7 @@ if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
 
 
 <div class="col-kpi-5 mb-4">
-    <a href="detalle_produccion.php?Fecha1=<?php echo urlencode($_POST['Fecha1'] ?? ''); ?>&Fecha2=<?php echo urlencode($_POST['Fecha2'] ?? ''); ?>" 
+    <a href="TablaProduccion.php?Fecha1=<?php echo urlencode($_POST['Fecha1'] ?? ''); ?>&Fecha2=<?php echo urlencode($_POST['Fecha2'] ?? ''); ?>" 
        class="kpi-card-link">
         <div class="kpi-card kpi-card-info">
             <div class="kpi-card-body">
