@@ -84,11 +84,22 @@ class ClassConsultasProduccion extends Conexion
 
 public function CountSinNavegacionPorFechas($Fecha1, $Fecha2)
 {
-    // Limpiamos los strings de fecha para tomar únicamente la parte 'YYYY-MM-DD'
+    // 1. Limpieza de variables
     $f1 = substr($Fecha1, 0, 10);
     $f2 = substr($Fecha2, 0, 10);
 
-    // Consulta que cubre '0', 0, NULL y los estados de texto que se ven en phpMyAdmin
+    echo "<div style='background:#e2e3e5; color:#383d41; padding:15px; margin:15px 0; border:2px solid #d6d8db; border-radius:8px; font-family:monospace; font-size:13px;'>";
+    echo "<h3 style='margin-top:0; color:#1b1e21;'>🛠️ INSPECCIÓN INTERNA DE CountSinNavegacionPorFechas()</h3>";
+    
+    echo "<p><strong>1. Parámetros recibidos:</strong></p>";
+    echo "<ul>";
+    echo "<li>Fecha1 original: <code>" . var_export($Fecha1, true) . "</code></li>";
+    echo "<li>Fecha2 original: <code>" . var_export($Fecha2, true) . "</code></li>";
+    echo "<li>f1 procesada: <code>{$f1}</code></li>";
+    echo "<li>f2 procesada: <code>{$f2}</code></li>";
+    echo "</ul>";
+
+    // 2. Definición de la SQL
     $sql = "SELECT COUNT(*) AS TOTAL 
             FROM seg_produccion_navegacion 
             WHERE (
@@ -100,11 +111,49 @@ public function CountSinNavegacionPorFechas($Fecha1, $Fecha2)
             )
             AND DATE(FECHA_LIQ) BETWEEN :f1 AND :f2";
 
-    $resultado = $this->runQuery($sql, array(
-        'f1' => $f1,
-        'f2' => $f2
-    ));
+    echo "<p><strong>2. Consulta SQL con marcadores:</strong></p>";
+    echo "<pre style='background:#fff; padding:8px; border:1px solid #ccc;'>" . htmlspecialchars($sql) . "</pre>";
 
+    $sqlInterpolada = "SELECT COUNT(*) AS TOTAL FROM seg_produccion_navegacion WHERE (Flag_Navega = '0' OR Flag_Navega = 0 OR Flag_Navega IS NULL OR Estatus_Navegacion = 'SIN NAVEGACION' OR Estatus_Navegacion LIKE '%NO REGISTRADO%') AND DATE(FECHA_LIQ) BETWEEN '{$f1}' AND '{$f2}'";
+    echo "<p><strong>SQL equivalente para probar en phpMyAdmin:</strong></p>";
+    echo "<input type='text' value=\"" . htmlspecialchars($sqlInterpolada) . "\" style='width:100%; padding:5px;' onclick='this.select()'>";
+
+    // 3. Ejecución de la consulta principal
+    $resultado = null;
+    try {
+        $resultado = $this->runQuery($sql, array(
+            'f1' => $f1,
+            'f2' => $f2
+        ));
+
+        echo "<p><strong>3. Respuesta recibida de runQuery():</strong></p>";
+        echo "<pre style='background:#fff; padding:8px; border:1px solid #ccc;'>" . print_r($resultado, true) . "</pre>";
+    } catch (Throwable $e) {
+        echo "<p style='color:red;'><strong>❌ ERROR EN EXCEPCIÓN SQL:</strong> " . $e->getMessage() . "</p>";
+    }
+
+    // 4. Pruebas de diagnóstico alternativo (Búsquedas simples)
+    echo "<hr><p><strong>4. Pruebas de Diagnóstico Directo en BD:</strong></p>";
+    try {
+        // Conteo total absoluto de la tabla
+        $testTotal = $this->runQuery("SELECT COUNT(*) AS T FROM seg_produccion_navegacion", []);
+        echo "<li>Total absoluto en seg_produccion_navegacion: <strong>" . ($testTotal[0]['T'] ?? 'ERROR') . "</strong></li>";
+
+        // Conteo filtrado solo por la fecha
+        $testFecha = $this->runQuery("SELECT COUNT(*) AS T FROM seg_produccion_navegacion WHERE DATE(FECHA_LIQ) BETWEEN :f1 AND :f2", ['f1' => $f1, 'f2' => $f2]);
+        echo "<li>Registros solo por fecha ({$f1} a {$f2}): <strong>" . ($testFecha[0]['T'] ?? 'ERROR') . "</strong></li>";
+
+        // Conteo filtrado solo por estado (sin fecha)
+        $testEstado = $this->runQuery("SELECT COUNT(*) AS T FROM seg_produccion_navegacion WHERE Flag_Navega = '0' OR Flag_Navega = 0 OR Flag_Navega IS NULL", []);
+        echo "<li>Registros solo por Flag_Navega = 0 / NULL (sin filtro fecha): <strong>" . ($testEstado[0]['T'] ?? 'ERROR') . "</strong></li>";
+
+    } catch (Throwable $t) {
+        echo "<p style='color:red;'>Error en pruebas simples: " . $t->getMessage() . "</p>";
+    }
+
+    echo "</div>";
+
+    // Retorno de valor normal
     if (is_array($resultado) && !empty($resultado)) {
         return (int)($resultado[0]['TOTAL'] ?? 0);
     }
