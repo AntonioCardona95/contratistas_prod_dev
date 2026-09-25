@@ -8,9 +8,6 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/cnx/cnx.php");
 
 class ClassConsultasProduccion extends Conexion
 {
-    /**
-     * Helper genérico para ejecutar consultas según el tipo de conexión deseada
-     */
     protected function runQuery($sql, $params = array(), $conexionTipo = 'default')
     {
         switch ($conexionTipo) {
@@ -49,11 +46,47 @@ class ClassConsultasProduccion extends Conexion
             }
             return $rows;
         } catch (PDOException $e) {
-            error_log("Error en runQuery: " . $e->getMessage());
             return array();
         }
     }
 
+    protected function runExecute($sql, $params = array(), $conexionTipo = 'default')
+    {
+        switch ($conexionTipo) {
+            case 'analisis':
+            case 'analytics':
+                $conexion = $this->get_conexion_analisis();
+                break;
+            case 'nass':
+                $conexion = $this->get_conexion_nass();
+                break;
+            case 'dos':
+                $conexion = $this->get_conexiondos();
+                break;
+            case 'erpprint':
+                $conexion = $this->conexion();
+                break;
+            default:
+                $conexion = $this->get_conexion();
+                break;
+        }
+
+        try {
+            $stmt = $conexion->prepare($sql);
+            foreach ($params as $key => $val) {
+                if (is_int($key)) {
+                    $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+                } else {
+                    $param = ':' . ltrim($key, ':');
+                    $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+                }
+            }
+            $stmt->execute();
+            return (int)$conexion->lastInsertId();
+        } catch (PDOException $e) {
+            return 0;
+        }
+    }
     /**
      * Cuenta el total de producción en la vista/tabla seg_ns_prod_eval para un rango de fechas
      */
