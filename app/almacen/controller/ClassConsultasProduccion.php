@@ -181,7 +181,7 @@ class ClassConsultasProduccion extends Conexion
     }
 
     /**
-     * Procesa de forma independiente las discrepancias de serie y las búsquedas en almacén.
+     * Procesa e inserta los datos conservando la integridad exacta de las fuentes
      */
     public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes)
     {
@@ -195,7 +195,7 @@ class ClassConsultasProduccion extends Conexion
             $batchSize = 200;
             $senalamientos = [];
 
-            // Inserción exacta mapeada a la nueva estructura de seg_produccion_diaria
+            // Inserción exacta a la tabla seg_produccion_diaria
             $sqlDiariaBase = "INSERT INTO seg_produccion_diaria (
                                 Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
                                 FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
@@ -215,19 +215,21 @@ class ClassConsultasProduccion extends Conexion
                     $folioPisa = trim($reg['Folio_Pisa'] ?? '');
                     $fechaLiq  = $reg['FECHA_LIQ'] ?? '';
 
+                    // NUNCA reescribir ni reemplazar $serieProd.
+                    // Guarda exactamente el texto original que venía en Producción.
                     $serieProd = trim($reg['Num__Serie'] ?? '');
                     $serieEci  = $reg['Serie_Eci'] ?? null;
 
                     $prodEsValida = !$this->esSerieInvalida($serieProd);
                     $eciEsValida  = $serieEci !== null && !$this->esSerieInvalida($serieEci);
 
-                    // Validar existencias en Almacén
+                    // Evaluaciones de existencia en almacén independientes
                     $existeProdEnAlmacen = $prodEsValida && isset($mapExistentes[$serieProd]);
                     $existeEciEnAlmacen  = $eciEsValida && isset($mapExistentes[$serieEci]);
 
                     // --- EVALUACIÓN DE SEÑALAMIENTOS ---
 
-                    // A) Discrepancia de Series entre Producción y ECI
+                    // A) Discrepancia entre Producción y ECI
                     $hayDiscrepanciaSeries = false;
                     if ($prodEsValida && $eciEsValida && strtoupper($serieProd) !== strtoupper($serieEci)) {
                         $hayDiscrepanciaSeries = true;
@@ -241,7 +243,7 @@ class ClassConsultasProduccion extends Conexion
                         ];
                     }
 
-                    // B) Estado de Serie de PRODUCCIÓN en Almacén
+                    // B) Estado de la Serie de Producción en Almacén
                     if (!$prodEsValida) {
                         $senalamientos[] = [
                             'Folio_Pisa'        => $folioPisa,
@@ -260,7 +262,7 @@ class ClassConsultasProduccion extends Conexion
                         ];
                     }
 
-                    // C) Estado de Serie de ECI en Almacén
+                    // C) Estado de la Serie de ECI en Almacén
                     if ($eciEsValida && !$existeEciEnAlmacen) {
                         $senalamientos[] = [
                             'Folio_Pisa'        => $folioPisa,
@@ -290,7 +292,7 @@ class ClassConsultasProduccion extends Conexion
                 $stmtDiaria->execute($params);
             }
 
-            // Inserción masiva de los señalamientos generados
+            // Inserción masiva de los señalamientos
             if (!empty($senalamientos)) {
                 $chunksSenalamiento = array_chunk($senalamientos, $batchSize);
                 $sqlSenalBase = "INSERT INTO seg_produccion_senalamiento (
