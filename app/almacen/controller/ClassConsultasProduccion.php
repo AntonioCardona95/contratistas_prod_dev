@@ -1,13 +1,16 @@
 <?php
 
 /**
- * Clase encargada de la gestión de Producción y Consultas
+ * Clase encargada de la gestión de Producción, Consultas y Estado de Navegación
  */
 
 require_once($_SERVER['DOCUMENT_ROOT'] . "/cnx/cnx.php");
 
 class ClassConsultasProduccion extends Conexion
 {
+    /**
+     * Helper genérico para ejecutar consultas según el tipo de conexión deseada
+     */
     protected function runQuery($sql, $params = array(), $conexionTipo = 'default')
     {
         switch ($conexionTipo) {
@@ -46,48 +49,14 @@ class ClassConsultasProduccion extends Conexion
             }
             return $rows;
         } catch (PDOException $e) {
+            error_log("Error en runQuery: " . $e->getMessage());
             return array();
         }
     }
 
-    protected function runExecute($sql, $params = array(), $conexionTipo = 'default')
-    {
-        switch ($conexionTipo) {
-            case 'analisis':
-            case 'analytics':
-                $conexion = $this->get_conexion_analisis();
-                break;
-            case 'nass':
-                $conexion = $this->get_conexion_nass();
-                break;
-            case 'dos':
-                $conexion = $this->get_conexiondos();
-                break;
-            case 'erpprint':
-                $conexion = $this->conexion();
-                break;
-            default:
-                $conexion = $this->get_conexion();
-                break;
-        }
-
-        try {
-            $stmt = $conexion->prepare($sql);
-            foreach ($params as $key => $val) {
-                if (is_int($key)) {
-                    $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
-                } else {
-                    $param = ':' . ltrim($key, ':');
-                    $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
-                }
-            }
-            $stmt->execute();
-            return (int)$conexion->lastInsertId();
-        } catch (PDOException $e) {
-            return 0;
-        }
-    }
-
+    /**
+     * Cuenta el total de producción en la vista/tabla seg_ns_prod_eval para un rango de fechas
+     */
     public function CountProduccionPorFechas($fechaInicio, $fechaFin)
     {
         $sql = "SELECT COUNT(1) AS TOTAL
@@ -102,6 +71,9 @@ class ClassConsultasProduccion extends Conexion
         return $this->runQuery($sql, $params, 'analisis');
     }
 
+    /**
+     * Cuenta el total acumulado histórico de producción
+     */
     public function CountProduccionTotal()
     {
         $sql = "SELECT COUNT(1) AS TOTAL
@@ -110,6 +82,28 @@ class ClassConsultasProduccion extends Conexion
         return $this->runQuery($sql, array(), 'analisis');
     }
 
+    /**
+     * Cuenta las liquidaciones en un rango de fechas que actualmente NO navegan
+     */
+    public function CountSinNavegacionPorFechas($fechaInicio, $fechaFin)
+    {
+        $sql = "SELECT COUNT(1) AS TOTAL
+                FROM seg_produccion_navegacion
+                WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin
+                  AND Flag_Navega = 0";
+
+        $params = [
+            ':fechaInicio' => $fechaInicio,
+            ':fechaFin'    => $fechaFin
+        ];
+
+        $res = $this->runQuery($sql, $params, 'erpprint');
+        return isset($res[0]['TOTAL']) ? (int)$res[0]['TOTAL'] : 0;
+    }
+
+    /**
+     * Obtiene los registros de producción para el rango de fechas especificado
+     */
     public function GetProduccionPorFechas($fechaInicio, $fechaFin)
     {
         $sql = "SELECT 
@@ -128,17 +122,23 @@ class ClassConsultasProduccion extends Conexion
         return $this->runQuery($sql, $params, 'analisis');
     }
 
+    /**
+     * Determina si un número de serie se considera inválido o nulo
+     */
     public function esSerieInvalida(?string $serie): bool
     {
         if (empty($serie)) return true;
         
         $serieLimpia = strtoupper(trim($serie));
-        $invalidas = ['NS_NOOBTENIDO', 'NS_NO OBTENIDO', 'NS NO OBTENIDO', 'NS NOOBTENIDO', 'N/A', 'NULL', 'UNDEFINED', '0'];
+        $invalidas = ['NS_NOOBTENIDO', 'NS_NO OBTENIDO', 'NS NO OBTENIDO', 'NS NOOBTENIDO', 'N/A', 'NULL', 'UNDEFINED', '0', 'DESCONOCIDO'];
         
         return in_array($serieLimpia, $invalidas, true);
     }
 
-    public function GetSeriesPorTelefonosEci(array $telefonos): array
+    /**
+     * Obtiene el detalle ordenado de ESCI por cada teléfono proporcionado
+     */
+    public function GetDetalleEciPorTelefonos(array $telefonos): array
     {
         if (empty($telefonos)) return [];
 
@@ -147,27 +147,34 @@ class ClassConsultasProduccion extends Conexion
 
         $placeholders = implode(',', array_fill(0, count($telefonos), '?'));
         
-        $sql = "SELECT TELEFONO, M_SERIE, F_CONSULTA
+        $sql = "SELECT TELEFONO, M_SERIE, FECHA_ULTIMO_EVENTO, F_CONSULTA, DID_ACTIVO, TECNOLOGIA
                 FROM seg_ns_eci
-                WHERE DID_ACTIVO = 1
-                  AND TELEFONO IN ($placeholders)
-                ORDER BY F_CONSULTA DESC";
+                WHERE TELEFONO IN ($placeholders)
+                ORDER BY TELEFONO, F_CONSULTA DESC, FECHA_ULTIMO_EVENTO DESC";
 
         $rows = $this->runQuery($sql, array_values($telefonos), 'analisis');
 
-        $mapTelefonoSerie = [];
+        $mapaEci = [];
         foreach ($rows as $row) {
             $tel = trim($row['TELEFONO']);
-            $serie = trim($row['M_SERIE']);
-
-            if (!isset($mapTelefonoSerie[$tel]) && !$this->esSerieInvalida($serie)) {
-                $mapTelefonoSerie[$tel] = $serie;
+            if (!isset($mapaEci[$tel])) {
+                $mapaEci[$tel] = [
+                    'TELEFONO'            => $tel,
+                    'M_SERIE'             => strtoupper(trim($row['M_SERIE'] ?? '')),
+                    'FECHA_ULTIMO_EVENTO' => $row['FECHA_ULTIMO_EVENTO'] ?? null,
+                    'F_CONSULTA'          => $row['F_CONSULTA'] ?? null,
+                    'DID_ACTIVO'          => isset($row['DID_ACTIVO']) ? (int)$row['DID_ACTIVO'] : null,
+                    'TECNOLOGIA'          => $row['TECNOLOGIA'] ?? null
+                ];
             }
         }
 
-        return $mapTelefonoSerie;
+        return $mapaEci;
     }
 
+    /**
+     * Valida qué números de serie existen actualmente en la tabla de materiales (Almacén)
+     */
     public function GetNumSeriesEnAlmacen(array $numSeries)
     {
         $numSeries = array_unique(array_filter($numSeries));
@@ -181,9 +188,10 @@ class ClassConsultasProduccion extends Conexion
     }
 
     /**
-     * Procesa e inserta los datos conservando la integridad exacta de las fuentes
+     * Procesa e inserta/actualiza producción, señalamientos y estados de navegación.
+     * Mantiene la producción sin duplicar registros y actualiza dinámicamente el estatus de navegación.
      */
-    public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes)
+    public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
     {
         if (empty($registros)) return true;
 
@@ -194,8 +202,11 @@ class ClassConsultasProduccion extends Conexion
 
             $batchSize = 200;
             $senalamientos = [];
+            $navegaciones  = [];
 
-            // Inserción exacta a la tabla seg_produccion_diaria
+            // -------------------------------------------------------------
+            // 1. INSERCIÓN / ACTUALIZACIÓN EN PRODUCCIÓN DIARIA
+            // -------------------------------------------------------------
             $sqlDiariaBase = "INSERT INTO seg_produccion_diaria (
                                 Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
                                 FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
@@ -203,6 +214,13 @@ class ClassConsultasProduccion extends Conexion
                                 Num__Serie, Serie_Eci, Existe_Serie_Prod_Almacen, Existe_Serie_Eci_Almacen,
                                 DISTRITO, TERMINAL, Fecha_Insercion, Tiene_Senalamiento
                             ) VALUES ";
+
+            // Si la producción ya existía, actualizamos datos evaluados sin duplicar filas
+            $sqlDiariaDuplicate = " ON DUPLICATE KEY UPDATE
+                                    Serie_Eci = VALUES(Serie_Eci),
+                                    Existe_Serie_Prod_Almacen = VALUES(Existe_Serie_Prod_Almacen),
+                                    Existe_Serie_Eci_Almacen = VALUES(Existe_Serie_Eci_Almacen),
+                                    Tiene_Senalamiento = VALUES(Tiene_Senalamiento)";
 
             $chunks = array_chunk($registros, $batchSize);
 
@@ -215,21 +233,57 @@ class ClassConsultasProduccion extends Conexion
                     $folioPisa = trim($reg['Folio_Pisa'] ?? '');
                     $fechaLiq  = $reg['FECHA_LIQ'] ?? '';
 
-                    // NUNCA reescribir ni reemplazar $serieProd.
-                    // Guarda exactamente el texto original que venía en Producción.
                     $serieProd = trim($reg['Num__Serie'] ?? '');
-                    $serieEci  = $reg['Serie_Eci'] ?? null;
+                    
+                    // Datos de ESCI para el teléfono
+                    $eciInfo   = $mapEciDetalle[$tel] ?? null;
+                    $serieEci  = $eciInfo['M_SERIE'] ?? null;
 
                     $prodEsValida = !$this->esSerieInvalida($serieProd);
                     $eciEsValida  = $serieEci !== null && !$this->esSerieInvalida($serieEci);
 
-                    // Evaluaciones de existencia en almacén independientes
+                    // Evaluaciones de almacén
                     $existeProdEnAlmacen = $prodEsValida && isset($mapExistentes[$serieProd]);
                     $existeEciEnAlmacen  = $eciEsValida && isset($mapExistentes[$serieEci]);
 
-                    // --- EVALUACIÓN DE SEÑALAMIENTOS ---
+                    // Estatus de Navegación Actualizado
+                    $didActivo = $eciInfo['DID_ACTIVO'] ?? null;
+                    $fEvento   = $eciInfo['FECHA_ULTIMO_EVENTO'] ?? null;
+                    $fConsulta = $eciInfo['F_CONSULTA'] ?? null;
 
-                    // A) Discrepancia entre Producción y ECI
+                    $estatusNav = 'NO REGISTRADO EN ESCI';
+                    $flagNavega = 0;
+
+                    if ($eciInfo !== null) {
+                        if ($didActivo === 1) {
+                            $estatusNav = 'NAVEGANDO';
+                            $flagNavega = 1;
+                        } elseif ($didActivo === 0) {
+                            $estatusNav = 'SIN NAVEGACION';
+                            $flagNavega = 0;
+                        } elseif ($didActivo === -1) {
+                            $estatusNav = 'SERVICIO INACTIVO';
+                            $flagNavega = 0;
+                        } elseif ($this->esSerieInvalida($serieEci)) {
+                            $estatusNav = 'SIN NAVEGACION';
+                            $flagNavega = 0;
+                        }
+                    }
+
+                    // Acumulamos datos para seg_produccion_navegacion
+                    $navegaciones[] = [
+                        'Folio_Pisa'          => $folioPisa,
+                        'TELEFONO'            => $tel,
+                        'FECHA_LIQ'           => $fechaLiq,
+                        'DID_ACTIVO'          => $didActivo,
+                        'Estatus_Navegacion'  => $estatusNav,
+                        'Flag_Navega'         => $flagNavega,
+                        'Num__Serie_Eci'      => $serieEci,
+                        'FECHA_ULTIMO_EVENTO' => $fEvento,
+                        'F_CONSULTA'          => $fConsulta
+                    ];
+
+                    // Evaluación de Señalamientos
                     $hayDiscrepanciaSeries = false;
                     if ($prodEsValida && $eciEsValida && strtoupper($serieProd) !== strtoupper($serieEci)) {
                         $hayDiscrepanciaSeries = true;
@@ -243,7 +297,6 @@ class ClassConsultasProduccion extends Conexion
                         ];
                     }
 
-                    // B) Estado de la Serie de Producción en Almacén
                     if (!$prodEsValida) {
                         $senalamientos[] = [
                             'Folio_Pisa'        => $folioPisa,
@@ -262,7 +315,6 @@ class ClassConsultasProduccion extends Conexion
                         ];
                     }
 
-                    // C) Estado de la Serie de ECI en Almacén
                     if ($eciEsValida && !$existeEciEnAlmacen) {
                         $senalamientos[] = [
                             'Folio_Pisa'        => $folioPisa,
@@ -273,7 +325,17 @@ class ClassConsultasProduccion extends Conexion
                         ];
                     }
 
-                    $tieneFallos = $hayDiscrepanciaSeries || !$prodEsValida || !$existeProdEnAlmacen || ($eciEsValida && !$existeEciEnAlmacen);
+                    if ($flagNavega === 0) {
+                        $senalamientos[] = [
+                            'Folio_Pisa'        => $folioPisa,
+                            'TELEFONO'          => $tel,
+                            'FECHA_LIQ'         => $fechaLiq,
+                            'Tipo_Senalamiento' => 'SIN NAVEGACION EN ESCI',
+                            'Detalle'           => "Estatus: $estatusNav" . ($fEvento ? " | Última vez que navegó: $fEvento" : "")
+                        ];
+                    }
+
+                    $tieneFallos = $hayDiscrepanciaSeries || !$prodEsValida || !$existeProdEnAlmacen || ($eciEsValida && !$existeEciEnAlmacen) || ($flagNavega === 0);
                     $tieneSenalamiento = $tieneFallos ? 1 : 0;
 
                     $values[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
@@ -288,11 +350,69 @@ class ClassConsultasProduccion extends Conexion
                     );
                 }
 
-                $stmtDiaria = $conexion->prepare($sqlDiariaBase . implode(',', $values));
+                $stmtDiaria = $conexion->prepare($sqlDiariaBase . implode(',', $values) . $sqlDiariaDuplicate);
                 $stmtDiaria->execute($params);
             }
 
-            // Inserción masiva de los señalamientos
+            // -------------------------------------------------------------
+            // 2. ACTUALIZACIÓN DINÁMICA EN SEGUIMIENTO DE NAVEGACIÓN
+            // -------------------------------------------------------------
+            if (!empty($navegaciones)) {
+                $chunksNav = array_chunk($navegaciones, $batchSize);
+                $sqlNavBase = "INSERT INTO seg_produccion_navegacion (
+                                    Folio_Pisa, TELEFONO, FECHA_LIQ, DID_ACTIVO, Estatus_Navegacion,
+                                    Flag_Navega, Num__Serie_Eci, FECHA_ULTIMO_EVENTO, F_CONSULTA, Fecha_Evaluacion
+                                ) VALUES ";
+
+                $sqlNavDuplicate = " ON DUPLICATE KEY UPDATE
+                                    DID_ACTIVO = VALUES(DID_ACTIVO),
+                                    Estatus_Navegacion = VALUES(Estatus_Navegacion),
+                                    Flag_Navega = VALUES(Flag_Navega),
+                                    Num__Serie_Eci = VALUES(Num__Serie_Eci),
+                                    FECHA_ULTIMO_EVENTO = VALUES(FECHA_ULTIMO_EVENTO),
+                                    F_CONSULTA = VALUES(F_CONSULTA),
+                                    Fecha_Evaluacion = NOW()";
+
+                foreach ($chunksNav as $chunk) {
+                    $valuesNav = [];
+                    $paramsNav = [];
+
+                    foreach ($chunk as $nav) {
+                        $valuesNav[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+                        array_push(
+                            $paramsNav,
+                            $nav['Folio_Pisa'],
+                            $nav['TELEFONO'],
+                            $nav['FECHA_LIQ'],
+                            $nav['DID_ACTIVO'],
+                            $nav['Estatus_Navegacion'],
+                            $nav['Flag_Navega'],
+                            $nav['Num__Serie_Eci'],
+                            $nav['FECHA_ULTIMO_EVENTO'],
+                            $nav['F_CONSULTA']
+                        );
+                    }
+
+                    $stmtNav = $conexion->prepare($sqlNavBase . implode(',', $valuesNav) . $sqlNavDuplicate);
+                    $stmtNav->execute($paramsNav);
+                }
+            }
+
+            // -------------------------------------------------------------
+            // 3. LIMPIEZA Y REFRESH DE SEÑALAMIENTOS DE NAVEGACIÓN
+            // -------------------------------------------------------------
+            // Borramos los señalamientos de 'SIN NAVEGACION EN ESCI' de los folios a procesar 
+            // para que si ya navegan, el señalamiento desaparezca automáticamente.
+            $foliosLote = array_unique(array_column($registros, 'Folio_Pisa'));
+            if (!empty($foliosLote)) {
+                $phFolios = implode(',', array_fill(0, count($foliosLote), '?'));
+                $stmtClean = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
+                                                 WHERE Folio_Pisa IN ($phFolios) 
+                                                   AND Tipo_Senalamiento = 'SIN NAVEGACION EN ESCI'");
+                $stmtClean->execute(array_values($foliosLote));
+            }
+
+            // Inserción de los nuevos señalamientos calculados
             if (!empty($senalamientos)) {
                 $chunksSenalamiento = array_chunk($senalamientos, $batchSize);
                 $sqlSenalBase = "INSERT INTO seg_produccion_senalamiento (
