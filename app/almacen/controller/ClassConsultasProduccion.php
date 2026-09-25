@@ -99,7 +99,7 @@ public function CountSinNavegacionPorFechas($Fecha1, $Fecha2)
     echo "<li>f2 procesada: <code>{$f2}</code></li>";
     echo "</ul>";
 
-    // 2. Definición de la SQL
+    // 2. Definición de la SQL Directa
     $sql = "SELECT COUNT(*) AS TOTAL 
             FROM seg_produccion_navegacion 
             WHERE (
@@ -109,22 +109,15 @@ public function CountSinNavegacionPorFechas($Fecha1, $Fecha2)
                 OR Estatus_Navegacion = 'SIN NAVEGACION'
                 OR Estatus_Navegacion LIKE '%NO REGISTRADO%'
             )
-            AND DATE(FECHA_LIQ) BETWEEN :f1 AND :f2";
+            AND DATE(FECHA_LIQ) BETWEEN '{$f1}' AND '{$f2}'";
 
-    echo "<p><strong>2. Consulta SQL con marcadores:</strong></p>";
+    echo "<p><strong>2. Consulta SQL ejecutada:</strong></p>";
     echo "<pre style='background:#fff; padding:8px; border:1px solid #ccc;'>" . htmlspecialchars($sql) . "</pre>";
-
-    $sqlInterpolada = "SELECT COUNT(*) AS TOTAL FROM seg_produccion_navegacion WHERE (Flag_Navega = '0' OR Flag_Navega = 0 OR Flag_Navega IS NULL OR Estatus_Navegacion = 'SIN NAVEGACION' OR Estatus_Navegacion LIKE '%NO REGISTRADO%') AND DATE(FECHA_LIQ) BETWEEN '{$f1}' AND '{$f2}'";
-    echo "<p><strong>SQL equivalente para probar en phpMyAdmin:</strong></p>";
-    echo "<input type='text' value=\"" . htmlspecialchars($sqlInterpolada) . "\" style='width:100%; padding:5px;' onclick='this.select()'>";
 
     // 3. Ejecución de la consulta principal
     $resultado = null;
     try {
-        $resultado = $this->runQuery($sql, array(
-            'f1' => $f1,
-            'f2' => $f2
-        ));
+        $resultado = $this->runQuery($sql);
 
         echo "<p><strong>3. Respuesta recibida de runQuery():</strong></p>";
         echo "<pre style='background:#fff; padding:8px; border:1px solid #ccc;'>" . print_r($resultado, true) . "</pre>";
@@ -132,19 +125,19 @@ public function CountSinNavegacionPorFechas($Fecha1, $Fecha2)
         echo "<p style='color:red;'><strong>❌ ERROR EN EXCEPCIÓN SQL:</strong> " . $e->getMessage() . "</p>";
     }
 
-    // 4. Pruebas de diagnóstico alternativo (Búsquedas simples)
+    // 4. Pruebas de diagnóstico alternativo
     echo "<hr><p><strong>4. Pruebas de Diagnóstico Directo en BD:</strong></p>";
     try {
         // Conteo total absoluto de la tabla
-        $testTotal = $this->runQuery("SELECT COUNT(*) AS T FROM seg_produccion_navegacion", []);
+        $testTotal = $this->runQuery("SELECT COUNT(*) AS T FROM seg_produccion_navegacion");
         echo "<li>Total absoluto en seg_produccion_navegacion: <strong>" . ($testTotal[0]['T'] ?? 'ERROR') . "</strong></li>";
 
         // Conteo filtrado solo por la fecha
-        $testFecha = $this->runQuery("SELECT COUNT(*) AS T FROM seg_produccion_navegacion WHERE DATE(FECHA_LIQ) BETWEEN :f1 AND :f2", ['f1' => $f1, 'f2' => $f2]);
+        $testFecha = $this->runQuery("SELECT COUNT(*) AS T FROM seg_produccion_navegacion WHERE DATE(FECHA_LIQ) BETWEEN '{$f1}' AND '{$f2}'");
         echo "<li>Registros solo por fecha ({$f1} a {$f2}): <strong>" . ($testFecha[0]['T'] ?? 'ERROR') . "</strong></li>";
 
         // Conteo filtrado solo por estado (sin fecha)
-        $testEstado = $this->runQuery("SELECT COUNT(*) AS T FROM seg_produccion_navegacion WHERE Flag_Navega = '0' OR Flag_Navega = 0 OR Flag_Navega IS NULL", []);
+        $testEstado = $this->runQuery("SELECT COUNT(*) AS T FROM seg_produccion_navegacion WHERE Flag_Navega = '0' OR Flag_Navega = 0 OR Flag_Navega IS NULL");
         echo "<li>Registros solo por Flag_Navega = 0 / NULL (sin filtro fecha): <strong>" . ($testEstado[0]['T'] ?? 'ERROR') . "</strong></li>";
 
     } catch (Throwable $t) {
