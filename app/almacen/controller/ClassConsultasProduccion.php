@@ -82,10 +82,31 @@ class ClassConsultasProduccion extends Conexion
         return $this->runQuery($sql, array(), 'analisis');
     }
 
+
+    public function CountSinNavegacionPorFechas($Fecha1, $Fecha2)
+{
+    // Ajusta 'seg_produccion_navegacion' y el campo de fecha si difieren en tu BD
+    $sql = "SELECT COUNT(*) AS TOTAL 
+            FROM seg_produccion_navegacion 
+            WHERE Estatus_Navegacion = 'SIN NAVEGACION' 
+              AND Fecha_Registro BETWEEN :Fecha1 AND :Fecha2";
+
+    $resultado = $this->runQuery($sql, array(
+        'Fecha1' => $Fecha1,
+        'Fecha2' => $Fecha2
+    ));
+
+    if (is_array($resultado) && !empty($resultado)) {
+        return (int)($resultado[0]['TOTAL'] ?? 0);
+    }
+
+    return 0;
+}
+
     /**
      * Cuenta las liquidaciones en un rango de fechas que actualmente NO navegan
      */
-    public function CountSinNavegacionPorFechas($fechaInicio, $fechaFin)
+    /*public function CountSinNavegacionPorFechas($fechaInicio, $fechaFin)
     {
         $sql = "SELECT COUNT(1) AS TOTAL
                 FROM seg_produccion_navegacion
@@ -99,7 +120,7 @@ class ClassConsultasProduccion extends Conexion
 
         $res = $this->runQuery($sql, $params, 'erpprint');
         return isset($res[0]['TOTAL']) ? (int)$res[0]['TOTAL'] : 0;
-    }
+    }  */
 
     /**
      * Obtiene los registros de producción para el rango de fechas especificado
@@ -171,6 +192,8 @@ class ClassConsultasProduccion extends Conexion
 
         return $mapaEci;
     }
+
+    
 
     /**
      * Valida qué números de serie existen actualmente en la tabla de materiales (Almacén)
@@ -451,4 +474,6 @@ class ClassConsultasProduccion extends Conexion
             return false;
         }
     }
+
+    
 }
