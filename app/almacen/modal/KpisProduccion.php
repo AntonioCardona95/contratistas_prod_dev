@@ -125,6 +125,26 @@ if (is_array($qrDisponiblesT)) {
 }
 ?>
 
+<!-- BLOQUE DE PRUEBA TEMPORAL (Eliminar después de corregir) -->
+<div style="background-color: #fff3cd; color: #856404; padding: 15px; margin: 15px 0; border: 1px solid #ffeeba; border-radius: 5px;">
+    <h4>🔍 Depuración KPI Sin Navegación</h4>
+    <p><strong>Rango evaluado:</strong> <code><?php echo $Fecha1; ?></code> al <code><?php echo $Fecha2; ?></code></p>
+    <p><strong>Valor devuelto a $TotalSinNavegacion:</strong> <code><?php echo var_export($TotalSinNavegacion, true); ?></code></p>
+    
+    <?php
+    // Ejecutamos una prueba rápida directa desde PDO/Query de la clase
+    try {
+        $sqlDirecta = "SELECT COUNT(*) AS TOTAL FROM seg_produccion_navegacion WHERE Flag_Navega = 0 AND FECHA_LIQ BETWEEN '$Fecha1' AND '$Fecha2'";
+        echo "<p><strong>Consulta directa probada:</strong> <code>{$sqlDirecta}</code></p>";
+
+        $sqlText = "SELECT COUNT(*) AS TOTAL FROM seg_produccion_navegacion WHERE Estatus_Navegacion = 'SIN NAVEGACION' AND FECHA_LIQ BETWEEN '$Fecha1' AND '$Fecha2'";
+        echo "<p><strong>Consulta por texto probada:</strong> <code>{$sqlText}</code></p>";
+    } catch (Exception $e) {
+        echo "<p style='color:red;'><strong>Error:</strong> " . $e->getMessage() . "</p>";
+    }
+    ?>
+</div>
+
 <link rel="stylesheet" href="css/kpis-produccion.css">
 
 <div class="row kpi-cards-row">
