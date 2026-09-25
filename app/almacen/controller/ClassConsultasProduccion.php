@@ -518,5 +518,53 @@ class ClassConsultasProduccion extends Conexion
         }
     }
 
+
+    /**
+ * Obtiene registros completos de producción (diaria + navegación + señalamientos)
+ * en un rango de fechas
+ */
+public function VisualizarTablaFechas($fechaInicio, $fechaFin)
+{
+    $sql = "SELECT 
+                d.Folio_Pisa,
+                d.TELEFONO,
+                d.Tipo_de_Tarea,
+                d.Contratista,
+                d.Tecnico,
+                d.NOM_DIVISION,
+                d.NOM_AREA,
+                d.Num__Serie,
+                d.Serie_Eci,
+                d.Existe_Serie_Prod_Almacen,
+                d.Existe_Serie_Eci_Almacen,
+                d.FECHA_LIQ,
+                d.Semana,
+                d.Anio,
+                d.Tiene_Senalamiento,
+                n.Estatus_Navegacion,
+                n.Flag_Navega,
+                n.FECHA_ULTIMO_EVENTO,
+                s.Tipo_Senalamiento,
+                s.Detalle AS Detalle_Senalamiento
+            FROM seg_produccion_diaria d
+            LEFT JOIN seg_produccion_navegacion n 
+                ON d.Folio_Pisa = n.Folio_Pisa 
+               AND d.TELEFONO = n.TELEFONO 
+               AND d.FECHA_LIQ = n.FECHA_LIQ
+            LEFT JOIN seg_produccion_senalamiento s 
+                ON d.Folio_Pisa = s.Folio_Pisa 
+               AND d.TELEFONO = s.TELEFONO 
+               AND d.FECHA_LIQ = s.FECHA_LIQ
+            WHERE d.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+
+    $params = array(
+        ':fechaInicio' => $fechaInicio,
+        ':fechaFin'    => $fechaFin
+    );
+
+    return $this->runQuery($sql, $params, 'analisis');
+}
+
+
     
 }
