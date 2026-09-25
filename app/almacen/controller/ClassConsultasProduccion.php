@@ -84,11 +84,12 @@ class ClassConsultasProduccion extends Conexion
 
 public function CountSinNavegacionPorFechas($Fecha1, $Fecha2)
 {
-    // Usamos FECHA_LIQ que es la columna real de tu tabla seg_produccion_navegacion
+    // Usamos DATE() para ignorar diferencias de horas/formato en FECHA_LIQ
+    // e incluimos Flag_Navega = 0 o NULL (casos como 'NO REGISTRADO EN ESCI')
     $sql = "SELECT COUNT(*) AS TOTAL 
             FROM seg_produccion_navegacion 
-            WHERE Flag_Navega = 0 
-              AND FECHA_LIQ BETWEEN :Fecha1 AND :Fecha2";
+            WHERE (Flag_Navega = 0 OR Flag_Navega IS NULL OR Estatus_Navegacion = 'SIN NAVEGACION')
+              AND DATE(FECHA_LIQ) BETWEEN DATE(:Fecha1) AND DATE(:Fecha2)";
 
     $resultado = $this->runQuery($sql, array(
         'Fecha1' => $Fecha1,
