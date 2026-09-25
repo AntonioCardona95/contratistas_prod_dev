@@ -118,13 +118,21 @@ class ClassConsultasProduccion extends Conexion
 /**
      * Cuenta las liquidaciones en un rango de fechas que actualmente NO navegan
      */
+    /**
+     * Cuenta las liquidaciones en un rango de fechas que actualmente NO navegan
+     */
     public function CountSinNavegacionPorFechas($fechaInicio, $fechaFin)
     {
-        // 1. Limpieza de fechas (YYYY-MM-DD)
-        $f1 = substr($fechaInicio, 0, 10);
-        $f2 = substr($fechaFin, 0, 10);
+        // 1. Validar que vengan fechas válidas
+        if (empty($fechaInicio) || empty($fechaFin)) {
+            return 0;
+        }
 
-        // 2. Consulta SQL parametrizada con :fechaInicio y :fechaFin
+        // 2. Limpieza de fechas (Asegurar formato YYYY-MM-DD puro)
+        $f1 = substr(trim($fechaInicio), 0, 10);
+        $f2 = substr(trim($fechaFin), 0, 10);
+
+        // 3. Consulta SQL parametrizada
         $sql = "SELECT COUNT(1) AS TOTAL
                 FROM seg_produccion_navegacion
                 WHERE (
@@ -141,7 +149,7 @@ class ClassConsultasProduccion extends Conexion
             ':fechaFin'    => $f2
         );
 
-        // 3. Importante: Se especifica 'erpprint' como tercer parámetro de conexión
+        // 4. Ejecutar consulta usando la conexión a 'erpprint'
         $res = $this->runQuery($sql, $params, 'erpprint');
 
         return isset($res[0]['TOTAL']) ? (int)$res[0]['TOTAL'] : 0;
