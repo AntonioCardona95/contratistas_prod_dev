@@ -122,39 +122,44 @@ class ClassConsultasProduccion extends Conexion
      * Cuenta las liquidaciones en un rango de fechas que actualmente NO navegan
      */
     public function CountSinNavegacionPorFechas($fechaInicio, $fechaFin)
-    {
-        // 1. Validar que vengan fechas válidas
-        if (empty($fechaInicio) || empty($fechaFin)) {
-            return 0;
-        }
-
-        // 2. Limpieza de fechas (Asegurar formato YYYY-MM-DD puro)
-        $f1 = substr(trim($fechaInicio), 0, 10);
-        $f2 = substr(trim($fechaFin), 0, 10);
-
-        // 3. Consulta SQL parametrizada
-        $sql = "SELECT COUNT(1) AS TOTAL
-                FROM seg_produccion_navegacion
-                WHERE (
-                    Flag_Navega = '0' 
-                    OR Flag_Navega = 0 
-                    OR Flag_Navega IS NULL 
-                    OR Estatus_Navegacion = 'SIN NAVEGACION'
-                    OR Estatus_Navegacion LIKE '%NO REGISTRADO%'
-                )
-                AND DATE(FECHA_LIQ) BETWEEN :fechaInicio AND :fechaFin";
-
-        $params = array(
-            ':fechaInicio' => $f1,
-            ':fechaFin'    => $f2
-        );
-
-        // 4. Ejecutar consulta usando la conexión a 'erpprint'
-        $res = $this->runQuery($sql, $params, 'erpprint');
-
-        return isset($res[0]['TOTAL']) ? (int)$res[0]['TOTAL'] : 0;
+{
+    // 1. Si no hay fechas, retorna 0 de inmediato
+    if (empty($fechaInicio) || empty($fechaFin)) {
+        return 0;
     }
 
+    // 2. Formatear rango completo de 00:00:00 a 23:59:59
+    $f1 = substr(trim($fechaInicio), 0, 10) . " 00:00:00";
+    $f2 = substr(trim($fechaFin), 0, 10) . " 23:59:59";
+
+    // 3. Consulta directa por Flag_Navega = 0 o Estatus
+    $sql = "SELECT COUNT(1) AS TOTAL
+            FROM seg_produccion_navegacion
+            WHERE (
+                Flag_Navega = 0 
+                OR Flag_Navega = '0' 
+                OR Flag_Navega IS NULL 
+                OR Estatus_Navegacion = 'SIN NAVEGACION'
+                OR Estatus_Navegacion LIKE '%NO REGISTRADO%'
+            )
+            AND FECHA_LIQ >= :fechaInicio 
+            AND FECHA_LIQ <= :fechaFin";
+
+    $params = array(
+        ':fechaInicio' => $f1,
+        ':fechaFin'    => $f2
+    );
+
+    // 4. Se ejecuta en la base de datos correcta 'erpintr1_erp' 
+    // (Si usas el nombre de la conexión por defecto, puedes omitir el tercer parámetro o usar 'erpintr1_erp')
+    $res = $this->runQuery($sql, $params, 'erpintr1_erp');
+
+    if (is_array($res) && !empty($res)) {
+        return (int)($res[0]['TOTAL'] ?? 0);
+    }
+
+    return is_numeric($res) ? (int)$res : 0;
+}
 
 
 
