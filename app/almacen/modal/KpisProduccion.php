@@ -132,20 +132,13 @@ if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
         </div>
     </div>
 
-
-<div class="col-kpi-5 mb-4">
-    <a href="TablaProduccionFechas.php?Fecha1=<?php echo urlencode($_POST['Fecha1'] ?? ''); ?>&Fecha2=<?php echo urlencode($_POST['Fecha2'] ?? ''); ?>" 
-       class="kpi-card-link">
+    <div class="col-kpi-5 mb-4">
         <div class="kpi-card kpi-card-info">
             <div class="kpi-card-body">
                 <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
-                <div class="kpi-card-label">Total Producción (por fechas)</div>
-                <div class="kpi-card-number"><?php echo number_format($TotalProduccion); ?></div>
+                <div class="kpi-card-label">Total No Navegacion</div>
+                <div class="kpi-card-number"><?php echo number_format($TotalSinNavegacion); ?></div>
             </div>
         </div>
-    </a>
-</div>
-
-
-    
+    </div>
 </div>
