@@ -54,17 +54,18 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         $telefonos = array_column($registros, 'TELEFONO');
         $mapEci = $consultas->GetSeriesPorTelefonosEci($telefonos);
 
-        // Step 2: Recolectar TODAS las series a buscar en Almacén (Producción + ECI)
+        // Step 2: Recolectar series a buscar en Almacén (Num__Serie + Serie_Eci)
         $seriesABuscar = [];
 
         foreach ($registros as &$reg) {
             $tel = trim($reg['TELEFONO'] ?? '');
             
+            // La serie de producción viene nativa en 'Num__Serie'
             $serieProd = trim($reg['Num__Serie'] ?? '');
             $serieEci  = $mapEci[$tel] ?? null;
 
-            $reg['Serie_Produccion'] = $serieProd;
-            $reg['Serie_Eci']        = $serieEci;
+            // Solo inyectamos Serie_Eci al arreglo
+            $reg['Serie_Eci'] = $serieEci;
 
             if (!$consultas->esSerieInvalida($serieProd)) {
                 $seriesABuscar[] = $serieProd;
