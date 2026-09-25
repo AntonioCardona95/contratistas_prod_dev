@@ -37,6 +37,9 @@ $index = new Index();
 $consultas = new ClassConsultasProduccion();
 
 $TotalProduccion = 0;
+$TotalSinNavegacion = 0; // Se inicializa en 0
+
+// SOLO SE EJECUTA SI EL USUARIO SELECCIONÓ Y ENVIÓ FECHAS
 if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
     // 1. Obtener conteo de producción evaluada en el rango de fechas
     $qrProduccion = $consultas->CountProduccionPorFechas($Fecha1, $Fecha2);
@@ -48,7 +51,19 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         }
     }
 
-    // 2. Obtener los registros de producción del periodo
+    // 2. Conteo de 'Sin Navegación' en el rango de fechas seleccionadas
+    $qrSinNavegacion = $consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
+    if (is_array($qrSinNavegacion) && !empty($qrSinNavegacion)) {
+        foreach ($qrSinNavegacion as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalSinNavegacion = (int)$row['TOTAL'];
+            }
+        }
+    } else {
+        $TotalSinNavegacion = (int)$qrSinNavegacion;
+    }
+
+    // 3. Obtener los registros de producción del periodo y procesar
     $registros = $consultas->GetProduccionPorFechas($Fecha1, $Fecha2);
 
     if (!empty($registros)) {
@@ -82,7 +97,7 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
     }
 }
 
-// --- KPI Consultas ---
+// --- KPI Consultas Globales ---
 $ProduccionAcumulada = 0;
 $qrProduccionTotal = $consultas->CountProduccionTotal();
 if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
@@ -92,23 +107,7 @@ if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
         }
     }
 }
-
-// 2. Conteo de 'Sin Navegación' en el rango de fechas seleccionadas
-$TotalSinNavegacion = 0;
-$qrSinNavegacion = $consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
-
-if (is_array($qrSinNavegacion) && !empty($qrSinNavegacion)) {
-    foreach ($qrSinNavegacion as $row) {
-        if (isset($row['TOTAL'])) {
-            $TotalSinNavegacion = (int)$row['TOTAL'];
-        }
-    }
-} else {
-    $TotalSinNavegacion = (int)$qrSinNavegacion;
-}
 ?>
-
-
 
 <link rel="stylesheet" href="css/kpis-produccion.css">
 
@@ -133,7 +132,6 @@ if (is_array($qrSinNavegacion) && !empty($qrSinNavegacion)) {
         </div>
     </div>
 
-    
     <div class="col-kpi-5 mb-4">
         <div class="kpi-card kpi-card-info">
             <div class="kpi-card-body">
@@ -143,8 +141,4 @@ if (is_array($qrSinNavegacion) && !empty($qrSinNavegacion)) {
             </div>
         </div>
     </div>
-
-
-
-   
 </div>
