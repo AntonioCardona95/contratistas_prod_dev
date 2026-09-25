@@ -17,17 +17,19 @@ require_once("../controller/ClassConsultasProduccion.php");
 $Contratista = $_SESSION['Contratista'] ?? null;
 $idContratistas = obtenerIdContratistaContexto();
 
-$Fecha1 = $_POST['Fecha1'] ?? '';
-$Fecha2 = $_POST['Fecha2'] ?? '';
+// Capturamos los valores puros del POST
+$postFecha1 = $_POST['Fecha1'] ?? '';
+$postFecha2 = $_POST['Fecha2'] ?? '';
+
 @$Division = $_POST['Division'];
 @$Area = $_POST['Area'];
 @$Cope = $_POST['Cope'];
 
 $mes_anterior = date('Y-m-d', strtotime('-3 month'));
 
-if (!empty($Fecha1) && !empty($Fecha2)) {
-    $Fecha1 = $_POST['Fecha1'] . " 00:00:00";
-    $Fecha2 = $_POST['Fecha2'] . " 23:59:59";
+if (!empty($postFecha1) && !empty($postFecha2)) {
+    $Fecha1 = $postFecha1 . " 00:00:00";
+    $Fecha2 = $postFecha2 . " 23:59:59";
 } else {
     $Fecha1 = $mes_anterior . " 00:00:00";
     $Fecha2 = date('Y-m-d') . " 23:59:59";
@@ -40,8 +42,9 @@ $TotalProduccion = 0;
 $TotalSinNavegacion = 0;
 
 // SOLO SE EJECUTA SI EL USUARIO SELECCIONÓ Y ENVIÓ FECHAS
-if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
-    // 1. Conteo de producción
+if (!empty($postFecha1) && !empty($postFecha2)) {
+
+    // 1. Conteo de producción (utiliza el rango con horas)
     $qrProduccion = $consultas->CountProduccionPorFechas($Fecha1, $Fecha2);
     if (is_array($qrProduccion) && !empty($qrProduccion)) {
         foreach ($qrProduccion as $row) {
@@ -51,8 +54,8 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         }
     }
 
-    // 2. Conteo de 'Sin Navegación'
-    $qrSinNavegacion = $consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
+    // 2. Conteo de 'Sin Navegación' (enviamos la fecha pura YYYY-MM-DD para evitar descuadres en SQL)
+    $qrSinNavegacion = $consultas->CountSinNavegacionPorFechas($postFecha1, $postFecha2);
     if (is_array($qrSinNavegacion) && !empty($qrSinNavegacion)) {
         foreach ($qrSinNavegacion as $row) {
             if (isset($row['TOTAL'])) {
@@ -119,7 +122,7 @@ if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
 
     <!-- Total Producción (por fechas) -->
     <div class="col-kpi-5 mb-4">
-        <a href="TablaProduccionFechas.php?Fecha1=<?php echo urlencode($_POST['Fecha1'] ?? ''); ?>&Fecha2=<?php echo urlencode($_POST['Fecha2'] ?? ''); ?>" class="kpi-card-link">
+        <a href="TablaProduccionFechas.php?Fecha1=<?php echo urlencode($postFecha1); ?>&Fecha2=<?php echo urlencode($postFecha2); ?>" class="kpi-card-link">
             <div class="kpi-card kpi-card-info">
                 <div class="kpi-card-body">
                     <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
@@ -132,7 +135,7 @@ if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
 
     <!-- Total No Navegación -->
     <div class="col-kpi-5 mb-4">
-        <a href="TablaProduccionFechas.php?Fecha1=<?php echo urlencode($_POST['Fecha1'] ?? ''); ?>&Fecha2=<?php echo urlencode($_POST['Fecha2'] ?? ''); ?>&tipo=no_navegacion" class="kpi-card-link">
+        <a href="TablaProduccionFechas.php?Fecha1=<?php echo urlencode($postFecha1); ?>&Fecha2=<?php echo urlencode($postFecha2); ?>&tipo=no_navegacion" class="kpi-card-link">
             <div class="kpi-card kpi-card-info">
                 <div class="kpi-card-body">
                     <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
