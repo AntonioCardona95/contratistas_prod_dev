@@ -93,7 +93,7 @@ if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
     }
 }
 
-// Conteo actualizado de ONT sin navegación en el periodo
+// Conteo corregido: consulta el total de 'SIN NAVEGACION' en la tabla de navegación según el periodo
 $TotalSinNavegacion = $consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
 
 $TotalDisponible = 0;
