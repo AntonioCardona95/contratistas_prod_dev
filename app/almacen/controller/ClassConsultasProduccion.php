@@ -183,12 +183,11 @@ class ClassConsultasProduccion extends Conexion
     /**
      * Procesa de forma independiente las discrepancias de serie y las búsquedas en almacén.
      */
+    /**
+     * Procesa de forma independiente las discrepancias de serie y las búsquedas en almacén.
+     */
     public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes)
     {
-         // Depuración: mostrar solo los primeros 5 registros
-    echo "<pre>";
-    print_r(array_slice($registros, 0, 5));
-    echo "</pre>";
         if (empty($registros)) return true;
 
         $conexion = $this->conexion(); // Conexión 'erpprint'
@@ -199,7 +198,7 @@ class ClassConsultasProduccion extends Conexion
             $batchSize = 200;
             $senalamientos = [];
 
-            // 1. Preparar la Inserción masiva en seg_produccion_diaria
+            // Inserción masiva en seg_produccion_diaria
             $sqlDiariaBase = "INSERT INTO seg_produccion_diaria (
                                 Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
                                 FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
@@ -219,19 +218,20 @@ class ClassConsultasProduccion extends Conexion
                     $folioPisa = trim($reg['Folio_Pisa'] ?? '');
                     $fechaLiq  = $reg['FECHA_LIQ'] ?? '';
 
-                    $serieProd = trim($reg['Serie_Produccion'] ?? '');
+                    // La serie de producción viene directamente en 'Num__Serie'
+                    $serieProd = trim($reg['Num__Serie'] ?? '');
                     $serieEci  = $reg['Serie_Eci'] ?? null;
 
                     $prodEsValida = !$this->esSerieInvalida($serieProd);
                     $eciEsValida  = $serieEci !== null && !$this->esSerieInvalida($serieEci);
 
-                    // Validar existencias independientes en Almacén
+                    // Validar existencias en Almacén
                     $existeProdEnAlmacen = $prodEsValida && isset($mapExistentes[$serieProd]);
                     $existeEciEnAlmacen  = $eciEsValida && isset($mapExistentes[$serieEci]);
 
-                    // --- EVALUACIÓN INDEPENDIENTE DE SEÑALAMIENTOS ---
+                    // --- EVALUACIÓN DE SEÑALAMIENTOS ---
 
-                    // A) Discrepancia de Series entre Producción y ECI
+                    // A) Discrepancia entre Producción y ECI
                     $hayDiscrepanciaSeries = false;
                     if ($prodEsValida && $eciEsValida && strtoupper($serieProd) !== strtoupper($serieEci)) {
                         $hayDiscrepanciaSeries = true;
@@ -264,7 +264,7 @@ class ClassConsultasProduccion extends Conexion
                         ];
                     }
 
-                    // C) Serie de ECI en Almacén (Si ECI tiene registro)
+                    // C) Serie de ECI en Almacén
                     if ($eciEsValida && !$existeEciEnAlmacen) {
                         $senalamientos[] = [
                             'Folio_Pisa'        => $folioPisa,
@@ -275,11 +275,10 @@ class ClassConsultasProduccion extends Conexion
                         ];
                     }
 
-                    // Bandera global para seg_produccion_diaria
                     $tieneFallos = $hayDiscrepanciaSeries || !$prodEsValida || !$existeProdEnAlmacen || ($eciEsValida && !$existeEciEnAlmacen);
                     $tieneSenalamiento = $tieneFallos ? 1 : 0;
 
-                    // Para Num__Serie asignamos Prod (o ECI si Prod venía vacía)
+                    // Para Num__Serie guardamos la serie válida disponible
                     $serieFinalGuardar = $prodEsValida ? $serieProd : ($eciEsValida ? $serieEci : $serieProd);
 
                     $values[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
@@ -298,7 +297,7 @@ class ClassConsultasProduccion extends Conexion
                 $stmtDiaria->execute($params);
             }
 
-            // 2. Inserción masiva de los señalamientos
+            // Inserción masiva de señalamientos
             if (!empty($senalamientos)) {
                 $chunksSenalamiento = array_chunk($senalamientos, $batchSize);
                 $sqlSenalBase = "INSERT INTO seg_produccion_senalamiento (
