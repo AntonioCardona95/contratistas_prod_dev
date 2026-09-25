@@ -50,21 +50,21 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
     $registros = $consultas->GetProduccionPorFechas($Fecha1, $Fecha2);
 
     if (!empty($registros)) {
-        // Step 1: Mapear series de ECI por teléfono
+        // Step 1: Consultar series en ECI asociadas a cada teléfono
         $telefonos = array_column($registros, 'TELEFONO');
         $mapEci = $consultas->GetSeriesPorTelefonosEci($telefonos);
 
-        // Step 2: Recolectar series a buscar en Almacén (Num__Serie + Serie_Eci)
+        // Step 2: Recolectar series a validar en Almacén (sin modificar Num__Serie original)
         $seriesABuscar = [];
 
         foreach ($registros as &$reg) {
             $tel = trim($reg['TELEFONO'] ?? '');
             
-            // La serie de Producción viene nativa en 'Num__Serie'
+            // Mantenemos Num__Serie intacta tal cual vino de la BD
             $serieProd = trim($reg['Num__Serie'] ?? '');
             $serieEci  = $mapEci[$tel] ?? null;
 
-            // Solo agregamos la clave Serie_Eci
+            // Solo agregamos Serie_Eci como un atributo nuevo
             $reg['Serie_Eci'] = $serieEci;
 
             if (!$consultas->esSerieInvalida($serieProd)) {
@@ -76,11 +76,11 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         }
         unset($reg);
 
-        // Step 3: Consultar existencias independientes en Almacén
+        // Step 3: Consultar existencias de series válidas en Almacén
         $existentesEnAlmacen = $consultas->GetNumSeriesEnAlmacen($seriesABuscar);
         $mapExistentes = array_flip($existentesEnAlmacen);
 
-        // Step 4: Procesar e insertar en batch
+        // Step 4: Guardar todo manteniendo el dato original de Producción
         $consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes);
     }
 }
