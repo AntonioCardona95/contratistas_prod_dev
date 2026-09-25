@@ -38,6 +38,7 @@ $consultas = new ClassConsultasProduccion();
 
 $TotalProduccion = 0;
 if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
+    // 1. Obtener conteo de producción evaluada en el rango de fechas
     $qrProduccion = $consultas->CountProduccionPorFechas($Fecha1, $Fecha2);
     if (is_array($qrProduccion) && !empty($qrProduccion)) {
         foreach ($qrProduccion as $row) {
@@ -47,25 +48,22 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         }
     }
 
+    // 2. Obtener los registros de producción del periodo
     $registros = $consultas->GetProduccionPorFechas($Fecha1, $Fecha2);
 
     if (!empty($registros)) {
-        // Step 1: Consultar series en ECI asociadas a cada teléfono
+        // Paso A: Mapear datos detallados de ESCI por teléfono
         $telefonos = array_column($registros, 'TELEFONO');
-        $mapEci = $consultas->GetSeriesPorTelefonosEci($telefonos);
+        $mapEciDetalle = $consultas->GetDetalleEciPorTelefonos($telefonos);
 
-        // Step 2: Recolectar series a validar en Almacén (sin modificar Num__Serie original)
+        // Paso B: Recolectar números de serie válidos (Producción + ESCI) para verificar existencias en Almacén
         $seriesABuscar = [];
-
-        foreach ($registros as &$reg) {
+        foreach ($registros as $reg) {
             $tel = trim($reg['TELEFONO'] ?? '');
-            
-            // Mantenemos Num__Serie intacta tal cual vino de la BD
             $serieProd = trim($reg['Num__Serie'] ?? '');
-            $serieEci  = $mapEci[$tel] ?? null;
-
-            // Solo agregamos Serie_Eci como un atributo nuevo
-            $reg['Serie_Eci'] = $serieEci;
+            
+            $eciInfo  = $mapEciDetalle[$tel] ?? null;
+            $serieEci = $eciInfo['M_SERIE'] ?? null;
 
             if (!$consultas->esSerieInvalida($serieProd)) {
                 $seriesABuscar[] = $serieProd;
@@ -74,14 +72,13 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
                 $seriesABuscar[] = $serieEci;
             }
         }
-        unset($reg);
 
-        // Step 3: Consultar existencias de series válidas en Almacén
+        // Paso C: Consultar existencia en almacén
         $existentesEnAlmacen = $consultas->GetNumSeriesEnAlmacen($seriesABuscar);
         $mapExistentes = array_flip($existentesEnAlmacen);
 
-        // Step 4: Guardar todo manteniendo el dato original de Producción
-        $consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes);
+        // Paso D: Procesar inserción/actualización de producción, navegación y señalamientos
+        $consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes, $mapEciDetalle);
     }
 }
 
@@ -95,6 +92,9 @@ if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
         }
     }
 }
+
+// Conteo actualizado de ONT sin navegación en el periodo
+$TotalSinNavegacion = $consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
 
 $TotalDisponible = 0;
 $qrDisponibles = $index->CountONTDisponibles($idContratistas, $Fecha1, $Fecha2);
@@ -146,6 +146,18 @@ if (is_array($qrDisponiblesT)) {
                 <div class="kpi-card-number"><?php echo number_format($TotalProduccion); ?></div>
             </div>
         </div>
+    </div>
+
+    <div class="col-kpi-5 mb-4">
+        <a href="detalle_ont_sin_navegacion.php" class="kpi-card-link">
+            <div class="kpi-card kpi-card-dark" style="background-color: #6c757d; color: #fff;">
+                <div class="kpi-card-body">
+                    <div class="kpi-card-icon"><i class="fas fa-wifi-slash"></i></div>
+                    <div class="kpi-card-label">Sin navegación (en fecha)</div>
+                    <div class="kpi-card-number"><?php echo number_format($TotalSinNavegacion); ?></div>
+                </div>
+            </div>
+        </a>
     </div>
 
     <div class="col-kpi-5 mb-4">
