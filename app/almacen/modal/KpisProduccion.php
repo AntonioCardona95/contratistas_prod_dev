@@ -140,39 +140,18 @@ if (is_array($qrSinNavegacion) && !empty($qrSinNavegacion)) {
         </div>
     </div>
 
-<div class="col-kpi-5 mb-4">
-        <a href="detalle_ont_sin_navegacion.php" class="kpi-card-link">
-            <div class="kpi-card kpi-card-dark" style="background-color: #6c757d; color: #fff;">
-                <div class="kpi-card-body">
-                    <div class="kpi-card-icon"><i class="fas fa-wifi-slash"></i></div>
-                    <div class="kpi-card-label">Sin navegación (en fecha)</div>
-                    <div class="kpi-card-number"><?php echo number_format($TotalSinNavegacion); ?></div>
-                </div>
+    
+    <div class="col-kpi-5 mb-4">
+        <div class="kpi-card kpi-card-info">
+            <div class="kpi-card-body">
+                <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
+                <div class="kpi-card-label">Total No Navegacion</div>
+                <div class="kpi-card-number"><?php echo number_format($TotalSinNavegacion); ?></div>
             </div>
-        </a>
+        </div>
     </div>
 
-    <div class="col-kpi-5 mb-4">
-        <a href="detalle_ont_disponibles.php" data-detalle="total" class="kpi-card-link">
-            <div class="kpi-card kpi-card-danger">
-                <div class="kpi-card-body">
-                    <div class="kpi-card-icon"><i class="fas fa-box-open"></i></div>
-                    <div class="kpi-card-label">Números de serie totales sin asignar</div>
-                    <div class="kpi-card-number"><?php echo number_format($TTotalDisponible); ?></div>
-                </div>
-            </div>
-        </a>
-    </div>
 
-    <div class="col-kpi-5 mb-4">
-        <a href="detalle_ont_disponibles.php" data-detalle="fecha" class="kpi-card-link">
-            <div class="kpi-card kpi-card-warning">
-                <div class="kpi-card-body">
-                    <div class="kpi-card-icon"><i class="fas fa-clock"></i></div>
-                    <div class="kpi-card-label">Números de serie sin asignar (en fecha)</div>
-                    <div class="kpi-card-number"><?php echo number_format($TotalDisponible); ?></div>
-                </div>
-            </div>
-        </a>
-    </div>
+
+   
 </div>
