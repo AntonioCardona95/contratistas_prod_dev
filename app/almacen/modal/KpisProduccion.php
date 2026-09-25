@@ -108,14 +108,7 @@ if (is_array($qrSinNavegacion) && !empty($qrSinNavegacion)) {
 }
 ?>
 
-<div style="background-color: #fff3cd; color: #856404; padding: 15px; margin: 15px 0; border: 1px solid #ffeeba; border-radius: 5px;">
-    <h4>🔍 Depuración KPI Sin Navegación</h4>
-    <?php
-    $totalPrueba = $consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
-    echo "<p><strong>Rango evaluado:</strong> <code>{$Fecha1}</code> al <code>{$Fecha2}</code></p>";
-    echo "<p><strong>Resultado devuelto por el método:</strong> <code>{$totalPrueba}</code> registros.</p>";
-    ?>
-</div>
+
 
 <link rel="stylesheet" href="css/kpis-produccion.css">
 
