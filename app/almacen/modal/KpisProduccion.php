@@ -60,11 +60,11 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         foreach ($registros as &$reg) {
             $tel = trim($reg['TELEFONO'] ?? '');
             
-            // La serie de producción viene nativa en 'Num__Serie'
+            // La serie de Producción viene nativa en 'Num__Serie'
             $serieProd = trim($reg['Num__Serie'] ?? '');
             $serieEci  = $mapEci[$tel] ?? null;
 
-            // Solo inyectamos Serie_Eci al arreglo
+            // Solo agregamos la clave Serie_Eci
             $reg['Serie_Eci'] = $serieEci;
 
             if (!$consultas->esSerieInvalida($serieProd)) {
@@ -80,7 +80,7 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         $existentesEnAlmacen = $consultas->GetNumSeriesEnAlmacen($seriesABuscar);
         $mapExistentes = array_flip($existentesEnAlmacen);
 
-        // Step 4: Procesar e insertar evaluando discrepancias y existencias por separado
+        // Step 4: Procesar e insertar en batch
         $consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes);
     }
 }
