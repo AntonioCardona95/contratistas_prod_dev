@@ -82,14 +82,13 @@ class ClassConsultasProduccion extends Conexion
         return $this->runQuery($sql, array(), 'analisis');
     }
 
-
-    public function CountSinNavegacionPorFechas($Fecha1, $Fecha2)
+public function CountSinNavegacionPorFechas($Fecha1, $Fecha2)
 {
-    // Ajusta 'seg_produccion_navegacion' y el campo de fecha si difieren en tu BD
+    // Usamos FECHA_LIQ que es la columna real de tu tabla seg_produccion_navegacion
     $sql = "SELECT COUNT(*) AS TOTAL 
             FROM seg_produccion_navegacion 
-            WHERE Estatus_Navegacion = 'SIN NAVEGACION' 
-              AND Fecha_Registro BETWEEN :Fecha1 AND :Fecha2";
+            WHERE Flag_Navega = 0 
+              AND FECHA_LIQ BETWEEN :Fecha1 AND :Fecha2";
 
     $resultado = $this->runQuery($sql, array(
         'Fecha1' => $Fecha1,
@@ -102,7 +101,6 @@ class ClassConsultasProduccion extends Conexion
 
     return 0;
 }
-
     /**
      * Cuenta las liquidaciones en un rango de fechas que actualmente NO navegan
      */
