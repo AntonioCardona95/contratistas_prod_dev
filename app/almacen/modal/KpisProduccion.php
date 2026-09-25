@@ -93,35 +93,18 @@ if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
     }
 }
 
-// Conteo corregido: consulta el total de 'SIN NAVEGACION' en la tabla de navegación según el periodo
-$TotalSinNavegacion = $consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
+// 2. Conteo de 'Sin Navegación' en el rango de fechas seleccionadas
+$TotalSinNavegacion = 0;
+$qrSinNavegacion = $consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
 
-$TotalDisponible = 0;
-$qrDisponibles = $index->CountONTDisponibles($idContratistas, $Fecha1, $Fecha2);
-if (is_array($qrDisponibles)) {
-    if (!empty($qrDisponibles)) {
-        foreach ($qrDisponibles as $row) {
-            if (isset($row['TOTAL'])) {
-                $TotalDisponible = (int)$row['TOTAL'];
-            }
+if (is_array($qrSinNavegacion) && !empty($qrSinNavegacion)) {
+    foreach ($qrSinNavegacion as $row) {
+        if (isset($row['TOTAL'])) {
+            $TotalSinNavegacion = (int)$row['TOTAL'];
         }
     }
 } else {
-    $TotalDisponible = (int)$qrDisponibles;
-}
-
-$TTotalDisponible = 0;
-$qrDisponiblesT = $index->CountONTDisponiblesT($idContratistas);
-if (is_array($qrDisponiblesT)) {
-    if (!empty($qrDisponiblesT)) {
-        foreach ($qrDisponiblesT as $row) {
-            if (isset($row['TOTAL'])) {
-                $TTotalDisponible = (int)$row['TOTAL'];
-            }
-        }
-    }
-} else {
-    $TTotalDisponible = (int)$qrDisponiblesT;
+    $TotalSinNavegacion = (int)$qrSinNavegacion;
 }
 ?>
 
@@ -157,7 +140,7 @@ if (is_array($qrDisponiblesT)) {
         </div>
     </div>
 
-    <div class="col-kpi-5 mb-4">
+<div class="col-kpi-5 mb-4">
         <a href="detalle_ont_sin_navegacion.php" class="kpi-card-link">
             <div class="kpi-card kpi-card-dark" style="background-color: #6c757d; color: #fff;">
                 <div class="kpi-card-body">
