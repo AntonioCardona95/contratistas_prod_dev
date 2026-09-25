@@ -37,11 +37,11 @@ $index = new Index();
 $consultas = new ClassConsultasProduccion();
 
 $TotalProduccion = 0;
-$TotalSinNavegacion = 0; // Se inicializa en 0
+$TotalSinNavegacion = 0;
 
 // SOLO SE EJECUTA SI EL USUARIO SELECCIONÓ Y ENVIÓ FECHAS
 if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
-    // 1. Obtener conteo de producción evaluada en el rango de fechas
+    // 1. Conteo de producción
     $qrProduccion = $consultas->CountProduccionPorFechas($Fecha1, $Fecha2);
     if (is_array($qrProduccion) && !empty($qrProduccion)) {
         foreach ($qrProduccion as $row) {
@@ -51,7 +51,7 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         }
     }
 
-    // 2. Conteo de 'Sin Navegación' en el rango de fechas seleccionadas
+    // 2. Conteo de 'Sin Navegación'
     $qrSinNavegacion = $consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
     if (is_array($qrSinNavegacion) && !empty($qrSinNavegacion)) {
         foreach ($qrSinNavegacion as $row) {
@@ -63,20 +63,16 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         $TotalSinNavegacion = (int)$qrSinNavegacion;
     }
 
-    // 3. Obtener los registros de producción del periodo y procesar
+    // 3. Procesar registros
     $registros = $consultas->GetProduccionPorFechas($Fecha1, $Fecha2);
-
     if (!empty($registros)) {
-        // Paso A: Mapear datos detallados de ESCI por teléfono
         $telefonos = array_column($registros, 'TELEFONO');
         $mapEciDetalle = $consultas->GetDetalleEciPorTelefonos($telefonos);
 
-        // Paso B: Recolectar números de serie válidos (Producción + ESCI) para verificar existencias en Almacén
         $seriesABuscar = [];
         foreach ($registros as $reg) {
             $tel = trim($reg['TELEFONO'] ?? '');
             $serieProd = trim($reg['Num__Serie'] ?? '');
-            
             $eciInfo  = $mapEciDetalle[$tel] ?? null;
             $serieEci = $eciInfo['M_SERIE'] ?? null;
 
@@ -88,11 +84,9 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
             }
         }
 
-        // Paso C: Consultar existencia en almacén
         $existentesEnAlmacen = $consultas->GetNumSeriesEnAlmacen($seriesABuscar);
         $mapExistentes = array_flip($existentesEnAlmacen);
 
-        // Paso D: Procesar inserción/actualización de producción, navegación y señalamientos
         $consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes, $mapEciDetalle);
     }
 }
@@ -112,6 +106,7 @@ if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
 <link rel="stylesheet" href="css/kpis-produccion.css">
 
 <div class="row kpi-cards-row">
+    <!-- Producción acumulada -->
     <div class="col-kpi-5 mb-4">
         <div class="kpi-card kpi-card-success">
             <div class="kpi-card-body">
@@ -122,23 +117,29 @@ if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
         </div>
     </div>
 
+    <!-- Total Producción (por fechas) -->
     <div class="col-kpi-5 mb-4">
-        <div class="kpi-card kpi-card-info">
-            <div class="kpi-card-body">
-                <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
-                <div class="kpi-card-label">Total Producción (por fechas)</div>
-                <div class="kpi-card-number"><?php echo number_format($TotalProduccion); ?></div>
+        <a href="TablaProduccionFechas.php?Fecha1=<?php echo urlencode($_POST['Fecha1'] ?? ''); ?>&Fecha2=<?php echo urlencode($_POST['Fecha2'] ?? ''); ?>" class="kpi-card-link">
+            <div class="kpi-card kpi-card-info">
+                <div class="kpi-card-body">
+                    <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
+                    <div class="kpi-card-label">Total Producción (por fechas)</div>
+                    <div class="kpi-card-number"><?php echo number_format($TotalProduccion); ?></div>
+                </div>
             </div>
-        </div>
+        </a>
     </div>
 
+    <!-- Total No Navegación -->
     <div class="col-kpi-5 mb-4">
-        <div class="kpi-card kpi-card-info">
-            <div class="kpi-card-body">
-                <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
-                <div class="kpi-card-label">Total No Navegacion</div>
-                <div class="kpi-card-number"><?php echo number_format($TotalSinNavegacion); ?></div>
+        <a href="TablaProduccionFechas.php?Fecha1=<?php echo urlencode($_POST['Fecha1'] ?? ''); ?>&Fecha2=<?php echo urlencode($_POST['Fecha2'] ?? ''); ?>&tipo=no_navegacion" class="kpi-card-link">
+            <div class="kpi-card kpi-card-info">
+                <div class="kpi-card-body">
+                    <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
+                    <div class="kpi-card-label">Total No Navegacion</div>
+                    <div class="kpi-card-number"><?php echo number_format($TotalSinNavegacion); ?></div>
+                </div>
             </div>
-        </div>
+        </a>
     </div>
 </div>
