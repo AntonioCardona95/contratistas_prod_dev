@@ -38,6 +38,29 @@ $totalNavegando = count(array_filter($seriesMasivas, function ($serie) {
     return (int)($serie['Navegando'] ?? 0) === 1;
 }));
 $totalPendientes = $totalSeries - $totalNavegando;
+$conteoEstados = array(
+    'navegando-observacion' => 0,
+    'rojo' => 0,
+    'gris' => 0,
+    'amarillo' => 0,
+    'verde' => 0,
+    'blanco' => 0
+);
+foreach ($seriesMasivas as $serie) {
+    $estado = $serie['Estado_Navegacion'] ?? 'blanco';
+    if (isset($conteoEstados[$estado])) {
+        $conteoEstados[$estado]++;
+    }
+}
+$etiquetasEstado = array(
+    'navegando' => 'Navegando correctamente',
+    'navegando-observacion' => 'Navegando con observacion: posible serie mal capturada en almacen',
+    'rojo' => 'No navegando: requiere seguimiento por mas de 14 dias',
+    'gris' => 'No navegando: telefonos no coinciden',
+    'amarillo' => 'No navegando: en espera de cumplir 3 dias desde la liquidacion',
+    'verde' => 'No navegando: liquidacion reciente',
+    'blanco' => 'Sin liquidacion para clasificar'
+);
 ?>
 
 <div class="navegacion-masiva-contenedor">
@@ -45,6 +68,11 @@ $totalPendientes = $totalSeries - $totalNavegando;
         #tabla-navegacion-masiva tbody tr.estado-navegando {
             background: #dff6ff !important;
             animation: pulso-navegacion 2s ease-in-out infinite;
+        }
+        #tabla-navegacion-masiva tbody tr.estado-navegando-observacion {
+            background: #dce5f1 !important;
+            box-shadow: inset 5px 0 0 #17365d;
+            color: #17365d;
         }
         #tabla-navegacion-masiva tbody tr.estado-rojo { background: #ffe1e1 !important; }
         #tabla-navegacion-masiva tbody tr.estado-gris { background: #e9ecef !important; }
@@ -66,6 +94,11 @@ $totalPendientes = $totalSeries - $totalNavegando;
             justify-content: center;
             min-width: 28px;
             line-height: 1;
+        }
+
+        .badge-navegacion-observacion {
+            background-color: #17365d;
+            color: #fff;
         }
 
         .duplicado-registro-elegido,
@@ -172,12 +205,13 @@ $totalPendientes = $totalSeries - $totalNavegando;
             <select id="filtro-estado-masivo" class="form-control">
             <option value="">Todos (<?= $totalSeries ?>)</option>
             <option value="navegando">Navegando (<?= $totalNavegando ?>)</option>
+            <option value="navegando-observacion">Azul oscuro: navegando con observacion (<?= $conteoEstados['navegando-observacion'] ?>)</option>
             <option value="no-navegando">No navegando (<?= $totalPendientes ?>)</option>
-            <option value="rojo">Rojo: seguimiento</option>
-            <option value="gris">Gris: telefonos diferentes</option>
-            <option value="amarillo">Amarillo: Navegacion reciente</option>
-            <option value="verde">Verde: pendiente reciente</option>
-            <option value="blanco">Blanco: sin liquidacion</option>
+            <option value="rojo">Rojo: seguimiento (<?= $conteoEstados['rojo'] ?>)</option>
+            <option value="gris">Gris: telefonos diferentes (<?= $conteoEstados['gris'] ?>)</option>
+            <option value="amarillo">Amarillo: Navegacion reciente (<?= $conteoEstados['amarillo'] ?>)</option>
+            <option value="verde">Verde: pendiente reciente (<?= $conteoEstados['verde'] ?>)</option>
+            <option value="blanco">Blanco: sin liquidacion (<?= $conteoEstados['blanco'] ?>)</option>
             </select>
         </div>
 
@@ -195,10 +229,11 @@ $totalPendientes = $totalSeries - $totalNavegando;
                     <th>Telefono TAC</th>
                     <th>Fecha liquidacion TAC</th>
                     <th>Telefono Navegacion</th>
-                    <th>Fecha consulta Navegacion</th>
+                    <th>Fecha Ultima Navegacion</th>
                     <th>Navegando</th>
                     <th>Motivo</th>
                     <th>Duplicados</th>
+                    <th class="columna-estado-exportacion">Estado de la serie</th>
                 </tr>
             </thead>
             <tbody>
@@ -206,6 +241,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
                     <?php
                         $estado = $serie['Estado_Navegacion'] ?? 'blanco';
                         $navegando = (int)($serie['Navegando'] ?? 0) === 1;
+                        $estadoTexto = $etiquetasEstado[$estado] ?? 'No navegando: estado sin clasificar';
                         $motivos = $serie['Motivos_No_Navegacion'] ?? array();
                     ?>
                     <tr class="estado-<?= htmlspecialchars($estado) ?>" data-estado="<?= htmlspecialchars($estado) ?>">
@@ -220,19 +256,18 @@ $totalPendientes = $totalSeries - $totalNavegando;
                         <td><?= htmlspecialchars($serie['Telefono_Tac'] ?? 'Sin dato') ?></td>
                         <td><?= htmlspecialchars($serie['Fecha_Liquidacion_Tac'] ?? 'Sin dato') ?></td>
                         <td><?= htmlspecialchars($serie['Telefono_Eci'] ?? 'Sin dato') ?></td>
-                        <td><?= htmlspecialchars($serie['Fecha_Consulta_Eci'] ?? 'Sin dato') ?></td>
+                        <td><?= htmlspecialchars($serie['Fecha_Ultimo_Evento_Eci'] ?? 'Sin dato') ?></td>
                         <td>
-                            <span class="badge estado-navegacion <?= $navegando ? 'custom-badge' : 'badge-secondary' ?>">
+                            <span class="badge estado-navegacion <?= $navegando ? ($estado === 'navegando-observacion' ? 'badge-navegacion-observacion' : 'custom-badge') : 'badge-secondary' ?>">
                                 <?php if ($navegando): ?>
                                     <i class="fa-brands fa-tailwind-css fa-float mr-1 " style="--fa-animation-duration: 2s;" aria-hidden="true"></i>
                                     <span class="sr-only">Si</span>
                                 <?php else: ?>
-                                    <span class="sr-only">No</span>
                                     No
                                 <?php endif; ?>
                             </span>
                         </td>
-                        <td><?= htmlspecialchars($navegando ? 'Navegando correctamente' : implode('; ', $motivos)) ?></td>
+                        <td><?= htmlspecialchars($serie['Observacion_Navegacion'] ?? ($navegando ? 'Navegando correctamente' : implode('; ', $motivos))) ?></td>
                         <td>
                             <?php if (!empty($serie['Duplicado_Tac'])): ?>
                                 <button type="button" class="btn btn-warning btn-sm ver-duplicado-masivo mr-1" data-tipo-duplicado="tac" data-indice-serie="<?= $indice ?>">
@@ -248,6 +283,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
                                 <span class="text-muted">Sin duplicados</span>
                             <?php endif; ?>
                         </td>
+                        <td class="columna-estado-exportacion"><?= htmlspecialchars($estadoTexto) ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -363,6 +399,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
             paging: true,
             lengthChange: true,
             scrollX: true,
+            columnDefs: [{ targets: 15, visible: false, searchable: false }],
             pageLength: 10,
             info: true,
             dom: '<"d-flex justify-content-between align-items-center mb-2" lf>rt<"row"<"col-md-6 text-left mt-2"i><"col-md-6 text-right mt-2"p>>',
@@ -382,6 +419,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
                     titleAttr: 'Exportar a Excel',
                     className: 'btn btn-success btn-sm',
                     title: 'Navegacion masiva de Numeros de Serie',
+                    exportOptions: { columns: ':visible, .columna-estado-exportacion' },
                     customize: function (xlsx) {
 
                         const sheet = xlsx.xl.worksheets['sheet1.xml'];
@@ -404,9 +442,9 @@ $totalPendientes = $totalSeries - $totalNavegando;
             const fila = tablaMasiva.row(indiceFila).node();
             const estado = fila ? fila.getAttribute('data-estado') : '';
             return filtroMasivo === 'navegando'
-                ? estado === 'navegando'
+                ? estado === 'navegando' || estado === 'navegando-observacion'
                 : filtroMasivo === 'no-navegando'
-                    ? estado !== 'navegando'
+                    ? estado !== 'navegando' && estado !== 'navegando-observacion'
                     : estado === filtroMasivo;
         });
 
