@@ -55,6 +55,15 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
     $qrSinNavegacion = $consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
 
 
+    // Depuración de tipo y contenido
+echo "<pre>";
+echo "Tipo de dato: " . gettype($qrSinNavegacion) . "\n";
+echo "Contenido: ";
+var_dump($qrSinNavegacion);
+echo "</pre>";
+die(); // Detiene la ejecución para analizar la salida
+
+
 
     
     if (is_array($qrSinNavegacion) && !empty($qrSinNavegacion)) 
