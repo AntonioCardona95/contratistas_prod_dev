@@ -75,7 +75,7 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
     } else {
         echo "entró al else directamente <br>";
         $TotalSinNavegacion = (int)$qrSinNavegacion;
-        echo "TotalSinNavegacion: " . $TotalSinNavegacion . "<br>";
+        echo "TotalSinNavegacionelse: " . $TotalSinNavegacion . "<br>";
     }
     
     /*if (is_array($qrSinNavegacion) && !empty($qrSinNavegacion)) 
