@@ -6,90 +6,143 @@
 
 require_once($_SERVER['DOCUMENT_ROOT'] . "/cnx/cnx.php");
 
-protected function runQuery($sql, $params = array(), $conexionTipo = 'default')
+class ClassConsultasProduccion extends Conexion
 {
-    // Detectar si la consulta actual es la de navegación para depurar solo esta
-    $esConsultaNavegacion = (stristr($sql, 'seg_produccion_navegacion') !== false);
+    protected function runQuery($sql, $params = array(), $conexionTipo = 'default')
+    {
+        // Filtro para depurar solo la consulta que nos interesa
+        $esNavegacion = (stripos($sql, 'seg_produccion_navegacion') !== false);
 
-    switch ($conexionTipo) {
-        case 'analisis':
-        case 'analytics':
-            $conexion = $this->get_conexion_analisis();
-            break;
-        case 'nass':
-            $conexion = $this->get_conexion_nass();
-            break;
-        case 'dos':
-            $conexion = $this->get_conexiondos();
-            break;
-        case 'erpprint':
-            $conexion = $this->conexion();
-            break;
-        default:
-            $conexion = $this->get_conexion();
-            break;
-    }
-
-    // 1. Depurar si el objeto de conexión devuelto es válido
-    if ($esConsultaNavegacion && !($conexion instanceof PDO)) {
-        echo "<pre style='background:#f8d7da; color:#721c24; padding:10px; border:1px solid #f5c6cb;'>";
-        echo "<b>[ERROR DE CONEXIÓN EN runQuery]</b><br>";
-        echo "El tipo de conexión '$conexionTipo' NO devolvió un objeto PDO válido.<br>";
-        echo "Valor recibido: ";
-        var_dump($conexion);
-        echo "</pre>";
-        die();
-    }
-
-    try {
-        $stmt = $conexion->prepare($sql);
-        
-        foreach ($params as $key => $val) {
-            if (is_int($key)) {
-                $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
-            } else {
-                $param = ':' . ltrim($key, ':');
-                $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
-            }
+        switch ($conexionTipo) {
+            case 'analisis':
+            case 'analytics':
+                $conexion = $this->get_conexion_analisis();
+                break;
+            case 'nass':
+                $conexion = $this->get_conexion_nass();
+                break;
+            case 'dos':
+                $conexion = $this->get_conexiondos();
+                break;
+            case 'erpprint':
+                $conexion = $this->conexion();
+                break;
+            default:
+                $conexion = $this->get_conexion();
+                break;
         }
 
-        $stmt->execute();
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        if (method_exists($stmt, 'closeCursor')) {
-            $stmt->closeCursor();
-        }
-
-        // 2. Depuración de éxito para la consulta de navegación
-        if ($esConsultaNavegacion) {
-            echo "<pre style='background:#d4edda; color:#155724; padding:10px; border:1px solid #c3e6cb;'>";
-            echo "<b>[DEPURACIÓN EXITOSA runQuery - Navegación]</b><br>";
-            echo "Tipo conexión utilizada: <b>$conexionTipo</b><br>";
-            echo "SQL Ejecutado: " . htmlspecialchars($sql) . "<br>";
-            echo "Parámetros Bind:<br>";
-            print_r($params);
-            echo "<br>Resultado devuelto por la Base de Datos:<br>";
-            print_r($rows);
-            echo "</pre>";
-            die(); // Detiene la página para ver el resultado
-        }
-
-        return $rows;
-
-    } catch (PDOException $e) {
-        // 3. Capturar y mostrar el error exacto de PDO en caso de fallar
-        if ($esConsultaNavegacion) {
-            echo "<pre style='background:#f8d7da; color:#721c24; padding:10px; border:1px solid #f5c6cb;'>";
-            echo "<b>[EXCEPCIÓN PDO EN runQuery]</b><br>";
-            echo "Mensaje de error MySQL/PDO: <b>" . $e->getMessage() . "</b><br>";
-            echo "Código de error: " . $e->getCode() . "<br>";
-            echo "SQL que falló: " . htmlspecialchars($sql) . "<br>";
+        // 1. Validar si la conexión devuelta es un objeto PDO válido
+        if ($esNavegacion && !($conexion instanceof PDO)) {
+            echo "<pre style='background:#f8d7da; color:#721c24; padding:15px; border:1px solid #f5c6cb;'>";
+            echo "<b>[ERROR EN CONEXIÓN]</b><br>";
+            echo "El tipo de conexión '$conexionTipo' NO retornó un objeto PDO válido.<br>";
+            echo "Valor retornado: ";
+            var_dump($conexion);
             echo "</pre>";
             die();
         }
-        return array();
+
+        try {
+            $stmt = $conexion->prepare($sql);
+            foreach ($params as $key => $val) {
+                if (is_int($key)) {
+                    $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+                } else {
+                    $param = ':' . ltrim($key, ':');
+                    $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+                }
+            }
+            $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (method_exists($stmt, 'closeCursor')) {
+                $stmt->closeCursor();
+            }
+
+            // 2. Si es la consulta de navegación, mostrar exactamente lo que devolvió la BD
+            if ($esNavegacion) {
+                echo "<pre style='background:#d4edda; color:#155724; padding:15px; border:1px solid #c3e6cb;'>";
+                echo "<b>[DEPURACIÓN RUNQUERY - NAVEGACIÓN]</b><br>";
+                echo "<b>Tipo Conexión:</b> $conexionTipo<br>";
+                echo "<b>SQL:</b> " . htmlspecialchars($sql) . "<br>";
+                echo "<b>Parámetros Bind:</b><br>";
+                print_r($params);
+                echo "<br><b>Filas / Resulset devueltos por MySQL:</b><br>";
+                print_r($rows);
+                echo "</pre>";
+                die();
+            }
+
+            return $rows;
+
+        } catch (PDOException $e) {
+            // 3. Capturar cualquier error de SQL / PDO y mostrar el mensaje real
+            echo "<pre style='background:#f8d7da; color:#721c24; padding:15px; border:1px solid #f5c6cb;'>";
+            echo "<b>[EXCEPCIÓN PDO EN RUNQUERY]</b><br>";
+            echo "<b>Mensaje MySQL:</b> " . $e->getMessage() . "<br>";
+            echo "<b>Código Error:</b> " . $e->getCode() . "<br>";
+            echo "<b>SQL ejecutado:</b> " . htmlspecialchars($sql) . "<br>";
+            echo "</pre>";
+            die();
+        }
     }
-}
+
+    protected function runExecute($sql, $params = array(), $conexionTipo = 'default')
+    {
+        $esNavegacion = (stripos($sql, 'seg_produccion_navegacion') !== false);
+
+        switch ($conexionTipo) {
+            case 'analisis':
+            case 'analytics':
+                $conexion = $this->get_conexion_analisis();
+                break;
+            case 'nass':
+                $conexion = $this->get_conexion_nass();
+                break;
+            case 'dos':
+                $conexion = $this->get_conexiondos();
+                break;
+            case 'erpprint':
+                $conexion = $this->conexion();
+                break;
+            default:
+                $conexion = $this->get_conexion();
+                break;
+        }
+
+        if ($esNavegacion && !($conexion instanceof PDO)) {
+            echo "<pre style='background:#f8d7da; color:#721c24; padding:15px; border:1px solid #f5c6cb;'>";
+            echo "<b>[ERROR EN CONEXIÓN - EXECUTE]</b><br>";
+            echo "El tipo de conexión '$conexionTipo' NO retornó un objeto PDO.<br>";
+            var_dump($conexion);
+            echo "</pre>";
+            die();
+        }
+
+        try {
+            $stmt = $conexion->prepare($sql);
+            foreach ($params as $key => $val) {
+                if (is_int($key)) {
+                    $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+                } else {
+                    $param = ':' . ltrim($key, ':');
+                    $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+                }
+            }
+            $stmt->execute();
+            return (int)$conexion->lastInsertId();
+
+        } catch (PDOException $e) {
+            echo "<pre style='background:#f8d7da; color:#721c24; padding:15px; border:1px solid #f5c6cb;'>";
+            echo "<b>[EXCEPCIÓN PDO EN RUNEXECUTE]</b><br>";
+            echo "<b>Mensaje MySQL:</b> " . $e->getMessage() . "<br>";
+            echo "<b>Código Error:</b> " . $e->getCode() . "<br>";
+            echo "<b>SQL ejecutado:</b> " . htmlspecialchars($sql) . "<br>";
+            echo "</pre>";
+            die();
+        }
+    }
     /**
      * Cuenta el total de producción en la vista/tabla seg_ns_prod_eval para un rango de fechas
      */
