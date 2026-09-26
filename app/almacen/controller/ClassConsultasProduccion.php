@@ -123,21 +123,20 @@ class ClassConsultasProduccion extends Conexion
      */
     public function CountSinNavegacionPorFechas($fechaInicio, $fechaFin)
 {
-    // 1. Si no hay fechas, retorna 0 de inmediato
+    // 1. Validar que vengan fechas
     if (empty($fechaInicio) || empty($fechaFin)) {
         return 0;
     }
 
-    // 2. Formatear rango completo de 00:00:00 a 23:59:59
+    // 2. Extraer YYYY-MM-DD y armar el rango exacto del día completo
     $f1 = substr(trim($fechaInicio), 0, 10) . " 00:00:00";
     $f2 = substr(trim($fechaFin), 0, 10) . " 23:59:59";
 
-    // 3. Consulta directa por Flag_Navega = 0 o Estatus
+    // 3. Consulta limpia sobre FECHA_LIQ en rango DATETIME
     $sql = "SELECT COUNT(1) AS TOTAL
             FROM seg_produccion_navegacion
             WHERE (
                 Flag_Navega = 0 
-                OR Flag_Navega = '0' 
                 OR Flag_Navega IS NULL 
                 OR Estatus_Navegacion = 'SIN NAVEGACION'
                 OR Estatus_Navegacion LIKE '%NO REGISTRADO%'
@@ -150,15 +149,15 @@ class ClassConsultasProduccion extends Conexion
         ':fechaFin'    => $f2
     );
 
-    // 4. Se ejecuta en la base de datos correcta 'erpintr1_erp' 
-    // (Si usas el nombre de la conexión por defecto, puedes omitir el tercer parámetro o usar 'erpintr1_erp')
-    $res = $this->runQuery($sql, $params, 'default');
+    // 4. Ejecutamos mediante la conexión 'erpprint'
+    $res = $this->runQuery($sql, $params, 'erpprint');
 
-    if (is_array($res) && !empty($res)) {
-        return (int)($res[0]['TOTAL'] ?? 0);
+    // 5. Como runQuery devuelve un array con fetchAll(), extraemos el registro 0
+    if (!empty($res) && isset($res[0]['TOTAL'])) {
+        return (int)$res[0]['TOTAL'];
     }
 
-    return is_numeric($res) ? (int)$res : 0;
+    return 0;
 }
 
 
