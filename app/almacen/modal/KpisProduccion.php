@@ -54,36 +54,8 @@ if (!empty($postFecha1) && !empty($postFecha2)) {
         }
     }
 
-    // --- BLOQUE DE DEPURACIÓN PARA SIN NAVEGACIÓN ---
-    echo "<div style='background: #1e293b; color: #00ffcc; padding: 15px; margin: 10px; font-family: monospace; border-radius: 5px;'>";
-    echo "<strong>--- DEBUG SIN NAVEGACIÓN ---</strong><br>";
-    echo "Fecha1 POST recibida: [" . htmlspecialchars($postFecha1) . "]<br>";
-    echo "Fecha2 POST recibida: [" . htmlspecialchars($postFecha2) . "]<br>";
-
-    $qrSinNavegacion = $consultas->CountSinNavegacionPorFechas($postFecha1, $postFecha2);
-
-    echo "Tipo de dato retornado por la función: <strong>" . gettype($qrSinNavegacion) . "</strong><br>";
-    echo "Contenido bruto retornado (var_dump): <pre style='color: #ffc107; margin:0;'>";
-    var_dump($qrSinNavegacion);
-    echo "</pre>";
-
-    if (is_array($qrSinNavegacion) && !empty($qrSinNavegacion)) {
-        echo "<span style='color: #4ade80;'>--> ENTRÓ EN: IF (es un arreglo con datos)</span><br>";
-        foreach ($qrSinNavegacion as $row) {
-            if (isset($row['TOTAL'])) {
-                $TotalSinNavegacion = (int)$row['TOTAL'];
-                echo "Valor extraído de \$row['TOTAL']: <strong>" . $TotalSinNavegacion . "</strong><br>";
-            } else {
-                echo "<span style='color: #f87171;'>Atención: No existe la clave 'TOTAL' en \$row</span><br>";
-            }
-        }
-    } else {
-        echo "<span style='color: #f87171;'>--> ENTRÓ EN: ELSE (no es un arreglo o viene vacío)</span><br>";
-        $TotalSinNavegacion = (int)$qrSinNavegacion;
-        echo "Valor asignado por castear a int: <strong>" . $TotalSinNavegacion . "</strong><br>";
-    }
-    echo "<strong>TotalSinNavegacion final: " . $TotalSinNavegacion . "</strong>";
-    echo "</div>";
+    // 2. Conteo de 'Sin Navegación' (la función retorna un entero directamente)
+    $TotalSinNavegacion = (int)$consultas->CountSinNavegacionPorFechas($postFecha1, $postFecha2);
 
     // 3. Procesar registros
     $registros = $consultas->GetProduccionPorFechas($Fecha1, $Fecha2);
