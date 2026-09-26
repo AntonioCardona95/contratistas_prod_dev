@@ -115,12 +115,20 @@ class ClassConsultasProduccion extends Conexion
         return $this->runQuery($sql, array(), 'analisis');
     }
 
- public function CountSinNavegacionPorFechas($fechaInicio, $fechaFin)
+public function CountSinNavegacionPorFechas($fechaInicio, $fechaFin)
 {
-    // Mantiene las fechas completas con hora si vienen con ella, o les asigna el rango del día completo
+    echo "<div style='background:#f8d7da; color:#721c24; padding:15px; margin:10px; border:1px solid #f5c6cb;'>";
+    echo "<h3>--- INICIO DEPURACIÓN COMPLETA ---</h3>";
+
+    // 1. Verificar parámetros recibidos
     $f1 = (strlen($fechaInicio) <= 10) ? $fechaInicio . ' 00:00:00' : $fechaInicio;
     $f2 = (strlen($fechaFin) <= 10)    ? $fechaFin . ' 23:59:59'    : $fechaFin;
 
+    echo "<b>1. Fechas Procesadas:</b><br>";
+    echo "f1: " . htmlspecialchars($f1) . "<br>";
+    echo "f2: " . htmlspecialchars($f2) . "<br><br>";
+
+    // 2. Definir SQL y Parámetros
     $sql = "SELECT COUNT(1) AS TOTAL
             FROM seg_produccion_navegacion
             WHERE (
@@ -138,9 +146,47 @@ class ClassConsultasProduccion extends Conexion
         ':fechaFin'    => $f2
     );
 
-    $res = $this->runQuery($sql, $params, 'erpprint');
+    echo "<b>2. SQL a ejecutar:</b><br><code>" . htmlspecialchars($sql) . "</code><br><br>";
+    echo "<b>3. Parámetros asociados:</b><pre>";
+    print_r($params);
+    echo "</pre>";
 
-    return isset($res[0]['TOTAL']) ? (int)$res[0]['TOTAL'] : 0;
+    // 3. Ejecutar runQuery y capturar resultado
+    echo "<b>4. Ejecutando runQuery con base de datos 'erpprint'...</b><br>";
+    
+    try {
+        $res = $this->runQuery($sql, $params, 'erpprint');
+
+        echo "<b>5. Respuesta RAW de \$res:</b><pre>";
+        var_dump($res);
+        echo "</pre>";
+
+        // 4. Evaluar estructura devuelta por runQuery
+        if (is_array($res)) {
+            echo "<b>6. \$res es un ARRAY. Estructura detallada:</b><br>";
+            if (isset($res[0])) {
+                echo "- Existe \$res[0]:<pre>";
+                print_r($res[0]);
+                echo "</pre>";
+                
+                if (isset($res[0]['TOTAL'])) {
+                    echo "<b style='color:green;'>-> ÉXITO: \$res[0]['TOTAL'] contiene: " . $res[0]['TOTAL'] . "</b><br>";
+                } else {
+                    echo "<b style='color:red;'>-> ERROR: El índice 'TOTAL' no existe dentro de \$res[0]. Claves encontradas: " . implode(", ", array_keys($res[0])) . "</b><br>";
+                }
+            } else {
+                echo "<b style='color:red;'>-> ERROR: El arreglo \$res está vacío o no tiene la posición [0].</b><br>";
+            }
+        } else {
+            echo "<b style='color:red;'>-> ERROR: \$res NO es un arreglo. Tipo devuelto: " . gettype($res) . "</b><br>";
+        }
+
+    } catch (Exception $e) {
+        echo "<b style='color:red;'>EXCEPCIÓN CAPTURADA: " . $e->getMessage() . "</b><br>";
+    }
+
+    echo "</div>";
+    die("--- FIN DEPURACIÓN ---");
 }
 
 
