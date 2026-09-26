@@ -117,6 +117,13 @@ class ClassConsultasProduccion extends Conexion
 
  public function CountSinNavegacionPorFechas($fechaInicio, $fechaFin)
     {
+        // Depuración para ver los parámetros de entrada
+    echo "<pre>";
+    echo "--- DEPURACIÓN DE ENTRADA EN LA FUNCIÓN ---\n";
+    echo "fechaInicio recibida: " . var_export($fechaInicio, true) . " (Tipo: " . gettype($fechaInicio) . ")\n";
+    echo "fechaFin recibida:    " . var_export($fechaFin, true) . " (Tipo: " . gettype($fechaFin) . ")\n";
+    echo "</pre>";
+    die(); // Detiene la ejecución para revisar el mensaje en pantalla
         // 1. Limpieza de fechas (YYYY-MM-DD)
         $f1 = substr($fechaInicio, 0, 10);
         $f2 = substr($fechaFin, 0, 10);
