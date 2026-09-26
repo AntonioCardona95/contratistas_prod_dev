@@ -115,52 +115,34 @@ class ClassConsultasProduccion extends Conexion
         return $this->runQuery($sql, array(), 'analisis');
     }
 
-/**
-     * Cuenta las liquidaciones en un rango de fechas que actualmente NO navegan
-     */
-    /**
-     * Cuenta las liquidaciones en un rango de fechas que actualmente NO navegan
-     */
-    public function CountSinNavegacionPorFechas($fechaInicio, $fechaFin)
-{
-    // 1. Validar que vengan fechas
-    if (empty($fechaInicio) || empty($fechaFin)) {
-        return 0;
+ public function CountSinNavegacionPorFechas($fechaInicio, $fechaFin)
+    {
+        // 1. Limpieza de fechas (YYYY-MM-DD)
+        $f1 = substr($fechaInicio, 0, 10);
+        $f2 = substr($fechaFin, 0, 10);
+
+        // 2. Consulta SQL parametrizada con :fechaInicio y :fechaFin
+        $sql = "SELECT COUNT(1) AS TOTAL
+                FROM seg_produccion_navegacion
+                WHERE (
+                    Flag_Navega = '0' 
+                    OR Flag_Navega = 0 
+                    OR Flag_Navega IS NULL 
+                    OR Estatus_Navegacion = 'SIN NAVEGACION'
+                    OR Estatus_Navegacion LIKE '%NO REGISTRADO%'
+                )
+                AND DATE(FECHA_LIQ) BETWEEN :fechaInicio AND :fechaFin";
+
+        $params = array(
+            ':fechaInicio' => $f1,
+            ':fechaFin'    => $f2
+        );
+
+        // 3. Importante: Se especifica 'erpprint' como tercer parámetro de conexión
+        $res = $this->runQuery($sql, $params, 'erpprint');
+
+        return isset($res[0]['TOTAL']) ? (int)$res[0]['TOTAL'] : 0;
     }
-
-    // 2. Extraer YYYY-MM-DD y armar el rango exacto del día completo
-    $f1 = substr(trim($fechaInicio), 0, 10) . " 00:00:00";
-    $f2 = substr(trim($fechaFin), 0, 10) . " 23:59:59";
-
-    // 3. Consulta limpia sobre FECHA_LIQ en rango DATETIME
-    $sql = "SELECT COUNT(1) AS TOTAL
-            FROM seg_produccion_navegacion
-            WHERE (
-                Flag_Navega = 0 
-                OR Flag_Navega IS NULL 
-                OR Estatus_Navegacion = 'SIN NAVEGACION'
-                OR Estatus_Navegacion LIKE '%NO REGISTRADO%'
-            )
-            AND FECHA_LIQ >= :fechaInicio 
-            AND FECHA_LIQ <= :fechaFin";
-
-    $params = array(
-        ':fechaInicio' => $f1,
-        ':fechaFin'    => $f2
-    );
-
-    // 4. Ejecutamos mediante la conexión 'erpprint'
-    $res = $this->runQuery($sql, $params, 'erpprint');
-
-    // 5. Como runQuery devuelve un array con fetchAll(), extraemos el registro 0
-    if (!empty($res) && isset($res[0]['TOTAL'])) {
-        return (int)$res[0]['TOTAL'];
-    }
-
-    return 0;
-}
-
-
 
 
 
