@@ -51,44 +51,8 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         }
     }
 
-    // 2. Conteo de 'Sin Navegación' en el rango de fechas seleccionadas
-    $qrSinNavegacion = $consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
-
-
-    // 2. Conteo de 'Sin Navegación' en el rango de fechas seleccionadas
-    $qrSinNavegacion = $consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
-    
-    if (is_array($qrSinNavegacion) && !empty($qrSinNavegacion)) 
-    {
-        echo "entró al if <br>";
-
-        foreach ($qrSinNavegacion as $row) 
-        {
-            echo "entró al foreach <br>";
-
-            if (isset($row['TOTAL'])) {
-                echo "entró al if total <br>";
-                $TotalSinNavegacion = (int)$row['TOTAL'];
-                echo "TotalSinNavegacion: " . $TotalSinNavegacion . "<br>";
-            }
-        }
-    } else {
-        echo "entró al else directamente <br>";
-        $TotalSinNavegacion = (int)$qrSinNavegacion;
-        echo "TotalSinNavegacionelse: " . $TotalSinNavegacion . "<br>";
-    }
-    
-    /*if (is_array($qrSinNavegacion) && !empty($qrSinNavegacion)) 
-        {
-           foreach ($qrSinNavegacion as $row) 
-            {
-                if (isset($row['TOTAL'])) {
-                $TotalSinNavegacion = (int)$row['TOTAL'];
-            }
-        }
-    } else {
-        $TotalSinNavegacion = (int)$qrSinNavegacion;
-    } */
+    // 2. Conteo de 'Sin Navegación' en el rango de fechas seleccionadas (devuelve entero)
+    $TotalSinNavegacion = (int)$consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
 
     // 3. Obtener los registros de producción del periodo y procesar
     $registros = $consultas->GetProduccionPorFechas($Fecha1, $Fecha2);
