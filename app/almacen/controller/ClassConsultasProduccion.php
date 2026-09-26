@@ -10,9 +10,6 @@ class ClassConsultasProduccion extends Conexion
 {
     protected function runQuery($sql, $params = array(), $conexionTipo = 'default')
     {
-        // Filtro para depurar solo la consulta que nos interesa
-        $esNavegacion = (stripos($sql, 'seg_produccion_navegacion') !== false);
-
         switch ($conexionTipo) {
             case 'analisis':
             case 'analytics':
@@ -30,17 +27,6 @@ class ClassConsultasProduccion extends Conexion
             default:
                 $conexion = $this->get_conexion();
                 break;
-        }
-
-        // 1. Validar si la conexión devuelta es un objeto PDO válido
-        if ($esNavegacion && !($conexion instanceof PDO)) {
-            echo "<pre style='background:#f8d7da; color:#721c24; padding:15px; border:1px solid #f5c6cb;'>";
-            echo "<b>[ERROR EN CONEXIÓN]</b><br>";
-            echo "El tipo de conexión '$conexionTipo' NO retornó un objeto PDO válido.<br>";
-            echo "Valor retornado: ";
-            var_dump($conexion);
-            echo "</pre>";
-            die();
         }
 
         try {
@@ -55,43 +41,17 @@ class ClassConsultasProduccion extends Conexion
             }
             $stmt->execute();
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
             if (method_exists($stmt, 'closeCursor')) {
                 $stmt->closeCursor();
             }
-
-            // 2. Si es la consulta de navegación, mostrar exactamente lo que devolvió la BD
-            if ($esNavegacion) {
-                echo "<pre style='background:#d4edda; color:#155724; padding:15px; border:1px solid #c3e6cb;'>";
-                echo "<b>[DEPURACIÓN RUNQUERY - NAVEGACIÓN]</b><br>";
-                echo "<b>Tipo Conexión:</b> $conexionTipo<br>";
-                echo "<b>SQL:</b> " . htmlspecialchars($sql) . "<br>";
-                echo "<b>Parámetros Bind:</b><br>";
-                print_r($params);
-                echo "<br><b>Filas / Resulset devueltos por MySQL:</b><br>";
-                print_r($rows);
-                echo "</pre>";
-                die();
-            }
-
             return $rows;
-
         } catch (PDOException $e) {
-            // 3. Capturar cualquier error de SQL / PDO y mostrar el mensaje real
-            echo "<pre style='background:#f8d7da; color:#721c24; padding:15px; border:1px solid #f5c6cb;'>";
-            echo "<b>[EXCEPCIÓN PDO EN RUNQUERY]</b><br>";
-            echo "<b>Mensaje MySQL:</b> " . $e->getMessage() . "<br>";
-            echo "<b>Código Error:</b> " . $e->getCode() . "<br>";
-            echo "<b>SQL ejecutado:</b> " . htmlspecialchars($sql) . "<br>";
-            echo "</pre>";
-            die();
+            return array();
         }
     }
 
     protected function runExecute($sql, $params = array(), $conexionTipo = 'default')
     {
-        $esNavegacion = (stripos($sql, 'seg_produccion_navegacion') !== false);
-
         switch ($conexionTipo) {
             case 'analisis':
             case 'analytics':
@@ -111,15 +71,6 @@ class ClassConsultasProduccion extends Conexion
                 break;
         }
 
-        if ($esNavegacion && !($conexion instanceof PDO)) {
-            echo "<pre style='background:#f8d7da; color:#721c24; padding:15px; border:1px solid #f5c6cb;'>";
-            echo "<b>[ERROR EN CONEXIÓN - EXECUTE]</b><br>";
-            echo "El tipo de conexión '$conexionTipo' NO retornó un objeto PDO.<br>";
-            var_dump($conexion);
-            echo "</pre>";
-            die();
-        }
-
         try {
             $stmt = $conexion->prepare($sql);
             foreach ($params as $key => $val) {
@@ -132,15 +83,8 @@ class ClassConsultasProduccion extends Conexion
             }
             $stmt->execute();
             return (int)$conexion->lastInsertId();
-
         } catch (PDOException $e) {
-            echo "<pre style='background:#f8d7da; color:#721c24; padding:15px; border:1px solid #f5c6cb;'>";
-            echo "<b>[EXCEPCIÓN PDO EN RUNEXECUTE]</b><br>";
-            echo "<b>Mensaje MySQL:</b> " . $e->getMessage() . "<br>";
-            echo "<b>Código Error:</b> " . $e->getCode() . "<br>";
-            echo "<b>SQL ejecutado:</b> " . htmlspecialchars($sql) . "<br>";
-            echo "</pre>";
-            die();
+            return 0;
         }
     }
     /**
