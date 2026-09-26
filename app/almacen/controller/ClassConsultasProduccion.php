@@ -152,7 +152,7 @@ class ClassConsultasProduccion extends Conexion
 
     // 4. Se ejecuta en la base de datos correcta 'erpintr1_erp' 
     // (Si usas el nombre de la conexión por defecto, puedes omitir el tercer parámetro o usar 'erpintr1_erp')
-    $res = $this->runQuery($sql, $params, 'erpintr1_erp');
+    $res = $this->runQuery($sql, $params, 'default');
 
     if (is_array($res) && !empty($res)) {
         return (int)($res[0]['TOTAL'] ?? 0);
