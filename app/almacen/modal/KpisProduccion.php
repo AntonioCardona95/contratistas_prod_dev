@@ -55,8 +55,7 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
     $qrSinNavegacion = $consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
 
 
-    // 2. Conteo de 'Sin Navegación' en el rango de fechas seleccionadas
-    $qrSinNavegacion = $consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
+
     
     if (is_array($qrSinNavegacion) && !empty($qrSinNavegacion)) 
     {
