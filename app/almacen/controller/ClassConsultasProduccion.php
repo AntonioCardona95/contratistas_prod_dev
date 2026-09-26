@@ -116,41 +116,32 @@ class ClassConsultasProduccion extends Conexion
     }
 
  public function CountSinNavegacionPorFechas($fechaInicio, $fechaFin)
-    {
-        // Depuración para ver los parámetros de entrada
-    echo "<pre>";
-    echo "--- DEPURACIÓN DE ENTRADA EN LA FUNCIÓN ---\n";
-    echo "fechaInicio recibida: " . var_export($fechaInicio, true) . " (Tipo: " . gettype($fechaInicio) . ")\n";
-    echo "fechaFin recibida:    " . var_export($fechaFin, true) . " (Tipo: " . gettype($fechaFin) . ")\n";
-    echo "</pre>";
-    die(); // Detiene la ejecución para revisar el mensaje en pantalla
-        // 1. Limpieza de fechas (YYYY-MM-DD)
-        $f1 = substr($fechaInicio, 0, 10);
-        $f2 = substr($fechaFin, 0, 10);
+{
+    // Mantiene las fechas completas con hora si vienen con ella, o les asigna el rango del día completo
+    $f1 = (strlen($fechaInicio) <= 10) ? $fechaInicio . ' 00:00:00' : $fechaInicio;
+    $f2 = (strlen($fechaFin) <= 10)    ? $fechaFin . ' 23:59:59'    : $fechaFin;
 
-        // 2. Consulta SQL parametrizada con :fechaInicio y :fechaFin
-        $sql = "SELECT COUNT(1) AS TOTAL
-                FROM seg_produccion_navegacion
-                WHERE (
-                    Flag_Navega = '0' 
-                    OR Flag_Navega = 0 
-                    OR Flag_Navega IS NULL 
-                    OR Estatus_Navegacion = 'SIN NAVEGACION'
-                    OR Estatus_Navegacion LIKE '%NO REGISTRADO%'
-                )
-                AND DATE(FECHA_LIQ) BETWEEN :fechaInicio AND :fechaFin";
+    $sql = "SELECT COUNT(1) AS TOTAL
+            FROM seg_produccion_navegacion
+            WHERE (
+                Flag_Navega = 0 
+                OR Flag_Navega IS NULL 
+                OR DID_ACTIVO = 0
+                OR Estatus_Navegacion = 'SIN NAVEGACION'
+                OR Estatus_Navegacion LIKE '%NO REGISTRADO%'
+            )
+            AND FECHA_LIQ >= :fechaInicio 
+            AND FECHA_LIQ <= :fechaFin";
 
-        $params = array(
-            ':fechaInicio' => $f1,
-            ':fechaFin'    => $f2
-        );
+    $params = array(
+        ':fechaInicio' => $f1,
+        ':fechaFin'    => $f2
+    );
 
-        // 3. Importante: Se especifica 'erpprint' como tercer parámetro de conexión
-        $res = $this->runQuery($sql, $params, 'erpprint');
+    $res = $this->runQuery($sql, $params, 'erpprint');
 
-        return isset($res[0]['TOTAL']) ? (int)$res[0]['TOTAL'] : 0;
-    }
-
+    return isset($res[0]['TOTAL']) ? (int)$res[0]['TOTAL'] : 0;
+}
 
 
 
