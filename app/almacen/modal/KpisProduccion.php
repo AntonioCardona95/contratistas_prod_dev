@@ -17,19 +17,17 @@ require_once("../controller/ClassConsultasProduccion.php");
 $Contratista = $_SESSION['Contratista'] ?? null;
 $idContratistas = obtenerIdContratistaContexto();
 
-// Capturamos los valores puros del POST
-$postFecha1 = $_POST['Fecha1'] ?? '';
-$postFecha2 = $_POST['Fecha2'] ?? '';
-
+$Fecha1 = $_POST['Fecha1'] ?? '';
+$Fecha2 = $_POST['Fecha2'] ?? '';
 @$Division = $_POST['Division'];
 @$Area = $_POST['Area'];
 @$Cope = $_POST['Cope'];
 
 $mes_anterior = date('Y-m-d', strtotime('-3 month'));
 
-if (!empty($postFecha1) && !empty($postFecha2)) {
-    $Fecha1 = $postFecha1 . " 00:00:00";
-    $Fecha2 = $postFecha2 . " 23:59:59";
+if (!empty($Fecha1) && !empty($Fecha2)) {
+    $Fecha1 = $_POST['Fecha1'] . " 00:00:00";
+    $Fecha2 = $_POST['Fecha2'] . " 23:59:59";
 } else {
     $Fecha1 = $mes_anterior . " 00:00:00";
     $Fecha2 = date('Y-m-d') . " 23:59:59";
@@ -39,12 +37,11 @@ $index = new Index();
 $consultas = new ClassConsultasProduccion();
 
 $TotalProduccion = 0;
-$TotalSinNavegacion = 0;
+$TotalSinNavegacion = 0; // Se inicializa en 0
 
 // SOLO SE EJECUTA SI EL USUARIO SELECCIONÓ Y ENVIÓ FECHAS
-if (!empty($postFecha1) && !empty($postFecha2)) {
-
-    // 1. Conteo de producción (utiliza el rango con horas)
+if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
+    // 1. Obtener conteo de producción evaluada en el rango de fechas
     $qrProduccion = $consultas->CountProduccionPorFechas($Fecha1, $Fecha2);
     if (is_array($qrProduccion) && !empty($qrProduccion)) {
         foreach ($qrProduccion as $row) {
@@ -54,19 +51,32 @@ if (!empty($postFecha1) && !empty($postFecha2)) {
         }
     }
 
-    // 2. Conteo de 'Sin Navegación' (la función retorna un entero directamente)
-    $TotalSinNavegacion = (int)$consultas->CountSinNavegacionPorFechas($postFecha1, $postFecha2);
+    // 2. Conteo de 'Sin Navegación' en el rango de fechas seleccionadas
+    $qrSinNavegacion = $consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
+    if (is_array($qrSinNavegacion) && !empty($qrSinNavegacion)) {
+        foreach ($qrSinNavegacion as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalSinNavegacion = (int)$row['TOTAL'];
+            }
+        }
+    } else {
+        $TotalSinNavegacion = (int)$qrSinNavegacion;
+    }
 
-    // 3. Procesar registros
+    // 3. Obtener los registros de producción del periodo y procesar
     $registros = $consultas->GetProduccionPorFechas($Fecha1, $Fecha2);
+
     if (!empty($registros)) {
+        // Paso A: Mapear datos detallados de ESCI por teléfono
         $telefonos = array_column($registros, 'TELEFONO');
         $mapEciDetalle = $consultas->GetDetalleEciPorTelefonos($telefonos);
 
+        // Paso B: Recolectar números de serie válidos (Producción + ESCI) para verificar existencias en Almacén
         $seriesABuscar = [];
         foreach ($registros as $reg) {
             $tel = trim($reg['TELEFONO'] ?? '');
             $serieProd = trim($reg['Num__Serie'] ?? '');
+            
             $eciInfo  = $mapEciDetalle[$tel] ?? null;
             $serieEci = $eciInfo['M_SERIE'] ?? null;
 
@@ -78,9 +88,11 @@ if (!empty($postFecha1) && !empty($postFecha2)) {
             }
         }
 
+        // Paso C: Consultar existencia en almacén
         $existentesEnAlmacen = $consultas->GetNumSeriesEnAlmacen($seriesABuscar);
         $mapExistentes = array_flip($existentesEnAlmacen);
 
+        // Paso D: Procesar inserción/actualización de producción, navegación y señalamientos
         $consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes, $mapEciDetalle);
     }
 }
@@ -100,7 +112,6 @@ if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
 <link rel="stylesheet" href="css/kpis-produccion.css">
 
 <div class="row kpi-cards-row">
-    <!-- Producción acumulada -->
     <div class="col-kpi-5 mb-4">
         <div class="kpi-card kpi-card-success">
             <div class="kpi-card-body">
@@ -111,29 +122,23 @@ if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
         </div>
     </div>
 
-    <!-- Total Producción (por fechas) -->
     <div class="col-kpi-5 mb-4">
-        <a href="TablaProduccionFechas.php?Fecha1=<?php echo urlencode($postFecha1); ?>&Fecha2=<?php echo urlencode($postFecha2); ?>" class="kpi-card-link">
-            <div class="kpi-card kpi-card-info">
-                <div class="kpi-card-body">
-                    <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
-                    <div class="kpi-card-label">Total Producción (por fechas)</div>
-                    <div class="kpi-card-number"><?php echo number_format($TotalProduccion); ?></div>
-                </div>
+        <div class="kpi-card kpi-card-info">
+            <div class="kpi-card-body">
+                <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
+                <div class="kpi-card-label">Total Producción (por fechas)</div>
+                <div class="kpi-card-number"><?php echo number_format($TotalProduccion); ?></div>
             </div>
-        </a>
+        </div>
     </div>
 
-    <!-- Total No Navegación -->
     <div class="col-kpi-5 mb-4">
-        <a href="TablaProduccionFechas.php?Fecha1=<?php echo urlencode($postFecha1); ?>&Fecha2=<?php echo urlencode($postFecha2); ?>&tipo=no_navegacion" class="kpi-card-link">
-            <div class="kpi-card kpi-card-info">
-                <div class="kpi-card-body">
-                    <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
-                    <div class="kpi-card-label">Total No Navegacion</div>
-                    <div class="kpi-card-number"><?php echo number_format($TotalSinNavegacion); ?></div>
-                </div>
+        <div class="kpi-card kpi-card-info">
+            <div class="kpi-card-body">
+                <div class="kpi-card-icon"><i class="fas fa-star"></i></div>
+                <div class="kpi-card-label">Total No Navegacion</div>
+                <div class="kpi-card-number"><?php echo number_format($TotalSinNavegacion); ?></div>
             </div>
-        </a>
+        </div>
     </div>
 </div>
