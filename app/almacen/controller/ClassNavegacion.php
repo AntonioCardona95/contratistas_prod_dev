@@ -75,6 +75,89 @@ class Navegacion extends Conexion
         return preg_replace('/\D/', '', (string)$telefono);
     }
 
+    protected function normalizarFolioPisa($folio)
+    {
+        return trim((string)$folio);
+    }
+
+    protected function seriesDifierenPorUnCaracter($serieA, $serieB)
+    {
+        $serieA = $this->normalizarSerie($serieA);
+        $serieB = $this->normalizarSerie($serieB);
+
+        if ($serieA === '' || strlen($serieA) !== strlen($serieB)) {
+            return false;
+        }
+
+        $diferencias = 0;
+        for ($indice = 0; $indice < strlen($serieA); $indice++) {
+            if ($serieA[$indice] !== $serieB[$indice]) {
+                $diferencias++;
+                if ($diferencias > 1) {
+                    return false;
+                }
+            }
+        }
+
+        return $diferencias === 1;
+    }
+
+    protected function detectarSerieMalCapturada($serieAlmacen, $registrosCoordiapp, $registrosTacPorFolioTelefono, $registrosEciPorTelefono)
+    {
+        $mejorCoincidencia = null;
+        $mejorFechaEvento = 0;
+
+        foreach ($registrosCoordiapp as $registroCoordiapp) {
+            $folioPisa = $this->normalizarFolioPisa($registroCoordiapp['Folio_Pisa'] ?? '');
+            $telefono = $this->normalizarTelefono($registroCoordiapp['Telefono'] ?? '');
+            if ($folioPisa === '' || $telefono === '') {
+                continue;
+            }
+
+            $claveFolioTelefono = $folioPisa . '|' . $telefono;
+            foreach ($registrosTacPorFolioTelefono[$claveFolioTelefono] ?? array() as $registroTac) {
+                $serieTac = $this->normalizarSerie($registroTac['Num__Serie'] ?? '');
+                foreach ($registrosEciPorTelefono[$telefono] ?? array() as $registroEci) {
+                    $serieEci = $this->normalizarSerie($registroEci['M_SERIE'] ?? '');
+                    if ((int)($registroEci['DID_ACTIVO'] ?? 0) !== 1
+                        || $serieTac === ''
+                        || $serieTac !== $serieEci
+                        || !$this->seriesDifierenPorUnCaracter($serieAlmacen, $serieEci)) {
+                        continue;
+                    }
+
+                    $fechaBase = null;
+                    foreach (array(
+                        $registroCoordiapp['Fecha_Coordiapp'] ?? null,
+                        $registroTac['FECHA_LIQ'] ?? null
+                    ) as $fechaFuente) {
+                        $marcaTiempo = !empty($fechaFuente) ? strtotime($fechaFuente) : false;
+                        if ($marcaTiempo !== false && ($fechaBase === null || $marcaTiempo > $fechaBase)) {
+                            $fechaBase = $marcaTiempo;
+                        }
+                    }
+
+                    $fechaEvento = strtotime($registroEci['FECHA_ULTIMO_EVENTO'] ?? '');
+                    if ($fechaEvento === false || ($fechaBase !== null && $fechaEvento < strtotime(date('Y-m-d H:i:s', $fechaBase) . ' +3 days'))) {
+                        continue;
+                    }
+
+                    if ($fechaEvento > $mejorFechaEvento) {
+                        $mejorFechaEvento = $fechaEvento;
+                        $mejorCoincidencia = array(
+                            'coordiapp' => $registroCoordiapp,
+                            'tac' => $registroTac,
+                            'eci' => $registroEci,
+                            'folio_pisa' => $folioPisa
+                        );
+                    }
+                }
+            }
+        }
+
+        return $mejorCoincidencia;
+    }
+
     protected function clasificarTipoTarea($tipoTarea)
     {
         $tipo = strtoupper(trim((string)$tipoTarea));
@@ -224,9 +307,12 @@ class Navegacion extends Conexion
             }
 
             $registrosCoordiapp = $this->runQuery(
-                "SELECT Ont, Telefono, Fecha_Coordiapp, Tipo_Tarea
-                 FROM View_Detalle_Coordiapp_Completadas
-                 WHERE Ont IN (" . implode(',', $marcadoresCoordiapp) . ")",
+                "SELECT Folio_Pisa, Ont, Telefono, Fecha_Coordiapp, Tipo_Tarea
+                 FROM tecnico_instalaciones_coordiapp
+                 WHERE Ont IN (" . implode(',', $marcadoresCoordiapp) . ")
+                    AND Estatus_Orden = 'COMPLETADA'
+                    AND Step_Registro = '5'
+                 ORDER BY Fecha_Coordiapp DESC",
                 $parametrosCoordiapp
             );
 
@@ -269,18 +355,12 @@ class Navegacion extends Conexion
 
         // 3. CREAR LISTAS ÚNICAS PARA CONSULTAR TAC Y ECI EN BLOQUE.
         $seriesUnicas = array();
-        $telefonosUnicos = array();
 
         foreach ($series as $serie) {
             $serieNormalizada = $this->normalizarSerie($serie['Num_Serie_S'] ?? '');
-            $telefonoCoordiapp = $this->normalizarTelefono($serie['Telefono_Coordiapp'] ?? '');
 
             if ($serieNormalizada !== '') {
                 $seriesUnicas[$serieNormalizada] = true;
-            }
-
-            if ($telefonoCoordiapp !== '') {
-                $telefonosUnicos[$telefonoCoordiapp] = true;
             }
         }
 
@@ -288,26 +368,48 @@ class Navegacion extends Conexion
         // SOLO SE TOMAN REGISTROS CON ESTADO COMPLETADA.
         $tacPorSerie = array();
         $tacRegistrosPorSerie = array();
+        $registrosTacTodos = array();
         $duplicadosTacPorSerie = array();
         if (!empty($seriesUnicas)) {
             $seriesParaTac = array_keys($seriesUnicas);
             $marcadoresTac = implode(',', array_fill(0, count($seriesParaTac), '?'));
-            $registrosTac = $this->runAnalysisQuery(
-                "SELECT Num__Serie, TELEFONO, FECHA_LIQ, Calificador_Edo, Tipo_de_Tarea
+            $registrosTacPorSerie = $this->runAnalysisQuery(
+                "SELECT Folio_Pisa, Num__Serie, TELEFONO, FECHA_LIQ, Calificador_Edo, Tipo_de_Tarea
                  FROM qm_tac
                  WHERE Num__Serie IN ($marcadoresTac)
                     AND Calificador_Edo = 'COMPLETADA'
                  ORDER BY FECHA_LIQ DESC",
                 $seriesParaTac
             );
+            $registrosTacTodos = $registrosTacPorSerie;
+        }
 
-            // AGRUPAR TODOS LOS REGISTROS TAC ENCONTRADOS PARA CADA SERIE.
-            foreach ($registrosTac as $registroTac) {
-                $serieTac = $this->normalizarSerie($registroTac['Num__Serie'] ?? '');
-                if ($serieTac !== '') {
-                    $registroTac['Tipo_de_Tarea_Clasificado'] = $this->clasificarTipoTarea($registroTac['Tipo_de_Tarea'] ?? '');
-                    $tacRegistrosPorSerie[$serieTac][] = $registroTac;
-                }
+        $registrosTacUnicos = array();
+        $registrosTacPorFolioTelefono = array();
+        foreach ($registrosTacTodos as $registroTac) {
+            $claveTac = implode('|', array(
+                $this->normalizarFolioPisa($registroTac['Folio_Pisa'] ?? ''),
+                $this->normalizarSerie($registroTac['Num__Serie'] ?? ''),
+                $this->normalizarTelefono($registroTac['TELEFONO'] ?? ''),
+                (string)($registroTac['FECHA_LIQ'] ?? '')
+            ));
+            $registrosTacUnicos[$claveTac] = $registroTac;
+        }
+        $clavesTacVistas = $registrosTacUnicos;
+        $registrosTacTodos = array_values($registrosTacUnicos);
+
+        // AGRUPAR TODOS LOS REGISTROS TAC ENCONTRADOS POR SERIE.
+        foreach ($registrosTacTodos as $registroTac) {
+            $folioPisa = $this->normalizarFolioPisa($registroTac['Folio_Pisa'] ?? '');
+            $telefonoTac = $this->normalizarTelefono($registroTac['TELEFONO'] ?? '');
+            if ($folioPisa !== '' && $telefonoTac !== '') {
+                $registrosTacPorFolioTelefono[$folioPisa . '|' . $telefonoTac][] = $registroTac;
+            }
+
+            $serieTac = $this->normalizarSerie($registroTac['Num__Serie'] ?? '');
+            if ($serieTac !== '') {
+                $registroTac['Tipo_de_Tarea_Clasificado'] = $this->clasificarTipoTarea($registroTac['Tipo_de_Tarea'] ?? '');
+                $tacRegistrosPorSerie[$serieTac][] = $registroTac;
             }
         }
 
@@ -336,27 +438,11 @@ class Navegacion extends Conexion
         // TODAS LAS SERIES PARTICIPAN EN ECI. EN DUPLICADOS, EL TELÉFONO DE ECI
         // PERMITE IDENTIFICAR CUAL DE LOS REGISTROS ES EL VIGENTE.
         $seriesUnicasParaEci = array();
-        $telefonosUnicos = array();
         foreach ($series as $serie) {
             $serieNormalizada = $this->normalizarSerie($serie['Num_Serie_S'] ?? '');
 
             if ($serieNormalizada !== '') {
                 $seriesUnicasParaEci[$serieNormalizada] = true;
-            }
-
-            $telefonosFuente = array($serie['Telefono_Coordiapp'] ?? '');
-            foreach ($coordiappRegistrosPorSerie[$serieNormalizada] ?? array() as $registroCoordiapp) {
-                $telefonosFuente[] = $registroCoordiapp['Telefono'] ?? '';
-            }
-            foreach ($tacRegistrosPorSerie[$serieNormalizada] ?? array() as $registroTac) {
-                $telefonosFuente[] = $registroTac['TELEFONO'] ?? '';
-            }
-
-            foreach ($telefonosFuente as $telefono) {
-                $telefonoNormalizado = $this->normalizarTelefono($telefono);
-                if ($telefonoNormalizado !== '') {
-                    $telefonosUnicos[$telefonoNormalizado] = true;
-                }
             }
         }
         $seriesUnicas = $seriesUnicasParaEci;
@@ -370,11 +456,11 @@ class Navegacion extends Conexion
             $seriesParaEci = array_keys($seriesUnicas);
             $marcadoresSerieEci = implode(',', array_fill(0, count($seriesParaEci), '?'));
             $registrosEciPorSerie = $this->runAnalysisQuery(
-                "SELECT TELEFONO, M_SERIE, F_CONSULTA, DID_ACTIVO, TECNOLOGIA
+                "SELECT TELEFONO, M_SERIE, FECHA_ULTIMO_EVENTO, DID_ACTIVO, TECNOLOGIA
                  FROM seg_ns_eci
                  WHERE DID_ACTIVO = 1
                      AND M_SERIE IN ($marcadoresSerieEci)
-                 ORDER BY F_CONSULTA DESC",
+                 ORDER BY FECHA_ULTIMO_EVENTO DESC",
                 $seriesParaEci
             );
 
@@ -386,41 +472,160 @@ class Navegacion extends Conexion
             }
         }
 
-        if (!empty($telefonosUnicos)) {
-            $telefonosParaEci = array_keys($telefonosUnicos);
-            $marcadoresTelefonoEci = implode(',', array_fill(0, count($telefonosParaEci), '?'));
-            $registrosEciPorTelefono = $this->runAnalysisQuery(
-                "SELECT TELEFONO, M_SERIE, F_CONSULTA, DID_ACTIVO, TECNOLOGIA
-                 FROM seg_ns_eci
-                 WHERE DID_ACTIVO = 1
-                     AND TELEFONO IN ($marcadoresTelefonoEci)
-                 ORDER BY F_CONSULTA DESC",
-                $telefonosParaEci
-            );
-
-            foreach ($registrosEciPorTelefono as $registroEci) {
-                $serieEci = $this->normalizarSerie($registroEci['M_SERIE'] ?? '');
-                if ($serieEci !== '') {
-                    $eciRegistrosPorSerie[$serieEci][] = $registroEci;
-                }
-            }
-        }
-
-        // ELEGIR SIEMPRE EL REGISTRO ECI MAS RECIENTE POR F_CONSULTA.
+        // ELEGIR SIEMPRE EL REGISTRO ECI MAS RECIENTE POR FECHA_ULTIMO_EVENTO.
         foreach ($eciRegistrosPorSerie as $serieEci => $registrosEciSerie) {
             $registroEciMasReciente = array();
 
             foreach ($registrosEciSerie as $registroEci) {
-                $fechaConsultaEci = strtotime($registroEci['F_CONSULTA'] ?? '');
-                $fechaConsultaEci = $fechaConsultaEci === false ? 0 : $fechaConsultaEci;
+                $fechaUltimoEventoEci = strtotime($registroEci['FECHA_ULTIMO_EVENTO'] ?? '');
+                $fechaUltimoEventoEci = $fechaUltimoEventoEci === false ? 0 : $fechaUltimoEventoEci;
 
-                if (empty($registroEciMasReciente) || $fechaConsultaEci > strtotime($registroEciMasReciente['F_CONSULTA'] ?? '')) {
+                if (empty($registroEciMasReciente) || $fechaUltimoEventoEci > strtotime($registroEciMasReciente['FECHA_ULTIMO_EVENTO'] ?? '')) {
                     $registroEciMasReciente = $registroEci;
                 }
 
             }
 
             $eciPorSerie[$serieEci] = $registroEciMasReciente;
+        }
+
+        $seriesCandidatasMalCapturadas = array();
+        $foliosPisaCandidatos = array();
+        $telefonosCandidatos = array();
+
+        foreach ($series as $serie) {
+            $serieNormalizada = $this->normalizarSerie($serie['Num_Serie_S'] ?? '');
+            if ($serieNormalizada === '' || !empty($eciPorSerie[$serieNormalizada])) {
+                continue;
+            }
+
+            $fechaLiquidacionMasAntigua = null;
+            foreach ($coordiappRegistrosPorSerie[$serieNormalizada] ?? array() as $registroCoordiapp) {
+                $fecha = $registroCoordiapp['Fecha_Coordiapp'] ?? null;
+                $marcaTiempo = !empty($fecha) ? strtotime($fecha) : false;
+                if ($marcaTiempo !== false && ($fechaLiquidacionMasAntigua === null || $marcaTiempo < $fechaLiquidacionMasAntigua)) {
+                    $fechaLiquidacionMasAntigua = $marcaTiempo;
+                }
+            }
+            foreach ($tacRegistrosPorSerie[$serieNormalizada] ?? array() as $registroTac) {
+                $fecha = $registroTac['FECHA_LIQ'] ?? null;
+                $marcaTiempo = !empty($fecha) ? strtotime($fecha) : false;
+                if ($marcaTiempo !== false && ($fechaLiquidacionMasAntigua === null || $marcaTiempo < $fechaLiquidacionMasAntigua)) {
+                    $fechaLiquidacionMasAntigua = $marcaTiempo;
+                }
+            }
+
+            if ($fechaLiquidacionMasAntigua === null || $fechaLiquidacionMasAntigua > strtotime('-14 days')) {
+                continue;
+            }
+
+            $seriesCandidatasMalCapturadas[$serieNormalizada] = true;
+            foreach ($coordiappRegistrosPorSerie[$serieNormalizada] ?? array() as $registroCoordiapp) {
+                $folioPisa = $this->normalizarFolioPisa($registroCoordiapp['Folio_Pisa'] ?? '');
+                $telefono = $this->normalizarTelefono($registroCoordiapp['Telefono'] ?? '');
+                if ($folioPisa !== '' && $telefono !== '') {
+                    $foliosPisaCandidatos[$folioPisa] = true;
+                    $telefonosCandidatos[$telefono] = true;
+                }
+            }
+        }
+
+        $registrosTacPorFolio = array();
+        if (!empty($foliosPisaCandidatos)) {
+            $foliosParaTac = array_keys($foliosPisaCandidatos);
+            $marcadoresFolioTac = implode(',', array_fill(0, count($foliosParaTac), '?'));
+            $registrosTacPorFolio = $this->runAnalysisQuery(
+                "SELECT Folio_Pisa, Num__Serie, TELEFONO, FECHA_LIQ, Calificador_Edo, Tipo_de_Tarea
+                 FROM qm_tac
+                 WHERE Folio_Pisa IN ($marcadoresFolioTac)
+                    AND Calificador_Edo = 'COMPLETADA'
+                 ORDER BY FECHA_LIQ DESC",
+                $foliosParaTac
+            );
+            $registrosTacTodos = array_merge($registrosTacTodos, $registrosTacPorFolio);
+        }
+
+        $seriesTacActualizadas = array();
+        foreach ($registrosTacPorFolio as $registroTac) {
+            $claveTac = implode('|', array(
+                $this->normalizarFolioPisa($registroTac['Folio_Pisa'] ?? ''),
+                $this->normalizarSerie($registroTac['Num__Serie'] ?? ''),
+                $this->normalizarTelefono($registroTac['TELEFONO'] ?? ''),
+                (string)($registroTac['FECHA_LIQ'] ?? '')
+            ));
+            if (isset($clavesTacVistas[$claveTac])) {
+                continue;
+            }
+
+            $clavesTacVistas[$claveTac] = $registroTac;
+            $folioPisa = $this->normalizarFolioPisa($registroTac['Folio_Pisa'] ?? '');
+            $telefonoTac = $this->normalizarTelefono($registroTac['TELEFONO'] ?? '');
+            $serieTac = $this->normalizarSerie($registroTac['Num__Serie'] ?? '');
+
+            if ($folioPisa !== '' && $telefonoTac !== '') {
+                $registrosTacPorFolioTelefono[$folioPisa . '|' . $telefonoTac][] = $registroTac;
+            }
+            if ($serieTac !== '') {
+                $registroTac['Tipo_de_Tarea_Clasificado'] = $this->clasificarTipoTarea($registroTac['Tipo_de_Tarea'] ?? '');
+                $tacRegistrosPorSerie[$serieTac][] = $registroTac;
+                $seriesTacActualizadas[$serieTac] = true;
+
+                if (!isset($tacPorSerie[$serieTac])) {
+                    $tacPorSerie[$serieTac] = $registroTac;
+                }
+            }
+        }
+
+        foreach ($seriesTacActualizadas as $serieTac => $valor) {
+            $registrosTacSerie = $tacRegistrosPorSerie[$serieTac] ?? array();
+            $telefonosTacSerie = array();
+
+            foreach ($registrosTacSerie as $registroTac) {
+                $telefonosTacSerie[] = $this->normalizarTelefono($registroTac['TELEFONO'] ?? '');
+            }
+
+            if (count(array_unique($telefonosTacSerie)) > 1) {
+                $duplicadosTacPorSerie[$serieTac] = $registrosTacSerie;
+            } else {
+                unset($duplicadosTacPorSerie[$serieTac]);
+            }
+        }
+
+        foreach ($series as &$serie) {
+            $serieNormalizada = $this->normalizarSerie($serie['Num_Serie_S'] ?? '');
+            $serie['Duplicado_Tac'] = isset($duplicadosTacPorSerie[$serieNormalizada]) ? 1 : 0;
+            $serie['Detalles_Duplicado_Tac'] = $duplicadosTacPorSerie[$serieNormalizada] ?? array();
+        }
+        unset($serie);
+
+        foreach ($seriesCandidatasMalCapturadas as $serieCandidata => $valor) {
+            foreach ($tacRegistrosPorSerie[$serieCandidata] ?? array() as $registroTac) {
+                $telefono = $this->normalizarTelefono($registroTac['TELEFONO'] ?? '');
+                if ($telefono !== '') {
+                    $telefonosCandidatos[$telefono] = true;
+                }
+            }
+        }
+
+        $eciRegistrosPorTelefono = array();
+        if (!empty($telefonosCandidatos)) {
+            $telefonosParaEci = array_keys($telefonosCandidatos);
+            $marcadoresTelefonoEci = implode(',', array_fill(0, count($telefonosParaEci), '?'));
+            $registrosEciPorTelefono = $this->runAnalysisQuery(
+                "SELECT TELEFONO, M_SERIE, FECHA_ULTIMO_EVENTO, DID_ACTIVO, TECNOLOGIA
+                 FROM seg_ns_eci
+                 WHERE DID_ACTIVO = 1
+                     AND TELEFONO IN ($marcadoresTelefonoEci)
+                 ORDER BY FECHA_ULTIMO_EVENTO DESC",
+                $telefonosParaEci
+            );
+
+            foreach ($registrosEciPorTelefono as $registroEci) {
+                $telefono = $this->normalizarTelefono($registroEci['TELEFONO'] ?? '');
+                if ($telefono !== '') {
+                    $eciRegistrosPorTelefono[$telefono][] = $registroEci;
+                }
+            }
         }
 
         // 5. RESOLVER EL ESTADO DE NAVEGACIÓN DE CADA SERIE.
@@ -449,6 +654,24 @@ class Navegacion extends Conexion
                 }
             }
 
+            $esCandidatoRojo = isset($seriesCandidatasMalCapturadas[$serieNormalizada]);
+            $coincidenciaSerieMalCapturada = $esCandidatoRojo
+                ? $this->detectarSerieMalCapturada(
+                    $serie['Num_Serie_S'] ?? '',
+                    $coordiappRegistrosPorSerie[$serieNormalizada] ?? array(),
+                    $registrosTacPorFolioTelefono,
+                    $eciRegistrosPorTelefono
+                )
+                : null;
+            $serieMalCapturada = $coincidenciaSerieMalCapturada !== null;
+
+            if ($serieMalCapturada) {
+                $registroCoordiappSeleccionado = $coincidenciaSerieMalCapturada['coordiapp'];
+                $registroTacSeleccionado = $coincidenciaSerieMalCapturada['tac'];
+                $registroEci = $coincidenciaSerieMalCapturada['eci'];
+                $telefonoEci = $this->normalizarTelefono($registroEci['TELEFONO'] ?? '');
+            }
+
             $telefonoCoordiappSeleccionado = $this->normalizarTelefono($registroCoordiappSeleccionado['Telefono'] ?? '');
             $telefonoTacSeleccionado = $this->normalizarTelefono($registroTacSeleccionado['TELEFONO'] ?? '');
 
@@ -463,10 +686,10 @@ class Navegacion extends Conexion
             }
 
             // LA CONSULTA ECI DEBE SER AL MENOS TRES DÍAS POSTERIOR A TAC/COORDIAPP.
-            $fechaConsultaEci = $registroEci['F_CONSULTA'] ?? null;
+            $fechaUltimoEventoEci = $registroEci['FECHA_ULTIMO_EVENTO'] ?? null;
             $fechaEciValida = false;
-            if (!empty($fechaConsultaEci)) {
-                $fechaEciValida = $fechaBase === null || strtotime($fechaConsultaEci) >= strtotime($fechaBase . ' +3 days');
+            if (!empty($fechaUltimoEventoEci)) {
+                $fechaEciValida = $fechaBase === null || strtotime($fechaUltimoEventoEci) >= strtotime($fechaBase . ' +3 days');
             }
 
             $serie['Telefono_Coordiapp'] = $registroCoordiappSeleccionado['Telefono'] ?? null;
@@ -474,8 +697,10 @@ class Navegacion extends Conexion
             $serie['Telefono_Tac'] = $registroTacSeleccionado['TELEFONO'] ?? null;
             $serie['Fecha_Liquidacion_Tac'] = $fechaTac;
             $serie['Telefono_Eci'] = $registroEci['TELEFONO'] ?? null;
-            $serie['Fecha_Consulta_Eci'] = $fechaConsultaEci;
+            $serie['Fecha_Ultimo_Evento_Eci'] = $fechaUltimoEventoEci;
             $serie['Estado_Eci'] = $registroEci['DID_ACTIVO'] ?? null;
+            $serie['Serie_Eci'] = $registroEci['M_SERIE'] ?? null;
+            $serie['Folio_Pisa_Validacion'] = $serieMalCapturada ? $coincidenciaSerieMalCapturada['folio_pisa'] : null;
 
             $fechasLiquidacion = array($fechaCoordiapp, $fechaTac);
             foreach ($coordiappRegistrosPorSerie[$serieNormalizada] ?? array() as $registroCoordiappCandidato) {
@@ -516,11 +741,11 @@ class Navegacion extends Conexion
                 $motivosNoNavegacion[] = 'El telefono de TAC no coincide con el Navegando';
             }
 
-            if (!empty($serie['Duplicado_Coordiapp'])) {
+            if (!empty($serie['Duplicado_Coordiapp']) && !$serieMalCapturada) {
                 $motivosNoNavegacion[] = 'Serie duplicada en Coordiapp';
             }
 
-            if (!empty($serie['Duplicado_Tac'])) {
+            if (!empty($serie['Duplicado_Tac']) && !$serieMalCapturada) {
                 $motivosNoNavegacion[] = 'Serie duplicada en TAC';
             }
 
@@ -545,9 +770,12 @@ class Navegacion extends Conexion
             $navegando = $eciActivo && $telefonosCoinciden && $fechaEciValida;
             $serie['Navegando'] = $navegando ? 1 : 0;
             $serie['Motivos_No_Navegacion'] = $navegando ? array() : $motivosNoNavegacion;
+            $serie['Observacion_Navegacion'] = $navegando && $serieMalCapturada
+                ? 'Navegando con observacion: posible serie mal capturada en almacen; validada con Folio Pisa ' . $coincidenciaSerieMalCapturada['folio_pisa']
+                : null;
 
             if ($navegando) {
-                $serie['Estado_Navegacion'] = 'navegando';
+                $serie['Estado_Navegacion'] = $serieMalCapturada ? 'navegando-observacion' : 'navegando';
             } elseif ((int)$serie['Alerta_Eci_Pendiente'] === 1) {
                 $serie['Estado_Navegacion'] = 'rojo';
             } elseif ($hayEci && ($hayCoordiapp || $hayTac) && !$telefonosCoinciden) {

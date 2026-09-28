@@ -36,6 +36,29 @@ foreach ($series as $serie) {
 
 // TOTAL PENDIENTES
 $totalPendientes = $totalSeries - $totalNavegando;
+$conteoEstados = array(
+	'navegando-observacion' => 0,
+	'rojo' => 0,
+	'gris' => 0,
+	'amarillo' => 0,
+	'verde' => 0,
+	'blanco' => 0
+);
+foreach ($series as $serie) {
+	$estado = $serie['Estado_Navegacion'] ?? 'blanco';
+	if (isset($conteoEstados[$estado])) {
+		$conteoEstados[$estado]++;
+	}
+}
+$etiquetasEstado = array(
+	'navegando' => 'Navegando correctamente',
+	'navegando-observacion' => 'Navegando con observacion: posible serie mal capturada en almacen',
+	'rojo' => 'No navegando: requiere seguimiento por mas de 14 dias',
+	'gris' => 'No navegando: telefonos no coinciden',
+	'amarillo' => 'No navegando: en espera de cumplir 3 dias desde la liquidacion',
+	'verde' => 'No navegando: liquidacion reciente',
+	'blanco' => 'Sin liquidacion para clasificar'
+);
 ?>
 
 <div class="navegacion-tabla-contenedor">
@@ -43,6 +66,12 @@ $totalPendientes = $totalSeries - $totalNavegando;
 		#tac_series_tabla tbody tr.serie-navegando {
 			background-color: #dff6ff !important;
 			animation: pulso-navegacion 2s ease-in-out infinite;
+		}
+
+		#tac_series_tabla tbody tr.serie-navegando-observacion {
+			background-color: #dce5f1 !important;
+			box-shadow: inset 5px 0 0 #17365d;
+			color: #17365d;
 		}
 
 		#tac_series_tabla tbody tr.serie-rojo {
@@ -137,6 +166,17 @@ $totalPendientes = $totalSeries - $totalNavegando;
 		.tac-serie-card.navegando {
 			border-left-color: #0aa2c0;
 			background: #dff6ff;
+		}
+
+		.tac-serie-card.navegando-observacion {
+			border-left-color: #17365d;
+			background: #dce5f1;
+			color: #17365d;
+		}
+
+		.icon-navegacion-observacion {
+			color: #17365d;
+			font-size: 1.15rem;
 		}
 
 		.tac-serie-card.alerta-eci {
@@ -355,12 +395,13 @@ $totalPendientes = $totalSeries - $totalNavegando;
 		<select id="filtro-estado-series" class="form-control">
 			<option value="">Todos</option>
 			<option value="navegando">Navegando (<?= $totalNavegando ?>)</option>
+			<option value="navegando-observacion">Azul oscuro: navegando con observacion (<?= $conteoEstados['navegando-observacion'] ?>)</option>
 			<option value="no-navegando">No navegando (<?= $totalPendientes ?>)</option>
-			<option value="rojo">Rojo: seguimiento</option>
-			<option value="gris">Gris: telefonos diferentes</option>
-			<option value="amarillo">Amarillo: Navegacion reciente</option>
-			<option value="verde">Verde: pendiente reciente</option>
-			<option value="blanco">Blanco: sin liquidacion</option>
+			<option value="rojo">Rojo: seguimiento (<?= $conteoEstados['rojo'] ?>)</option>
+			<option value="gris">Gris: telefonos diferentes (<?= $conteoEstados['gris'] ?>)</option>
+			<option value="amarillo">Amarillo: Navegacion reciente (<?= $conteoEstados['amarillo'] ?>)</option>
+			<option value="verde">Verde: pendiente reciente (<?= $conteoEstados['verde'] ?>)</option>
+			<option value="blanco">Blanco: sin liquidacion (<?= $conteoEstados['blanco'] ?>)</option>
 		</select>
 	</div>
 
@@ -378,10 +419,11 @@ $totalPendientes = $totalSeries - $totalNavegando;
 				<th>Telefono TAC</th>
 				<th>Fecha liquidacion TAC</th>
 				<th>Telefono Navegando</th>
-				<th>Fecha consulta Navegando</th>
+				<th>Fecha Ultima Navegacion</th>
 				<th>Navegando</th>
 				<th>Motivo</th>
 				<th>Duplicados</th>
+				<th class="columna-estado-exportacion">Estado de la serie</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -390,6 +432,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 					$numeroSerie = $serie['Num_Serie_S'] ?? '';
 					$navegando = (int)($serie['Navegando'] ?? 0) === 1;
 					$estadoNavegacion = $serie['Estado_Navegacion'] ?? 'blanco';
+					$estadoTexto = $etiquetasEstado[$estadoNavegacion] ?? 'No navegando: estado sin clasificar';
 					$motivos = $serie['Motivos_No_Navegacion'] ?? array();
 				?>
 				<tr class="serie-<?= htmlspecialchars($estadoNavegacion) ?>" data-estado-navegacion="<?= htmlspecialchars($estadoNavegacion) ?>">
@@ -404,20 +447,21 @@ $totalPendientes = $totalSeries - $totalNavegando;
 					<td><?= htmlspecialchars($serie['Telefono_Tac'] ?? 'Sin dato') ?></td>
 					<td><?= htmlspecialchars($serie['Fecha_Liquidacion_Tac'] ?? 'Sin dato') ?></td>
 					<td><?= htmlspecialchars($serie['Telefono_Eci'] ?? 'Sin dato') ?></td>
-					<td><?= htmlspecialchars($serie['Fecha_Consulta_Eci'] ?? 'Sin dato') ?></td>
+					<td><?= htmlspecialchars($serie['Fecha_Ultimo_Evento_Eci'] ?? 'Sin dato') ?></td>
 					<td>
-						<span class="badge estado-navegacion <?= $navegando ? 'custom-badge' : 'badge-secondary' ?>">
-							<?php if ($navegando): ?>
+						<?php if ($navegando && $estadoNavegacion === 'navegando-observacion'): ?>
+							<i class="fa-brands fa-tailwind-css fa-float icon-navegacion-observacion" style="--fa-animation-duration: 2s;" aria-label="Navegando con observacion"></i>
+						<?php elseif ($navegando): ?>
+							<span class="badge estado-navegacion custom-badge">
 								<i class="fa-brands fa-tailwind-css fa-float mr-1 " style="--fa-animation-duration: 2s;" aria-hidden="true"></i>
 								<span class="sr-only">Si</span>
-							<?php else: ?>
-								<span class="sr-only">No</span>
-								No
-							<?php endif; ?>
-						</span>
+							</span>
+						<?php else: ?>
+							<span class="badge estado-navegacion badge-secondary">No</span>
+						<?php endif; ?>
 					</td>
 					<td class="motivo-navegacion">
-						<?= $navegando ? 'Navegando correctamente' : htmlspecialchars(implode('; ', $motivos)) ?>
+						<?= htmlspecialchars($serie['Observacion_Navegacion'] ?? ($navegando ? 'Navegando correctamente' : implode('; ', $motivos))) ?>
 					</td>
 					<td>
 						<?php if (!empty($serie['Duplicado_Tac'])): ?>
@@ -434,6 +478,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 							<span class="text-muted">Sin duplicados</span>
 						<?php endif; ?>
 					</td>
+					<td class="columna-estado-exportacion"><?= htmlspecialchars($estadoTexto) ?></td>
 				</tr>
 			<?php endforeach; ?>
 		</tbody>
@@ -508,6 +553,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			paging: true,
 			lengthChange: true,
 			scrollX: true,
+			columnDefs: [{ targets: 15, visible: false, searchable: false }],
 			pageLength: 10,
 			info: true,
 			dom: '<"d-flex justify-content-between align-items-center mb-2" lf>' +
@@ -524,6 +570,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 					titleAttr: 'Exportar a Excel',
 					className: 'btn btn-success btn-sm',
 					title: 'Navegacion de Numeros de Serie',
+					exportOptions: { columns: ':visible, .columna-estado-exportacion' },
 					customize: function (xlsx) {
 
             			var sheet = xlsx.xl.worksheets['sheet1.xml'];
@@ -597,21 +644,31 @@ $totalPendientes = $totalSeries - $totalNavegando;
 					return;
 				}
 
+				if (filtroActual === 'navegando-observacion' && estadoNavegacion !== 'navegando-observacion') {
+					return;
+				}
+
 				if (['rojo', 'gris', 'amarillo', 'verde', 'blanco'].indexOf(filtroActual) !== -1 && estadoNavegacion !== filtroActual) {
 					return;
 				}
 
-				const estado = estaNavegando ? 'Navegando' : 'No navegando';
-				const claseTarjeta = estaNavegando ? ' navegando' : ' ' + (estadoNavegacion === 'rojo' ? 'alerta-eci' : estadoNavegacion);
+				const tieneObservacion = estadoNavegacion === 'navegando-observacion';
+				const estado = tieneObservacion ? 'Navegando con observacion' : (estaNavegando ? 'Navegando' : 'No navegando');
+				const claseTarjeta = tieneObservacion ? ' navegando-observacion' : (estaNavegando ? ' navegando' : ' ' + (estadoNavegacion === 'rojo' ? 'alerta-eci' : estadoNavegacion));
 				const motivos = (serie.Motivos_No_Navegacion || []).join('; ');
+				const textoMotivo = serie.Observacion_Navegacion || (estaNavegando ? 'Navegando correctamente' : motivos);
+
+				const indicadorEstado = tieneObservacion
+					? '<span class="estado-observacion-texto"><i class="fa-brands fa-tailwind-css fa-float icon-navegacion-observacion mr-1" style="--fa-animation-duration: 2s;" aria-hidden="true"></i>' + escaparHtml(estado) + '</span>'
+					: '<span class="badge ' + (estaNavegando ? 'badge-info' : 'badge-secondary') + '">' +
+						(estaNavegando ? '<i class="fas fa-wifi mr-1"></i>' : '') + estado +
+					'</span>';
 
 				const tarjeta =
 					'<article class="tac-serie-card' + claseTarjeta + '">' +
 						'<div class="tac-serie-card-header">' +
 							'<span class="tac-serie-card-title">' + escaparHtml(serie.Num_Serie_S) + '</span>' +
-							'<span class="badge ' + (estaNavegando ? 'badge-info' : 'badge-secondary') + '">' +
-								(estaNavegando ? '<i class="fas fa-wifi mr-1"></i>' : '') + estado +
-							'</span>' +
+							indicadorEstado +
 						'</div>' +
 						'<div class="tac-serie-card-body">' +
 							'<div class="tac-serie-card-field"><span>Producto</span><strong>' + escaparHtml(serie.Producto) + '</strong></div>' +
@@ -623,8 +680,8 @@ $totalPendientes = $totalSeries - $totalNavegando;
 							'<div class="tac-serie-card-field"><span>Telefono TAC</span><strong>' + escaparHtml(serie.Telefono_Tac || 'Sin dato') + '</strong></div>' +
 							'<div class="tac-serie-card-field"><span>Fecha liquidacion TAC</span><strong>' + escaparHtml(serie.Fecha_Liquidacion_Tac || 'Sin dato') + '</strong></div>' +
 							'<div class="tac-serie-card-field"><span>Telefono ECI</span><strong>' + escaparHtml(serie.Telefono_Eci || 'Sin dato') + '</strong></div>' +
-							'<div class="tac-serie-card-field"><span>Fecha consulta ECI</span><strong>' + escaparHtml(serie.Fecha_Consulta_Eci || 'Sin dato') + '</strong></div>' +
-							'<div class="tac-serie-card-field"><span>Motivo</span><strong>' + escaparHtml(estaNavegando ? 'Navegando correctamente' : motivos) + '</strong></div>' +
+							'<div class="tac-serie-card-field"><span>Fecha Ultima Navegacion</span><strong>' + escaparHtml(serie.Fecha_Ultimo_Evento_Eci || 'Sin dato') + '</strong></div>' +
+							'<div class="tac-serie-card-field"><span>Motivo</span><strong>' + escaparHtml(textoMotivo) + '</strong></div>' +
 							'<div class="tac-serie-card-field"><span>Duplicados</span><strong>' +
 								(serie.Duplicado_Tac ? '<button type="button" class="btn btn-warning btn-sm ver-duplicado mr-1" data-tipo-duplicado="tac" data-indice-serie="' + indice + '">Duplicado TAC</button>' : '') +
 								(serie.Duplicado_Coordiapp ? '<button type="button" class="btn btn-info btn-sm ver-duplicado" data-tipo-duplicado="coordiapp" data-indice-serie="' + indice + '">Duplicado Coordiapp</button>' : '') +
@@ -652,11 +709,11 @@ $totalPendientes = $totalSeries - $totalNavegando;
 			const estadoFila = fila ? fila.getAttribute('data-estado-navegacion') : '';
 
 			if (filtroEstado === 'navegando') {
-				return estadoFila === 'navegando';
+				return estadoFila === 'navegando' || estadoFila === 'navegando-observacion';
 			}
 
 			if (filtroEstado === 'no-navegando') {
-				return estadoFila !== 'navegando';
+				return estadoFila !== 'navegando' && estadoFila !== 'navegando-observacion';
 			}
 
 			return estadoFila === filtroEstado;

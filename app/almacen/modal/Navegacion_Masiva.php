@@ -15,29 +15,129 @@ if (empty($_SESSION['idContratistas']) || !esAdministradorContratista()) {
 $fechaInicio = $_POST['fecha_inicio'] ?? date('Y-m-d', strtotime('-3 month'));
 $fechaFin = $_POST['fecha_fin'] ?? date('Y-m-d');
 $contratistaId = obtenerIdContratistaContexto();
+
 $navegacion = new Navegacion();
 $folios = $navegacion->FoliosContratista($contratistaId, $fechaInicio, $fechaFin);
-$seriesMasivas = array();
 $foliosIds = array_column($folios, 'Folio_Salida_ST');
 $detallesMasivos = $navegacion->ObtenerDetalleFolios($foliosIds, $contratistaId);
-$fechasPorFolio = array();
-
-foreach ($folios as $folio) {
-    $fechasPorFolio[(string)$folio['Folio_Salida_ST']] = $folio['Fecha_Salida_ST'] ?? '';
-}
-
-foreach ($detallesMasivos as $serie) {
-    $folioSerie = (string)($serie['Folio_Salida_Material_Det_S'] ?? '');
-    $serie['Folio_Masivo'] = $folioSerie;
-    $serie['Fecha_Folio_Masivo'] = $fechasPorFolio[$folioSerie] ?? '';
-    $seriesMasivas[] = $serie;
-}
+$seriesMasivas = $detallesMasivos;
+unset($detallesMasivos, $folios, $foliosIds, $navegacion);
 
 $totalSeries = count($seriesMasivas);
-$totalNavegando = count(array_filter($seriesMasivas, function ($serie) {
-    return (int)($serie['Navegando'] ?? 0) === 1;
-}));
+$totalNavegando = 0;
+$conteoEstados = array(
+    'navegando-observacion' => 0,
+    'rojo' => 0,
+    'gris' => 0,
+    'amarillo' => 0,
+    'verde' => 0,
+    'blanco' => 0
+);
+foreach ($seriesMasivas as $serie) {
+    if ((int)($serie['Navegando'] ?? 0) === 1) {
+        $totalNavegando++;
+    }
+
+    $estado = $serie['Estado_Navegacion'] ?? 'blanco';
+    if (isset($conteoEstados[$estado])) {
+        $conteoEstados[$estado]++;
+    }
+}
 $totalPendientes = $totalSeries - $totalNavegando;
+
+$etiquetasEstado = array(
+    'navegando' => 'Navegando correctamente',
+    'navegando-observacion' => 'Navegando con observacion: posible serie mal capturada en almacen',
+    'rojo' => 'No navegando: requiere seguimiento por mas de 14 dias',
+    'gris' => 'No navegando: telefonos no coinciden',
+    'amarillo' => 'No navegando: en espera de cumplir 3 dias desde la liquidacion',
+    'verde' => 'No navegando: liquidacion reciente',
+    'blanco' => 'Sin liquidacion para clasificar'
+);
+
+$filasTablaMasiva = array();
+$detallesSeriesMasivas = array();
+
+foreach ($seriesMasivas as $indice => &$serie) {
+    $estado = $serie['Estado_Navegacion'] ?? 'blanco';
+    $navegando = (int)($serie['Navegando'] ?? 0) === 1;
+    $duplicadosHtml = '';
+
+    if (!empty($serie['Duplicado_Tac'])) {
+        $duplicadosHtml .= '<button type="button" class="btn btn-warning btn-sm ver-duplicado-masivo mr-1"'
+            . ' data-tipo-duplicado="tac" data-indice-serie="' . $indice . '">'
+            . '<i class="fas fa-list mr-1" aria-hidden="true"></i>Duplicado TAC</button>';
+    }
+
+    if (!empty($serie['Duplicado_Coordiapp'])) {
+        $duplicadosHtml .= '<button type="button" class="btn btn-info btn-sm ver-duplicado-masivo"'
+            . ' data-tipo-duplicado="coordiapp" data-indice-serie="' . $indice . '">'
+            . '<i class="fas fa-list mr-1" aria-hidden="true"></i>Duplicado Coordiapp</button>';
+    }
+
+    if ($duplicadosHtml === '') {
+        $duplicadosHtml = '<span class="text-muted">Sin duplicados</span>';
+    }
+
+    $filasTablaMasiva[] = array(
+        'folio' => $serie['Folio_Salida_Material_Det_S'] ?? '',
+        'modelo' => $serie['Producto'] ?? '',
+        'numero_serie' => $serie['Num_Serie_S'] ?? '',
+        'folio_asignacion' => $serie['Folio_Salida_Det'] ?? 'Sin asignar',
+        'fecha_asignacion' => $serie['Fecha_Salida_Det'] ?? 'Sin asignar',
+        'tecnico' => trim($serie['Tecnico'] ?? '') ?: 'Sin asignar',
+        'telefono_coordiapp' => $serie['Telefono_Coordiapp'] ?? 'Sin dato',
+        'fecha_coordiapp' => $serie['Fecha_Coordiapp'] ?? 'Sin dato',
+        'telefono_tac' => $serie['Telefono_Tac'] ?? 'Sin dato',
+        'fecha_tac' => $serie['Fecha_Liquidacion_Tac'] ?? 'Sin dato',
+        'telefono_eci' => $serie['Telefono_Eci'] ?? 'Sin dato',
+        'fecha_eci' => $serie['Fecha_Ultimo_Evento_Eci'] ?? 'Sin dato',
+        'navegacion_html' => $navegando
+            ? ($estado === 'navegando-observacion'
+                ? '<i class="fa-brands fa-tailwind-css fa-float icon-navegacion-observacion"'
+                    . ' style="--fa-animation-duration: 2s;"'
+                    . ' aria-label="Navegando con observacion"></i>'
+                : '<span class="badge estado-navegacion custom-badge">'
+                    . '<i class="fa-brands fa-tailwind-css fa-float mr-1"'
+                    . ' style="--fa-animation-duration: 2s;" aria-hidden="true"></i>'
+                    . '<span class="sr-only">Si</span></span>')
+            : '<span class="badge estado-navegacion badge-secondary">No</span>',
+        'motivo' => $serie['Observacion_Navegacion'] ?? (
+            $navegando
+                ? 'Navegando correctamente'
+                : implode('; ', $serie['Motivos_No_Navegacion'] ?? array())
+        ),
+        'duplicados_html' => $duplicadosHtml,
+        'estado_texto' => $etiquetasEstado[$estado] ?? 'No navegando: estado sin clasificar',
+        'estado' => $estado
+    );
+
+    if (!empty($serie['Duplicado_Tac']) || !empty($serie['Duplicado_Coordiapp'])) {
+        $detallesSeriesMasivas[$indice] = array(
+            'Num_Serie_S' => $serie['Num_Serie_S'] ?? '',
+            'Telefono_Eci' => $serie['Telefono_Eci'] ?? '',
+            'Detalles_Duplicado_Tac' => $serie['Detalles_Duplicado_Tac'] ?? array(),
+            'Detalles_Duplicado_Coordiapp' => $serie['Detalles_Duplicado_Coordiapp'] ?? array()
+        );
+    }
+
+    $seriesMasivas[$indice] = null;
+}
+unset($serie, $seriesMasivas);
+
+$haySeriesMasivas = $totalSeries > 0;
+
+$jsonDetallesSeriesMasivas = json_encode(
+    $detallesSeriesMasivas,
+    JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT
+);
+unset($detallesSeriesMasivas);
+
+$jsonDatosTablaMasiva = json_encode(
+    $filasTablaMasiva,
+    JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT
+);
+unset($filasTablaMasiva);
 ?>
 
 <div class="navegacion-masiva-contenedor">
@@ -46,13 +146,38 @@ $totalPendientes = $totalSeries - $totalNavegando;
             background: #dff6ff !important;
             animation: pulso-navegacion 2s ease-in-out infinite;
         }
-        #tabla-navegacion-masiva tbody tr.estado-rojo { background: #ffe1e1 !important; }
-        #tabla-navegacion-masiva tbody tr.estado-gris { background: #e9ecef !important; }
-        #tabla-navegacion-masiva tbody tr.estado-amarillo { background: #fff3cd !important; }
-        #tabla-navegacion-masiva tbody tr.estado-verde { background: #d4edda !important; }
+        #tabla-navegacion-masiva tbody tr.estado-navegando-observacion {
+            background: #dce5f1 !important;
+            box-shadow: inset 5px 0 0 #17365d;
+            color: #17365d;
+        }
+
+        #tabla-navegacion-masiva tbody tr.estado-rojo {
+            background: #ffe1e1 !important;
+        }
+
+        #tabla-navegacion-masiva tbody tr.estado-gris {
+            background: #e9ecef !important;
+        }
+
+        #tabla-navegacion-masiva tbody tr.estado-amarillo {
+            background: #fff3cd !important;
+        }
+
+        #tabla-navegacion-masiva tbody tr.estado-verde {
+            background: #d4edda !important;
+        }
+
         #tabla-navegacion-masiva th,
-        #tabla-navegacion-masiva td { white-space: nowrap; vertical-align: middle; text-align: center; }
-        #filtro-estado-masivo { max-width: 280px; }
+        #tabla-navegacion-masiva td {
+            white-space: nowrap;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        #filtro-estado-masivo {
+            max-width: 280px;
+        }
 
         .custom-badge {
             background-color: transparent !important;
@@ -66,6 +191,11 @@ $totalPendientes = $totalSeries - $totalNavegando;
             justify-content: center;
             min-width: 28px;
             line-height: 1;
+        }
+
+        .icon-navegacion-observacion {
+            color: #17365d;
+            font-size: 1.15rem;
         }
 
         .duplicado-registro-elegido,
@@ -158,132 +288,86 @@ $totalPendientes = $totalSeries - $totalNavegando;
         }
     </style>
 
-    <?php if (!empty($seriesMasivas)): ?>
-    <div id="contenedor-carga-masiva">
-        <div id="cargando-masiva">
-            <div class="text-center text-muted">
-                <i class="fas fa-spinner fa-spin fa-2x"></i>
-                <p class="mt-2 mb-0">Preparando tabla masiva...</p>
-            </div>
-        </div>
-        <div id="contenido-masivo-listo">
-        <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap" style="gap:12px;">
-            <div id="botones-navegacion-masiva"></div>
-            <select id="filtro-estado-masivo" class="form-control">
-            <option value="">Todos (<?= $totalSeries ?>)</option>
-            <option value="navegando">Navegando (<?= $totalNavegando ?>)</option>
-            <option value="no-navegando">No navegando (<?= $totalPendientes ?>)</option>
-            <option value="rojo">Rojo: seguimiento</option>
-            <option value="gris">Gris: telefonos diferentes</option>
-            <option value="amarillo">Amarillo: Navegacion reciente</option>
-            <option value="verde">Verde: pendiente reciente</option>
-            <option value="blanco">Blanco: sin liquidacion</option>
-            </select>
-        </div>
-
-        <table id="tabla-navegacion-masiva" class="table table-bordered table-hover" style="width:100%">
-            <thead>
-                <tr>
-                    <th>Folio Salida</th>
-                    <th>Modelo</th>
-                    <th>Numero de serie</th>
-                    <th>Folio asignacion</th>
-                    <th>Fecha asignacion</th>
-                    <th>Tecnico</th>
-                    <th>Telefono Coordiapp</th>
-                    <th>Fecha Coordiapp</th>
-                    <th>Telefono TAC</th>
-                    <th>Fecha liquidacion TAC</th>
-                    <th>Telefono Navegacion</th>
-                    <th>Fecha consulta Navegacion</th>
-                    <th>Navegando</th>
-                    <th>Motivo</th>
-                    <th>Duplicados</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($seriesMasivas as $indice => $serie): ?>
-                    <?php
-                        $estado = $serie['Estado_Navegacion'] ?? 'blanco';
-                        $navegando = (int)($serie['Navegando'] ?? 0) === 1;
-                        $motivos = $serie['Motivos_No_Navegacion'] ?? array();
-                    ?>
-                    <tr class="estado-<?= htmlspecialchars($estado) ?>" data-estado="<?= htmlspecialchars($estado) ?>">
-                        <td><?= htmlspecialchars($serie['Folio_Masivo'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($serie['Producto'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($serie['Num_Serie_S'] ?? '') ?></td>
-                        <td><?= htmlspecialchars($serie['Folio_Salida_Det'] ?? 'Sin asignar') ?></td>
-                        <td><?= htmlspecialchars($serie['Fecha_Salida_Det'] ?? 'Sin asignar') ?></td>
-                        <td><?= htmlspecialchars(trim($serie['Tecnico'] ?? '') ?: 'Sin asignar') ?></td>
-                        <td><?= htmlspecialchars($serie['Telefono_Coordiapp'] ?? 'Sin dato') ?></td>
-                        <td><?= htmlspecialchars($serie['Fecha_Coordiapp'] ?? 'Sin dato') ?></td>
-                        <td><?= htmlspecialchars($serie['Telefono_Tac'] ?? 'Sin dato') ?></td>
-                        <td><?= htmlspecialchars($serie['Fecha_Liquidacion_Tac'] ?? 'Sin dato') ?></td>
-                        <td><?= htmlspecialchars($serie['Telefono_Eci'] ?? 'Sin dato') ?></td>
-                        <td><?= htmlspecialchars($serie['Fecha_Consulta_Eci'] ?? 'Sin dato') ?></td>
-                        <td>
-                            <span class="badge estado-navegacion <?= $navegando ? 'custom-badge' : 'badge-secondary' ?>">
-                                <?php if ($navegando): ?>
-                                    <i class="fa-brands fa-tailwind-css fa-float mr-1 " style="--fa-animation-duration: 2s;" aria-hidden="true"></i>
-                                    <span class="sr-only">Si</span>
-                                <?php else: ?>
-                                    <span class="sr-only">No</span>
-                                    No
-                                <?php endif; ?>
-                            </span>
-                        </td>
-                        <td><?= htmlspecialchars($navegando ? 'Navegando correctamente' : implode('; ', $motivos)) ?></td>
-                        <td>
-                            <?php if (!empty($serie['Duplicado_Tac'])): ?>
-                                <button type="button" class="btn btn-warning btn-sm ver-duplicado-masivo mr-1" data-tipo-duplicado="tac" data-indice-serie="<?= $indice ?>">
-                                    <i class="fas fa-list mr-1" aria-hidden="true"></i>Duplicado TAC
-                                </button>
-                            <?php endif; ?>
-                            <?php if (!empty($serie['Duplicado_Coordiapp'])): ?>
-                                <button type="button" class="btn btn-info btn-sm ver-duplicado-masivo" data-tipo-duplicado="coordiapp" data-indice-serie="<?= $indice ?>">
-                                    <i class="fas fa-list mr-1" aria-hidden="true"></i>Duplicado Coordiapp
-                                </button>
-                            <?php endif; ?>
-                            <?php if (empty($serie['Duplicado_Tac']) && empty($serie['Duplicado_Coordiapp'])): ?>
-                                <span class="text-muted">Sin duplicados</span>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-
-        <div class="tac-resumen-series">
-            <div class="tac-resumen-tarjeta">
-                <div class="tac-resumen-etiqueta">
-                    <i class="fas fa-barcode mr-1" aria-hidden="true"></i>
-                    Total de series
-                </div>
-                <div class="tac-resumen-valor">
-                    <span id="total-series-valor"><?= $totalSeries ?></span>
+    <?php if ($haySeriesMasivas): ?>
+        <div id="contenedor-carga-masiva">
+            <div id="cargando-masiva">
+                <div class="text-center text-muted">
+                    <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    <p class="mt-2 mb-0">Preparando tabla masiva...</p>
                 </div>
             </div>
-
-            <div class="tac-resumen-tarjeta navegando">
-                <div class="tac-resumen-etiqueta">
-                    <i class="fas fa-wifi mr-1" aria-hidden="true"></i>
-                    Series navegando
+            <div id="contenido-masivo-listo">
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap" style="gap:12px;">
+                    <div id="botones-navegacion-masiva"></div>
+                    <select id="filtro-estado-masivo" class="form-control">
+                        <option value="">Todos (<?= $totalSeries ?>)</option>
+                        <option value="navegando">Navegando (<?= $totalNavegando ?>)</option>
+                        <option value="navegando-observacion">Azul oscuro: navegando con observacion (<?= $conteoEstados['navegando-observacion'] ?>)</option>
+                        <option value="no-navegando">No navegando (<?= $totalPendientes ?>)</option>
+                        <option value="rojo">Rojo: seguimiento (<?= $conteoEstados['rojo'] ?>)</option>
+                        <option value="gris">Gris: telefonos diferentes (<?= $conteoEstados['gris'] ?>)</option>
+                        <option value="amarillo">Amarillo: Navegacion reciente (<?= $conteoEstados['amarillo'] ?>)</option>
+                        <option value="verde">Verde: pendiente reciente (<?= $conteoEstados['verde'] ?>)</option>
+                        <option value="blanco">Blanco: sin liquidacion (<?= $conteoEstados['blanco'] ?>)</option>
+                    </select>
                 </div>
-                <div class="tac-resumen-valor">
-                    <span id="total-navegando-valor"><?= $totalNavegando ?></span>
+
+                <table id="tabla-navegacion-masiva" class="table table-bordered table-hover" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Folio Salida</th>
+                            <th>Modelo</th>
+                            <th>Numero de serie</th>
+                            <th>Folio asignacion</th>
+                            <th>Fecha asignacion</th>
+                            <th>Tecnico</th>
+                            <th>Telefono Coordiapp</th>
+                            <th>Fecha Coordiapp</th>
+                            <th>Telefono TAC</th>
+                            <th>Fecha liquidacion TAC</th>
+                            <th>Telefono Navegacion</th>
+                            <th>Fecha Ultima Navegacion</th>
+                            <th>Navegando</th>
+                            <th>Motivo</th>
+                            <th>Duplicados</th>
+                            <th class="columna-estado-exportacion">Estado de la serie</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+                <div class="tac-resumen-series">
+                    <div class="tac-resumen-tarjeta">
+                        <div class="tac-resumen-etiqueta">
+                            <i class="fas fa-barcode mr-1" aria-hidden="true"></i>
+                            Total de series
+                        </div>
+                        <div class="tac-resumen-valor">
+                            <span id="total-series-valor"><?= $totalSeries ?></span>
+                        </div>
+                    </div>
+
+                    <div class="tac-resumen-tarjeta navegando">
+                        <div class="tac-resumen-etiqueta">
+                            <i class="fas fa-wifi mr-1" aria-hidden="true"></i>
+                            Series navegando
+                        </div>
+                        <div class="tac-resumen-valor">
+                            <span id="total-navegando-valor"><?= $totalNavegando ?></span>
+                        </div>
+                    </div>
+
+                    <div class="tac-resumen-tarjeta pendientes">
+                        <div class="tac-resumen-etiqueta">
+                            <i class="fas fa-hourglass-half mr-1" aria-hidden="true"></i>
+                            Series pendientes
+                        </div>
+                        <div class="tac-resumen-valor">
+                            <span id="total-pendientes-valor"><?= $totalPendientes ?></span>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <div class="tac-resumen-tarjeta pendientes">
-                <div class="tac-resumen-etiqueta">
-                    <i class="fas fa-hourglass-half mr-1" aria-hidden="true"></i>
-                    Series pendientes
-                </div>
-                <div class="tac-resumen-valor">
-                    <span id="total-pendientes-valor"><?= $totalPendientes ?></span>
-                </div>
-            </div>
-        </div>
         </div>
     </div>
     <?php else: ?>
@@ -296,7 +380,9 @@ $totalPendientes = $totalSeries - $totalNavegando;
         <div class="modal-content">
             <div class="modal-header modal-header-gradient text-white border-0">
                 <h5 class="modal-title" id="modalDuplicadosNavegacionMasivaTitulo">Detalle de duplicados</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar"><span aria-hidden="true">&times;</span></button>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body" id="modalDuplicadosNavegacionMasivaContenido"></div>
         </div>
@@ -305,12 +391,12 @@ $totalPendientes = $totalSeries - $totalNavegando;
 
 <script>
     $(document).ready(function () {
-        
         if (typeof DataTable === 'undefined' || !$('#tabla-navegacion-masiva').length) {
             return;
         }
 
-        const seriesMasivas = <?= json_encode($seriesMasivas) ?>;
+        const seriesMasivas = <?= $jsonDetallesSeriesMasivas ?: '[]' ?>;
+        const datosTablaMasiva = <?= $jsonDatosTablaMasiva ?: '[]' ?>;
 
         function escaparHtml(valor) {
             return $('<div>').text(valor ?? '').html();
@@ -324,11 +410,20 @@ $totalPendientes = $totalSeries - $totalNavegando;
                 : (serie.Detalles_Duplicado_Coordiapp || []);
             const telefonoNavegacion = String(serie.Telefono_Eci || '').replace(/\D/g, '');
             const nombreFuente = esTac ? 'TAC' : 'Coordiapp';
-            let contenido = '<p><strong>Numero de serie:</strong> ' + escaparHtml(serie.Num_Serie_S) + '</p>';
+
+            let contenido = '<p><strong>Numero de serie:</strong> '
+                + escaparHtml(serie.Num_Serie_S)
+                + '</p>';
             contenido += '<p><strong>Fuente:</strong> ' + nombreFuente + '</p>';
-            contenido += '<div class="table-responsive"><table class="table table-sm table-bordered mb-0"><thead><tr>';
-            contenido += '<th>Numero de serie</th><th>Telefono</th><th>Clasificacion</th>';
-            contenido += esTac ? '<th>Fecha liquidacion</th><th>Estado</th>' : '<th>Fecha Coordiapp</th>';
+            contenido += '<div class="table-responsive">'
+                + '<table class="table table-sm table-bordered mb-0">'
+                + '<thead><tr>'
+                + '<th>Numero de serie</th>'
+                + '<th>Telefono</th>'
+                + '<th>Clasificacion</th>';
+            contenido += esTac
+                ? '<th>Fecha liquidacion</th><th>Estado</th>'
+                : '<th>Fecha Coordiapp</th>';
             contenido += '</tr></thead><tbody>';
 
             registros.forEach(function (registro) {
@@ -336,10 +431,16 @@ $totalPendientes = $totalSeries - $totalNavegando;
                 const elegido = telefonoNavegacion !== '' && telefonoRegistro === telefonoNavegacion;
                 contenido += '<tr class="' + (elegido ? 'duplicado-registro-elegido' : '') + '">';
                 contenido += '<td>' + escaparHtml(esTac ? registro.Num__Serie : registro.Ont) + '</td>';
-                contenido += '<td>' + escaparHtml(registro.TELEFONO || registro.Telefono || 'Sin dato') + '</td>';
-                contenido += '<td>' + escaparHtml(esTac ? registro.Tipo_de_Tarea_Clasificado : registro.Tipo_Tarea_Clasificado || 'Otros') + '</td>';
+                contenido += '<td>'
+                    + escaparHtml(registro.TELEFONO || registro.Telefono || 'Sin dato')
+                    + '</td>';
+                const clasificacion = esTac
+                    ? registro.Tipo_de_Tarea_Clasificado
+                    : (registro.Tipo_Tarea_Clasificado || 'Otros');
+                contenido += '<td>' + escaparHtml(clasificacion) + '</td>';
                 contenido += esTac
-                    ? '<td>' + escaparHtml(registro.FECHA_LIQ || 'Sin dato') + '</td><td>' + escaparHtml(registro.Calificador_Edo || 'Sin dato') + '</td>'
+                    ? '<td>' + escaparHtml(registro.FECHA_LIQ || 'Sin dato')
+                        + '</td><td>' + escaparHtml(registro.Calificador_Edo || 'Sin dato') + '</td>'
                     : '<td>' + escaparHtml(registro.Fecha_Coordiapp || 'Sin dato') + '</td>';
                 contenido += '</tr>';
             });
@@ -351,25 +452,63 @@ $totalPendientes = $totalSeries - $totalNavegando;
         }
 
         $('#tabla-navegacion-masiva').on('click', '.ver-duplicado-masivo', function () {
-            mostrarDetallesDuplicadoMasivo($(this).data('tipo-duplicado'), Number($(this).data('indice-serie')));
+            const tipo = $(this).data('tipo-duplicado');
+            const indice = Number($(this).data('indice-serie'));
+            mostrarDetallesDuplicadoMasivo(tipo, indice);
         });
 
+        const renderTexto = DataTable.render.text();
+        let exportacionExcelEnCurso = false;
+        const accionExcelHtml5 = DataTable.ext.buttons.excelHtml5.action;
         const tablaMasiva = new DataTable('#tabla-navegacion-masiva', {
+            data: datosTablaMasiva,
+            deferRender: true,
+            columns: [
+                { data: 'folio', render: renderTexto },
+                { data: 'modelo', render: renderTexto },
+                { data: 'numero_serie', render: renderTexto },
+                { data: 'folio_asignacion', render: renderTexto },
+                { data: 'fecha_asignacion', render: renderTexto },
+                { data: 'tecnico', render: renderTexto },
+                { data: 'telefono_coordiapp', render: renderTexto },
+                { data: 'fecha_coordiapp', render: renderTexto },
+                { data: 'telefono_tac', render: renderTexto },
+                { data: 'fecha_tac', render: renderTexto },
+                { data: 'telefono_eci', render: renderTexto },
+                { data: 'fecha_eci', render: renderTexto },
+                { data: 'navegacion_html', orderable: false, searchable: false },
+                { data: 'motivo', render: renderTexto },
+                { data: 'duplicados_html', orderable: false, searchable: false },
+                { data: 'estado_texto', searchable: false }
+            ],
             responsive: true,
-            language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
+            language: {
+                url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json'
+            },
             ordering: true,
             order: [[0, 'desc']],
             searching: true,
             paging: true,
             lengthChange: true,
             scrollX: true,
+            columnDefs: [
+                { targets: 15, visible: false, searchable: false }
+            ],
             pageLength: 10,
             info: true,
-            dom: '<"d-flex justify-content-between align-items-center mb-2" lf>rt<"row"<"col-md-6 text-left mt-2"i><"col-md-6 text-right mt-2"p>>',
+            dom: '<"d-flex justify-content-between align-items-center mb-2" lf>'
+                + 'rt'
+                + '<"row"<"col-md-6 text-left mt-2"i>'
+                + '<"col-md-6 text-right mt-2"p>>',
+            createdRow: function (row, data) {
+                row.classList.add('estado-' + data.estado);
+                row.dataset.estado = data.estado;
+            },
             initComplete: function () {
+                const tablaLista = this.api();
                 $('#cargando-masiva').fadeOut(150, function () {
                     $('#contenido-masivo-listo').css('visibility', 'visible');
-                    tablaMasiva.columns.adjust();
+                    tablaLista.columns.adjust();
                 });
             }
         });
@@ -382,8 +521,55 @@ $totalPendientes = $totalSeries - $totalNavegando;
                     titleAttr: 'Exportar a Excel',
                     className: 'btn btn-success btn-sm',
                     title: 'Navegacion masiva de Numeros de Serie',
-                    customize: function (xlsx) {
+                    exportOptions: {
+                        columns: ':visible, .columna-estado-exportacion'
+                    },
+                    action: function (evento, tabla, nodo, configuracion, finalizarAccion) {
+                        if (exportacionExcelEnCurso) {
+                            return;
+                        }
 
+                        exportacionExcelEnCurso = true;
+                        const boton = $(nodo);
+                        const contenidoOriginal = boton.html();
+                        boton
+                            .prop('disabled', true)
+                            .attr('aria-busy', 'true')
+                            .html('<i class="fas fa-spinner fa-spin mr-1" aria-hidden="true"></i>Generando...');
+
+                        const restaurarBoton = function () {
+                            exportacionExcelEnCurso = false;
+                            boton
+                                .prop('disabled', false)
+                                .removeAttr('aria-busy')
+                                .html(contenidoOriginal);
+                        };
+
+                        window.setTimeout(function () {
+                            try {
+                                accionExcelHtml5.call(
+                                    this,
+                                    evento,
+                                    tabla,
+                                    nodo,
+                                    configuracion,
+                                    function () {
+                                        restaurarBoton();
+                                        if (typeof finalizarAccion === 'function') {
+                                            finalizarAccion();
+                                        }
+                                    }
+                                );
+                            } catch (error) {
+                                restaurarBoton();
+                                if (typeof finalizarAccion === 'function') {
+                                    finalizarAccion();
+                                }
+                                console.error('No se pudo generar el Excel masivo.', error);
+                            }
+                        }.bind(this), 0);
+                    },
+                    customize: function (xlsx) {
                         const sheet = xlsx.xl.worksheets['sheet1.xml'];
 
                         // CENTRAR HORIZONTALMENTE
@@ -401,13 +587,18 @@ $totalPendientes = $totalSeries - $totalNavegando;
                 return true;
             }
 
-            const fila = tablaMasiva.row(indiceFila).node();
-            const estado = fila ? fila.getAttribute('data-estado') : '';
-            return filtroMasivo === 'navegando'
-                ? estado === 'navegando'
-                : filtroMasivo === 'no-navegando'
-                    ? estado !== 'navegando'
-                    : estado === filtroMasivo;
+            const datosFila = tablaMasiva.row(indiceFila).data();
+            const estado = datosFila ? datosFila.estado : '';
+
+            if (filtroMasivo === 'navegando') {
+                return estado === 'navegando' || estado === 'navegando-observacion';
+            }
+
+            if (filtroMasivo === 'no-navegando') {
+                return estado !== 'navegando' && estado !== 'navegando-observacion';
+            }
+
+            return estado === filtroMasivo;
         });
 
         $('#filtro-estado-masivo').on('change', function () {
