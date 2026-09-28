@@ -32,6 +32,126 @@
     $filas = $modal->ConsultarProduccionDiaria($idContratistas, $Fecha1, $Fecha2);
 ?>
 
+<style>
+    @media (max-width: 768px) {
+        .dt-buttons {
+            margin-bottom: 15px;
+        }
+    }
+
+    #entradas-table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    #entradas_wrapper .dt-scroll-head th,
+    #entradas_wrapper .dt-scroll-foot th,
+    #entradas_wrapper .dt-scroll-body td,
+    #entradas thead th,
+    #entradas tfoot th,
+    #entradas tbody td {
+        text-align: center !important;
+        vertical-align: middle !important;
+    }
+
+    #entradas-cards-container {
+        display: none;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .entrada-card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .entrada-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .entrada-card-header {
+        padding: 18px 18px 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .entrada-card-body {
+        padding: 0 18px 18px;
+    }
+
+    .entrada-field {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f3f5;
+        gap: 10px;
+    }
+
+    .entrada-field:last-child {
+        border-bottom: none;
+    }
+
+    .entrada-field span {
+        color: #6c757d;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        flex: 1;
+    }
+
+    .entrada-field strong {
+        color: #1f2937;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-align: right;
+        min-width: 120px;
+    }
+
+    @media (max-width: 1200px) {
+        #entradas-cards-container {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    /* ── BUSCADOR MOVIL ── */
+    #entradas-mobile-search {
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        #entradas-table-wrapper {
+            display: none;
+        }
+
+        #entradas-cards-container {
+            display: grid;
+            grid-template-columns: 1fr;
+        }
+
+        #entradas-mobile-search {
+            display: block;
+            margin-bottom: 14px;
+        }
+
+        .modal-title {
+            font-size: 15px !important;
+        }
+
+        h2 {
+            font-size: 15px !important;
+        }
+    }
+</style>
+
 <div id="reporte-loading" style="text-align: center; padding: 20px;">
     <div class="spinner-border text-primary" role="status">
         <span class="sr-only">Cargando...</span>
