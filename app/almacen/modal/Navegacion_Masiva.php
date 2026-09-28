@@ -19,9 +19,20 @@ $contratistaId = obtenerIdContratistaContexto();
 $navegacion = new Navegacion();
 $folios = $navegacion->FoliosContratista($contratistaId, $fechaInicio, $fechaFin);
 $foliosIds = array_column($folios, 'Folio_Salida_ST');
-$detallesMasivos = $navegacion->ObtenerDetalleFolios($foliosIds, $contratistaId);
-$seriesMasivas = $detallesMasivos;
-unset($detallesMasivos, $folios, $foliosIds, $navegacion);
+$seriesMasivas = array();
+
+foreach (array_chunk($foliosIds, 250) as $foliosLote) {
+    $detallesLote = $navegacion->ObtenerDetalleFolios($foliosLote, $contratistaId);
+
+    foreach ($detallesLote as $serie) {
+        $serie['Folio_Masivo'] = (string)($serie['Folio_Salida_Material_Det_S'] ?? '');
+        $seriesMasivas[] = $serie;
+    }
+
+    unset($detallesLote);
+}
+
+unset($folios, $foliosIds, $navegacion);
 
 $totalSeries = count($seriesMasivas);
 $totalNavegando = 0;
@@ -47,7 +58,7 @@ $totalPendientes = $totalSeries - $totalNavegando;
 
 $etiquetasEstado = array(
     'navegando' => 'Navegando correctamente',
-    'navegando-observacion' => 'Navegando con observacion: posible serie mal capturada en almacen',
+    'navegando-observacion' => 'Navegando con observacion: posible serie mal capturada en Coordiapp',
     'rojo' => 'No navegando: requiere seguimiento por mas de 14 dias',
     'gris' => 'No navegando: telefonos no coinciden',
     'amarillo' => 'No navegando: en espera de cumplir 3 dias desde la liquidacion',

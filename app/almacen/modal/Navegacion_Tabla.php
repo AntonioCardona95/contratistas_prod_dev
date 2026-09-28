@@ -52,7 +52,7 @@ foreach ($series as $serie) {
 }
 $etiquetasEstado = array(
 	'navegando' => 'Navegando correctamente',
-	'navegando-observacion' => 'Navegando con observacion: posible serie mal capturada en almacen',
+	'navegando-observacion' => 'Navegando con observacion: posible serie mal capturada en Coordiapp',
 	'rojo' => 'No navegando: requiere seguimiento por mas de 14 dias',
 	'gris' => 'No navegando: telefonos no coinciden',
 	'amarillo' => 'No navegando: en espera de cumplir 3 dias desde la liquidacion',
