@@ -89,6 +89,25 @@ function LoadProduccion(){
     });
 }
 
+function LoadReporte(){
+    var parametros = $("#FormQueryUnidades").serialize();
+    $("#LoadReporte").fadeIn('slow');
+    $.ajax({
+        type:'POST',
+        url:'modal/Reporte.php',
+        data: parametros,
+         beforeSend: function(objeto){
+                $("#LoadReporte").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
+        },
+        success:function(data){
+            $("#LoadReporte").html(data);
+        }
+    });
+}
+
+
+
+
 function LoadPendientes(){
     var parametros = $("#FormQueryUnidades").serialize();
     $("#LoadPendientes").fadeIn('slow');
