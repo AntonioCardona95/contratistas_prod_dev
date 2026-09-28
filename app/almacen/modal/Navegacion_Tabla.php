@@ -174,9 +174,9 @@ $etiquetasEstado = array(
 			color: #17365d;
 		}
 
-		.badge-navegacion-observacion {
-			background-color: #17365d;
-			color: #fff;
+		.icon-navegacion-observacion {
+			color: #17365d;
+			font-size: 1.15rem;
 		}
 
 		.tac-serie-card.alerta-eci {
@@ -449,14 +449,16 @@ $etiquetasEstado = array(
 					<td><?= htmlspecialchars($serie['Telefono_Eci'] ?? 'Sin dato') ?></td>
 					<td><?= htmlspecialchars($serie['Fecha_Ultimo_Evento_Eci'] ?? 'Sin dato') ?></td>
 					<td>
-						<span class="badge estado-navegacion <?= $navegando ? 'custom-badge' : 'badge-secondary' ?>">
-							<?php if ($navegando): ?>
+						<?php if ($navegando && $estadoNavegacion === 'navegando-observacion'): ?>
+							<i class="fa-brands fa-tailwind-css fa-float icon-navegacion-observacion" style="--fa-animation-duration: 2s;" aria-label="Navegando con observacion"></i>
+						<?php elseif ($navegando): ?>
+							<span class="badge estado-navegacion custom-badge">
 								<i class="fa-brands fa-tailwind-css fa-float mr-1 " style="--fa-animation-duration: 2s;" aria-hidden="true"></i>
 								<span class="sr-only">Si</span>
-							<?php else: ?>
-								No
-							<?php endif; ?>
-						</span>
+							</span>
+						<?php else: ?>
+							<span class="badge estado-navegacion badge-secondary">No</span>
+						<?php endif; ?>
 					</td>
 					<td class="motivo-navegacion">
 						<?= htmlspecialchars($serie['Observacion_Navegacion'] ?? ($navegando ? 'Navegando correctamente' : implode('; ', $motivos))) ?>
@@ -656,13 +658,17 @@ $etiquetasEstado = array(
 				const motivos = (serie.Motivos_No_Navegacion || []).join('; ');
 				const textoMotivo = serie.Observacion_Navegacion || (estaNavegando ? 'Navegando correctamente' : motivos);
 
+				const indicadorEstado = tieneObservacion
+					? '<span class="estado-observacion-texto"><i class="fa-brands fa-tailwind-css fa-float icon-navegacion-observacion mr-1" style="--fa-animation-duration: 2s;" aria-hidden="true"></i>' + escaparHtml(estado) + '</span>'
+					: '<span class="badge ' + (estaNavegando ? 'badge-info' : 'badge-secondary') + '">' +
+						(estaNavegando ? '<i class="fas fa-wifi mr-1"></i>' : '') + estado +
+					'</span>';
+
 				const tarjeta =
 					'<article class="tac-serie-card' + claseTarjeta + '">' +
 						'<div class="tac-serie-card-header">' +
 							'<span class="tac-serie-card-title">' + escaparHtml(serie.Num_Serie_S) + '</span>' +
-							'<span class="badge ' + (tieneObservacion ? 'badge-navegacion-observacion' : (estaNavegando ? 'badge-info' : 'badge-secondary')) + '">' +
-								(estaNavegando ? '<i class="fas fa-wifi mr-1"></i>' : '') + estado +
-							'</span>' +
+							indicadorEstado +
 						'</div>' +
 						'<div class="tac-serie-card-body">' +
 							'<div class="tac-serie-card-field"><span>Producto</span><strong>' + escaparHtml(serie.Producto) + '</strong></div>' +
