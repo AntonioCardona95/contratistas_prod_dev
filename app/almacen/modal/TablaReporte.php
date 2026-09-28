@@ -5,7 +5,6 @@
 
     date_default_timezone_set('America/Monterrey');
     
-    // Controlador y configuraciones
     require_once(__DIR__ . "/../controller/ClassConsultasProduccion.php");
     require_once(__DIR__ . '/../../config/ContratistaContexto.php');
     require_once(__DIR__ . "/cargar.php");
@@ -35,7 +34,28 @@
 
     // Consulta de producción
     $filas = $modal->ConsultarProduccionDiaria($idContratistas, $Fecha1, $Fecha2);
+
+    // DEPURACIÓN: Generar logs para consola
+    $totalRegistros = !empty($filas) ? count($filas) : 0;
+    $debugInfo = [
+        'idContratista' => $idContratistas,
+        'Fecha1_Enviada' => $Fecha1,
+        'Fecha2_Enviada' => $Fecha2,
+        'RegistrosEncontrados' => $totalRegistros
+    ];
 ?>
+
+<!-- DEPURACIÓN EN CONSOLA (Presiona F12 en tu navegador) -->
+<script>
+    console.group("=== DEPURACIÓN REPORTE AJAX ===");
+    console.log("Parámetros recibidos en PHP:", <?= json_encode($debugInfo); ?>);
+    <?php if ($totalRegistros === 0): ?>
+        console.warn("ADVERTENCIA: La consulta no devolvió ningún registro con estas fechas e ID de Contratista.");
+    <?php else: ?>
+        console.log("ÉXITO: Se encontraron <?= $totalRegistros ?> filas.");
+    <?php endif; ?>
+    console.groupEnd();
+</script>
 
 <style>
     @media (max-width: 768px) {
@@ -58,59 +78,19 @@
         text-align: center !important;
         vertical-align: middle !important;
     }
-
-    #reporte-cards-container {
-        display: none;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        margin-top: 20px;
-    }
-
-    .reporte-card {
-        background: #fff;
-        border-radius: 14px;
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(0, 0, 0, 0.04);
-        overflow: hidden;
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-
-    .reporte-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
-    }
-
-    @media (max-width: 1200px) {
-        #reporte-cards-container {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    /* BUSCADOR MOVIL */
-    #reporte-mobile-search {
-        display: none;
-    }
-
-    @media (max-width: 768px) {
-        #reporte-table-wrapper {
-            display: none;
-        }
-
-        #reporte-cards-container {
-            display: grid;
-            grid-template-columns: 1fr;
-        }
-
-        #reporte-mobile-search {
-            display: block;
-            margin-bottom: 14px;
-        }
-
-        .modal-title, h2 {
-            font-size: 15px !important;
-        }
-    }
 </style>
+
+<!-- MENSAJE EN PANTALLA SI NO HAY RESULTADOS -->
+<?php if ($totalRegistros === 0): ?>
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i>
+        <strong>No se encontraron registros.</strong> 
+        Rango buscado: <code><?= htmlspecialchars($Fecha1) ?></code> a <code><?= htmlspecialchars($Fecha2) ?></code> (ID Contratista: <strong><?= htmlspecialchars($idContratistas ?? 'Sin ID') ?></strong>).
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+<?php endif; ?>
 
 <div id="contenedor-tabla-reporte">
     <div id="reporte-buttons-container"></div>
@@ -184,33 +164,17 @@
             </tbody>
         </table>
     </div>
-
-    <div id="reporte-mobile-search">
-        <div class="input-group">
-            <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fas fa-search"></i></span>
-            </div>
-            <input type="text" id="reporte-search-input" class="form-control" placeholder="Buscar en el reporte...">
-        </div>
-    </div>
-
-    <div id="reporte-cards-container"></div>
 </div>
 
 <script>
     $(document).ready(function() {
-        // 1. Destruir instancia previa si existe
         if ($.fn.DataTable.isDataTable('#reporte-produccion')) {
             $('#reporte-produccion').DataTable().destroy();
         }
 
-        // 2. Inicializar DataTables con la estructura DOM nativa
-        var table = $('#reporte-produccion').DataTable({
+        $('#reporte-produccion').DataTable({
             responsive: true,
-            // 'full_numbers' obliga a mostrar los números de páginas (1, 2, 3...)
-            pagingType: 'full_numbers', 
-            // 'dom' define la posición exacta de los elementos:
-            // B = Buttons, l = Length (mostrar registros), f = filter (buscar), t = table, i = info, p = pagination
+            pagingType: 'full_numbers',
             dom: '<"row mb-3"<"col-md-6"B><"col-md-6 d-flex justify-content-end"f>>' +
                  '<"row"<"col-sm-12"tr>>' +
                  '<"row mt-3"<"col-md-5"i><"col-md-7"p>>',
@@ -224,13 +188,7 @@
                 {
                     extend: 'pdfHtml5',
                     text: '<i class="fas fa-file-pdf mr-1"></i> PDF',
-                    className: 'btn btn-danger btn-sm shadow-sm mr-2',
-                    exportOptions: { columns: ':not(:last-child)' }
-                },
-                {
-                    extend: 'copyHtml5',
-                    text: '<i class="fas fa-copy mr-1"></i> Copiar',
-                    className: 'btn btn-secondary btn-sm shadow-sm',
+                    className: 'btn btn-danger btn-sm shadow-sm',
                     exportOptions: { columns: ':not(:last-child)' }
                 }
             ],
@@ -244,10 +202,5 @@
                 }
             }
         });
-
-        // 3. Forzar inserción de botones en el contenedor por si el DOM falla
-        if ($('#reporte-buttons-container').length) {
-            table.buttons().container().appendTo('#reporte-buttons-container');
-        }
     });
 </script>
