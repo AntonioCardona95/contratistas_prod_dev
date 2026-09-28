@@ -122,7 +122,7 @@
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
 </body>
 </html>
-    <script src="js/produccion.js"></script>
+    <script src="js/reporte.js"></script>
 <script>
 $(document).ready(function() {
     console.log(" JS cargado correctamente, ejecutando DataTable...");
