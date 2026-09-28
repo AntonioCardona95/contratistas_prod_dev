@@ -89,16 +89,29 @@ function LoadProduccion(){
     });
 }
 
-function LoadReporte(){
-    // 1. Imprimir los valores individuales de las fechas antes de serializar
-    var f1 = $("#Fecha1").val();
-    var f2 = $("#Fecha2").val();
-    var parametros = $("#FormQueryUnidades").serialize();
+function LoadReporte() {
+    // Busca los valores en los inputs de la Topbar
+    var f1 = $("#Fecha1").val() || $("input[name='Fecha1']").val() || "";
+    var f2 = $("#Fecha2").val() || $("input[name='Fecha2']").val() || "";
 
-    console.group("=== 1. ENVIANDO PETICIÓN AJAX (LoadReporte) ===");
-    console.log("Campo #Fecha1:", f1);
-    console.log("Campo #Fecha2:", f2);
-    console.log("Cadena Serializada (lo que se manda a PHP):", parametros);
+    // Si al cargar vienen vacíos, asignar el mes actual por defecto
+    if (!f1) {
+        var d = new Date();
+        d.setMonth(d.getMonth() - 1);
+        f1 = d.toISOString().split('T')[0];
+    }
+    if (!f2) {
+        f2 = new Date().toISOString().split('T')[0];
+    }
+
+    var parametros = {
+        Fecha1: f1,
+        Fecha2: f2
+    };
+
+    console.group("=== EJECUTANDO LoadReporte ===");
+    console.log("Fecha1 enviada:", f1);
+    console.log("Fecha2 enviada:", f2);
     console.groupEnd();
 
     $("#LoadReporte").fadeIn('slow');
@@ -107,26 +120,21 @@ function LoadReporte(){
         type: 'POST',
         url: 'modal/TablaReporte.php',
         data: parametros,
-        beforeSend: function(objeto){
+        beforeSend: function() {
             $("#LoadReporte").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
         },
-        success: function(data){
-            console.group("=== 2. RESPUESTA RECIBIDA DESDE PHP ===");
-            console.log("Respuesta HTML/PHP completa recibida:");
-            console.log(data);
-            console.groupEnd();
-
+        success: function(data) {
             $("#LoadReporte").html(data);
         },
-        error: function(xhr, status, error){
-            console.group("=== ERROR EN PETICIÓN AJAX ===");
-            console.error("Estado:", status);
-            console.error("Error:", error);
-            console.error("Detalle respuesta servidor:", xhr.responseText);
-            console.groupEnd();
+        error: function(xhr, status, error) {
+            console.error("Error al cargar la tabla:", error);
         }
     });
 }
+
+$(document).ready(function() {
+    LoadReporte();
+});
 
 
 
