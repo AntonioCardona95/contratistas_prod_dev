@@ -14,6 +14,13 @@
     $Contratista = $_SESSION['Contratista'];
     requerirSesionAlmacen();
     $idContratistas = obtenerIdContratistaContexto();
+
+    // DEFINIR PARÁMETROS PARA LA TOPBAR
+    $topbar_onchange = 'LoadReporte'; // Asigna la función JS correcta para la lupa/submit
+    $topbar_defaults = [
+        'Fecha1' => date('Y-m-d', strtotime('-1 month')),
+        'Fecha2' => date('Y-m-d')
+    ];
 ?>
 <!DOCTYPE html>
 <html lang="es">
