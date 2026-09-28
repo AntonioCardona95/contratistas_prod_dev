@@ -58,14 +58,16 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
 	<?php endif; ?>
 
 
-	<?php if (esAdministradorContratista()): ?>
+		<?php if (esAdministradorContratista()): ?>
 	<li class="nav-item <?php echo $paginaActual === 'Reporte.php' ? 'active' : ''; ?>">
-		<a class="nav-link" href="Produccion.php">
+		<a class="nav-link" href="Reporte.php">
 			<i class="fa-brands fa-tailwind-css"></i>
-			<span>REPORTE GENERAL</span>
+			<span>REPORTE</span>
 		</a>
 	</li>
 	<?php endif; ?>
+
+
 
 	<li class="nav-item <?php echo $paginaActual === 'entradas.php' ? 'active' : ''; ?>">
 		<a class="nav-link" href="entradas.php">
