@@ -94,7 +94,7 @@ function LoadReporte(){
     $("#LoadReporte").fadeIn('slow');
     $.ajax({
         type:'POST',
-        url:'modal/Reporte.php',
+        url:'modal/TablaReporte.php',
         data: parametros,
          beforeSend: function(objeto){
                 $("#LoadReporte").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
