@@ -56,7 +56,6 @@
     <div id="wrapper">
 
         <!-- SIDEBAR IMPORTADA DESDE COMPONENTES -->
-        <?php  include_once(__DIR__ . '/../components/TopbarContratistas.php'); ?>
         <?php include_once(__DIR__ . '/../components/SidebarAlmacen.php'); ?>
 
         <!-- CONTENEDOR -->
@@ -69,6 +68,7 @@
           
                
                
+        <?php  include_once(__DIR__ . '/../components/TopbarContratistas.php'); ?>
                
 
                 <!-- CONTENIDO DE LA PAGINA -->
