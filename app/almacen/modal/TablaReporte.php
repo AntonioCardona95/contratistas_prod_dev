@@ -196,18 +196,22 @@
 
     <div id="reporte-cards-container"></div>
 </div>
-
 <script>
     (function() {
-        // Destruir sin manipular directamente nodos del DOM externos que causan el error de 'parentNode'
+        // Destruir la instancia previa de manera limpia
         if ($.fn.DataTable.isDataTable('#reporte-produccion')) {
             $('#reporte-produccion').DataTable().clear().destroy();
             $('#reporte-produccion').empty(); 
         }
 
-        // Inicializar DataTables
+        // Inicializar DataTables con columna fija
         $('#reporte-produccion').DataTable({
-            responsive: true,
+            scrollX: true,               // Habilita el desplazamiento horizontal
+            scrollCollapse: true,
+            fixedColumns: {
+                leftColumns: 1           // Congela únicamente la 1ra columna (Folio Pisa)
+            },
+            responsive: false,            // Desactivado para que actúe el scroll horizontal con columna fija
             pagingType: 'full_numbers',
             dom: '<"row mb-3"<"col-md-6"B><"col-md-6 d-flex justify-content-end"f>>' +
                  '<"row"<"col-sm-12"tr>>' +
