@@ -562,5 +562,64 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
 }
 
 
+/**
+ * Obtiene el listado de producción diaria filtrado por contratista y rango de fechas
+ */
+public function ConsultarProduccionDiaria($idContratista, $fechaInicio, $fechaFin)
+{
+    $sql = "SELECT 
+                p.Expediente,
+                p.Folio_Pisa,
+                p.TELEFONO,
+                p.Tipo_de_Tarea,
+                p.NOM_CT,
+                p.FECHA_LIQ,
+                p.Semana,
+                p.Anio,
+                p.idContratista,
+                p.Contratista,
+                p.Tecnico,
+                p.NOM_DIVISION,
+                p.NOM_AREA,
+                p.Num__Serie,
+                p.Serie_Eci,
+                p.Existe_Serie_Prod_Almacen,
+                p.Existe_Serie_Eci_Almacen,
+                p.DISTRITO,
+                p.TERMINAL,
+                p.Tiene_Senalamiento,
+                s.Tipo_Senalamiento,
+                s.Detalle AS Detalle_Senalamiento,
+                n.Estatus_Navegacion,
+                n.Flag_Navega,
+                n.FECHA_ULTIMO_EVENTO
+            FROM seg_produccion_diaria p
+            LEFT JOIN seg_produccion_senalamiento s 
+                ON p.Folio_Pisa = s.Folio_Pisa 
+               AND p.TELEFONO = s.TELEFONO 
+               AND p.FECHA_LIQ = s.FECHA_LIQ
+            LEFT JOIN seg_produccion_navegacion n 
+                ON p.Folio_Pisa = n.Folio_Pisa 
+               AND p.TELEFONO = n.TELEFONO 
+               AND p.FECHA_LIQ = n.FECHA_LIQ
+            WHERE p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+
+    $params = array(
+        ':fechaInicio' => $fechaInicio,
+        ':fechaFin'    => $fechaFin
+    );
+
+    // Si $idContratista no es cero o nulo, filtramos por contratista
+    if (!empty($idContratista)) {
+        $sql .= " AND p.idContratista = :idContratista";
+        $params[':idContratista'] = $idContratista;
+    }
+
+    $sql .= " ORDER BY p.FECHA_LIQ DESC";
+
+    // Reemplaza 'default' por la conexión correspondiente (p. ej., 'analisis')
+    return $this->runQuery($sql, $params, 'default'); 
+}
+
     
 }
