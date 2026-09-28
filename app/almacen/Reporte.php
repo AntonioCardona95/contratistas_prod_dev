@@ -64,15 +64,18 @@
             <!-- CONTENIDO PRINCIPAL -->
             <div id="content">
 
-                <!-- TOPBAR -->
-                <?php 
-                // Establecer fechas por defecto: hoy y 3 meses atrás
-                $topbar_defaults = [
-                    'Fecha1' => date('Y-m-d', strtotime('-3 months')),
-                    'Fecha2' => date('Y-m-d')
-                ];
-                include_once(__DIR__ . '/../components/TopbarContratistas.php'); 
-                ?>
+                        <form id="FormQueryUnidades" class="d-flex form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search topbar-search-form">
+            <div class="input-group topbar-date-group">
+                <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
+                <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
+                <div class="input-group-append mr-2">
+                    <button class="btn btn-primary" type="button" onclick="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
+                        <i class="fas fa-search fa-sm"></i>
+                    </button>
+                </div>
+            </div>
+           
+        </form>
 
                 <!-- CONTENIDO DE LA PAGINA -->
                 <div class="container-fluid">
@@ -85,7 +88,7 @@
                         </div>
                         <div class="card-body p-0">
                             <!-- CONTENEDOR DE LA TABLA -->
-                            <div id="LoadEntradas" class="p-3">
+                            <div id="LoadReporte" class="p-3">
                                 <!-- AQUI SE CARGAN LOS DATOS VIA AJAX -->
                             </div>
                         </div> 
@@ -119,4 +122,11 @@
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
 </body>
 </html>
+    <script src="js/produccion.js"></script>
+<script>
+$(document).ready(function() {
+    console.log(" JS cargado correctamente, ejecutando DataTable...");
+    LoadReporte();
+});
+</script>
 
