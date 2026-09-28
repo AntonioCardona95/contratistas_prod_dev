@@ -5,37 +5,62 @@
 
     date_default_timezone_set('America/Monterrey');
     
-    // Controlador y configuraciones
     require_once(__DIR__ . "/../controller/ClassConsultasProduccion.php");
-    require_once(__DIR__ . '/../../config/ContratistaContexto.php');
     require_once(__DIR__ . "/cargar.php");
 
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
 
-    $Contratista = $_SESSION['Contratista'] ?? null;
     requerirSesionAlmacen();
-    $idContratistas = obtenerIdContratistaContexto();
 
     $modal = new ClassConsultasProduccion();
 
-    $Fecha1 = $_POST['Fecha1'] ?? '';
-    $Fecha2 = $_POST['Fecha2'] ?? '';
+    // Capturar fechas del POST
+    $Fecha1_input = $_POST['Fecha1'] ?? '';
+    $Fecha2_input = $_POST['Fecha2'] ?? '';
 
+    // Convertir de formato DD/MM/YYYY a YYYY-MM-DD si es necesario
+    if (!empty($Fecha1_input) && strpos($Fecha1_input, '/') !== false) {
+        $parts1 = explode('/', $Fecha1_input);
+        if (count($parts1) === 3) {
+            $Fecha1_input = $parts1[2] . '-' . $parts1[1] . '-' . $parts1[0];
+        }
+    }
+
+    if (!empty($Fecha2_input) && strpos($Fecha2_input, '/') !== false) {
+        $parts2 = explode('/', $Fecha2_input);
+        if (count($parts2) === 3) {
+            $Fecha2_input = $parts2[2] . '-' . $parts2[1] . '-' . $parts2[0];
+        }
+    }
+
+    // Configurar rangos por defecto si están vacíos
     $mes_anterior = date('Y-m-d', strtotime('-1 month'));
 
-    if (empty($Fecha1)) {
+    if (empty($Fecha1_input)) {
         $Fecha1 = $mes_anterior . " 00:00:00";
         $Fecha2 = date('Y-m-d') . " 23:59:59";
     } else {
-        $Fecha1 = $Fecha1 . " 00:00:00"; 
-        $Fecha2 = (!empty($Fecha2) ? $Fecha2 : date('Y-m-d')) . " 23:59:59";
+        $Fecha1 = $Fecha1_input . " 00:00:00"; 
+        $Fecha2 = (!empty($Fecha2_input) ? $Fecha2_input : date('Y-m-d')) . " 23:59:59";
     }
 
-    // Consulta de producción
-    $filas = $modal->ConsultarProduccionDiaria($idContratistas, $Fecha1, $Fecha2);
+    // Consulta general (sin pasar ID de contratista)
+    // Ajusta la llamada a tu método si este no requiere parámetros o sólo requiere ($Fecha1, $Fecha2)
+    $filas = $modal->ConsultarProduccionDiaria($Fecha1, $Fecha2);
+
+    $totalRegistros = !empty($filas) ? count($filas) : 0;
 ?>
+
+<!-- DEPURACIÓN EN CONSOLA (Presiona F12 -> Consola) -->
+<script>
+    console.group("=== DEPURACIÓN REPORTE GENERAL ===");
+    console.log("Fecha Inicio:", "<?= $Fecha1 ?>");
+    console.log("Fecha Fin:", "<?= $Fecha2 ?>");
+    console.log("Registros devueltos por la BD:", <?= $totalRegistros ?>);
+    console.groupEnd();
+</script>
 
 <style>
     @media (max-width: 768px) {
@@ -58,59 +83,18 @@
         text-align: center !important;
         vertical-align: middle !important;
     }
-
-    #reporte-cards-container {
-        display: none;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        margin-top: 20px;
-    }
-
-    .reporte-card {
-        background: #fff;
-        border-radius: 14px;
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(0, 0, 0, 0.04);
-        overflow: hidden;
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-
-    .reporte-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
-    }
-
-    @media (max-width: 1200px) {
-        #reporte-cards-container {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    /* BUSCADOR MOVIL */
-    #reporte-mobile-search {
-        display: none;
-    }
-
-    @media (max-width: 768px) {
-        #reporte-table-wrapper {
-            display: none;
-        }
-
-        #reporte-cards-container {
-            display: grid;
-            grid-template-columns: 1fr;
-        }
-
-        #reporte-mobile-search {
-            display: block;
-            margin-bottom: 14px;
-        }
-
-        .modal-title, h2 {
-            font-size: 15px !important;
-        }
-    }
 </style>
+
+<?php if ($totalRegistros === 0): ?>
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle mr-2"></i>
+        <strong>No se encontraron registros.</strong> 
+        Rango buscado: <code><?= htmlspecialchars($Fecha1) ?></code> a <code><?= htmlspecialchars($Fecha2) ?></code>.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+<?php endif; ?>
 
 <div id="contenedor-tabla-reporte">
     <div id="reporte-buttons-container"></div>
@@ -144,18 +128,18 @@
             </tfoot>
             <tbody>
                 <?php if (!empty($filas)): foreach ($filas as $row): ?>
-                    <tr data-folio="<?= htmlspecialchars($row['Folio_Pisa'], ENT_QUOTES, 'UTF-8') ?>"
-                        data-telefono="<?= htmlspecialchars($row['TELEFONO'], ENT_QUOTES, 'UTF-8') ?>"
+                    <tr data-folio="<?= htmlspecialchars($row['Folio_Pisa'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                        data-telefono="<?= htmlspecialchars($row['TELEFONO'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                         data-contratista="<?= htmlspecialchars(strtoupper($row['Contratista'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
                         data-tecnico="<?= htmlspecialchars(strtoupper($row['Tecnico'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
                         data-fecha="<?= htmlspecialchars($row['FECHA_LIQ'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                         
-                        <td><?= htmlspecialchars($row['Folio_Pisa'], ENT_QUOTES, 'UTF-8') ?></td>
-                        <td><?= htmlspecialchars($row['TELEFONO'], ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars($row['Folio_Pisa'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars($row['TELEFONO'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['Tipo_de_Tarea'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['Contratista'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['Tecnico'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
-                        <td><?= htmlspecialchars($row['FECHA_LIQ'], ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars($row['FECHA_LIQ'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td>
                             <?php if (!empty($row['Tiene_Senalamiento'])): ?>
                                 <span class="badge badge-warning text-dark">
@@ -172,9 +156,9 @@
                         </td>
                         <td>
                             <button type="button" class="btn btn-danger btn-sm btn-detalle-reporte" 
-                                    data-folio="<?= htmlspecialchars($row['Folio_Pisa'], ENT_QUOTES, 'UTF-8') ?>" 
-                                    data-telefono="<?= htmlspecialchars($row['TELEFONO'], ENT_QUOTES, 'UTF-8') ?>" 
-                                    data-fecha="<?= htmlspecialchars($row['FECHA_LIQ'], ENT_QUOTES, 'UTF-8') ?>" 
+                                    data-folio="<?= htmlspecialchars($row['Folio_Pisa'] ?? '', ENT_QUOTES, 'UTF-8') ?>" 
+                                    data-telefono="<?= htmlspecialchars($row['TELEFONO'] ?? '', ENT_QUOTES, 'UTF-8') ?>" 
+                                    data-fecha="<?= htmlspecialchars($row['FECHA_LIQ'] ?? '', ENT_QUOTES, 'UTF-8') ?>" 
                                     title="Ver detalle del reporte">
                                 <i class="fa-solid fa-file-lines"></i>
                             </button>
@@ -184,33 +168,17 @@
             </tbody>
         </table>
     </div>
-
-    <div id="reporte-mobile-search">
-        <div class="input-group">
-            <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fas fa-search"></i></span>
-            </div>
-            <input type="text" id="reporte-search-input" class="form-control" placeholder="Buscar en el reporte...">
-        </div>
-    </div>
-
-    <div id="reporte-cards-container"></div>
 </div>
 
 <script>
     $(document).ready(function() {
-        // 1. Destruir instancia previa si existe
         if ($.fn.DataTable.isDataTable('#reporte-produccion')) {
             $('#reporte-produccion').DataTable().destroy();
         }
 
-        // 2. Inicializar DataTables con la estructura DOM nativa
-        var table = $('#reporte-produccion').DataTable({
+        $('#reporte-produccion').DataTable({
             responsive: true,
-            // 'full_numbers' obliga a mostrar los números de páginas (1, 2, 3...)
-            pagingType: 'full_numbers', 
-            // 'dom' define la posición exacta de los elementos:
-            // B = Buttons, l = Length (mostrar registros), f = filter (buscar), t = table, i = info, p = pagination
+            pagingType: 'full_numbers',
             dom: '<"row mb-3"<"col-md-6"B><"col-md-6 d-flex justify-content-end"f>>' +
                  '<"row"<"col-sm-12"tr>>' +
                  '<"row mt-3"<"col-md-5"i><"col-md-7"p>>',
@@ -224,13 +192,7 @@
                 {
                     extend: 'pdfHtml5',
                     text: '<i class="fas fa-file-pdf mr-1"></i> PDF',
-                    className: 'btn btn-danger btn-sm shadow-sm mr-2',
-                    exportOptions: { columns: ':not(:last-child)' }
-                },
-                {
-                    extend: 'copyHtml5',
-                    text: '<i class="fas fa-copy mr-1"></i> Copiar',
-                    className: 'btn btn-secondary btn-sm shadow-sm',
+                    className: 'btn btn-danger btn-sm shadow-sm',
                     exportOptions: { columns: ':not(:last-child)' }
                 }
             ],
@@ -244,10 +206,5 @@
                 }
             }
         });
-
-        // 3. Forzar inserción de botones en el contenedor por si el DOM falla
-        if ($('#reporte-buttons-container').length) {
-            table.buttons().container().appendTo('#reporte-buttons-container');
-        }
     });
 </script>
