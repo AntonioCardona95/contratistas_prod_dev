@@ -199,39 +199,41 @@
 
 <script>
     $(document).ready(function() {
+        // 1. Destruir instancia previa si existe
         if ($.fn.DataTable.isDataTable('#reporte-produccion')) {
             $('#reporte-produccion').DataTable().destroy();
         }
 
-        $('#reporte-produccion').DataTable({
+        // 2. Inicializar DataTables con la estructura DOM nativa
+        var table = $('#reporte-produccion').DataTable({
             responsive: true,
-            // 'full_numbers' o 'simple_numbers' muestra los números de página (1, 2, 3...)
+            // 'full_numbers' obliga a mostrar los números de páginas (1, 2, 3...)
             pagingType: 'full_numbers', 
-            // Configuración del diseño con botones arriba (Excel, PDF, etc.)
-            layout: {
-                topStart: {
-                    buttons: [
-                        {
-                            extend: 'excelHtml5',
-                            text: '<i class="fas fa-file-excel"></i> Excel',
-                            className: 'btn btn-success btn-sm me-1',
-                            exportOptions: { columns: ':not(:last-child)' } // Excluye la columna 'Acción'
-                        },
-                        {
-                            extend: 'pdfHtml5',
-                            text: '<i class="fas fa-file-pdf"></i> PDF',
-                            className: 'btn btn-danger btn-sm me-1',
-                            exportOptions: { columns: ':not(:last-child)' }
-                        },
-                        {
-                            extend: 'copyHtml5',
-                            text: '<i class="fas fa-copy"></i> Copiar',
-                            className: 'btn btn-secondary btn-sm me-1',
-                            exportOptions: { columns: ':not(:last-child)' }
-                        }
-                    ]
+            // 'dom' define la posición exacta de los elementos:
+            // B = Buttons, l = Length (mostrar registros), f = filter (buscar), t = table, i = info, p = pagination
+            dom: '<"row mb-3"<"col-md-6"B><"col-md-6 d-flex justify-content-end"f>>' +
+                 '<"row"<"col-sm-12"tr>>' +
+                 '<"row mt-3"<"col-md-5"i><"col-md-7"p>>',
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: '<i class="fas fa-file-excel mr-1"></i> Excel',
+                    className: 'btn btn-success btn-sm shadow-sm mr-2',
+                    exportOptions: { columns: ':not(:last-child)' }
+                },
+                {
+                    extend: 'pdfHtml5',
+                    text: '<i class="fas fa-file-pdf mr-1"></i> PDF',
+                    className: 'btn btn-danger btn-sm shadow-sm mr-2',
+                    exportOptions: { columns: ':not(:last-child)' }
+                },
+                {
+                    extend: 'copyHtml5',
+                    text: '<i class="fas fa-copy mr-1"></i> Copiar',
+                    className: 'btn btn-secondary btn-sm shadow-sm',
+                    exportOptions: { columns: ':not(:last-child)' }
                 }
-            },
+            ],
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json',
                 paginate: {
@@ -242,5 +244,10 @@
                 }
             }
         });
+
+        // 3. Forzar inserción de botones en el contenedor por si el DOM falla
+        if ($('#reporte-buttons-container').length) {
+            table.buttons().container().appendTo('#reporte-buttons-container');
+        }
     });
 </script>
