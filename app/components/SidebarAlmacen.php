@@ -59,7 +59,7 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
 
 
 	<?php if (esAdministradorContratista()): ?>
-	<li class="nav-item <?php echo $paginaActual === 'Produccion.php' ? 'active' : ''; ?>">
+	<li class="nav-item <?php echo $paginaActual === 'Reporte.php' ? 'active' : ''; ?>">
 		<a class="nav-link" href="Produccion.php">
 			<i class="fa-brands fa-tailwind-css"></i>
 			<span>REPORTE GENERAL</span>
