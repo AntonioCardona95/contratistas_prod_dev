@@ -198,19 +198,17 @@
 </div>
 
 <script>
-    $(document).ready(function() {
-        // 1. Destruir instancia previa si existe
+    (function() {
+        // Destruir sin manipular directamente nodos del DOM externos que causan el error de 'parentNode'
         if ($.fn.DataTable.isDataTable('#reporte-produccion')) {
-            $('#reporte-produccion').DataTable().destroy();
+            $('#reporte-produccion').DataTable().clear().destroy();
+            $('#reporte-produccion').empty(); 
         }
 
-        // 2. Inicializar DataTables con la estructura DOM nativa
-        var table = $('#reporte-produccion').DataTable({
+        // Inicializar DataTables
+        $('#reporte-produccion').DataTable({
             responsive: true,
-            // 'full_numbers' obliga a mostrar los números de páginas (1, 2, 3...)
-            pagingType: 'full_numbers', 
-            // 'dom' define la posición exacta de los elementos:
-            // B = Buttons, l = Length (mostrar registros), f = filter (buscar), t = table, i = info, p = pagination
+            pagingType: 'full_numbers',
             dom: '<"row mb-3"<"col-md-6"B><"col-md-6 d-flex justify-content-end"f>>' +
                  '<"row"<"col-sm-12"tr>>' +
                  '<"row mt-3"<"col-md-5"i><"col-md-7"p>>',
@@ -218,36 +216,19 @@
                 {
                     extend: 'excelHtml5',
                     text: '<i class="fas fa-file-excel mr-1"></i> Excel',
-                    className: 'btn btn-success btn-sm shadow-sm mr-2',
+                    className: 'btn btn-success btn-sm mr-2',
                     exportOptions: { columns: ':not(:last-child)' }
                 },
                 {
                     extend: 'pdfHtml5',
                     text: '<i class="fas fa-file-pdf mr-1"></i> PDF',
-                    className: 'btn btn-danger btn-sm shadow-sm mr-2',
-                    exportOptions: { columns: ':not(:last-child)' }
-                },
-                {
-                    extend: 'copyHtml5',
-                    text: '<i class="fas fa-copy mr-1"></i> Copiar',
-                    className: 'btn btn-secondary btn-sm shadow-sm',
+                    className: 'btn btn-danger btn-sm',
                     exportOptions: { columns: ':not(:last-child)' }
                 }
             ],
             language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json',
-                paginate: {
-                    first: "«",
-                    previous: "‹",
-                    next: "›",
-                    last: "»"
-                }
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
             }
         });
-
-        // 3. Forzar inserción de botones en el contenedor por si el DOM falla
-        if ($('#reporte-buttons-container').length) {
-            table.buttons().container().appendTo('#reporte-buttons-container');
-        }
-    });
+    })();
 </script>
