@@ -622,7 +622,7 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
 
     $sql .= " ORDER BY p.FECHA_LIQ DESC";
 
-    return $this->runQuery($sql, $params, 'default'); 
+    return $this->runQuery($sql, $params, 'erpprint'); 
 }
     
 }
