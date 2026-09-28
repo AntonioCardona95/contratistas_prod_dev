@@ -3,17 +3,22 @@
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
 
-    // Se cambió la clase a ClassConsultasProduccion
-    require_once("../controller/ClassConsultasProduccion.php");
+    date_default_timezone_set('America/Monterrey');
+    
+    // Controlador y configuraciones
+    require_once(__DIR__ . "/../controller/ClassConsultasProduccion.php");
     require_once(__DIR__ . '/../../config/ContratistaContexto.php');
+    require_once(__DIR__ . "/cargar.php");
 
-    $modal = new ClassConsultasProduccion();
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
-    
+
     $Contratista = $_SESSION['Contratista'] ?? null;
+    requerirSesionAlmacen();
     $idContratistas = obtenerIdContratistaContexto();
+
+    $modal = new ClassConsultasProduccion();
 
     $Fecha1 = $_POST['Fecha1'] ?? '';
     $Fecha2 = $_POST['Fecha2'] ?? '';
@@ -28,7 +33,7 @@
         $Fecha2 = (!empty($Fecha2) ? $Fecha2 : date('Y-m-d')) . " 23:59:59";
     }
 
-    // Llamada al método de la clase de producción
+    // Consulta de producción
     $filas = $modal->ConsultarProduccionDiaria($idContratistas, $Fecha1, $Fecha2);
 ?>
 
@@ -39,29 +44,29 @@
         }
     }
 
-    #entradas-table-wrapper {
+    #reporte-table-wrapper {
         width: 100%;
         overflow-x: auto;
     }
 
-    #entradas_wrapper .dt-scroll-head th,
-    #entradas_wrapper .dt-scroll-foot th,
-    #entradas_wrapper .dt-scroll-body td,
-    #entradas thead th,
-    #entradas tfoot th,
-    #entradas tbody td {
+    #reporte-produccion_wrapper .dt-scroll-head th,
+    #reporte-produccion_wrapper .dt-scroll-foot th,
+    #reporte-produccion_wrapper .dt-scroll-body td,
+    #reporte-produccion thead th,
+    #reporte-produccion tfoot th,
+    #reporte-produccion tbody td {
         text-align: center !important;
         vertical-align: middle !important;
     }
 
-    #entradas-cards-container {
+    #reporte-cards-container {
         display: none;
         grid-template-columns: repeat(3, 1fr);
         gap: 20px;
         margin-top: 20px;
     }
 
-    .entrada-card {
+    .reporte-card {
         background: #fff;
         border-radius: 14px;
         box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
@@ -70,96 +75,44 @@
         transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
 
-    .entrada-card:hover {
+    .reporte-card:hover {
         transform: translateY(-4px);
         box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
     }
 
-    .entrada-card-header {
-        padding: 18px 18px 0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-    }
-
-    .entrada-card-body {
-        padding: 0 18px 18px;
-    }
-
-    .entrada-field {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 0;
-        border-bottom: 1px solid #f1f3f5;
-        gap: 10px;
-    }
-
-    .entrada-field:last-child {
-        border-bottom: none;
-    }
-
-    .entrada-field span {
-        color: #6c757d;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        flex: 1;
-    }
-
-    .entrada-field strong {
-        color: #1f2937;
-        font-size: 0.95rem;
-        font-weight: 600;
-        text-align: right;
-        min-width: 120px;
-    }
-
     @media (max-width: 1200px) {
-        #entradas-cards-container {
+        #reporte-cards-container {
             grid-template-columns: repeat(2, 1fr);
         }
     }
 
-    /* ── BUSCADOR MOVIL ── */
-    #entradas-mobile-search {
+    /* BUSCADOR MOVIL */
+    #reporte-mobile-search {
         display: none;
     }
 
     @media (max-width: 768px) {
-        #entradas-table-wrapper {
+        #reporte-table-wrapper {
             display: none;
         }
 
-        #entradas-cards-container {
+        #reporte-cards-container {
             display: grid;
             grid-template-columns: 1fr;
         }
 
-        #entradas-mobile-search {
+        #reporte-mobile-search {
             display: block;
             margin-bottom: 14px;
         }
 
-        .modal-title {
-            font-size: 15px !important;
-        }
-
-        h2 {
+        .modal-title, h2 {
             font-size: 15px !important;
         }
     }
 </style>
 
-<div id="reporte-loading" style="text-align: center; padding: 20px;">
-    <div class="spinner-border text-primary" role="status">
-        <span class="sr-only">Cargando...</span>
-    </div>
-    <p>Cargando datos del reporte, por favor espere...</p>
-</div>
-
-<div id="contenedor-tabla-reporte" style="opacity: 0; transition: opacity 0.3s ease;">
+<div id="contenedor-tabla-reporte">
     <div id="reporte-buttons-container"></div>
     <div id="reporte-table-wrapper">
         <table class="table table-bordered display nowrap" style="width:100%" id="reporte-produccion">
@@ -205,15 +158,15 @@
                         <td><?= htmlspecialchars($row['FECHA_LIQ'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td>
                             <?php if (!empty($row['Tiene_Senalamiento'])): ?>
-                                <span class="badge bg-warning text-dark">
+                                <span class="badge badge-warning text-dark">
                                     <?= htmlspecialchars($row['Tipo_Senalamiento'] ?? 'Sí', ENT_QUOTES, 'UTF-8') ?>
                                 </span>
                             <?php else: ?>
-                                <span class="badge bg-secondary">Sin señalamiento</span>
+                                <span class="badge badge-secondary">Sin señalamiento</span>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <span class="badge <?= ($row['Flag_Navega'] ?? 0) == 1 ? 'bg-success' : 'bg-danger' ?>">
+                            <span class="badge <?= ($row['Flag_Navega'] ?? 0) == 1 ? 'badge-success' : 'badge-danger' ?>">
                                 <?= htmlspecialchars($row['Estatus_Navegacion'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?>
                             </span>
                         </td>
@@ -243,3 +196,18 @@
 
     <div id="reporte-cards-container"></div>
 </div>
+
+<script>
+    // Inicialización básica de DataTable tras ser inyectado por AJAX
+    $(document).ready(function() {
+        if ($.fn.DataTable.isDataTable('#reporte-produccion')) {
+            $('#reporte-produccion').DataTable().destroy();
+        }
+        $('#reporte-produccion').DataTable({
+            responsive: true,
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+            }
+        });
+    });
+</script>
