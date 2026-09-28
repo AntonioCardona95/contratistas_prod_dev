@@ -110,6 +110,27 @@
             font-size: 15px !important;
         }
     }
+
+    /* Contenedor con scroll único y limpio */
+#reporte-table-wrapper {
+    overflow-x: auto;
+    width: 100%;
+}
+
+/* Fijar únicamente la 1ª columna (Folio Pisa) */
+#reporte-produccion th:first-child,
+#reporte-produccion td:first-child {
+    position: sticky;
+    left: 0;
+    background-color: #ffffff !important; /* Fondo sólido para que no se transparente el texto */
+    z-index: 10;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Ligera sombra elegante al deslizar */
+}
+
+/* Asegurar que la cabecera quede arriba del contenido al scroll */
+#reporte-produccion th:first-child {
+    z-index: 11;
+}
 </style>
 
 <div id="contenedor-tabla-reporte">
@@ -198,20 +219,15 @@
 </div>
 <script>
     (function() {
-        // Destruir la instancia previa de manera limpia
+        // Destruir la instancia previa si existe
         if ($.fn.DataTable.isDataTable('#reporte-produccion')) {
             $('#reporte-produccion').DataTable().clear().destroy();
             $('#reporte-produccion').empty(); 
         }
 
-        // Inicializar DataTables con columna fija
+        // Inicializar DataTables limpio
         $('#reporte-produccion').DataTable({
-            scrollX: true,               // Habilita el desplazamiento horizontal
-            scrollCollapse: true,
-            fixedColumns: {
-                leftColumns: 1           // Congela únicamente la 1ra columna (Folio Pisa)
-            },
-            responsive: false,            // Desactivado para que actúe el scroll horizontal con columna fija
+            responsive: false,
             pagingType: 'full_numbers',
             dom: '<"row mb-3"<"col-md-6"B><"col-md-6 d-flex justify-content-end"f>>' +
                  '<"row"<"col-sm-12"tr>>' +
