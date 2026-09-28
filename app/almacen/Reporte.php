@@ -67,8 +67,7 @@
                        <form class="col-xl-10 col-md-10" id="FormQueryUnidades">
                         <div class="input-group">
                             <?php
-                                $defaultFecha1 = $_POST['Fecha1'] ?? date('Y-m-d', strtotime('-1 month'));
-                                $defaultFecha2 = $_POST['Fecha2'] ?? date('Y-m-d');
+                                
                             ?>
                             <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($defaultFecha1) ?>" class="form-control bg-light border-0 small">
                             <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($defaultFecha2) ?>" class="form-control bg-light border-0 small">
