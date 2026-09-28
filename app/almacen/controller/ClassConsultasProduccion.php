@@ -563,9 +563,14 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
 
 
 /**
- * Obtiene el listado de producción diaria filtrado por contratista y rango de fechas
+ * Obtiene el listado de producción diaria filtrado por rango de fechas y opcionalmente por contratista.
+ *
+ * @param string $fechaInicio Fecha de inicio en formato YYYY-MM-DD HH:MM:SS
+ * @param string $fechaFin Fecha de fin en formato YYYY-MM-DD HH:MM:SS
+ * @param int|string|null $idContratista (Opcional) ID del contratista para filtrar. Si es null u 0, trae todo.
+ * @return array
  */
-public function ConsultarProduccionDiaria($idContratista, $fechaInicio, $fechaFin)
+public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
 {
     $sql = "SELECT 
                 p.Expediente,
@@ -609,17 +614,15 @@ public function ConsultarProduccionDiaria($idContratista, $fechaInicio, $fechaFi
         ':fechaFin'    => $fechaFin
     );
 
-    // Si $idContratista no es cero o nulo, filtramos por contratista
-    if (!empty($idContratista)) {
+    // Si viene un ID de contratista válido (diferente de 0, vacíos o null), agregamos el filtro
+    if (!empty($idContratista) && $idContratista != 0) {
         $sql .= " AND p.idContratista = :idContratista";
         $params[':idContratista'] = $idContratista;
     }
 
     $sql .= " ORDER BY p.FECHA_LIQ DESC";
 
-    // Reemplaza 'default' por la conexión correspondiente (p. ej., 'analisis')
     return $this->runQuery($sql, $params, 'default'); 
 }
-
     
 }
