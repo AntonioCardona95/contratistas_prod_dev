@@ -68,7 +68,7 @@
           
                
                
-        <?php  include_once(__DIR__ . '/../components/TopbarContratistas.php'); ?>
+        <?php  include_once(__DIR__ . '/../components/TopbarProduccion.php'); ?>
                
 
                 <!-- CONTENIDO DE LA PAGINA -->
