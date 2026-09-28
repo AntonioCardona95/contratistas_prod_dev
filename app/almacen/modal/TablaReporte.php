@@ -198,15 +198,48 @@
 </div>
 
 <script>
-    // Inicialización básica de DataTable tras ser inyectado por AJAX
     $(document).ready(function() {
         if ($.fn.DataTable.isDataTable('#reporte-produccion')) {
             $('#reporte-produccion').DataTable().destroy();
         }
+
         $('#reporte-produccion').DataTable({
             responsive: true,
+            // 'full_numbers' o 'simple_numbers' muestra los números de página (1, 2, 3...)
+            pagingType: 'full_numbers', 
+            // Configuración del diseño con botones arriba (Excel, PDF, etc.)
+            layout: {
+                topStart: {
+                    buttons: [
+                        {
+                            extend: 'excelHtml5',
+                            text: '<i class="fas fa-file-excel"></i> Excel',
+                            className: 'btn btn-success btn-sm me-1',
+                            exportOptions: { columns: ':not(:last-child)' } // Excluye la columna 'Acción'
+                        },
+                        {
+                            extend: 'pdfHtml5',
+                            text: '<i class="fas fa-file-pdf"></i> PDF',
+                            className: 'btn btn-danger btn-sm me-1',
+                            exportOptions: { columns: ':not(:last-child)' }
+                        },
+                        {
+                            extend: 'copyHtml5',
+                            text: '<i class="fas fa-copy"></i> Copiar',
+                            className: 'btn btn-secondary btn-sm me-1',
+                            exportOptions: { columns: ':not(:last-child)' }
+                        }
+                    ]
+                }
+            },
             language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json',
+                paginate: {
+                    first: "«",
+                    previous: "‹",
+                    next: "›",
+                    last: "»"
+                }
             }
         });
     });
