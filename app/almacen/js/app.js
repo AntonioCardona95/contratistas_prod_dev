@@ -90,21 +90,43 @@ function LoadProduccion(){
 }
 
 function LoadReporte(){
+    // 1. Imprimir los valores individuales de las fechas antes de serializar
+    var f1 = $("#Fecha1").val();
+    var f2 = $("#Fecha2").val();
     var parametros = $("#FormQueryUnidades").serialize();
+
+    console.group("=== 1. ENVIANDO PETICIÓN AJAX (LoadReporte) ===");
+    console.log("Campo #Fecha1:", f1);
+    console.log("Campo #Fecha2:", f2);
+    console.log("Cadena Serializada (lo que se manda a PHP):", parametros);
+    console.groupEnd();
+
     $("#LoadReporte").fadeIn('slow');
+
     $.ajax({
-        type:'POST',
-        url:'modal/TablaReporte.php',
+        type: 'POST',
+        url: 'modal/TablaReporte.php',
         data: parametros,
-         beforeSend: function(objeto){
-                $("#LoadReporte").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
+        beforeSend: function(objeto){
+            $("#LoadReporte").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
         },
-        success:function(data){
+        success: function(data){
+            console.group("=== 2. RESPUESTA RECIBIDA DESDE PHP ===");
+            console.log("Respuesta HTML/PHP completa recibida:");
+            console.log(data);
+            console.groupEnd();
+
             $("#LoadReporte").html(data);
+        },
+        error: function(xhr, status, error){
+            console.group("=== ERROR EN PETICIÓN AJAX ===");
+            console.error("Estado:", status);
+            console.error("Error:", error);
+            console.error("Detalle respuesta servidor:", xhr.responseText);
+            console.groupEnd();
         }
     });
 }
-
 
 
 
