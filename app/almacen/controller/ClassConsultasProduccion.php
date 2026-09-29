@@ -619,7 +619,7 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
  * @param int|string|null $idContratista (Opcional) ID del contratista para filtrar. Si es null u 0, trae todo.
  * @return array
  */
-/*public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
+public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
 {
     $sql = "SELECT 
                 p.Expediente,
@@ -672,5 +672,5 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
     $sql .= " ORDER BY p.FECHA_LIQ DESC";
 
     return $this->runQuery($sql, $params, 'erpprint'); 
-}  */
+}  
 }
