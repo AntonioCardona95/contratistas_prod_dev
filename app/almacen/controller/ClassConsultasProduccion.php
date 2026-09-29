@@ -563,26 +563,37 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
 
 public function ConsultarProduccionDiariaDebug($fechaInicio, $fechaFin, $idContratista = null)
 {
-    echo "<pre>=== Debug de ConsultarProduccionDiaria ===\n";
+    echo "<pre>=== Debug detallado de ConsultarProduccionDiaria ===\n";
 
-    // 1. Total de registros en la tabla
+    // 1. Total de registros
     $sqlTotal = "SELECT COUNT(*) AS total FROM seg_produccion_diaria";
     $total = $this->runQuery($sqlTotal, [], 'erpprint');
     echo "Total registros en seg_produccion_diaria: " . $total[0]['total'] . "\n";
 
-    // 2. Registros por rango de fechas (sin horas)
+    // 2. Mostrar fechas reales que existen
+    $sqlFechasExistentes = "SELECT FECHA_LIQ, COUNT(*) AS c 
+                            FROM seg_produccion_diaria 
+                            GROUP BY FECHA_LIQ 
+                            ORDER BY FECHA_LIQ DESC LIMIT 20";
+    $fechas = $this->runQuery($sqlFechasExistentes, [], 'erpprint');
+    echo "Fechas reales encontradas en la tabla (últimas 20):\n";
+    foreach ($fechas as $f) {
+        echo " - " . $f['FECHA_LIQ'] . " => " . $f['c'] . " registros\n";
+    }
+
+    // 3. Conteo por rango de fechas (sin horas)
     $sqlFechas = "SELECT COUNT(*) AS total FROM seg_produccion_diaria 
-                  WHERE DATE(p.FECHA_LIQ) BETWEEN DATE(:fechaInicio) AND DATE(:fechaFin)";
+                  WHERE DATE(FECHA_LIQ) BETWEEN DATE(:fechaInicio) AND DATE(:fechaFin)";
     $totalFechas = $this->runQuery($sqlFechas, [':fechaInicio'=>$fechaInicio, ':fechaFin'=>$fechaFin], 'erpprint');
     echo "Registros que cumplen rango de fechas (comparando solo DATE): " . $totalFechas[0]['total'] . "\n";
 
-    // 3. Registros por rango exacto con horas
+    // 4. Conteo por rango exacto con horas
     $sqlFechasExactas = "SELECT COUNT(*) AS total FROM seg_produccion_diaria 
-                         WHERE p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+                         WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
     $totalFechasExactas = $this->runQuery($sqlFechasExactas, [':fechaInicio'=>$fechaInicio, ':fechaFin'=>$fechaFin], 'erpprint');
     echo "Registros que cumplen rango de fechas exacto (con horas): " . $totalFechasExactas[0]['total'] . "\n";
 
-    // 4. Si hay filtro de contratista
+    // 5. Conteo por contratista si aplica
     if (!empty($idContratista) && $idContratista != 0) {
         $sqlContratista = "SELECT COUNT(*) AS total FROM seg_produccion_diaria 
                            WHERE idContratista = :idContratista";
@@ -590,7 +601,7 @@ public function ConsultarProduccionDiariaDebug($fechaInicio, $fechaFin, $idContr
         echo "Registros que cumplen idContratista=$idContratista: " . $totalContratista[0]['total'] . "\n";
     }
 
-    // 5. Ejecutar consulta original
+    // 6. Ejecutar consulta original
     $params = [':fechaInicio'=>$fechaInicio, ':fechaFin'=>$fechaFin];
     if (!empty($idContratista) && $idContratista != 0) {
         $params[':idContratista'] = $idContratista;
