@@ -166,6 +166,9 @@
                     <th>Folio Pisa</th>
                     <th>Teléfono</th>
                     <th>Tipo Tarea</th>
+                    <th>Área</th>
+                    <th>División</th>
+                    <th>Cope</th>
                     <th>Contratista</th>
                     <th>Técnico</th>
                     <th>Fecha Liq</th>
@@ -179,6 +182,9 @@
                     <th>Folio Pisa</th>
                     <th>Teléfono</th>
                     <th>Tipo Tarea</th>
+                    <th>Área</th>
+                    <th>División</th>
+                    <th>Cope</th>
                     <th>Contratista</th>
                     <th>Técnico</th>
                     <th>Fecha Liq</th>
@@ -198,6 +204,9 @@
                         <td><?= htmlspecialchars($row['Folio_Pisa'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['TELEFONO'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['Tipo_de_Tarea'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars($row['NOM_AREA'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars($row['NOM_DIVISION'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars($row['NOM_CT'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['Contratista'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['Tecnico'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['FECHA_LIQ'], ENT_QUOTES, 'UTF-8') ?></td>
@@ -229,6 +238,7 @@
             </tbody>
         </table>
     </div>
+</div>
 
     <div id="reporte-mobile-search">
         <div class="input-group">
