@@ -561,40 +561,44 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
     return $this->runQuery($sql, $params, 'analisis');
 }
 
-public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
+public function ConsultarProduccionDiariaDebug($fechaInicio, $fechaFin, $idContratista = null)
 {
-    echo "<pre>=== Entrando a ConsultarProduccionDiaria ===\n";
-    echo "FechaInicio: $fechaInicio\n";
-    echo "FechaFin: $fechaFin\n";
-    echo "idContratista: " . var_export($idContratista, true) . "\n";
+    echo "<pre>=== Debug de ConsultarProduccionDiaria ===\n";
 
-    $sql = "SELECT 
-                p.Expediente,
-                p.Folio_Pisa,
-                p.TELEFONO,
-                p.Tipo_de_Tarea,
-                p.NOM_CT,
-                p.FECHA_LIQ,
-                p.Semana,
-                p.Anio,
-                p.idContratista,
-                p.Contratista,
-                p.Tecnico,
-                p.NOM_DIVISION,
-                p.NOM_AREA,
-                p.Num__Serie,
-                p.Serie_Eci,
-                p.Existe_Serie_Prod_Almacen,
-                p.Existe_Serie_Eci_Almacen,
-                p.DISTRITO,
-                p.TERMINAL,
-                p.Tiene_Senalamiento,
-                s.Tipo_Senalamiento,
-                s.Detalle AS Detalle_Senalamiento,
-                n.Estatus_Navegacion,
-                n.Flag_Navega,
-                n.FECHA_ULTIMO_EVENTO,
-                c_asig.Contratista AS Contratista_Asignado
+    // 1. Total de registros en la tabla
+    $sqlTotal = "SELECT COUNT(*) AS total FROM seg_produccion_diaria";
+    $total = $this->runQuery($sqlTotal, [], 'erpprint');
+    echo "Total registros en seg_produccion_diaria: " . $total[0]['total'] . "\n";
+
+    // 2. Registros por rango de fechas (sin horas)
+    $sqlFechas = "SELECT COUNT(*) AS total FROM seg_produccion_diaria 
+                  WHERE DATE(p.FECHA_LIQ) BETWEEN DATE(:fechaInicio) AND DATE(:fechaFin)";
+    $totalFechas = $this->runQuery($sqlFechas, [':fechaInicio'=>$fechaInicio, ':fechaFin'=>$fechaFin], 'erpprint');
+    echo "Registros que cumplen rango de fechas (comparando solo DATE): " . $totalFechas[0]['total'] . "\n";
+
+    // 3. Registros por rango exacto con horas
+    $sqlFechasExactas = "SELECT COUNT(*) AS total FROM seg_produccion_diaria 
+                         WHERE p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+    $totalFechasExactas = $this->runQuery($sqlFechasExactas, [':fechaInicio'=>$fechaInicio, ':fechaFin'=>$fechaFin], 'erpprint');
+    echo "Registros que cumplen rango de fechas exacto (con horas): " . $totalFechasExactas[0]['total'] . "\n";
+
+    // 4. Si hay filtro de contratista
+    if (!empty($idContratista) && $idContratista != 0) {
+        $sqlContratista = "SELECT COUNT(*) AS total FROM seg_produccion_diaria 
+                           WHERE idContratista = :idContratista";
+        $totalContratista = $this->runQuery($sqlContratista, [':idContratista'=>$idContratista], 'erpprint');
+        echo "Registros que cumplen idContratista=$idContratista: " . $totalContratista[0]['total'] . "\n";
+    }
+
+    // 5. Ejecutar consulta original
+    $params = [':fechaInicio'=>$fechaInicio, ':fechaFin'=>$fechaFin];
+    if (!empty($idContratista) && $idContratista != 0) {
+        $params[':idContratista'] = $idContratista;
+    }
+
+    $sql = "SELECT p.*, s.Tipo_Senalamiento, s.Detalle AS Detalle_Senalamiento,
+                   n.Estatus_Navegacion, n.Flag_Navega, n.FECHA_ULTIMO_EVENTO,
+                   c_asig.Contratista AS Contratista_Asignado
             FROM seg_produccion_diaria p
             LEFT JOIN seg_produccion_senalamiento s 
                 ON p.Folio_Pisa = s.Folio_Pisa 
@@ -611,14 +615,8 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
                 ON mds.FK_Contratista_Salida = c_asig.idContratistas
             WHERE p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
 
-    $params = array(
-        ':fechaInicio' => $fechaInicio,
-        ':fechaFin'    => $fechaFin
-    );
-
     if (!empty($idContratista) && $idContratista != 0) {
         $sql .= " AND p.idContratista = :idContratista";
-        $params[':idContratista'] = $idContratista;
     }
 
     $sql .= " ORDER BY p.FECHA_LIQ DESC";
@@ -636,33 +634,13 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
             foreach ($rows as $i => $row) {
                 echo "Registro #$i:\n";
                 print_r($row);
-
-                // Validar joins
-                if (empty($row['Tipo_Senalamiento']) && empty($row['Detalle_Senalamiento'])) {
-                    echo "Aviso: LEFT JOIN seg_produccion_senalamiento no devolvió datos para este registro.\n";
-                }
-                if (empty($row['Estatus_Navegacion']) && empty($row['Flag_Navega'])) {
-                    echo "Aviso: LEFT JOIN seg_produccion_navegacion no devolvió datos para este registro.\n";
-                }
-                if (empty($row['Contratista_Asignado'])) {
-                    echo "Aviso: LEFT JOIN contratistas (via material_det_salida) no devolvió datos para este registro.\n";
-                }
             }
         }
     } catch (PDOException $e) {
-        echo "=== ERROR SQL DETECTADO ===\n";
-        echo "Código: " . $e->getCode() . "\n";
-        echo "Mensaje: " . $e->getMessage() . "\n";
-        echo "Trace:\n" . $e->getTraceAsString() . "\n";
-    } catch (Exception $e) {
-        echo "=== ERROR GENERAL DETECTADO ===\n";
-        echo "Mensaje: " . $e->getMessage() . "\n";
-        echo "Trace:\n" . $e->getTraceAsString() . "\n";
+        echo "ERROR SQL: " . $e->getMessage() . "\n";
     }
 
-    echo "=== Fin de ConsultarProduccionDiaria ===</pre>";
-
-    return $rows ?? [];
+    echo "=== Fin Debug ===</pre>";
 }
 
 
