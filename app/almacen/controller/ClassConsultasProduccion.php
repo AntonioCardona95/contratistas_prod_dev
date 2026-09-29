@@ -515,13 +515,16 @@ class ClassConsultasProduccion extends Conexion
     }
 
 
-  public function VisualizarTablaFechas($fechaInicio, $fechaFin)
+    /**
+ * Obtiene registros completos de producción (diaria + navegación + señalamientos)
+ * en un rango de fechas
+ */
+public function VisualizarTablaFechas($fechaInicio, $fechaFin)
 {
     $sql = "SELECT 
                 d.Folio_Pisa,
                 d.TELEFONO,
                 d.Tipo_de_Tarea,
-                d.NOM_CT,              -- <== faltaba este campo
                 d.Contratista,
                 d.Tecnico,
                 d.NOM_DIVISION,
@@ -559,6 +562,67 @@ class ClassConsultasProduccion extends Conexion
 }
 
 
+/**
+ * Obtiene el listado de producción diaria filtrado por rango de fechas y opcionalmente por contratista.
+ *
+ * @param string $fechaInicio Fecha de inicio en formato YYYY-MM-DD HH:MM:SS
+ * @param string $fechaFin Fecha de fin en formato YYYY-MM-DD HH:MM:SS
+ * @param int|string|null $idContratista (Opcional) ID del contratista para filtrar. Si es null u 0, trae todo.
+ * @return array
+ */
+public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
+{
+    $sql = "SELECT 
+                p.Expediente,
+                p.Folio_Pisa,
+                p.TELEFONO,
+                p.Tipo_de_Tarea,
+                p.NOM_CT,
+                p.FECHA_LIQ,
+                p.Semana,
+                p.Anio,
+                p.idContratista,
+                p.Contratista,
+                p.Tecnico,
+                p.NOM_DIVISION,
+                p.NOM_AREA,
+                p.Num__Serie,
+                p.Serie_Eci,
+                p.Existe_Serie_Prod_Almacen,
+                p.Existe_Serie_Eci_Almacen,
+                p.DISTRITO,
+                p.TERMINAL,
+                p.Tiene_Senalamiento,
+                s.Tipo_Senalamiento,
+                s.Detalle AS Detalle_Senalamiento,
+                n.Estatus_Navegacion,
+                n.Flag_Navega,
+                n.FECHA_ULTIMO_EVENTO
+            FROM seg_produccion_diaria p
+            LEFT JOIN seg_produccion_senalamiento s 
+                ON p.Folio_Pisa = s.Folio_Pisa 
+               AND p.TELEFONO = s.TELEFONO 
+               AND p.FECHA_LIQ = s.FECHA_LIQ
+            LEFT JOIN seg_produccion_navegacion n 
+                ON p.Folio_Pisa = n.Folio_Pisa 
+               AND p.TELEFONO = n.TELEFONO 
+               AND p.FECHA_LIQ = n.FECHA_LIQ
+            WHERE p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
 
+    $params = array(
+        ':fechaInicio' => $fechaInicio,
+        ':fechaFin'    => $fechaFin
+    );
+
+    // Si viene un ID de contratista válido (diferente de 0, vacíos o null), agregamos el filtro
+    if (!empty($idContratista) && $idContratista != 0) {
+        $sql .= " AND p.idContratista = :idContratista";
+        $params[':idContratista'] = $idContratista;
+    }
+
+    $sql .= " ORDER BY p.FECHA_LIQ DESC";
+
+    return $this->runQuery($sql, $params, 'erpprint'); 
+}
     
 }
