@@ -588,10 +588,10 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
                AND p.FECHA_LIQ = n.FECHA_LIQ
             LEFT JOIN material_det_salida mds
                 ON p.Num__Serie COLLATE utf8mb4_general_ci = mds.Num_Serie_S COLLATE utf8mb4_general_ci
+               AND (mds.Estatus_Ubicacion != 'DEVOLUCION' OR mds.Estatus_Ubicacion IS NULL)
             LEFT JOIN contratistas c_asig
                 ON mds.FK_Contratista_Salida = c_asig.idContratistas
-            WHERE p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin
-              AND (mds.Estatus_Ubicacion IS NULL OR mds.Estatus_Ubicacion != 'DEVOLUCION')";
+            WHERE p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
 
     if (!empty($idContratista) && $idContratista != 0) {
         $sql .= " AND p.idContratista = :idContratista";
@@ -603,6 +603,7 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
     try {
         return $this->runQuery($sql, $params, 'erpprint');
     } catch (PDOException $e) {
+        // En producción se recomienda registrar el error en log en lugar de romper la ejecución
         error_log("ERROR SQL en ConsultarProduccionDiaria: " . $e->getMessage());
         return [];
     }
