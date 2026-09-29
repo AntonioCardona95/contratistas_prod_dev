@@ -561,6 +561,8 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
     return $this->runQuery($sql, $params, 'analisis');
 }
 
+
+
 public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
 {
     $params = [
@@ -606,6 +608,8 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
         return [];
     }
 }
+
+
 
 /**
  * Obtiene el listado de producción diaria filtrado por rango de fechas y opcionalmente por contratista.
