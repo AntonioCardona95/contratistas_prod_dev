@@ -80,6 +80,29 @@ class Navegacion extends Conexion
         return trim((string)$folio);
     }
 
+    protected function seriesCoincidenEnMinimoCaracteres($serieA, $serieB, $minimoCaracteres = 10)
+    {
+        $serieA = $this->normalizarSerie($serieA);
+        $serieB = $this->normalizarSerie($serieB);
+
+        if (strlen($serieA) < $minimoCaracteres || strlen($serieB) < $minimoCaracteres) {
+            return false;
+        }
+
+        $longitudMayor = max(strlen($serieA), strlen($serieB));
+        $caracteresCoincidentes = $longitudMayor - levenshtein($serieA, $serieB);
+
+        return $caracteresCoincidentes >= $minimoCaracteres;
+    }
+
+    protected function esCandidataDiscrepanciaCoordiapp($serie, $coordiappRegistrosPorSerie)
+    {
+        $serieNormalizada = $this->normalizarSerie($serie);
+
+        return $serieNormalizada !== ''
+            && empty($coordiappRegistrosPorSerie[$serieNormalizada]);
+    }
+
     protected function detectarDiscrepanciaCoordiapp($registrosCoordiapp, $registrosTacPorFolioTelefono, $registrosEciPorTelefono)
     {
         $mejorCoincidencia = null;
@@ -102,7 +125,8 @@ class Navegacion extends Conexion
                         || $serieCoordiapp === ''
                         || $serieTac === ''
                         || $serieTac !== $serieEci
-                        || $serieCoordiapp === $serieEci) {
+                        || $serieCoordiapp === $serieEci
+                        || !$this->seriesCoincidenEnMinimoCaracteres($serieCoordiapp, $serieEci)) {
                         continue;
                     }
 
@@ -470,7 +494,10 @@ class Navegacion extends Conexion
         $foliosParaCoordiapp = array();
         foreach ($series as $serie) {
             $serieNormalizada = $this->normalizarSerie($serie['Num_Serie_S'] ?? '');
-            if (!empty($eciPorSerie[$serieNormalizada])) {
+            if ($this->esCandidataDiscrepanciaCoordiapp(
+                $serieNormalizada,
+                $coordiappRegistrosPorSerie
+            )) {
                 foreach ($tacRegistrosPorSerie[$serieNormalizada] ?? array() as $registroTac) {
                     $folioPisa = $this->normalizarFolioPisa($registroTac['Folio_Pisa'] ?? '');
                     if ($folioPisa !== '') {
@@ -514,7 +541,15 @@ class Navegacion extends Conexion
                 $this->normalizarTelefono($registroEci['TELEFONO'] ?? ''),
                 $this->normalizarTelefono($registroTac['TELEFONO'] ?? '')
             );
-            $registrosCoordiappParaSerie = $coordiappRegistrosPorSerie[$serieNormalizada] ?? array();
+
+            if (!$this->esCandidataDiscrepanciaCoordiapp(
+                $serieNormalizada,
+                $coordiappRegistrosPorSerie
+            )) {
+                continue;
+            }
+
+            $registrosCoordiappParaSerie = array();
 
             foreach ($telefonosRelacionados as $telefono) {
                 if ($telefono === '') {
@@ -525,9 +560,7 @@ class Navegacion extends Conexion
                 }
             }
 
-            if ($serieNormalizada === ''
-                || empty($registroEci)
-                || empty($registrosCoordiappParaSerie)) {
+            if (empty($registrosCoordiappParaSerie)) {
                 continue;
             }
 
