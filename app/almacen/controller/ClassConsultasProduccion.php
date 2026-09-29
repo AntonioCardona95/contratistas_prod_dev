@@ -561,7 +561,7 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
     return $this->runQuery($sql, $params, 'analisis');
 }
 
-public function ConsultarProduccionDiariaDebug($fechaInicio, $fechaFin, $idContratista = null)
+public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
 {
     echo "<pre>=== Debug detallado de ConsultarProduccionDiaria ===\n";
 
