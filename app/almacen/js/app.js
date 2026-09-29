@@ -109,11 +109,6 @@ function LoadReporte() {
         Fecha2: f2
     };
 
-    console.group("=== EJECUTANDO LoadReporte ===");
-    console.log("Fecha1 enviada:", f1);
-    console.log("Fecha2 enviada:", f2);
-    console.groupEnd();
-
     $("#LoadReporte").fadeIn('slow');
 
     $.ajax({
@@ -127,6 +122,7 @@ function LoadReporte() {
             $("#LoadReporte").html(data);
         },
         error: function(xhr, status, error) {
+            // Si quieres quitar también este log, puedes dejar vacío el bloque
             console.error("Error al cargar la tabla:", error);
         }
     });
@@ -135,6 +131,7 @@ function LoadReporte() {
 $(document).ready(function() {
     LoadReporte();
 });
+
 
 
 
