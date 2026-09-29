@@ -364,8 +364,8 @@ class ClassConsultasProduccion extends Conexion
                             'Folio_Pisa'        => $folioPisa,
                             'TELEFONO'          => $tel,
                             'FECHA_LIQ'         => $fechaLiq,
-                            'Tipo_Senalamiento' => 'SERIE PRODUCCION INVALIDA O VACIA',
-                            'Detalle'           => "Producción registró serie sin obtener o vacía: '$serieProd'"
+                            'Tipo_Senalamiento' => 'SERIE TAC INVALIDA O VACIA',
+                            'Detalle'           => "Producción registro serie sin obtener o vacia: '$serieProd'"
                         ];
                     } elseif (!$existeProdEnAlmacen) {
                         $senalamientos[] = [
@@ -373,7 +373,7 @@ class ClassConsultasProduccion extends Conexion
                             'TELEFONO'          => $tel,
                             'FECHA_LIQ'         => $fechaLiq,
                             'Tipo_Senalamiento' => 'NO ENCONTRADO EN ALMACEN',
-                            'Detalle'           => "Serie " . $serieProd . " (Origen: PRODUCCION) NO fue encontrada en almacén"
+                            'Detalle'           => "Serie " . $serieProd . " (Origen: TAC) NO fue encontrada en almacen"
                         ];
                     }
 
@@ -383,7 +383,7 @@ class ClassConsultasProduccion extends Conexion
                             'TELEFONO'          => $tel,
                             'FECHA_LIQ'         => $fechaLiq,
                             'Tipo_Senalamiento' => 'NO ENCONTRADO EN ALMACEN',
-                            'Detalle'           => "Serie " . $serieEci . " (Origen: ECI) NO fue encontrada en almacén"
+                            'Detalle'           => "Serie " . $serieEci . " (Origen: ECI) NO fue encontrada en almacen"
                         ];
                     }
 
@@ -393,7 +393,7 @@ class ClassConsultasProduccion extends Conexion
                             'TELEFONO'          => $tel,
                             'FECHA_LIQ'         => $fechaLiq,
                             'Tipo_Senalamiento' => 'SIN NAVEGACION EN ESCI',
-                            'Detalle'           => "Estatus: $estatusNav" . ($fEvento ? " | Última vez que navegó: $fEvento" : "")
+                            'Detalle'           => "Estatus: $estatusNav" . ($fEvento ? " | Última vez que navego: $fEvento" : "")
                         ];
                     }
 
