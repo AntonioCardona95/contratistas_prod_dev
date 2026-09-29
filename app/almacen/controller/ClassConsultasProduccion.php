@@ -588,7 +588,7 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
                AND p.FECHA_LIQ = n.FECHA_LIQ
             LEFT JOIN material_det_salida mds
                 ON p.Num__Serie COLLATE utf8mb4_general_ci = mds.Num_Serie_S COLLATE utf8mb4_general_ci
-               AND mds.Estatus_Ubicacion != 'DEVOLUCION'
+               AND (mds.Estatus_Ubicacion != 'DEVOLUCION' OR mds.Estatus_Ubicacion IS NULL)
             LEFT JOIN contratistas c_asig
                 ON mds.FK_Contratista_Salida = c_asig.idContratistas
             WHERE p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
