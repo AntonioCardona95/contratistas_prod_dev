@@ -132,21 +132,29 @@
     z-index: 11;
 }
 
+/* Altura fija con scroll vertical y horizontal propio */
+#reporte-table-wrapper {
+    max-height: 500px; /* Define la altura que prefieras (ej. 500px o 60vh) */
+    overflow-y: auto;  /* Barra vertical propia de la tabla */
+    overflow-x: auto;  /* Barra horizontal propia */
+    position: relative;
+}
 
-
-/* Congelar la cabecera (thead) arriba al hacer scroll vertical */
+/* Congelar cabecera arriba dentro del contenedor */
 #reporte-produccion thead th {
     position: sticky;
     top: 0;
-    background-color: #f8f9fc !important; /* Color de fondo de la cabecera */
+    background-color: #f8f9fc !important;
     z-index: 12;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
 }
 
-/* La intersección (Esquina superior izquierda: Folio Pisa) necesita mayor z-index */
+/* Congelar celda de intersección (Folio Pisa en thead) */
 #reporte-produccion thead th:first-child {
     z-index: 20 !important;
 }
+
+
+
 </style>
 
 <div id="contenedor-tabla-reporte">
