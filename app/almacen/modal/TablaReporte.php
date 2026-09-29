@@ -172,6 +172,7 @@
                     <th>Contratista</th>
                     <th>Técnico</th>
                     <th>Nº Serie TAC</th>
+                    <th>Contratista ONT Asignada</th>
                     <th>Fecha Liq</th>
                     <th>Señalamiento</th>
                     <th>Navegación</th>
@@ -189,6 +190,7 @@
                     <th>Contratista</th>
                     <th>Técnico</th>
                     <th>Nº Serie TAC</th>
+                    <th>Contratista ONT Asignada</th>
                     <th>Fecha Liq</th>
                     <th>Señalamiento</th>
                     <th>Navegación</th>
@@ -199,7 +201,7 @@
                 <?php if (!empty($filas)): foreach ($filas as $row): ?>
                     <tr data-folio="<?= htmlspecialchars($row['Folio_Pisa'], ENT_QUOTES, 'UTF-8') ?>"
                         data-telefono="<?= htmlspecialchars($row['TELEFONO'], ENT_QUOTES, 'UTF-8') ?>"
-                        data-contratista="<?= htmlspecialchars(strtoupper($row['Contratista'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
+                        data-contratista="<?= htmlspecialchars(strtoupper($row['Contratista_Produccion'] ?? $row['Contratista'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
                         data-tecnico="<?= htmlspecialchars(strtoupper($row['Tecnico'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
                         data-fecha="<?= htmlspecialchars($row['FECHA_LIQ'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
                         
@@ -209,9 +211,10 @@
                         <td><?= htmlspecialchars($row['NOM_AREA'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['NOM_DIVISION'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['NOM_CT'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
-                        <td><?= htmlspecialchars($row['Contratista'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars($row['Contratista_Produccion'] ?? $row['Contratista'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['Tecnico'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['Num__Serie'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars(!empty(trim($row['Contratista_ONT_Asignada'] ?? '')) ? $row['Contratista_ONT_Asignada'] : 'Sin Asignar', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['FECHA_LIQ'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td>
                             <?php if (!empty($row['Tiene_Senalamiento'])): ?>
