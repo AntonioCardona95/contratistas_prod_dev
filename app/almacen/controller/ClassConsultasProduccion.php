@@ -597,8 +597,7 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
                 s.Detalle AS Detalle_Senalamiento,
                 n.Estatus_Navegacion,
                 n.Flag_Navega,
-                n.FECHA_ULTIMO_EVENTO,
-                TRIM(CONCAT_WS(' ', c_sal.Contratista, c_sal.apellido_paterno, c_sal.apellido_materno)) AS Contratista_ONT_Asignada
+                n.FECHA_ULTIMO_EVENTO
             FROM seg_produccion_diaria p
             LEFT JOIN seg_produccion_senalamiento s 
                 ON p.Folio_Pisa = s.Folio_Pisa 
@@ -608,10 +607,6 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
                 ON p.Folio_Pisa = n.Folio_Pisa 
                AND p.TELEFONO = n.TELEFONO 
                AND p.FECHA_LIQ = n.FECHA_LIQ
-            LEFT JOIN material_det_salida m 
-                ON p.Num__Serie = m.Num_Serie_S
-            LEFT JOIN contratistas c_sal 
-                ON m.FK_Contratista_Salida = c_sal.idContratistas
             WHERE p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
 
     $params = array(
@@ -619,6 +614,7 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
         ':fechaFin'    => $fechaFin
     );
 
+    // Si viene un ID de contratista válido (diferente de 0, vacíos o null), agregamos el filtro
     if (!empty($idContratista) && $idContratista != 0) {
         $sql .= " AND p.idContratista = :idContratista";
         $params[':idContratista'] = $idContratista;
