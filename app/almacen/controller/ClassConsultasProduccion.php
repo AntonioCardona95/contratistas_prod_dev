@@ -563,6 +563,11 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
 
 public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
 {
+    echo "<pre>=== Entrando a ConsultarProduccionDiaria ===\n";
+    echo "FechaInicio: $fechaInicio\n";
+    echo "FechaFin: $fechaFin\n";
+    echo "idContratista: " . var_export($idContratista, true) . "\n";
+
     $sql = "SELECT 
                 p.Expediente,
                 p.Folio_Pisa,
@@ -618,7 +623,46 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
 
     $sql .= " ORDER BY p.FECHA_LIQ DESC";
 
-    return $this->runQuery($sql, $params, 'erpprint'); 
+    echo "SQL Final:\n$sql\n";
+    echo "Parámetros:\n";
+    print_r($params);
+
+    try {
+        $rows = $this->runQuery($sql, $params, 'erpprint');
+        echo "=== Resultados obtenidos ===\n";
+        if (empty($rows)) {
+            echo "La consulta no devolvió registros.\n";
+        } else {
+            foreach ($rows as $i => $row) {
+                echo "Registro #$i:\n";
+                print_r($row);
+
+                // Validar joins
+                if (empty($row['Tipo_Senalamiento']) && empty($row['Detalle_Senalamiento'])) {
+                    echo "Aviso: LEFT JOIN seg_produccion_senalamiento no devolvió datos para este registro.\n";
+                }
+                if (empty($row['Estatus_Navegacion']) && empty($row['Flag_Navega'])) {
+                    echo "Aviso: LEFT JOIN seg_produccion_navegacion no devolvió datos para este registro.\n";
+                }
+                if (empty($row['Contratista_Asignado'])) {
+                    echo "Aviso: LEFT JOIN contratistas (via material_det_salida) no devolvió datos para este registro.\n";
+                }
+            }
+        }
+    } catch (PDOException $e) {
+        echo "=== ERROR SQL DETECTADO ===\n";
+        echo "Código: " . $e->getCode() . "\n";
+        echo "Mensaje: " . $e->getMessage() . "\n";
+        echo "Trace:\n" . $e->getTraceAsString() . "\n";
+    } catch (Exception $e) {
+        echo "=== ERROR GENERAL DETECTADO ===\n";
+        echo "Mensaje: " . $e->getMessage() . "\n";
+        echo "Trace:\n" . $e->getTraceAsString() . "\n";
+    }
+
+    echo "=== Fin de ConsultarProduccionDiaria ===</pre>";
+
+    return $rows ?? [];
 }
 
 
