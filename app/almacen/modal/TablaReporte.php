@@ -171,6 +171,7 @@
                     <th>Cope</th>
                     <th>Contratista</th>
                     <th>Técnico</th>
+                    <th>Nº Serie TAC</th>
                     <th>Fecha Liq</th>
                     <th>Señalamiento</th>
                     <th>Navegación</th>
@@ -187,6 +188,7 @@
                     <th>Cope</th>
                     <th>Contratista</th>
                     <th>Técnico</th>
+                    <th>Nº Serie TAC</th>
                     <th>Fecha Liq</th>
                     <th>Señalamiento</th>
                     <th>Navegación</th>
@@ -209,6 +211,7 @@
                         <td><?= htmlspecialchars($row['NOM_CT'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['Contratista'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['Tecnico'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                        <td><?= htmlspecialchars($row['Num__Serie'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['FECHA_LIQ'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td>
                             <?php if (!empty($row['Tiene_Senalamiento'])): ?>
