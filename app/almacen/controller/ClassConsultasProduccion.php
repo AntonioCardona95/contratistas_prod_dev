@@ -563,7 +563,7 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
 
 
 
-public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
+/*public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
 {
     $params = [
         ':fechaInicio' => $fechaInicio, 
@@ -607,7 +607,7 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
         error_log("ERROR SQL en ConsultarProduccionDiaria: " . $e->getMessage());
         return [];
     }
-}
+} */
 
 
 
