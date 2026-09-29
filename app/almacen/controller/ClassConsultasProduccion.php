@@ -563,12 +563,10 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
 
 public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
 {
-    echo "<pre>=== Debug detallado de ConsultarProduccionDiaria ===\n";
-
-    $params = [':fechaInicio'=>$fechaInicio, ':fechaFin'=>$fechaFin];
-    if (!empty($idContratista) && $idContratista != 0) {
-        $params[':idContratista'] = $idContratista;
-    }
+    $params = [
+        ':fechaInicio' => $fechaInicio, 
+        ':fechaFin'    => $fechaFin
+    ];
 
     $sql = "SELECT p.*, 
                    s.Tipo_Senalamiento, 
@@ -595,32 +593,19 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
 
     if (!empty($idContratista) && $idContratista != 0) {
         $sql .= " AND p.idContratista = :idContratista";
+        $params[':idContratista'] = $idContratista;
     }
 
     $sql .= " ORDER BY p.FECHA_LIQ DESC";
 
-    echo "SQL Final:\n$sql\n";
-    echo "Parámetros:\n";
-    print_r($params);
-
     try {
-        $rows = $this->runQuery($sql, $params, 'erpprint');
-        echo "=== Resultados obtenidos ===\n";
-        if (empty($rows)) {
-            echo "La consulta no devolvió registros.\n";
-        } else {
-            foreach ($rows as $i => $row) {
-                echo "Registro #$i:\n";
-                print_r($row);
-            }
-        }
+        return $this->runQuery($sql, $params, 'erpprint');
     } catch (PDOException $e) {
-        echo "ERROR SQL: " . $e->getMessage() . "\n";
+        // En producción se recomienda registrar el error en log en lugar de romper la ejecución
+        error_log("ERROR SQL en ConsultarProduccionDiaria: " . $e->getMessage());
+        return [];
     }
-
-    echo "=== Fin Debug ===</pre>";
 }
-
 
 /**
  * Obtiene el listado de producción diaria filtrado por rango de fechas y opcionalmente por contratista.
