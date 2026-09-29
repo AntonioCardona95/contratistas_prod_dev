@@ -567,7 +567,7 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
  *
  * @param string $fechaInicio Fecha de inicio en formato YYYY-MM-DD HH:MM:SS
  * @param string $fechaFin Fecha de fin en formato YYYY-MM-DD HH:MM:SS
- * @param int|string|null $idContratista (Opcional) ID del contratista para filtrar. Si es null u 0, trae todo.
+ * @param int|string|null $idContratista (Opcional) ID del contratista para filtrar.
  * @return array
  */
 public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
@@ -597,7 +597,8 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
                 s.Detalle AS Detalle_Senalamiento,
                 n.Estatus_Navegacion,
                 n.Flag_Navega,
-                n.FECHA_ULTIMO_EVENTO
+                n.FECHA_ULTIMO_EVENTO,
+                c_ont.Contratista AS Contratista_ONT_Asignada
             FROM seg_produccion_diaria p
             LEFT JOIN seg_produccion_senalamiento s 
                 ON p.Folio_Pisa = s.Folio_Pisa 
@@ -607,6 +608,13 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
                 ON p.Folio_Pisa = n.Folio_Pisa 
                AND p.TELEFONO = n.TELEFONO 
                AND p.FECHA_LIQ = n.FECHA_LIQ
+            /* JOIN a material_det_salida omitiendo DEVOLUCION */
+            LEFT JOIN material_det_salida m 
+                ON p.Num__Serie = m.Num_Serie_S 
+               AND (m.Estatus_Ubicacion IS NULL OR m.Estatus_Ubicacion <> 'DEVOLUCION')
+            /* JOIN a la tabla contratistas para obtener el nombre */
+            LEFT JOIN contratistas c_ont 
+                ON m.FK_Contratista_Salida = c_ont.idContratistas
             WHERE p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
 
     $params = array(
@@ -614,12 +622,14 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
         ':fechaFin'    => $fechaFin
     );
 
-    // Si viene un ID de contratista válido (diferente de 0, vacíos o null), agregamos el filtro
     if (!empty($idContratista) && $idContratista != 0) {
         $sql .= " AND p.idContratista = :idContratista";
         $params[':idContratista'] = $idContratista;
     }
 
+    /* Agregamos GROUP BY p.Folio_Pisa, p.TELEFONO, p.FECHA_LIQ para evitar duplicar filas 
+       en caso de que un número de serie tenga más de un registro válido en salidas */
+    $sql .= " GROUP BY p.Folio_Pisa, p.TELEFONO, p.FECHA_LIQ";
     $sql .= " ORDER BY p.FECHA_LIQ DESC";
 
     return $this->runQuery($sql, $params, 'erpprint'); 
