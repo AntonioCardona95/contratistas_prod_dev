@@ -33,31 +33,8 @@
         $Fecha2 = (!empty($Fecha2) ? $Fecha2 : date('Y-m-d')) . " 23:59:59";
     }
 
-    // --- EJECUCIÓN Y CAPTURA DE ERRORES ---
-    $filas = array();
-    try {
-        // Llamamos a la función pasando las fechas y el ID del contratista
-        $filas = $modal->ConsultarProduccionDiaria($Fecha1, $Fecha2, $idContratistas);
-        
-        // Si no devuelve nada, o devuelve false
-        if (!is_array($filas)) {
-            echo "<div style='background:#f8d7da; color:#721c24; padding:15px; border-radius:5px; margin:10px 0;'>
-                    <strong>Atención:</strong> La consulta no devolvió un arreglo válido de datos.
-                  </div>";
-            $filas = array();
-        }
-    } catch (Throwable $e) {
-        // Muestra el error exacto de base de datos o PHP en pantalla
-        echo "<div style='background:#f8d7da; color:#721c24; padding:15px; border-radius:5px; margin:10px 0; border:1px solid #f5c6cb;'>
-                <h4>Error en la Consulta:</h4>
-                <p><strong>Mensaje:</strong> " . htmlspecialchars($e->getMessage()) . "</p>
-                <p><strong>Archivo:</strong> " . $e->getFile() . " en la línea " . $e->getLine() . "</p>
-              </div>";
-        $filas = array();
-    }
-
     // Consulta de producción
-    //$filas = $modal->ConsultarProduccionDiaria($Fecha1, $Fecha2);
+    $filas = $modal->ConsultarProduccionDiaria($Fecha1, $Fecha2);
 ?>
 
 <style>
@@ -195,7 +172,6 @@
                     <th>Contratista</th>
                     <th>Técnico</th>
                     <th>Nº Serie TAC</th>
-                    <th>Contratista ONT asignada</th> <!-- Nueva columna -->
                     <th>Fecha Liq</th>
                     <th>Señalamiento</th>
                     <th>Navegación</th>
@@ -213,7 +189,6 @@
                     <th>Contratista</th>
                     <th>Técnico</th>
                     <th>Nº Serie TAC</th>
-                    <th>Contratista ONT asignada</th> <!-- Nueva columna -->
                     <th>Fecha Liq</th>
                     <th>Señalamiento</th>
                     <th>Navegación</th>
@@ -237,16 +212,6 @@
                         <td><?= htmlspecialchars($row['Contratista'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['Tecnico'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['Num__Serie'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
-                        
-                        <!-- Imprimir el nombre del contratista asignado a la ONT -->
-                        <td>
-                            <?php if (!empty($row['Contratista_ONT_Asignada'])): ?>
-                                <?= htmlspecialchars($row['Contratista_ONT_Asignada'], ENT_QUOTES, 'UTF-8') ?>
-                            <?php else: ?>
-                                <span class="badge badge-secondary">Sin asignar</span>
-                            <?php endif; ?>
-                        </td>
-
                         <td><?= htmlspecialchars($row['FECHA_LIQ'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td>
                             <?php if (!empty($row['Tiene_Senalamiento'])): ?>
