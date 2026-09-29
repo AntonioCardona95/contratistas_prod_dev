@@ -565,50 +565,17 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
 {
     echo "<pre>=== Debug detallado de ConsultarProduccionDiaria ===\n";
 
-    // 1. Total de registros
-    $sqlTotal = "SELECT COUNT(*) AS total FROM seg_produccion_diaria";
-    $total = $this->runQuery($sqlTotal, [], 'erpprint');
-    echo "Total registros en seg_produccion_diaria: " . $total[0]['total'] . "\n";
-
-    // 2. Mostrar fechas reales que existen
-    $sqlFechasExistentes = "SELECT FECHA_LIQ, COUNT(*) AS c 
-                            FROM seg_produccion_diaria 
-                            GROUP BY FECHA_LIQ 
-                            ORDER BY FECHA_LIQ DESC LIMIT 20";
-    $fechas = $this->runQuery($sqlFechasExistentes, [], 'erpprint');
-    echo "Fechas reales encontradas en la tabla (últimas 20):\n";
-    foreach ($fechas as $f) {
-        echo " - " . $f['FECHA_LIQ'] . " => " . $f['c'] . " registros\n";
-    }
-
-    // 3. Conteo por rango de fechas (sin horas)
-    $sqlFechas = "SELECT COUNT(*) AS total FROM seg_produccion_diaria 
-                  WHERE DATE(FECHA_LIQ) BETWEEN DATE(:fechaInicio) AND DATE(:fechaFin)";
-    $totalFechas = $this->runQuery($sqlFechas, [':fechaInicio'=>$fechaInicio, ':fechaFin'=>$fechaFin], 'erpprint');
-    echo "Registros que cumplen rango de fechas (comparando solo DATE): " . $totalFechas[0]['total'] . "\n";
-
-    // 4. Conteo por rango exacto con horas
-    $sqlFechasExactas = "SELECT COUNT(*) AS total FROM seg_produccion_diaria 
-                         WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
-    $totalFechasExactas = $this->runQuery($sqlFechasExactas, [':fechaInicio'=>$fechaInicio, ':fechaFin'=>$fechaFin], 'erpprint');
-    echo "Registros que cumplen rango de fechas exacto (con horas): " . $totalFechasExactas[0]['total'] . "\n";
-
-    // 5. Conteo por contratista si aplica
-    if (!empty($idContratista) && $idContratista != 0) {
-        $sqlContratista = "SELECT COUNT(*) AS total FROM seg_produccion_diaria 
-                           WHERE idContratista = :idContratista";
-        $totalContratista = $this->runQuery($sqlContratista, [':idContratista'=>$idContratista], 'erpprint');
-        echo "Registros que cumplen idContratista=$idContratista: " . $totalContratista[0]['total'] . "\n";
-    }
-
-    // 6. Ejecutar consulta original
     $params = [':fechaInicio'=>$fechaInicio, ':fechaFin'=>$fechaFin];
     if (!empty($idContratista) && $idContratista != 0) {
         $params[':idContratista'] = $idContratista;
     }
 
-    $sql = "SELECT p.*, s.Tipo_Senalamiento, s.Detalle AS Detalle_Senalamiento,
-                   n.Estatus_Navegacion, n.Flag_Navega, n.FECHA_ULTIMO_EVENTO,
+    $sql = "SELECT p.*, 
+                   s.Tipo_Senalamiento, 
+                   s.Detalle AS Detalle_Senalamiento,
+                   n.Estatus_Navegacion, 
+                   n.Flag_Navega, 
+                   n.FECHA_ULTIMO_EVENTO,
                    c_asig.Contratista AS Contratista_Asignado
             FROM seg_produccion_diaria p
             LEFT JOIN seg_produccion_senalamiento s 
@@ -620,7 +587,7 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
                AND p.TELEFONO = n.TELEFONO 
                AND p.FECHA_LIQ = n.FECHA_LIQ
             LEFT JOIN material_det_salida mds
-                ON p.Num__Serie = mds.Num_Serie_S
+                ON p.Num__Serie COLLATE utf8mb4_general_ci = mds.Num_Serie_S COLLATE utf8mb4_general_ci
                AND mds.Estatus_Ubicacion != 'DEVOLUCION'
             LEFT JOIN contratistas c_asig
                 ON mds.FK_Contratista_Salida = c_asig.idContratistas
