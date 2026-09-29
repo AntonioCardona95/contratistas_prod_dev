@@ -515,16 +515,13 @@ class ClassConsultasProduccion extends Conexion
     }
 
 
-    /**
- * Obtiene registros completos de producción (diaria + navegación + señalamientos)
- * en un rango de fechas
- */
-public function VisualizarTablaFechas($fechaInicio, $fechaFin)
+  public function VisualizarTablaFechas($fechaInicio, $fechaFin)
 {
     $sql = "SELECT 
                 d.Folio_Pisa,
                 d.TELEFONO,
                 d.Tipo_de_Tarea,
+                d.NOM_CT,              -- <== faltaba este campo
                 d.Contratista,
                 d.Tecnico,
                 d.NOM_DIVISION,
