@@ -173,6 +173,7 @@
                     <th>Técnico</th>
                     <th>Nº Serie TAC</th>
                     <th>Contratista Asignado</th>
+                    <th>Técnico Asignado</th>
                     <th>Fecha Liq</th>
                     <th>Señalamiento</th>
                     <th>Navegación</th>
@@ -191,6 +192,7 @@
                     <th>Técnico</th>
                     <th>Nº Serie TAC</th>
                     <th>Contratista Asignado</th>
+                    <th>Técnico Asignado</th>
                     <th>Fecha Liq</th>
                     <th>Señalamiento</th>
                     <th>Navegación</th>
@@ -210,8 +212,11 @@
                         <td><?= htmlspecialchars($row['Tecnico'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['Num__Serie'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
 
-                        <!-- Contratista Asignado con nombre completo -->
+                        <!-- Contratista Asignado -->
                         <td><?= htmlspecialchars($row['Contratista_Asignado'] ?? 'Sin asignar', ENT_QUOTES, 'UTF-8') ?></td>
+
+                        <!-- Técnico Asignado -->
+                        <td><?= htmlspecialchars($row['Tecnico_Asignado'] ?? 'Sin asignar', ENT_QUOTES, 'UTF-8') ?></td>
 
                         <td><?= htmlspecialchars($row['FECHA_LIQ'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td>
@@ -243,6 +248,7 @@
         </table>
     </div>
 </div>
+
 
 
     <div id="reporte-mobile-search">
