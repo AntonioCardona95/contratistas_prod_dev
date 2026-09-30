@@ -677,7 +677,7 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
 
     // prueba //
 
-   /* public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
+public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
 {
     $sql = "SELECT 
                 p.Expediente,
@@ -735,11 +735,11 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
     $sql .= " ORDER BY p.FECHA_LIQ DESC";
 
     return $this->runQuery($sql, $params, 'erpprint'); 
-} */
+} 
 
 // con impresiones //
 
-public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
+/*public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
 {
     $sql = "SELECT 
                 p.Expediente,
@@ -809,7 +809,7 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
     echo "</pre>";
 
     return $rows;
-}
+} */
 
 
 
