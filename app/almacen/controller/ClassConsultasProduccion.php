@@ -706,7 +706,8 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
                 n.Flag_Navega,
                 n.FECHA_ULTIMO_EVENTO,
                 CONCAT_WS(' ', c_asig.Contratista, c_asig.apellido_paterno, c_asig.apellido_materno) AS Contratista_Asignado,
-                CONCAT_WS(' ', t.Nombre_T, t.Apellidos_T) AS Tecnico_Asignado
+                CONCAT_WS(' ', t.Nombre_T, t.Apellidos_T) AS Tecnico_Asignado,
+                tic.Ont AS Ont_Coordiapp
             FROM seg_produccion_diaria p
             LEFT JOIN seg_produccion_senalamiento s 
                 ON p.Folio_Pisa = s.Folio_Pisa 
@@ -725,6 +726,11 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
                 ON p.Num__Serie = sc.Num_Serie_Salida_Det
             LEFT JOIN tecnicos t
                 ON sc.FK_Tecnico_Salida_Det = t.idTecnico
+            LEFT JOIN tecnico_instalaciones_coordiapp tic
+                ON p.Folio_Pisa = tic.Folio_Pisa
+               AND p.TELEFONO = tic.Telefono
+               AND tic.Estatus_Orden = 'COMPLETADA'
+               AND tic.Step_Registro = 5
             WHERE p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
 
     $params = array(
