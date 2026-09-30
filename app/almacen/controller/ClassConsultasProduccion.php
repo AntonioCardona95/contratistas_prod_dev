@@ -677,7 +677,7 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
 
     // prueba //
 
-    public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
+   /* public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
 {
     $sql = "SELECT 
                 p.Expediente,
@@ -735,8 +735,81 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
     $sql .= " ORDER BY p.FECHA_LIQ DESC";
 
     return $this->runQuery($sql, $params, 'erpprint'); 
-}
+} */
 
+// con impresiones //
+
+public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
+{
+    $sql = "SELECT 
+                p.Expediente,
+                p.Folio_Pisa,
+                p.TELEFONO,
+                p.Tipo_de_Tarea,
+                p.NOM_CT,
+                p.FECHA_LIQ,
+                p.Semana,
+                p.Anio,
+                p.idContratista,
+                p.Contratista,
+                p.Tecnico,
+                p.NOM_DIVISION,
+                p.NOM_AREA,
+                p.Num__Serie,
+                p.Serie_Eci,
+                p.Existe_Serie_Prod_Almacen,
+                p.Existe_Serie_Eci_Almacen,
+                p.DISTRITO,
+                p.TERMINAL,
+                p.Tiene_Senalamiento,
+                s.Tipo_Senalamiento,
+                s.Detalle AS Detalle_Senalamiento,
+                n.Estatus_Navegacion,
+                n.Flag_Navega,
+                n.FECHA_ULTIMO_EVENTO,
+                c_asig.Contratista AS Contratista_Asignado
+            FROM seg_produccion_diaria p
+            LEFT JOIN seg_produccion_senalamiento s 
+                ON p.Folio_Pisa = s.Folio_Pisa 
+               AND p.TELEFONO = s.TELEFONO 
+               AND p.FECHA_LIQ = s.FECHA_LIQ
+            LEFT JOIN seg_produccion_navegacion n 
+                ON p.Folio_Pisa = n.Folio_Pisa 
+               AND p.TELEFONO = n.TELEFONO 
+               AND p.FECHA_LIQ = n.FECHA_LIQ
+            LEFT JOIN material_det_salida mds
+                ON p.Num__Serie = mds.Num_Serie_S
+               AND (mds.Ubicacion_Material IS NULL OR mds.Ubicacion_Material != 'DEVOLUCION')
+            LEFT JOIN contratistas c_asig
+                ON mds.FK_Contratista_Salida = c_asig.idContratistas
+            WHERE p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+
+    $params = array(
+        ':fechaInicio' => $fechaInicio,
+        ':fechaFin'    => $fechaFin
+    );
+
+    if (!empty($idContratista) && $idContratista != 0) {
+        $sql .= " AND p.idContratista = :idContratista";
+        $params[':idContratista'] = $idContratista;
+    }
+
+    $sql .= " ORDER BY p.FECHA_LIQ DESC";
+
+    // Ejecutar la consulta
+    $rows = $this->runQuery($sql, $params, 'erpprint');
+
+    // 🔎 Debug: imprimir todo lo que devuelve
+    echo "<pre>";
+    echo "Consulta ejecutada:\n" . $sql . "\n\n";
+    echo "Parámetros:\n";
+    var_dump($params);
+    echo "\nResultados:\n";
+    var_dump($rows);
+    echo "</pre>";
+
+    return $rows;
+}
 
 
 
