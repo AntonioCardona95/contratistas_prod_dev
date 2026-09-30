@@ -37,17 +37,7 @@ $topbar_hide_search = !empty($topbar_hide_search);
         <form id="FormQueryUnidades" class="d-flex form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search topbar-search-form" onsubmit="event.preventDefault(); if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
             <div class="input-group topbar-date-group">
                 
-                <!-- Select Tipo de Tarea -->
-                <select name="TipoTarea" id="TipoTarea" class="form-control bg-light border-0 small mr-2 topbar-select-input" aria-label="Tipo de Tarea">
-                    <option value="" disabled <?= empty($tbTipoTarea) ? 'selected' : '' ?>>Tipo de tarea</option>
-                    <option value="QUEJAS" <?= $tbTipoTarea === 'QUEJAS' ? 'selected' : '' ?>>QUEJAS</option>
-                    <option value="ALTAS" <?= $tbTipoTarea === 'ALTAS' ? 'selected' : '' ?>>ALTAS</option>
-                    <option value="MIGRACIONES" <?= $tbTipoTarea === 'MIGRACIONES' ? 'selected' : '' ?>>MIGRACIONES</option>
-                    <option value="A4" <?= $tbTipoTarea === 'A4' ? 'selected' : '' ?>>A4</option>
-                    <option value="CAMBIOS DE DOMICILIO" <?= $tbTipoTarea === 'CAMBIOS DE DOMICILIO' ? 'selected' : '' ?>>CAMBIOS DE DOMICILIO</option>
-                </select>
-
-                <!-- Se quitaron los eventos onchange para no disparar la búsqueda al seleccionar la primera fecha -->
+                <!-- Campos de fecha primero -->
                 <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" 
                        class="form-control bg-light border-0 small mr-2 topbar-date-input" 
                        aria-label="DESDE" aria-describedby="basic-addon2">
@@ -56,11 +46,26 @@ $topbar_hide_search = !empty($topbar_hide_search);
                        class="form-control bg-light border-0 small mr-2 topbar-date-input" 
                        aria-label="HASTA" aria-describedby="basic-addon2">
 
+                <!-- Botón de búsqueda (Lupita) -->
                 <div class="input-group-append mr-2">
                     <button class="btn btn-primary" type="submit">
                         <i class="fas fa-search fa-sm"></i>
                     </button>
                 </div>
+
+                <!-- Select buscador para Tipo de tarea (después de la lupita) -->
+                <input list="listaTipoTarea" name="TipoTarea" id="TipoTarea" value="<?= htmlspecialchars($tbTipoTarea) ?>" 
+                       class="form-control bg-light border-0 small mr-2 topbar-select-input" 
+                       placeholder="Escriba para buscar tipo de tarea..." style="max-width: 230px;" autocomplete="off">
+                
+                <datalist id="listaTipoTarea">
+                    <option value="QUEJAS"></option>
+                    <option value="ALTAS"></option>
+                    <option value="MIGRACIONES"></option>
+                    <option value="A4"></option>
+                    <option value="CAMBIOS DE DOMICILIO"></option>
+                </datalist>
+
             </div>
             <?php if(!empty($topbar_actions)): ?>
                 <div class="topbar-actions-container d-flex align-items-center ml-2">
