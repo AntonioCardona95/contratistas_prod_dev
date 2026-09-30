@@ -172,7 +172,7 @@
                     <th>Contratista</th>
                     <th>Técnico</th>
                     <th>Nº Serie TAC</th>
-                    <th>Contratista Asignado</th> <!-- Nombramos la nueva columna -->
+                    <th>Contratista Asignado</th>
                     <th>Fecha Liq</th>
                     <th>Señalamiento</th>
                     <th>Navegación</th>
@@ -190,7 +190,7 @@
                     <th>Contratista</th>
                     <th>Técnico</th>
                     <th>Nº Serie TAC</th>
-                    <th>Contratista Asignado</th> <!-- Ajustamos también el pie de tabla -->
+                    <th>Contratista Asignado</th>
                     <th>Fecha Liq</th>
                     <th>Señalamiento</th>
                     <th>Navegación</th>
@@ -215,7 +215,7 @@
                         <td><?= htmlspecialchars($row['Tecnico'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['Num__Serie'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
 
-                        <!-- Nueva celda para mostrar el Contratista Asignado al número de serie -->
+                        <!-- Nueva celda para mostrar el Contratista Asignado -->
                         <td><?= htmlspecialchars($row['Contratista_Asignado'] ?? 'Sin asignar', ENT_QUOTES, 'UTF-8') ?></td>
 
                         <td><?= htmlspecialchars($row['FECHA_LIQ'], ENT_QUOTES, 'UTF-8') ?></td>
@@ -248,6 +248,7 @@
         </table>
     </div>
 </div>
+
     <div id="reporte-mobile-search">
         <div class="input-group">
             <div class="input-group-prepend">
