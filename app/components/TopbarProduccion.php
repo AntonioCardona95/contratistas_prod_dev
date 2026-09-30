@@ -28,6 +28,18 @@ $topbar_hide_search = !empty($topbar_hide_search);
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
 /* Estilos para integrar Select2 perfectamente con el diseño de SB Admin 2 / Bootstrap */
+.topbar-select2-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+.topbar-select2-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #4e73df;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
 .topbar-select2-container .select2-container--default .select2-selection--single {
     background-color: #f8f9fc !important;
     border: 0 !important;
@@ -65,7 +77,7 @@ $topbar_hide_search = !empty($topbar_hide_search);
     <?php if (!$topbar_hide_search): ?>
         <!-- Topbar Search -->
         <form id="FormQueryUnidades" class="d-flex form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search topbar-search-form" onsubmit="event.preventDefault(); if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
-            <div class="input-group topbar-date-group align-items-center">
+            <div class="input-group topbar-date-group align-items-end">
                 
                 <!-- Campos de fecha primero -->
                 <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" 
@@ -77,22 +89,25 @@ $topbar_hide_search = !empty($topbar_hide_search);
                        aria-label="HASTA" aria-describedby="basic-addon2">
 
                 <!-- Botón de búsqueda (Lupita) -->
-                <div class="input-group-append mr-2">
+                <div class="input-group-append mr-3">
                     <button class="btn btn-primary" type="submit">
                         <i class="fas fa-search fa-sm"></i>
                     </button>
                 </div>
 
-                <!-- Select2 para Tipo de Tarea (después de la lupita) -->
-                <div class="topbar-select2-container mr-2" style="width: 220px;">
-                    <select name="TipoTarea" id="TipoTarea" class="form-control select2-topbar">
-                        <option value=""></option>
-                        <option value="QUEJAS" <?= $tbTipoTarea === 'QUEJAS' ? 'selected' : '' ?>>QUEJAS</option>
-                        <option value="ALTAS" <?= $tbTipoTarea === 'ALTAS' ? 'selected' : '' ?>>ALTAS</option>
-                        <option value="MIGRACIONES" <?= $tbTipoTarea === 'MIGRACIONES' ? 'selected' : '' ?>>MIGRACIONES</option>
-                        <option value="A4" <?= $tbTipoTarea === 'A4' ? 'selected' : '' ?>>A4</option>
-                        <option value="CAMBIOS DE DOMICILIO" <?= $tbTipoTarea === 'CAMBIOS DE DOMICILIO' ? 'selected' : '' ?>>CAMBIOS DE DOMICILIO</option>
-                    </select>
+                <!-- Contenedor con título y Select2 (después de la lupita) -->
+                <div class="topbar-select2-wrapper mr-2">
+                    <label class="topbar-select2-label">Seleccione Tipo de tarea</label>
+                    <div class="topbar-select2-container" style="width: 230px;">
+                        <select name="TipoTarea" id="TipoTarea" class="form-control select2-topbar">
+                            <option value=""></option>
+                            <option value="QUEJAS" <?= $tbTipoTarea === 'QUEJAS' ? 'selected' : '' ?>>QUEJAS</option>
+                            <option value="ALTAS" <?= $tbTipoTarea === 'ALTAS' ? 'selected' : '' ?>>ALTAS</option>
+                            <option value="MIGRACIONES" <?= $tbTipoTarea === 'MIGRACIONES' ? 'selected' : '' ?>>MIGRACIONES</option>
+                            <option value="A4" <?= $tbTipoTarea === 'A4' ? 'selected' : '' ?>>A4</option>
+                            <option value="CAMBIOS DE DOMICILIO" <?= $tbTipoTarea === 'CAMBIOS DE DOMICILIO' ? 'selected' : '' ?>>CAMBIOS DE DOMICILIO</option>
+                        </select>
+                    </div>
                 </div>
 
             </div>
@@ -117,7 +132,7 @@ $topbar_hide_search = !empty($topbar_hide_search);
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof jQuery !== 'undefined' && typeof jQuery.fn.select2 !== 'undefined') {
         $('#TipoTarea').select2({
-            placeholder: "Escriba para buscar tipo de tarea...",
+            placeholder: "Escriba tipo de tarea...",
             allowClear: true,
             language: {
                 noResults: function() {
