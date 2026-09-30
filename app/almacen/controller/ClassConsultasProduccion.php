@@ -705,8 +705,7 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
                 n.Estatus_Navegacion,
                 n.Flag_Navega,
                 n.FECHA_ULTIMO_EVENTO,
-                CONCAT_WS(' ', c_asig.Contratista, c_asig.apellido_paterno, c_asig.apellido_materno) AS Contratista_Asignado,
-                CONCAT_WS(' ', t.Nombre_T, t.Apellidos_T) AS Tecnico_Asignado
+                CONCAT_WS(' ', c_asig.Contratista, c_asig.apellido_paterno, c_asig.apellido_materno) AS Contratista_Asignado
             FROM seg_produccion_diaria p
             LEFT JOIN seg_produccion_senalamiento s 
                 ON p.Folio_Pisa = s.Folio_Pisa 
@@ -721,10 +720,6 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
                AND (mds.Ubicacion_Material IS NULL OR mds.Ubicacion_Material != 'DEVOLUCION')
             LEFT JOIN contratistas c_asig
                 ON mds.FK_Contratista_Salida = c_asig.idContratistas
-            LEFT JOIN salidas_contratistas sc
-                ON p.Num__Serie = sc.Num_Serie_S
-            LEFT JOIN tecnicos t
-                ON sc.FK_Tecnico_Salida_Det = t.idTecnico
             WHERE p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
 
     $params = array(
@@ -741,7 +736,6 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
 
     return $this->runQuery($sql, $params, 'erpprint'); 
 }
-
 
 // con impresiones //
 
