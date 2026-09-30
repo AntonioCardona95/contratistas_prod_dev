@@ -705,7 +705,7 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
                 n.Estatus_Navegacion,
                 n.Flag_Navega,
                 n.FECHA_ULTIMO_EVENTO,
-                c_asig.Contratista AS Contratista_Asignado
+                CONCAT_WS(' ', c_asig.Contratista, c_asig.apellido_paterno, c_asig.apellido_materno) AS Contratista_Asignado
             FROM seg_produccion_diaria p
             LEFT JOIN seg_produccion_senalamiento s 
                 ON p.Folio_Pisa = s.Folio_Pisa 
@@ -735,7 +735,7 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
     $sql .= " ORDER BY p.FECHA_LIQ DESC";
 
     return $this->runQuery($sql, $params, 'erpprint'); 
-} 
+}
 
 // con impresiones //
 
