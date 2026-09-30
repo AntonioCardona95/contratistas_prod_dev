@@ -3,17 +3,21 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 $Contratista = $_SESSION['Contratista'] ?? 'Usuario';
 
-// Resolver valores de fecha: prioridad -> $topbar_defaults (si la vista lo define),
-// luego variables locales usadas antiguamente ($defaultFecha1/$defaultFecha2),
-// luego POST y finalmente la fecha actual.
+// Resolver valores de fecha y tipo de tarea: prioridad -> $topbar_defaults (si la vista lo define),
+// luego variables locales usadas antiguamente ($defaultFecha1/$defaultFecha2/$defaultTipoTarea),
+// luego POST.
 $tbFecha1 = null;
 $tbFecha2 = null;
+$tbTipoTarea = null;
+
 if (!empty($topbar_defaults) && is_array($topbar_defaults)) {
     $tbFecha1 = $topbar_defaults['Fecha1'] ?? null;
     $tbFecha2 = $topbar_defaults['Fecha2'] ?? null;
+    $tbTipoTarea = $topbar_defaults['TipoTarea'] ?? null;
 }
 if (empty($tbFecha1)) $tbFecha1 = $defaultFecha1 ?? ($_POST['Fecha1'] ?? '');
 if (empty($tbFecha2)) $tbFecha2 = $defaultFecha2 ?? ($_POST['Fecha2'] ?? '');
+if (empty($tbTipoTarea)) $tbTipoTarea = $defaultTipoTarea ?? ($_POST['TipoTarea'] ?? '');
 
 // Nombre de la función JS que se debe invocar al presionar la lupa o enviar el formulario.
 $onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadProduccion';
@@ -32,6 +36,17 @@ $topbar_hide_search = !empty($topbar_hide_search);
         <!-- Topbar Search -->
         <form id="FormQueryUnidades" class="d-flex form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search topbar-search-form" onsubmit="event.preventDefault(); if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
             <div class="input-group topbar-date-group">
+                
+                <!-- Select Tipo de Tarea -->
+                <select name="TipoTarea" id="TipoTarea" class="form-control bg-light border-0 small mr-2 topbar-select-input" aria-label="Tipo de Tarea">
+                    <option value="" disabled <?= empty($tbTipoTarea) ? 'selected' : '' ?>>Tipo de tarea</option>
+                    <option value="QUEJAS" <?= $tbTipoTarea === 'QUEJAS' ? 'selected' : '' ?>>QUEJAS</option>
+                    <option value="ALTAS" <?= $tbTipoTarea === 'ALTAS' ? 'selected' : '' ?>>ALTAS</option>
+                    <option value="MIGRACIONES" <?= $tbTipoTarea === 'MIGRACIONES' ? 'selected' : '' ?>>MIGRACIONES</option>
+                    <option value="A4" <?= $tbTipoTarea === 'A4' ? 'selected' : '' ?>>A4</option>
+                    <option value="CAMBIOS DE DOMICILIO" <?= $tbTipoTarea === 'CAMBIOS DE DOMICILIO' ? 'selected' : '' ?>>CAMBIOS DE DOMICILIO</option>
+                </select>
+
                 <!-- Se quitaron los eventos onchange para no disparar la búsqueda al seleccionar la primera fecha -->
                 <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" 
                        class="form-control bg-light border-0 small mr-2 topbar-date-input" 
