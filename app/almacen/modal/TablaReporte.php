@@ -199,12 +199,7 @@
             </tfoot>
             <tbody>
                 <?php if (!empty($filas)): foreach ($filas as $row): ?>
-                    <tr data-folio="<?= htmlspecialchars($row['Folio_Pisa'], ENT_QUOTES, 'UTF-8') ?>"
-                        data-telefono="<?= htmlspecialchars($row['TELEFONO'], ENT_QUOTES, 'UTF-8') ?>"
-                        data-contratista="<?= htmlspecialchars(strtoupper($row['Contratista'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
-                        data-tecnico="<?= htmlspecialchars(strtoupper($row['Tecnico'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
-                        data-fecha="<?= htmlspecialchars($row['FECHA_LIQ'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-                        
+                    <tr>
                         <td><?= htmlspecialchars($row['Folio_Pisa'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['TELEFONO'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['Tipo_de_Tarea'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
@@ -215,7 +210,7 @@
                         <td><?= htmlspecialchars($row['Tecnico'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['Num__Serie'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
 
-                        <!-- Nueva celda para mostrar el Contratista Asignado -->
+                        <!-- Contratista Asignado con nombre completo -->
                         <td><?= htmlspecialchars($row['Contratista_Asignado'] ?? 'Sin asignar', ENT_QUOTES, 'UTF-8') ?></td>
 
                         <td><?= htmlspecialchars($row['FECHA_LIQ'], ENT_QUOTES, 'UTF-8') ?></td>
@@ -248,6 +243,7 @@
         </table>
     </div>
 </div>
+
 
     <div id="reporte-mobile-search">
         <div class="input-group">
