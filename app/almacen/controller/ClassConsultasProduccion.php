@@ -563,7 +563,7 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
 
 
 
-/*public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
+public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
 {
     $params = [
         ':fechaInicio' => $fechaInicio, 
@@ -607,7 +607,7 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
         error_log("ERROR SQL en ConsultarProduccionDiaria: " . $e->getMessage());
         return [];
     }
-} */
+}
 
 
 
@@ -619,7 +619,7 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
  * @param int|string|null $idContratista (Opcional) ID del contratista para filtrar. Si es null u 0, trae todo.
  * @return array
  */
-public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
+/*public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista = null)
 {
     $sql = "SELECT 
                 p.Expediente,
@@ -672,5 +672,5 @@ public function ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratist
     $sql .= " ORDER BY p.FECHA_LIQ DESC";
 
     return $this->runQuery($sql, $params, 'erpprint'); 
-} 
+}  */
 }
