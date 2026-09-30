@@ -173,7 +173,6 @@
                     <th>Técnico</th>
                     <th>Nº Serie TAC</th>
                     <th>Contratista Asignado</th>
-                    <th>Técnico Asignado</th>
                     <th>Fecha Liq</th>
                     <th>Señalamiento</th>
                     <th>Navegación</th>
@@ -192,7 +191,6 @@
                     <th>Técnico</th>
                     <th>Nº Serie TAC</th>
                     <th>Contratista Asignado</th>
-                    <th>Técnico Asignado</th>
                     <th>Fecha Liq</th>
                     <th>Señalamiento</th>
                     <th>Navegación</th>
@@ -201,12 +199,7 @@
             </tfoot>
             <tbody>
                 <?php if (!empty($filas)): foreach ($filas as $row): ?>
-                    <tr data-folio="<?= htmlspecialchars($row['Folio_Pisa'], ENT_QUOTES, 'UTF-8') ?>"
-                        data-telefono="<?= htmlspecialchars($row['TELEFONO'], ENT_QUOTES, 'UTF-8') ?>"
-                        data-contratista="<?= htmlspecialchars(strtoupper($row['Contratista'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
-                        data-tecnico="<?= htmlspecialchars(strtoupper($row['Tecnico'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
-                        data-fecha="<?= htmlspecialchars($row['FECHA_LIQ'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
-                        
+                    <tr>
                         <td><?= htmlspecialchars($row['Folio_Pisa'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['TELEFONO'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td><?= htmlspecialchars($row['Tipo_de_Tarea'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
@@ -219,9 +212,6 @@
 
                         <!-- Contratista Asignado con nombre completo -->
                         <td><?= htmlspecialchars($row['Contratista_Asignado'] ?? 'Sin asignar', ENT_QUOTES, 'UTF-8') ?></td>
-
-                        <!-- Técnico Asignado con nombre completo -->
-                        <td><?= htmlspecialchars($row['Tecnico_Asignado'] ?? 'Sin asignar', ENT_QUOTES, 'UTF-8') ?></td>
 
                         <td><?= htmlspecialchars($row['FECHA_LIQ'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td>
@@ -253,7 +243,6 @@
         </table>
     </div>
 </div>
-
 
 
     <div id="reporte-mobile-search">
