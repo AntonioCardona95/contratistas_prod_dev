@@ -1,22 +1,26 @@
 <?php
 // Topbar shared component. Works when included from app/almacen/* or app/ordenes/*
 if (session_status() === PHP_SESSION_NONE) session_start();
-$Contratista = $_SESSION['Contratista'] ?? 'Usuario';
+$Contratista =$_SESSION['Contratista'] ?? 'Usuario';
 
 // Resolver valores de fecha: prioridad -> $topbar_defaults (si la vista lo define),
 // luego variables locales usadas antiguamente ($defaultFecha1/$defaultFecha2),
 // luego POST y finalmente la fecha actual.
 $tbFecha1 = null;
 $tbFecha2 = null;
-if (!empty($topbar_defaults) && is_array($topbar_defaults)) {
-    $tbFecha1 = $topbar_defaults['Fecha1'] ?? null;
-    $tbFecha2 = $topbar_defaults['Fecha2'] ?? null;
-}
-if (empty($tbFecha1)) $tbFecha1 = $defaultFecha1 ?? ($_POST['Fecha1'] ?? '');
-if (empty($tbFecha2)) $tbFecha2 = $defaultFecha2 ?? ($_POST['Fecha2'] ?? '');
+$tbTipoTarea = null;
 
-// Nombre de la función JS que se debe invocar al cambiar las fechas o al buscar.
-$onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
+if (!empty($topbar_defaults) && is_array($topbar_defaults)) {
+    $tbFecha1 =$topbar_defaults['Fecha1'] ?? null;
+    $tbFecha2 =$topbar_defaults['Fecha2'] ?? null;
+    $tbTipoTarea =$topbar_defaults['TipoTarea'] ?? null;
+}
+if (empty($tbFecha1))$tbFecha1 = $defaultFecha1 ?? ($_POST['Fecha1'] ?? '');
+if (empty($tbFecha2))$tbFecha2 = $defaultFecha2 ?? ($_POST['Fecha2'] ?? '');
+if (empty($tbTipoTarea))$tbTipoTarea = $defaultTipoTarea ?? ($_POST['TipoTarea'] ?? '');
+
+// Nombre de la función JS que se debe invocar al cambiar las fechas, tipo de tarea o al buscar.
+$onchange_fn = !empty($topbar_onchange) ?$topbar_onchange : 'LoadEntradas';
 $topbar_hide_search = !empty($topbar_hide_search);
 ?>
 
@@ -32,8 +36,19 @@ $topbar_hide_search = !empty($topbar_hide_search);
         <!-- Topbar Search -->
         <form id="FormQueryUnidades" class="d-flex form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search topbar-search-form">
             <div class="input-group topbar-date-group">
-                <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
-                <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
+                <!-- Select Tipo de Tarea -->
+                <select name="TipoTarea" id="TipoTarea" class="form-control bg-light border-0 small mr-2 topbar-select-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="Tipo de Tarea">
+                    <option value="" disabled <?= empty($tbTipoTarea) ? 'selected' : '' ?>>Tipo de tarea</option>
+                    <option value="QUEJAS" <?= $tbTipoTarea === 'QUEJAS' ? 'selected' : '' ?>>QUEJAS</option>
+                    <option value="ALTAS" <?= $tbTipoTarea === 'ALTAS' ? 'selected' : '' ?>>ALTAS</option>
+                    <option value="MIGRACIONES" <?= $tbTipoTarea === 'MIGRACIONES' ? 'selected' : '' ?>>MIGRACIONES</option>
+                    <option value="A4" <?= $tbTipoTarea === 'A4' ? 'selected' : '' ?>>A4</option>
+                    <option value="CAMBIOS DE DOMICILIO" <?= $tbTipoTarea === 'CAMBIOS DE DOMICILIO' ? 'selected' : '' ?>>CAMBIOS DE DOMICILIO</option>
+                </select>
+
+                <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="DESDE" aria-describedby="basic-addon2">
+                <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="HASTA" aria-describedby="basic-addon2">
+                
                 <div class="input-group-append mr-2">
                     <button class="btn btn-primary" type="button" onclick="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
                         <i class="fas fa-search fa-sm"></i>
