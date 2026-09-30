@@ -9,58 +9,84 @@ require_once($_SERVER['DOCUMENT_ROOT'] . "/cnx/cnx.php");
 class ClassConsultasProduccion extends Conexion
 {
     protected function runQuery($sql, $params = array(), $conexionTipo = 'default')
-{
-    switch ($conexionTipo) {
-        case 'analisis':
-        case 'analytics':
-            $conexion = $this->get_conexion_analisis();
-            break;
-        case 'nass':
-            $conexion = $this->get_conexion_nass();
-            break;
-        case 'dos':
-            $conexion = $this->get_conexiondos();
-            break;
-        case 'erpprint':
-            $conexion = $this->conexion(); // 👀 aquí puede estar el error
-            break;
-        default:
-            $conexion = $this->get_conexion();
-            break;
-    }
+    {
+        switch ($conexionTipo) {
+            case 'analisis':
+            case 'analytics':
+                $conexion = $this->get_conexion_analisis();
+                break;
+            case 'nass':
+                $conexion = $this->get_conexion_nass();
+                break;
+            case 'dos':
+                $conexion = $this->get_conexiondos();
+                break;
+            case 'erpprint':
+                $conexion = $this->conexion();
+                break;
+            default:
+                $conexion = $this->get_conexion();
+                break;
+        }
 
-    // 🔎 Depuración: imprime qué tipo de dato es $conexion
-    if (!$conexion instanceof PDO) {
-        echo "❌ Error: la conexión no es un objeto PDO\n";
-        echo "Tipo devuelto: " . gettype($conexion) . "\n";
-        var_dump($conexion); // muestra el contenido exacto
-        return [];
-    }
-
-    try {
-        $stmt = $conexion->prepare($sql);
-        foreach ($params as $key => $val) {
-            if (is_int($key)) {
-                $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
-            } else {
-                $param = ':' . ltrim($key, ':');
-                $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+        try {
+            $stmt = $conexion->prepare($sql);
+            foreach ($params as $key => $val) {
+                if (is_int($key)) {
+                    $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+                } else {
+                    $param = ':' . ltrim($key, ':');
+                    $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+                }
             }
+            $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if (method_exists($stmt, 'closeCursor')) {
+                $stmt->closeCursor();
+            }
+            return $rows;
+        } catch (PDOException $e) {
+            return array();
         }
-        $stmt->execute();
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        if (method_exists($stmt, 'closeCursor')) {
-            $stmt->closeCursor();
-        }
-        return $rows;
-    } catch (PDOException $e) {
-        echo "❌ Error SQL: " . $e->getMessage() . "\n";
-        echo "Consulta: " . $sql . "\n";
-        print_r($params);
-        return [];
     }
-}
 
+    protected function runExecute($sql, $params = array(), $conexionTipo = 'default')
+    {
+        switch ($conexionTipo) {
+            case 'analisis':
+            case 'analytics':
+                $conexion = $this->get_conexion_analisis();
+                break;
+            case 'nass':
+                $conexion = $this->get_conexion_nass();
+                break;
+            case 'dos':
+                $conexion = $this->get_conexiondos();
+                break;
+            case 'erpprint':
+                $conexion = $this->conexion();
+                break;
+            default:
+                $conexion = $this->get_conexion();
+                break;
+        }
+
+        try {
+            $stmt = $conexion->prepare($sql);
+            foreach ($params as $key => $val) {
+                if (is_int($key)) {
+                    $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+                } else {
+                    $param = ':' . ltrim($key, ':');
+                    $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+                }
+            }
+            $stmt->execute();
+            return (int)$conexion->lastInsertId();
+        } catch (PDOException $e) {
+            return 0;
+        }
+    }
     /**
      * Cuenta el total de producción en la vista/tabla seg_ns_prod_eval para un rango de fechas
      */
