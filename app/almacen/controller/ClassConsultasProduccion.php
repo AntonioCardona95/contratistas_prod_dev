@@ -31,7 +31,7 @@ class ClassConsultasProduccion extends Conexion
 
     // 🔎 Depuración: imprime qué tipo de dato es $conexion
     if (!$conexion instanceof PDO) {
-        echo "❌ Error: la conexión no es un objeto PDO\n";
+        echo " Error: la conexión no es un objeto PDO\n";
         echo "Tipo devuelto: " . gettype($conexion) . "\n";
         var_dump($conexion); // muestra el contenido exacto
         return [];
@@ -54,7 +54,7 @@ class ClassConsultasProduccion extends Conexion
         }
         return $rows;
     } catch (PDOException $e) {
-        echo "❌ Error SQL: " . $e->getMessage() . "\n";
+        echo " Error SQL: " . $e->getMessage() . "\n";
         echo "Consulta: " . $sql . "\n";
         print_r($params);
         return [];
