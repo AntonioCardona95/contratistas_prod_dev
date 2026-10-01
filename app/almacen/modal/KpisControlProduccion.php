@@ -142,6 +142,7 @@ if (is_array($qrIncompletas)) {
       ? round(((int)$row['LIQUIDADAS'] / (int)$row['ASIGNADAS']) * 100, 1) : 0;
   }
 ?>
+<link rel="stylesheet" href="css/kpis-dashboard.css">
 
 
 <!-- Content Row -->
