@@ -72,6 +72,23 @@ if (is_array($qrOntSinAlmacen)) {
     $TotalOntSinAlmacen = (int)$qrOntSinAlmacen;
 }
 
+
+// TOTAL ONT / EQUIPOS QUE SÍ ENTRARON A ALMACÉN
+$TotalOntConAlmacen = 0;
+$qrOntConAlmacen = $consultas->CountOntConEntradaAlmacen($Fecha1, $Fecha2, $idContratistas);
+
+if (is_array($qrOntConAlmacen)) {
+    if (!empty($qrOntConAlmacen)) {
+        foreach ($qrOntConAlmacen as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalOntConAlmacen = (int)$row['TOTAL'];
+            }
+        }
+    }
+} else {
+    $TotalOntConAlmacen = (int)$qrOntConAlmacen;
+}
+
 // TOTAL PRODUCCION HISTORICO (usa ClassConsultasProduccion)
 $TotalProduccion = 0;
 $qrProduccionTotal = $consultas->CountProduccionTotal();
@@ -241,6 +258,21 @@ foreach ((array)$chart_tecnicos as $row) {
         </div>
     </a>
 </div>
+
+
+<!-- NUEVA CARD: ONT con Entrada a Almacén -->
+<div class="col-xl col-md-6 mb-4">
+    <a href="#" class="kpi-card-link">
+        <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #28a745;">
+            <div class="kpi-card-body">
+                <div class="kpi-card-icon"><i class="fas fa-warehouse"></i></div>
+                <div class="kpi-card-label">ONT con Entrada a Almacén</div>
+                <div class="kpi-card-number"><?php echo number_format($TotalOntConAlmacen); ?></div>
+            </div>
+        </div>
+    </a>
+</div>
+
 
     <!-- Card 3: Asignados -->
     <div class="col-xl col-md-6 mb-4">

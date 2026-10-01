@@ -941,7 +941,33 @@ public function CountOntSinEntradaAlmacen($fechaInicio, $fechaFin, $idContratist
         $params[':idContratista'] = $idContratista;
     }
 
-    return $this->runQuery($sql, $params, 'default');
+    return $this->runQuery($sql, $params, 'erpprint');
+}
+
+
+/**
+ * Cuenta el total de ONT / equipos que SÍ ingresaron a almacén en un rango de fechas
+ * (Donde tanto Existe_Serie_Prod_Almacen como Existe_Serie_Eci_Almacen son igual a 1)
+ */
+public function CountOntConEntradaAlmacen($fechaInicio, $fechaFin, $idContratista = null)
+{
+    $sql = "SELECT COUNT(1) AS TOTAL
+            FROM seg_produccion_diaria
+            WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin
+              AND Existe_Serie_Prod_Almacen = 1
+              AND Existe_Serie_Eci_Almacen = 1";
+
+    $params = array(
+        ':fechaInicio' => $fechaInicio,
+        ':fechaFin'    => $fechaFin
+    );
+
+    if (!empty($idContratista)) {
+        $sql .= " AND idContratista = :idContratista";
+        $params[':idContratista'] = $idContratista;
+    }
+
+    return $this->runQuery($sql, $params, 'erpprint');
 }
 
 
