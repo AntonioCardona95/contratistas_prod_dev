@@ -81,7 +81,6 @@
                     <!-- ENCABEZADO DE LA SECCIÓN -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">GESTIÓN OPERATIVA DE EQUIPO Y SERVICIOS (ONT)</h1>
-                        
                     </div>
                     
                     <!-- CONTENEDOR DINÁMICO QUE CARGA LOS KPI Y GRÁFICAS -->
@@ -130,7 +129,7 @@
 
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
     <!-- CARGAR CHART.JS -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    
     <script>
         $(document).ready(function(){
             LoadKPIS();
