@@ -172,12 +172,14 @@ foreach ((array)$chart_tecnicos as $row) {
                 <div class="kpi-card-body">
                     <div class="kpi-card-icon"><i class="fas fa-industry"></i></div>
                     <div class="kpi-card-label">Total Producción</div>
+                    <!-- Aquí ya se imprime el valor calculado con ClassConsultasProduccion -->
                     <div class="kpi-card-number"><?php echo number_format($TotalProduccion); ?></div>
                 </div>
             </div>
         </a>
     </div>
 
+    <!-- Card 1: Totales sin asignar -->
     <div class="col-xl col-md-6 mb-4">
         <a href="detalle_ont_disponibles.php" data-detalle="total" class="kpi-card-link">
             <div class="kpi-card kpi-card-danger">
@@ -190,6 +192,7 @@ foreach ((array)$chart_tecnicos as $row) {
         </a>
     </div>
 
+    <!-- Card 2: Sin asignar en fecha -->
     <div class="col-xl col-md-6 mb-4">
       <a href="detalle_ont_disponibles.php" data-detalle="fecha" class="kpi-card-link">
         <div class="kpi-card kpi-card-warning">
@@ -197,11 +200,12 @@ foreach ((array)$chart_tecnicos as $row) {
             <div class="kpi-card-icon"><i class="fas fa-clock"></i></div>
             <div class="kpi-card-label">Números de serie sin asignar (en fecha)</div>
             <div class="kpi-card-number"><?php echo number_format($TotalDisponible); ?></div>
-                </div>
-            </div>
-        </a>
+          </div>
+        </div>
+      </a>
     </div>
 
+    <!-- Card 3: Asignados -->
     <div class="col-xl col-md-6 mb-4">
       <a href="detalle_ont_asignados.php" class="kpi-card-link">
         <div class="kpi-card kpi-card-info">
@@ -209,11 +213,12 @@ foreach ((array)$chart_tecnicos as $row) {
             <div class="kpi-card-icon"><i class="fas fa-user-check"></i></div>
             <div class="kpi-card-label">Números de serie asignados</div>
             <div class="kpi-card-number"><?php echo number_format($TotalAsignados); ?></div>
-                </div>
-            </div>
-        </a>
+          </div>
+        </div>
+      </a>
     </div>
 
+    <!-- Card 4: Sin liquidar -->
     <div class="col-xl col-md-6 mb-4">
       <a href="ont_sin_instalar_det.php" class="kpi-card-link">
         <div class="kpi-card kpi-card-primary">
@@ -221,11 +226,12 @@ foreach ((array)$chart_tecnicos as $row) {
             <div class="kpi-card-icon"><i class="fas fa-hourglass-half"></i></div>
             <div class="kpi-card-label">Números de serie sin liquidar</div>
             <div class="kpi-card-number"><?php echo number_format($TotalSinInstalar); ?></div>
-                </div>
-            </div>
-        </a>
+          </div>
+        </div>
+      </a>
     </div>
 
+    <!-- Card 5: Liquidados -->
     <div class="col-xl col-md-6 mb-4">
       <a href="ont_instaladas_det.php" class="kpi-card-link">
         <div class="kpi-card kpi-card-success">
@@ -233,41 +239,35 @@ foreach ((array)$chart_tecnicos as $row) {
             <div class="kpi-card-icon"><i class="fas fa-check-double"></i></div>
             <div class="kpi-card-label">Números de serie liquidados</div>
             <div class="kpi-card-number"><?php echo number_format($TotalInstalados); ?></div>
-                </div>
-            </div>
-        </a>
+          </div>
+        </div>
+      </a>
     </div>
 
 </div>
-<!-- Seis graficas derivadas de las tarjetas -->
+
+<!-- Seis gráficas derivadas de las tarjetas -->
 <div class="row">
+  <!-- Embudo -->
   <div class="col-xl-6 mb-4">
     <div class="card shadow h-100">
-      <div class="card-header">
-                <strong>Embudo operativo de números de serie</strong>
-      </div>
-      <div class="card-body chart-area">
-        <canvas id="chartEmbudo"></canvas>
-      </div>
+      <div class="card-header"><strong>Embudo operativo de números de serie</strong></div>
+      <div class="card-body chart-area"><canvas id="chartEmbudo"></canvas></div>
     </div>
   </div>
 
+  <!-- Tendencia -->
   <div class="col-xl-6 mb-4">
     <div class="card shadow h-100">
-      <div class="card-header">
-        <strong>Asignaciones, pendientes y liquidaciones por dia</strong>
-      </div>
-      <div class="card-body chart-area">
-        <canvas id="chartTendencia"></canvas>
-      </div>
+      <div class="card-header"><strong>Asignaciones, pendientes y liquidaciones por día</strong></div>
+      <div class="card-body chart-area"><canvas id="chartTendencia"></canvas></div>
     </div>
   </div>
 
+  <!-- Rendimiento por técnico -->
   <div class="col-xl-6 mb-4">
     <div class="card shadow h-100">
-      <div class="card-header">
-        <strong>Rendimiento por tecnico</strong>
-      </div>
+      <div class="card-header"><strong>Rendimiento por técnico</strong></div>
       <div class="card-body chart-area">
         <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de técnicos">
           <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_tecnicos_labels) * 115); ?>px;">
@@ -278,11 +278,10 @@ foreach ((array)$chart_tecnicos as $row) {
     </div>
   </div>
 
+  <!-- Efectividad -->
   <div class="col-xl-6 mb-4">
     <div class="card shadow h-100">
-      <div class="card-header">
-        <strong>Efectividad de liquidacion por tecnico</strong>
-      </div>
+      <div class="card-header"><strong>Efectividad de liquidación por técnico</strong></div>
       <div class="card-body chart-area">
         <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de técnicos">
           <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_tecnicos_labels) * 115); ?>px;">
@@ -293,28 +292,23 @@ foreach ((array)$chart_tecnicos as $row) {
     </div>
   </div>
 
+  <!-- Inventario -->
   <div class="col-xl-6 mb-4">
     <div class="card shadow h-100">
-      <div class="card-header">
-        <strong>Inventario total contra inventario reciente</strong>
-      </div>
-      <div class="card-body chart-area">
-        <canvas id="chartInventario"></canvas>
-      </div>
+      <div class="card-header"><strong>Inventario total contra inventario reciente</strong></div>
+      <div class="card-body chart-area"><canvas id="chartInventario"></canvas></div>
     </div>
   </div>
 
+  <!-- Conciliación -->
   <div class="col-xl-6 mb-4">
     <div class="card shadow h-100">
-      <div class="card-header">
-        <strong>Conciliacion COORDIAPP contra TAC</strong>
-      </div>
-      <div class="card-body chart-area">
-        <canvas id="chartConciliacion"></canvas>
-      </div>
+      <div class="card-header"><strong>Conciliación COORDIAPP contra TAC</strong></div>
+      <div class="card-body chart-area"><canvas id="chartConciliacion"></canvas></div>
     </div>
   </div>
 </div>
+
 
 <script>
 (function () {
