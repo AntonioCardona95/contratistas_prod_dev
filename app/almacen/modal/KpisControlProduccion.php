@@ -296,6 +296,28 @@ foreach ((array)$chart_tecnicos as $row) {
     </div>
   </div>
 
+  <div class="row">
+  <!-- Gráfica 1: Entrada a Almacén por División (Barras Agrupadas) -->
+  <div class="col-xl-6 mb-4">
+    <div class="card shadow h-100">
+      <div class="card-header"><strong>Entrada a Almacén por División</strong></div>
+      <div class="card-body chart-area">
+        <canvas id="chartAlmacenDivision"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráfica 2: Porcentaje de Cobertura de Almacén por División -->
+  <div class="col-xl-6 mb-4">
+    <div class="card shadow h-100">
+      <div class="card-header"><strong>Efectividad de Entrada a Almacén por División (%)</strong></div>
+      <div class="card-body chart-area">
+        <canvas id="chartEfectividadAlmacen"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
   <!-- Rendimiento por técnico -->
   <div class="col-xl-6 mb-4">
     <div class="card shadow h-100">
