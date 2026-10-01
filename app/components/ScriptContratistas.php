@@ -21,4 +21,6 @@
 
     <script src="js/app.js"></script>
     <script src="js/notificaciones.js"></script>
+    <script src="js/mobileSidebar.js"></script>
+    <script src="js/sidebarLayoutAdjust.js.js"></script>
     
