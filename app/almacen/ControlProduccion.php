@@ -128,6 +128,15 @@
     </div>
 
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
+    <!-- CARGAR CHART.JS -->
+    
+    <script>
+        $(document).ready(function(){
+            LoadKPIS();
+        });
+
+       
+    </script>
 </body>
 </html>
 
