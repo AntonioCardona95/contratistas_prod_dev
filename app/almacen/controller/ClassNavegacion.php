@@ -546,11 +546,15 @@ class Navegacion extends Conexion
 
         // ELEGIR EL MAS RECIENTE Y DETECTAR SI EL ANTERIOR ESTABA ACTIVO.
         $eciPerdioNavegacion = array();
+        $eciFechaUltimaNavegacionCorrecta = array();
         foreach ($eciRegistrosPorSerie as $serieEci => $registrosEciSerie) {
             $eciPorSerie[$serieEci] = $registrosEciSerie[0];
             $registroPenultimoEci = $registrosEciSerie[1] ?? array();
             $eciPerdioNavegacion[$serieEci] = (int)($eciPorSerie[$serieEci]['DID_ACTIVO'] ?? 0) === 0
                 && (int)($registroPenultimoEci['DID_ACTIVO'] ?? 0) === 1;
+            if ($eciPerdioNavegacion[$serieEci]) {
+                $eciFechaUltimaNavegacionCorrecta[$serieEci] = $registroPenultimoEci['FECHA_ULTIMO_EVENTO'] ?? null;
+            }
         }
 
         $eciSeriesActivasPorTelefono = array();
@@ -882,6 +886,7 @@ class Navegacion extends Conexion
 
             // LA CONSULTA ECI DEBE SER AL MENOS TRES DÍAS POSTERIOR A TAC/COORDIAPP.
             $fechaUltimoEventoEci = $registroEci['FECHA_ULTIMO_EVENTO'] ?? null;
+            $fechaUltimaNavegacionCorrecta = $eciFechaUltimaNavegacionCorrecta[$serieNormalizada] ?? null;
             $fechaEciValida = false;
             if (!empty($fechaUltimoEventoEci)) {
                 $fechaEciValida = $fechaBase === null || strtotime($fechaUltimoEventoEci) >= strtotime($fechaBase . ' +3 days');
@@ -984,7 +989,8 @@ class Navegacion extends Conexion
                     : 'navegando';
             } elseif (!empty($eciPerdioNavegacion[$serieNormalizada])) {
                 $serie['Estado_Navegacion'] = 'negro';
-                $serie['Motivos_No_Navegacion'][] = 'Perdida de navegacion: el ultimo registro ECI tiene DID_ACTIVO=0 y el penultimo DID_ACTIVO=1';
+                $serie['Motivos_No_Navegacion'][] = 'Perdida de navegacion: ultima navegacion correcta: '
+                    . ($fechaUltimaNavegacionCorrecta ?? 'sin fecha');
             } elseif ((int)$serie['Alerta_Eci_Pendiente'] === 1) {
                 $serie['Estado_Navegacion'] = 'rojo';
             } elseif ($hayEci && ($hayCoordiapp || $hayTac) && !$telefonosCoinciden) {
