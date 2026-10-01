@@ -6,8 +6,8 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-
 require_once("../controller/ClassConsultasProduccion.php");
+require_once("../controller/ClassIndex.php");
 
 session_start();
 $Contratista = $_SESSION['Contratista'];
@@ -30,11 +30,13 @@ if (!empty($Fecha1) && !empty($Fecha2)) {
     $Fecha2 = date('Y-m-d') . " 23:59:59";
 }
 
+// Instancias de las clases
 $index = new Index();
+$consultas = new ClassConsultasProduccion();
 
-// TOTAL PRODUCCION HISTORICO
+// TOTAL PRODUCCION HISTORICO (usa ClassConsultasProduccion)
 $TotalProduccion = 0;
-$qrProduccionTotal = $index->CountProduccionTotal();
+$qrProduccionTotal = $consultas->CountProduccionTotal();
 if (is_array($qrProduccionTotal)) {
     if (!empty($qrProduccionTotal)) {
         foreach ($qrProduccionTotal as $row) {
@@ -47,7 +49,7 @@ if (is_array($qrProduccionTotal)) {
     $TotalProduccion = (int)$qrProduccionTotal;
 }
 
-// NUMEROS DE SERIE ASIGNADOS A TECNICOS
+// NUMEROS DE SERIE ASIGNADOS A TECNICOS (usa Index)
 $TotalAsignados = 0;
 $sqlCompletas = $index->CountMaterialesAsignados($idContratistas, $Fecha1, $Fecha2);
 if (is_array($sqlCompletas)) {
@@ -77,87 +79,86 @@ if (is_array($qrIncompletas)) {
     $TotalSinInstalar = (int)$qrIncompletas;
 }
 
-  // NUMEROS DE SERIE INSTALADOS COORDIAPP
-  $TotalInstalados = 0;
-  $qrInstalados = $index->CountMaterialesInstalados($idContratistas, $Fecha1, $Fecha2);
-  if (is_array($qrInstalados)) {
+// NUMEROS DE SERIE INSTALADOS COORDIAPP
+$TotalInstalados = 0;
+$qrInstalados = $index->CountMaterialesInstalados($idContratistas, $Fecha1, $Fecha2);
+if (is_array($qrInstalados)) {
     if (!empty($qrInstalados)) {
-      foreach ($qrInstalados as $row) {
-        if (isset($row['TOTAL'])) {
-          $TotalInstalados = (int)$row['TOTAL'];
+        foreach ($qrInstalados as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalInstalados = (int)$row['TOTAL'];
+            }
         }
-      }
     }
-  } else {
+} else {
     $TotalInstalados = (int)$qrInstalados;
-  }
+}
 
-  // NUMEROS DE SERIE INSTALADOS TAC
-  $TotalInstaladosTAC = 0;
-  $qrInstaladosTAC = $index->CountOntInstaladosTAC($idContratistas, $Fecha1, $Fecha2);
-  // El metodo devuelve un int (total), asi que asignamos directamente.
-  $TotalInstaladosTAC = (int)$qrInstaladosTAC;
+// NUMEROS DE SERIE INSTALADOS TAC
+$TotalInstaladosTAC = 0;
+$qrInstaladosTAC = $index->CountOntInstaladosTAC($idContratistas, $Fecha1, $Fecha2);
+$TotalInstaladosTAC = (int)$qrInstaladosTAC;
 
-  // NUMEROS DE SERIE DISPONIBLES ERP
-  $TotalDisponible = 0;
-  // CountONTDisponibles acepta solo el id del contratista.
-  $qrDisponibles = $index->CountONTDisponibles($idContratistas, $Fecha1, $Fecha2);
-  if (is_array($qrDisponibles)) {
+// NUMEROS DE SERIE DISPONIBLES ERP
+$TotalDisponible = 0;
+$qrDisponibles = $index->CountONTDisponibles($idContratistas, $Fecha1, $Fecha2);
+if (is_array($qrDisponibles)) {
     if (!empty($qrDisponibles)) {
-      foreach ($qrDisponibles as $row) {
-        if (isset($row['TOTAL'])) {
-          $TotalDisponible = (int)$row['TOTAL'];
+        foreach ($qrDisponibles as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalDisponible = (int)$row['TOTAL'];
+            }
         }
-      }
     }
-  } else {
+} else {
     $TotalDisponible = (int)$qrDisponibles;
-  }
+}
 
-  // NUMEROS DE SERIE DISPONIBLES ERP
-  $TTotalDisponible = 0;
-  // CountONTDisponibles acepta solo el id del contratista.
-  $qrDisponiblesT = $index->CountONTDisponiblesT($idContratistas);
-  if (is_array($qrDisponiblesT)) {
+// NUMEROS DE SERIE DISPONIBLES ERP (T)
+$TTotalDisponible = 0;
+$qrDisponiblesT = $index->CountONTDisponiblesT($idContratistas);
+if (is_array($qrDisponiblesT)) {
     if (!empty($qrDisponiblesT)) {
-      foreach ($qrDisponiblesT as $row) {
-        if (isset($row['TOTAL'])) {
-          $TTotalDisponible = (int)$row['TOTAL'];
+        foreach ($qrDisponiblesT as $row) {
+            if (isset($row['TOTAL'])) {
+                $TTotalDisponible = (int)$row['TOTAL'];
+            }
         }
-      }
     }
-  } else {
+} else {
     $TTotalDisponible = (int)$qrDisponiblesT;
-  }
+}
 
-  $chart_dias = $index->CountMaterialesPorDia($idContratistas, $Fecha1, $Fecha2);
-  $chart_tecnicos = $index->CountMaterialesPorTecnico($idContratistas, $Fecha1, $Fecha2);
+// CHARTS
+$chart_dias = $index->CountMaterialesPorDia($idContratistas, $Fecha1, $Fecha2);
+$chart_tecnicos = $index->CountMaterialesPorTecnico($idContratistas, $Fecha1, $Fecha2);
 
-  $chart_dias_labels = [];
-  $chart_dias_asignadas = [];
-  $chart_dias_sin_liquidar = [];
-  $chart_dias_liquidadas = [];
-  foreach ((array)$chart_dias as $row) {
+$chart_dias_labels = [];
+$chart_dias_asignadas = [];
+$chart_dias_sin_liquidar = [];
+$chart_dias_liquidadas = [];
+foreach ((array)$chart_dias as $row) {
     $chart_dias_labels[] = (string)$row['FECHA'];
     $chart_dias_asignadas[] = (int)$row['ASIGNADAS'];
     $chart_dias_sin_liquidar[] = (int)$row['SIN_LIQUIDAR'];
     $chart_dias_liquidadas[] = (int)$row['LIQUIDADAS'];
-  }
+}
 
-  $chart_tecnicos_labels = [];
-  $chart_tecnicos_asignadas = [];
-  $chart_tecnicos_sin_liquidar = [];
-  $chart_tecnicos_liquidadas = [];
-  $chart_tecnicos_efectividad = [];
-  foreach ((array)$chart_tecnicos as $row) {
+$chart_tecnicos_labels = [];
+$chart_tecnicos_asignadas = [];
+$chart_tecnicos_sin_liquidar = [];
+$chart_tecnicos_liquidadas = [];
+$chart_tecnicos_efectividad = [];
+foreach ((array)$chart_tecnicos as $row) {
     $chart_tecnicos_labels[] = trim((string)$row['NOMBRE_TECNICO']);
     $chart_tecnicos_asignadas[] = (int)$row['ASIGNADAS'];
     $chart_tecnicos_sin_liquidar[] = (int)$row['SIN_LIQUIDAR'];
     $chart_tecnicos_liquidadas[] = (int)$row['LIQUIDADAS'];
     $chart_tecnicos_efectividad[] = (int)$row['ASIGNADAS'] > 0
-      ? round(((int)$row['LIQUIDADAS'] / (int)$row['ASIGNADAS']) * 100, 1) : 0;
-  }
+        ? round(((int)$row['LIQUIDADAS'] / (int)$row['ASIGNADAS']) * 100, 1) : 0;
+}
 ?>
+
 <link rel="stylesheet" href="css/kpisdashboard.css">
 
 
