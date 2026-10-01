@@ -180,19 +180,6 @@ foreach ((array)$chart_tecnicos as $row) {
 </div>
 
 
-    <!-- Card 1: Totales sin asignar -->
-    <div class="col-xl col-md-6 mb-4">
-        <a href="detalle_ont_disponibles.php" data-detalle="total" class="kpi-card-link">
-            <div class="kpi-card kpi-card-danger">
-                <div class="kpi-card-body">
-                    <div class="kpi-card-icon"><i class="fas fa-box-open"></i></div>
-                    <div class="kpi-card-label">Números de serie totales sin asignar</div>
-                    <div class="kpi-card-number"><?php echo number_format($TTotalDisponible); ?></div>
-                </div>
-            </div>
-        </a>
-    </div>
-
     <!-- Card 2: Sin asignar en fecha -->
     <div class="col-xl col-md-6 mb-4">
       <a href="detalle_ont_disponibles.php" data-detalle="fecha" class="kpi-card-link">
