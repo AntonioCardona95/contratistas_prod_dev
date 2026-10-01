@@ -72,7 +72,7 @@
                 <!-- TOPBAR CON FILTROS Y ACCIONES GLOBALES -->
                 <?php
                     
-                    include_once(__DIR__ . '/../components/TopbarContratistas.php');
+                    include_once(__DIR__ . '/../components/TopBarControl.php');
                 ?>
 
                 <!-- INICIO DEL CONTENIDO DE LA PÁGINA -->
