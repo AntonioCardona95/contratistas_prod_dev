@@ -311,7 +311,7 @@ foreach ((array)$chart_tecnicos as $row) {
           </div>
         </div>
       </a>
-    </div>
+    </div> 
 
 </div>
 
