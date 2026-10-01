@@ -80,7 +80,7 @@
 
                     <!-- ENCABEZADO DE LA SECCIÓN -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                        <h1 class="h3 mb-0 text-gray-800">GESTIÓN OPERATIVA DE EQUIPO Y SERVICIOS (ONT)</h1>
+                        <h1 class="h3 mb-0 text-gray-800">PRODUCCION GENERAL</h1>
                     </div>
                     
                     <!-- CONTENEDOR DINÁMICO QUE CARGA LOS KPI Y GRÁFICAS -->
