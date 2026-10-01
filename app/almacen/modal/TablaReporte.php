@@ -33,6 +33,8 @@
         $Fecha2 = (!empty($Fecha2) ? $Fecha2 : date('Y-m-d')) . " 23:59:59";
     }
 
+    
+
     // Consulta de producción
     $filas = $modal->ConsultarProduccionDiaria($Fecha1, $Fecha2);
 ?>

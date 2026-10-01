@@ -93,6 +93,7 @@ function LoadReporte() {
     // Busca los valores en los inputs de la Topbar
     var f1 = $("#Fecha1").val() || $("input[name='Fecha1']").val() || "";
     var f2 = $("#Fecha2").val() || $("input[name='Fecha2']").val() || "";
+    var tipoTarea = $("#TipoTarea").val() || "";
 
     // Si al cargar vienen vacíos, asignar el mes actual por defecto
     if (!f1) {
@@ -106,7 +107,8 @@ function LoadReporte() {
 
     var parametros = {
         Fecha1: f1,
-        Fecha2: f2
+        Fecha2: f2,
+        TipoTarea: tipoTarea
     };
 
     $("#LoadReporte").fadeIn('slow');
