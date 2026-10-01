@@ -133,25 +133,24 @@ function ejecutarFiltradoProduccion() {
     var text = document.getElementById('textEjecutar');
     var msgStatus = document.getElementById('statusMensajeProduccion');
 
-    // Estado 1: Cargando / Procesando
     btn.disabled = true;
-    icon.className = 'fas fa-spinner fa-spin mr-1';
-    text.innerText = 'Procesando...';
-    if (msgStatus) msgStatus.style.display = 'none';
+    if (icon) icon.className = 'fas fa-spinner fa-spin mr-1';
+    if (text) text.innerText = 'Procesando...';
 
-    // Disparar la función de recarga Ajax (por defecto LoadKpisControl o $onchange_fn)
-    var targetFn = "<?= $onchange_fn ?>";
-    
-    if (typeof window[targetFn] === 'function') {
-        // Ejecutar función de recarga y esperar resolución (si devuelve una promesa)
-        Promise.resolve(window[targetFn]()).then(function() {
-            mostrarExito();
-        }).catch(function() {
-            mostrarExito(); // En caso de que LoadKpisControl no retorne promesa explícita
-        });
-    } else {
-        mostrarExito();
-    }
+    // Se pasa true para activar 'ejecutar = 1' en el POST
+    Promise.resolve(LoadKpisControl(true)).then(function() {
+        btn.disabled = false;
+        if (icon) icon.className = 'fas fa-play fa-sm mr-1';
+        if (text) text.innerText = 'Ejecutar Producción';
+
+        if (msgStatus) {
+            msgStatus.style.display = 'inline-flex';
+            setTimeout(function() {
+                msgStatus.style.display = 'none';
+            }, 4000);
+        }
+    });
+}
 
     function mostrarExito() {
         // Estado 2: Restaurar botón y mostrar palomita / mensaje
@@ -167,7 +166,7 @@ function ejecutarFiltradoProduccion() {
             }, 4000);
         }
     }
-}
+
 
 document.addEventListener('DOMContentLoaded', function() {
     validarFechasBtn();
