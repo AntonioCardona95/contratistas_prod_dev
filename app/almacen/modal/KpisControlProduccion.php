@@ -162,11 +162,6 @@ foreach ((array)$chart_tecnicos as $row) {
 ?>
 
 <link rel="stylesheet" href="css/kpisdashboard.css">
-
-<!-- MENSAJE DE PRUEBA EN PANTALLA -->
-<div style="background: #e74c3c; color: white; padding: 15px; font-weight: bold; font-size: 18px; text-align: center; border-radius: 8px; margin-bottom: 20px; z-index: 99999; position: relative;">
-    🚨 ARCHIVO ACTUAL: <?php echo __FILE__; ?> | HORA DE EJECUCIÓN: <?php echo date('H:i:s'); ?>
-</div>
 <!-- Content Row -->
 <div class="row kpi-cards-row">
 
