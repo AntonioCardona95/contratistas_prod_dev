@@ -84,7 +84,7 @@
                     </div>
                     
                     <!-- CONTENEDOR DINÁMICO QUE CARGA LOS KPI Y GRÁFICAS -->
-                    <div id="LoadKPIS">
+                    <div id="LoadKpisControl">
 
                     </div>
 
@@ -132,7 +132,7 @@
     
     <script>
         $(document).ready(function(){
-            LoadKPIS();
+            LoadKpisControl();
         });
 
        
