@@ -4,8 +4,7 @@
     error_reporting(E_ALL);
 
     date_default_timezone_set('America/Monterrey');
-    
-    // Controlador y configuraciones
+
     require_once(__DIR__ . "/../controller/ClassConsultasProduccion.php");
     require_once(__DIR__ . '/../../config/ContratistaContexto.php');
     require_once(__DIR__ . "/cargar.php");
@@ -22,6 +21,7 @@
 
     $Fecha1 = $_POST['Fecha1'] ?? '';
     $Fecha2 = $_POST['Fecha2'] ?? '';
+    $TipoTarea = $_POST['TipoTarea'] ?? '';
 
     $mes_anterior = date('Y-m-d', strtotime('-1 month'));
 
@@ -33,10 +33,8 @@
         $Fecha2 = (!empty($Fecha2) ? $Fecha2 : date('Y-m-d')) . " 23:59:59";
     }
 
-    
-
-    // Consulta de producción
-    $filas = $modal->ConsultarProduccionDiaria($Fecha1, $Fecha2);
+    // Se realiza la consulta pasando el TipoTarea
+    $filas = $modal->ConsultarProduccionDiaria($Fecha1, $Fecha2, $idContratistas, $TipoTarea);
 ?>
 
 <style>
