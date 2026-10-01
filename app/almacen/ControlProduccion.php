@@ -128,53 +128,8 @@
     </div>
 
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
-    <!-- CARGAR CHART.JS -->
-    
-    <script>
-        $(document).ready(function(){
-            LoadKPIS();
-        });
 
-        $(document).on('click', 'a[href="detalle_ont_disponibles.php"], a[href="detalle_ont_asignados.php"], a[href="ont_sin_instalar_det.php"], a[href="ont_instaladas_det.php"]', function (event) {
-            event.preventDefault();
 
-            const rutasDetalle = {
-                'detalle_ont_disponibles.php': {
-                    total: ['modal/TablaOntDisponiblesDet.php', 'ONTS SIN ASIGNAR', 'fas fa-box-open'],
-                    fecha: ['modal/TablaOntDisponiblesDet.php', 'ONTS SIN ASIGNAR EN FECHA', 'fas fa-clock']
-                },
-                'detalle_ont_asignados.php': ['modal/TablaOntAsignadosDet.php', 'ONTS ASIGNADAS', 'fas fa-user-check'],
-                'ont_sin_instalar_det.php': ['modal/TablaOntSinInstalarDet.php', 'ONTS SIN LIQUIDAR', 'fas fa-hourglass-half'],
-                'ont_instaladas_det.php': ['modal/TablaOntInstaladosDet.php', 'ONTS LIQUIDADAS', 'fas fa-check-double']
-            };
-
-            const ruta = $(this).attr('href');
-            const tipoDetalle = $(this).data('detalle') || '';
-            const rutaDetalle = rutasDetalle[ruta];
-            const detalle = Array.isArray(rutaDetalle) ? rutaDetalle : rutaDetalle[tipoDetalle] || rutaDetalle.total;
-            const contenido = $('#modalKpiDetalleContenido');
-
-            $('#modalKpiDetalleTitulo').html('<i class="' + detalle[2] + ' mr-2"></i>' + detalle[1]);
-            contenido.empty();
-            $('#modalKpiDetalle').modal('show');
-
-            $.ajax({
-                type: 'POST',
-                url: detalle[0],
-                data: $('#FormQueryUnidades').serialize() + '&TipoDetalle=' + encodeURIComponent(tipoDetalle),
-                success: function (data) {
-                    contenido.html(data);
-                },
-                error: function () {
-                    contenido.html('<div class="alert alert-danger mb-0">No fue posible cargar el detalle.</div>');
-                }
-            });
-        });
-
-        $('#modalKpiDetalle').on('hidden.bs.modal', function () {
-            $('#modalKpiDetalleContenido').empty();
-        });
-    </script>
 </body>
 </html>
 
