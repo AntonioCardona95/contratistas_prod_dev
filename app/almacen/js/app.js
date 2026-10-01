@@ -73,6 +73,24 @@ function LoadKPIS(){
 }
 
 
+function LoadKpisControl(){
+    var parametros = $("#FormQueryUnidades").serialize();
+    $("#LoadKpisControl").fadeIn('slow');
+    $.ajax({
+        type:'POST',
+        url:'modal/KPIS.php',
+        data: parametros,
+         beforeSend: function(objeto){
+                $("#LoadKpisControl").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
+        },
+        success:function(data){
+            $("#LoadKpisControl").html(data);
+        }
+    });
+}
+
+
+
 function LoadProduccion(){
     var parametros = $("#FormQueryUnidades").serialize();
     $("#LoadProduccion").fadeIn('slow');
