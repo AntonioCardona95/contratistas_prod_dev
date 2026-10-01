@@ -78,7 +78,7 @@ function LoadKpisControl(){
     $("#LoadKpisControl").fadeIn('slow');
     $.ajax({
         type:'POST',
-        url:'modal/KPIS.php',
+        url:'modal/KpisControlProduccion.php',
         data: parametros,
          beforeSend: function(objeto){
                 $("#LoadKpisControl").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
