@@ -3,9 +3,7 @@
 if (session_status() === PHP_SESSION_NONE) session_start();
 $Contratista = $_SESSION['Contratista'] ?? 'Usuario';
 
-// Resolver valores de fecha: prioridad -> $topbar_defaults (si la vista lo define),
-// luego variables locales usadas antiguamente ($defaultFecha1/$defaultFecha2),
-// luego POST y finalmente la fecha actual.
+// Resolver valores de fecha
 $tbFecha1 = null;
 $tbFecha2 = null;
 if (!empty($topbar_defaults) && is_array($topbar_defaults)) {
@@ -15,8 +13,8 @@ if (!empty($topbar_defaults) && is_array($topbar_defaults)) {
 if (empty($tbFecha1)) $tbFecha1 = $defaultFecha1 ?? ($_POST['Fecha1'] ?? '');
 if (empty($tbFecha2)) $tbFecha2 = $defaultFecha2 ?? ($_POST['Fecha2'] ?? '');
 
-// Nombre de la función JS que se debe invocar al cambiar las fechas o al buscar.
-$onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadEntradas';
+// Nombre de la función JS a invocar
+$onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadKpisControl';
 $topbar_hide_search = !empty($topbar_hide_search);
 ?>
 
@@ -31,12 +29,19 @@ $topbar_hide_search = !empty($topbar_hide_search);
     <?php if (!$topbar_hide_search): ?>
         <!-- Topbar Search -->
         <form id="FormQueryUnidades" class="d-flex form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search topbar-search-form">
-            <div class="input-group topbar-date-group">
-                <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
-                <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" class="form-control bg-light border-0 small mr-2 topbar-date-input" onchange="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();" aria-label="AL" aria-describedby="basic-addon2">
+            <div class="input-group align-items-center topbar-date-group">
+                <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" 
+                       class="form-control bg-light border-0 small mr-2 topbar-date-input" 
+                       onchange="validarFechasBtn();" aria-label="DESDE">
+
+                <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" 
+                       class="form-control bg-light border-0 small mr-2 topbar-date-input" 
+                       onchange="validarFechasBtn();" aria-label="HASTA">
+
                 <div class="input-group-append mr-2">
-                    <button class="btn btn-primary" type="button" onclick="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
-                        <i class="fas fa-search fa-sm"></i>
+                    <button class="btn btn-primary font-weight-bold" type="button" id="btnEjecutarProduccion" disabled
+                            onclick="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
+                        <i class="fas fa-play fa-sm mr-1"></i> Ejecutar Producción
                     </button>
                 </div>
             </div>
@@ -104,4 +109,25 @@ $topbar_hide_search = !empty($topbar_hide_search);
 </nav>
 <!-- End of Topbar -->
 
+<!-- Script para la validación activa de fechas -->
+<script>
+function validarFechasBtn() {
+    var f1 = document.getElementById('Fecha1') ? document.getElementById('Fecha1').value : '';
+    var f2 = document.getElementById('Fecha2') ? document.getElementById('Fecha2').value : '';
+    var btn = document.getElementById('btnEjecutarProduccion');
 
+    if (btn) {
+        // Habilita el botón solo si ambas fechas tienen valor seleccionado
+        if (f1.trim() !== '' && f2.trim() !== '') {
+            btn.disabled = false;
+        } else {
+            btn.disabled = true;
+        }
+    }
+}
+
+// Ejecutar la comprobación al cargar el DOM por si vienen fechas por defecto
+document.addEventListener('DOMContentLoaded', function() {
+    validarFechasBtn();
+});
+</script>
