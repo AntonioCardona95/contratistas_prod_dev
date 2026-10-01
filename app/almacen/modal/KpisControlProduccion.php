@@ -32,6 +32,21 @@ if (!empty($Fecha1) && !empty($Fecha2)) {
 
 $index = new Index();
 
+// TOTAL PRODUCCION HISTORICO
+$TotalProduccion = 0;
+$qrProduccionTotal = $index->CountProduccionTotal();
+if (is_array($qrProduccionTotal)) {
+    if (!empty($qrProduccionTotal)) {
+        foreach ($qrProduccionTotal as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalProduccion = (int)$row['TOTAL'];
+            }
+        }
+    }
+} else {
+    $TotalProduccion = (int)$qrProduccionTotal;
+}
+
 // NUMEROS DE SERIE ASIGNADOS A TECNICOS
 $TotalAsignados = 0;
 $sqlCompletas = $index->CountMaterialesAsignados($idContratistas, $Fecha1, $Fecha2);
@@ -149,6 +164,19 @@ if (is_array($qrIncompletas)) {
 <!-- Content Row -->
 <div class="row kpi-cards-row">
 
+    <!-- Card 0: Total Producción -->
+    <div class="col-xl col-md-6 mb-4">
+        <a href="#" class="kpi-card-link">
+            <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #343a40;">
+                <div class="kpi-card-body">
+                    <div class="kpi-card-icon"><i class="fas fa-industry"></i></div>
+                    <div class="kpi-card-label">Total Producción</div>
+                    <div class="kpi-card-number"><?php echo number_format($TotalProduccion); ?></div>
+                </div>
+            </div>
+        </a>
+    </div>
+
     <div class="col-xl col-md-6 mb-4">
         <a href="detalle_ont_disponibles.php" data-detalle="total" class="kpi-card-link">
             <div class="kpi-card kpi-card-danger">
@@ -210,7 +238,7 @@ if (is_array($qrIncompletas)) {
     </div>
 
 </div>
-<!-- Seis graficas derivadas de las cinco tarjetas -->
+<!-- Seis graficas derivadas de las tarjetas -->
 <div class="row">
   <div class="col-xl-6 mb-4">
     <div class="card shadow h-100">
