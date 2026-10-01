@@ -128,8 +128,6 @@
     </div>
 
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
-
-
 </body>
 </html>
 
