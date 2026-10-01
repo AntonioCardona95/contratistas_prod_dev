@@ -96,25 +96,28 @@ $topbar_hide_search = !empty($topbar_hide_search);
 
     </nav>
 
-    <?php if (!$topbar_hide_search): ?>
+<?php if (!$topbar_hide_search): ?>
         <!-- Contenedor de Filtros de Búsqueda -->
         <div class="card card-filtros-container mb-4">
             <div class="card-header-filtros d-flex align-items-center">
                 <i class="fas fa-filter mr-2"></i> Filtros de búsqueda
             </div>
             <div class="card-body bg-white py-3">
-                <div class="row align-items-end">
+                <!-- Usamos d-flex wrap para alineación directa y fluida -->
+                <div class="d-flex flex-wrap align-items-end" style="gap: 1rem;">
                     
-                    <!-- Columna para las Fechas y el Botón de Búsqueda -->
-                    <div class="col-md-6 col-sm-12 mb-3 mb-md-0">
+                    <!-- Rango de Fechas + Botón Buscar -->
+                    <div>
                         <label class="filter-label">Rango de Fechas</label>
                         <div class="input-group">
                             <input type="date" name="Fecha1" id="Fecha1" value="<?= htmlspecialchars($tbFecha1) ?>" 
                                    class="form-control bg-light border-1 small" 
+                                   style="width: 170px;"
                                    aria-label="DESDE">
 
                             <input type="date" name="Fecha2" id="Fecha2" value="<?= htmlspecialchars($tbFecha2) ?>" 
                                    class="form-control bg-light border-1 small ml-2" 
+                                   style="width: 170px;"
                                    aria-label="HASTA">
 
                             <div class="input-group-append ml-2">
@@ -125,8 +128,8 @@ $topbar_hide_search = !empty($topbar_hide_search);
                         </div>
                     </div>
 
-                    <!-- Columna para el Option Select de Tipo de Tarea -->
-                    <div class="col-md-6 col-sm-12">
+                    <!-- Option Select de Tipo de Tarea (ancho delimitado similar a una fecha) -->
+                    <div style="min-width: 220px; max-width: 280px; flex: 1;">
                         <label class="filter-label">Seleccione Tipo de tarea</label>
                         <select name="TipoTarea" id="TipoTarea" class="form-control select2-topbar">
                             <option value=""></option>
