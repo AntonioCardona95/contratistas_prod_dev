@@ -38,6 +38,7 @@ foreach ($series as $serie) {
 $totalPendientes = $totalSeries - $totalNavegando;
 $conteoEstados = array(
 	'navegando-observacion' => 0,
+	'negro' => 0,
 	'rojo' => 0,
 	'gris' => 0,
 	'amarillo' => 0,
@@ -52,7 +53,8 @@ foreach ($series as $serie) {
 }
 $etiquetasEstado = array(
 	'navegando' => 'Navegando correctamente',
-	'navegando-observacion' => 'Navegando con observacion: posible serie mal capturada en Coordiapp',
+	'navegando-observacion' => 'Navegando con observacion',
+	'negro' => 'No navegando: perdida de navegacion, ECI se apago',
 	'rojo' => 'No navegando: requiere seguimiento por mas de 14 dias',
 	'gris' => 'No navegando: telefonos no coinciden',
 	'amarillo' => 'No navegando: en espera de cumplir 3 dias desde la liquidacion',
@@ -72,6 +74,12 @@ $etiquetasEstado = array(
 			background-color: #dce5f1 !important;
 			box-shadow: inset 5px 0 0 #17365d;
 			color: #17365d;
+		}
+
+		#tac_series_tabla tbody tr.serie-negro {
+			background-color: #343a40 !important;
+			box-shadow: inset 5px 0 0 #000;
+			color: #fff;
 		}
 
 		#tac_series_tabla tbody tr.serie-rojo {
@@ -172,6 +180,17 @@ $etiquetasEstado = array(
 			border-left-color: #17365d;
 			background: #dce5f1;
 			color: #17365d;
+		}
+
+		.tac-serie-card.negro {
+			border-left-color: #000;
+			background: #343a40;
+			color: #fff;
+		}
+
+		.tac-serie-card.negro .tac-serie-card-title,
+		.tac-serie-card.negro .tac-serie-card-field strong {
+			color: #fff;
 		}
 
 		.icon-navegacion-observacion {
@@ -397,6 +416,7 @@ $etiquetasEstado = array(
 			<option value="navegando">Navegando (<?= $totalNavegando ?>)</option>
 			<option value="navegando-observacion">Azul oscuro: navegando con observacion (<?= $conteoEstados['navegando-observacion'] ?>)</option>
 			<option value="no-navegando">No navegando (<?= $totalPendientes ?>)</option>
+			<option value="negro">Negro: perdida de navegacion (<?= $conteoEstados['negro'] ?>)</option>
 			<option value="rojo">Rojo: seguimiento (<?= $conteoEstados['rojo'] ?>)</option>
 			<option value="gris">Gris: telefonos diferentes (<?= $conteoEstados['gris'] ?>)</option>
 			<option value="amarillo">Amarillo: Navegacion reciente (<?= $conteoEstados['amarillo'] ?>)</option>
@@ -648,19 +668,19 @@ $etiquetasEstado = array(
 					return;
 				}
 
-				if (['rojo', 'gris', 'amarillo', 'verde', 'blanco'].indexOf(filtroActual) !== -1 && estadoNavegacion !== filtroActual) {
+				if (['negro', 'rojo', 'gris', 'amarillo', 'verde', 'blanco'].indexOf(filtroActual) !== -1 && estadoNavegacion !== filtroActual) {
 					return;
 				}
 
 				const tieneObservacion = estadoNavegacion === 'navegando-observacion';
-				const estado = tieneObservacion ? 'Navegando con observacion' : (estaNavegando ? 'Navegando' : 'No navegando');
+				const estado = tieneObservacion ? 'Navegando con observacion' : (estadoNavegacion === 'negro' ? 'Perdida de navegacion' : (estaNavegando ? 'Navegando' : 'No navegando'));
 				const claseTarjeta = tieneObservacion ? ' navegando-observacion' : (estaNavegando ? ' navegando' : ' ' + (estadoNavegacion === 'rojo' ? 'alerta-eci' : estadoNavegacion));
 				const motivos = (serie.Motivos_No_Navegacion || []).join('; ');
 				const textoMotivo = serie.Observacion_Navegacion || (estaNavegando ? 'Navegando correctamente' : motivos);
 
 				const indicadorEstado = tieneObservacion
 					? '<span class="estado-observacion-texto"><i class="fa-brands fa-tailwind-css fa-float icon-navegacion-observacion mr-1" style="--fa-animation-duration: 2s;" aria-hidden="true"></i>' + escaparHtml(estado) + '</span>'
-					: '<span class="badge ' + (estaNavegando ? 'badge-info' : 'badge-secondary') + '">' +
+					: '<span class="badge ' + (estadoNavegacion === 'negro' ? 'badge-dark' : (estaNavegando ? 'badge-info' : 'badge-secondary')) + '">' +
 						(estaNavegando ? '<i class="fas fa-wifi mr-1"></i>' : '') + estado +
 					'</span>';
 

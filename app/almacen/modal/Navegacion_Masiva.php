@@ -38,6 +38,7 @@ $totalSeries = count($seriesMasivas);
 $totalNavegando = 0;
 $conteoEstados = array(
     'navegando-observacion' => 0,
+    'negro' => 0,
     'rojo' => 0,
     'gris' => 0,
     'amarillo' => 0,
@@ -58,7 +59,8 @@ $totalPendientes = $totalSeries - $totalNavegando;
 
 $etiquetasEstado = array(
     'navegando' => 'Navegando correctamente',
-    'navegando-observacion' => 'Navegando con observacion: posible serie mal capturada en Coordiapp',
+    'navegando-observacion' => 'Navegando con observacion',
+    'negro' => 'No navegando: perdida de navegacion, ECI se apago',
     'rojo' => 'No navegando: requiere seguimiento por mas de 14 dias',
     'gris' => 'No navegando: telefonos no coinciden',
     'amarillo' => 'No navegando: en espera de cumplir 3 dias desde la liquidacion',
@@ -161,6 +163,12 @@ unset($filasTablaMasiva);
             background: #dce5f1 !important;
             box-shadow: inset 5px 0 0 #17365d;
             color: #17365d;
+        }
+
+        #tabla-navegacion-masiva tbody tr.estado-negro {
+            background: #343a40 !important;
+            box-shadow: inset 5px 0 0 #000;
+            color: #fff;
         }
 
         #tabla-navegacion-masiva tbody tr.estado-rojo {
@@ -315,6 +323,7 @@ unset($filasTablaMasiva);
                         <option value="navegando">Navegando (<?= $totalNavegando ?>)</option>
                         <option value="navegando-observacion">Azul oscuro: navegando con observacion (<?= $conteoEstados['navegando-observacion'] ?>)</option>
                         <option value="no-navegando">No navegando (<?= $totalPendientes ?>)</option>
+                        <option value="negro">Negro: perdida de navegacion (<?= $conteoEstados['negro'] ?>)</option>
                         <option value="rojo">Rojo: seguimiento (<?= $conteoEstados['rojo'] ?>)</option>
                         <option value="gris">Gris: telefonos diferentes (<?= $conteoEstados['gris'] ?>)</option>
                         <option value="amarillo">Amarillo: Navegacion reciente (<?= $conteoEstados['amarillo'] ?>)</option>

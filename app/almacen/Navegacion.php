@@ -283,6 +283,8 @@
                 </div>
                 <div class="modal-body">
                     <p><span class="badge badge-info mr-2">Azul</span> La serie esta navegando correctamente.</p>
+                    <p><span class="badge mr-2" style="background-color:#17365d;color:#fff;">Azul oscuro</span> Navegando con observacion: se recupero el numero de serie o se valido una posible captura incorrecta en Coordiapp.</p>
+                    <p><span class="badge badge-dark mr-2">Negro</span> Perdida de navegacion: el ultimo registro ECI tiene DID_ACTIVO=0 y el anterior tenia DID_ACTIVO=1.</p>
                     <p><span class="badge badge-danger mr-2">Rojo</span> Tiene una liquidacion de mas de 14 dias y no aparece Navegando. Requiere seguimiento.</p>
                     <p><span class="badge badge-secondary mr-2">Gris</span> Existe Navegacion, pero algun telefono de TAC o Coordiapp no coincide.</p>
                     <p><span class="badge badge-warning mr-2">Amarillo</span> Los telefonos coinciden, pero la Navegacion aun no cumple 3 dias desde la liquidacion.</p>

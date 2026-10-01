@@ -80,6 +80,13 @@ class Navegacion extends Conexion
         return trim((string)$folio);
     }
 
+    protected function esSerieTacSinNumero($serie)
+    {
+        $serieNormalizada = $this->normalizarSerie($serie);
+
+        return $serieNormalizada === '' || $serieNormalizada === 'NSNOOBTENIDO';
+    }
+
     protected function seriesCoincidenEnMinimoCaracteres($serieA, $serieB, $minimoCaracteres = 10)
     {
         $serieA = $this->normalizarSerie($serieA);
@@ -169,8 +176,10 @@ class Navegacion extends Conexion
 
                 foreach ($registrosTacCandidatos as $registroTac) {
                     $serieTac = $this->normalizarSerie($registroTac['Num__Serie'] ?? '');
+                    $serieTacSinNumero = $this->esSerieTacSinNumero($registroTac['Num__Serie'] ?? '');
+                    $telefonoTac = $this->normalizarTelefono($registroTac['TELEFONO'] ?? '');
 
-                    if ($serieTac === '') {
+                    if ($serieTacSinNumero && $telefonoTac !== $telefono) {
                         continue;
                     }
 
@@ -179,7 +188,7 @@ class Navegacion extends Conexion
 
                         if ((int)($registroEci['DID_ACTIVO'] ?? 0) !== 1
                             || $serieEci === ''
-                            || $serieTac !== $serieEci
+                            || (!$serieTacSinNumero && $serieTac !== $serieEci)
                             || $serieCoordiapp === $serieEci
                             || !$this->seriesCoincidenEnMinimoCaracteres($serieCoordiapp, $serieEci)) {
                             continue;
@@ -203,9 +212,14 @@ class Navegacion extends Conexion
 
                         if ($fechaEvento > $mejorFechaEvento) {
                             $mejorFechaEvento = $fechaEvento;
+                            $registroTacValidado = $registroTac;
+                            if ($serieTacSinNumero) {
+                                $registroTacValidado['Num__Serie'] = $serieEci;
+                                $registroTacValidado['Serie_Recuperada_Eci'] = 1;
+                            }
                             $mejorCoincidencia = array(
                                 'coordiapp' => $registroCoordiapp,
-                                'tac' => $registroTac,
+                                'tac' => $registroTacValidado,
                                 'eci' => $registroEci,
                                 'folio_pisa' => $this->normalizarFolioPisa($registroTac['Folio_Pisa'] ?? ($registroCoordiapp['Folio_Pisa'] ?? ''))
                             );
@@ -505,7 +519,7 @@ class Navegacion extends Conexion
         }
         $seriesUnicas = $seriesUnicasParaEci;
 
-        // 4. BUSCAR EN ECI POR SERIE O TELÉFONO, CONSIDERANDO ÚNICAMENTE SERVICIOS ACTIVOS.
+        // 4. BUSCAR TODO EL HISTORIAL ECI PARA IDENTIFICAR EL ESTADO MAS RECIENTE.
         // SEPARAR POR COLUMNAS EVITA EL OR Y PERMITE USAR EL ÍNDICE CORRESPONDIENTE.
         $eciPorSerie = array();
         $eciRegistrosPorSerie = array();
@@ -517,8 +531,7 @@ class Navegacion extends Conexion
             $filasEciPorSerie = $this->runAnalysisQuery(
                 "SELECT TELEFONO, M_SERIE, FECHA_ULTIMO_EVENTO, DID_ACTIVO, TECNOLOGIA
                  FROM seg_ns_eci
-                 WHERE DID_ACTIVO = 1
-                     AND M_SERIE IN ($marcadoresSerieEci)
+                 WHERE M_SERIE IN ($marcadoresSerieEci)
                  ORDER BY FECHA_ULTIMO_EVENTO DESC",
                 $seriesParaEci
             );
@@ -531,21 +544,21 @@ class Navegacion extends Conexion
             }
         }
 
-        // ELEGIR SIEMPRE EL REGISTRO ECI MAS RECIENTE POR FECHA_ULTIMO_EVENTO.
+        // ELEGIR EL MAS RECIENTE Y DETECTAR SI EL ANTERIOR ESTABA ACTIVO.
+        $eciPerdioNavegacion = array();
         foreach ($eciRegistrosPorSerie as $serieEci => $registrosEciSerie) {
-            $registroEciMasReciente = array();
+            $eciPorSerie[$serieEci] = $registrosEciSerie[0];
+            $registroPenultimoEci = $registrosEciSerie[1] ?? array();
+            $eciPerdioNavegacion[$serieEci] = (int)($eciPorSerie[$serieEci]['DID_ACTIVO'] ?? 0) === 0
+                && (int)($registroPenultimoEci['DID_ACTIVO'] ?? 0) === 1;
+        }
 
-            foreach ($registrosEciSerie as $registroEci) {
-                $fechaUltimoEventoEci = strtotime($registroEci['FECHA_ULTIMO_EVENTO'] ?? '');
-                $fechaUltimoEventoEci = $fechaUltimoEventoEci === false ? 0 : $fechaUltimoEventoEci;
-
-                if (empty($registroEciMasReciente) || $fechaUltimoEventoEci > strtotime($registroEciMasReciente['FECHA_ULTIMO_EVENTO'] ?? '')) {
-                    $registroEciMasReciente = $registroEci;
-                }
-
+        $eciSeriesActivasPorTelefono = array();
+        foreach ($eciPorSerie as $serieEci => $registroEci) {
+            $telefonoEci = $this->normalizarTelefono($registroEci['TELEFONO'] ?? '');
+            if ($telefonoEci !== '' && (int)($registroEci['DID_ACTIVO'] ?? 0) === 1) {
+                $eciSeriesActivasPorTelefono[$telefonoEci][$serieEci] = true;
             }
-
-            $eciPorSerie[$serieEci] = $registroEciMasReciente;
         }
 
         // 4.1. DETECTAR CANDIDATAS PARA DISCREPANCIA COORDIAPP.
@@ -558,6 +571,12 @@ class Navegacion extends Conexion
 
         foreach ($series as $serie) {
             $serieNormalizada = $this->normalizarSerie($serie['Num_Serie_S'] ?? '');
+            $registroEci = $eciPorSerie[$serieNormalizada] ?? array();
+            $telefonoEci = $this->normalizarTelefono($registroEci['TELEFONO'] ?? '');
+
+            if ($telefonoEci !== '') {
+                $telefonosCandidatos[$telefonoEci] = true;
+            }
 
             if (!$this->esCandidataDiscrepanciaCoordiapp(
                 $serieNormalizada,
@@ -566,10 +585,8 @@ class Navegacion extends Conexion
                 continue;
             }
 
-            $registroEci = $eciPorSerie[$serieNormalizada] ?? array();
             $registroTac = $tacPorSerie[$serieNormalizada] ?? array();
 
-            $telefonoEci = $this->normalizarTelefono($registroEci['TELEFONO'] ?? '');
             $telefonoTac = $this->normalizarTelefono($registroTac['TELEFONO'] ?? '');
 
             $seriesCandidatasObservacion[$serieNormalizada] = true;
@@ -642,6 +659,12 @@ class Navegacion extends Conexion
         // ECI se consulta por teléfono y sólo para las series candidatas devueltas por TAC.
         $eciRegistrosPorTelefono = array();
         $seriesEciPorTelefono = array();
+        foreach ($series as $serie) {
+            $serieEci = $this->normalizarSerie($serie['Num_Serie_S'] ?? '');
+            if ($serieEci !== '') {
+                $seriesEciPorTelefono[$serieEci] = true;
+            }
+        }
         foreach ($telefonosCandidatos as $telefono => $valor) {
             foreach ($registrosTacPorTelefono[$telefono] ?? array() as $registroTac) {
                 $serieTac = $this->normalizarSerie($registroTac['Num__Serie'] ?? '');
@@ -652,21 +675,28 @@ class Navegacion extends Conexion
         }
 
         if (!empty($seriesEciPorTelefono) && !empty($telefonosCandidatos)) {
-            $telefonosEciCandidatos = array_keys($telefonosCandidatos);
-            $marcadoresTelefonoEci = implode(',', array_fill(0, count($telefonosEciCandidatos), '?'));
             $seriesEciCandidatas = array_keys($seriesEciPorTelefono);
             $marcadoresSerieEci = implode(',', array_fill(0, count($seriesEciCandidatas), '?'));
             $registrosEciPorTelefono = $this->runAnalysisQuery(
                 "SELECT TELEFONO, M_SERIE, FECHA_ULTIMO_EVENTO, DID_ACTIVO, TECNOLOGIA
                  FROM seg_ns_eci
-                 WHERE DID_ACTIVO = 1
-                    AND TELEFONO IN ($marcadoresTelefonoEci)
-                    AND M_SERIE IN ($marcadoresSerieEci)
+                 WHERE M_SERIE IN ($marcadoresSerieEci)
                  ORDER BY FECHA_ULTIMO_EVENTO DESC",
-                array_merge($telefonosEciCandidatos, $seriesEciCandidatas)
+                $seriesEciCandidatas
             );
 
+            $eciMasRecientePorSerie = array();
             foreach ($registrosEciPorTelefono as $registroEci) {
+                $serieEci = $this->normalizarSerie($registroEci['M_SERIE'] ?? '');
+                if ($serieEci !== '' && !isset($eciMasRecientePorSerie[$serieEci])) {
+                    $eciMasRecientePorSerie[$serieEci] = $registroEci;
+                }
+            }
+
+            foreach ($eciMasRecientePorSerie as $registroEci) {
+                if ((int)($registroEci['DID_ACTIVO'] ?? 0) !== 1) {
+                    continue;
+                }
                 $telefono = $this->normalizarTelefono($registroEci['TELEFONO'] ?? '');
                 if ($telefono !== '') {
                     $eciRegistrosPorTelefono[$telefono][] = $registroEci;
@@ -758,6 +788,10 @@ class Navegacion extends Conexion
                     $eciRegistrosPorTelefono
                 )
                 : null;
+            if ($coincidenciaDiscrepanciaCoordiapp !== null
+                && $this->normalizarSerie($coincidenciaDiscrepanciaCoordiapp['eci']['M_SERIE'] ?? '') !== $serieNormalizada) {
+                $coincidenciaDiscrepanciaCoordiapp = null;
+            }
             $discrepanciaCoordiapp = $coincidenciaDiscrepanciaCoordiapp !== null;
 
             if ($discrepanciaCoordiapp) {
@@ -768,6 +802,69 @@ class Navegacion extends Conexion
                 // El registro se encontró por teléfono y Folio Pisa, no por
                 // coincidencia exacta de serie; reflejar la serie recuperada.
                 $serie['Serie_Coordiapp'] = $registroCoordiappSeleccionado['Ont'] ?? null;
+            }
+
+            $serieTacRecuperada = !empty($registroTacSeleccionado['Serie_Recuperada_Eci']);
+            if ($telefonoEci !== '' && $this->esSerieTacSinNumero($registroTacSeleccionado['Num__Serie'] ?? '')) {
+                $candidatosTacSinSerie = array();
+                foreach ($registrosTacPorTelefono[$telefonoEci] ?? array() as $registroTacCandidato) {
+                    if ($this->esSerieTacSinNumero($registroTacCandidato['Num__Serie'] ?? '')
+                        && $this->normalizarTelefono($registroTacCandidato['TELEFONO'] ?? '') === $telefonoEci) {
+                        $candidatosTacSinSerie[] = $registroTacCandidato;
+                    }
+                }
+
+                $registrosCoordiappTelefonoEci = $coordiappRegistrosPorTelefono[$telefonoEci] ?? array();
+                $foliosCoordiappValidacion = array();
+                if ($this->normalizarTelefono($registroCoordiappSeleccionado['Telefono'] ?? '') === $telefonoEci) {
+                    $folioSeleccionado = $this->normalizarFolioPisa($registroCoordiappSeleccionado['Folio_Pisa'] ?? '');
+                    if ($folioSeleccionado !== '') {
+                        $foliosCoordiappValidacion[$folioSeleccionado] = true;
+                    }
+                }
+                foreach ($registrosCoordiappTelefonoEci as $registroCoordiappCandidato) {
+                    $folioCoordiapp = $this->normalizarFolioPisa($registroCoordiappCandidato['Folio_Pisa'] ?? '');
+                    if ($folioCoordiapp !== '') {
+                        $foliosCoordiappValidacion[$folioCoordiapp] = true;
+                    }
+                }
+
+                $coordiappConfirmaSerie = false;
+                foreach ($registrosCoordiappTelefonoEci as $registroCoordiappCandidato) {
+                    if ($this->normalizarSerie($registroCoordiappCandidato['Ont'] ?? '') === $serieNormalizada) {
+                        $coordiappConfirmaSerie = true;
+                        break;
+                    }
+                }
+                if (count($eciSeriesActivasPorTelefono[$telefonoEci] ?? array()) > 1
+                    && !$coordiappConfirmaSerie
+                    && !$discrepanciaCoordiapp) {
+                    $candidatosTacSinSerie = array();
+                }
+
+                if (!empty($foliosCoordiappValidacion)) {
+                    $candidatosTacSinSerie = array_values(array_filter($candidatosTacSinSerie, function ($registroTacCandidato) use ($foliosCoordiappValidacion) {
+                        return isset($foliosCoordiappValidacion[$this->normalizarFolioPisa($registroTacCandidato['Folio_Pisa'] ?? '')]);
+                    }));
+                }
+
+                if (count($candidatosTacSinSerie) === 1) {
+                    $registroTacSeleccionado = $candidatosTacSinSerie[0];
+                    $registroTacSeleccionado['Num__Serie'] = $serieNormalizada;
+                    $registroTacSeleccionado['Serie_Recuperada_Eci'] = 1;
+                    $serieTacRecuperada = true;
+
+                    if ($this->normalizarTelefono($registroCoordiappSeleccionado['Telefono'] ?? '') === '') {
+                        $folioTacRecuperado = $this->normalizarFolioPisa($registroTacSeleccionado['Folio_Pisa'] ?? '');
+                        foreach ($registrosCoordiappTelefonoEci as $registroCoordiappCandidato) {
+                            if ($folioTacRecuperado !== ''
+                                && $this->normalizarFolioPisa($registroCoordiappCandidato['Folio_Pisa'] ?? '') === $folioTacRecuperado) {
+                                $registroCoordiappSeleccionado = $registroCoordiappCandidato;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
 
             $telefonoCoordiappSeleccionado = $this->normalizarTelefono($registroCoordiappSeleccionado['Telefono'] ?? '');
@@ -868,14 +965,26 @@ class Navegacion extends Conexion
             $navegando = $eciActivo && $telefonosCoinciden && $fechaEciValida;
             $serie['Navegando'] = $navegando ? 1 : 0;
             $serie['Motivos_No_Navegacion'] = $navegando ? array() : $motivosNoNavegacion;
-            if ($navegando && $discrepanciaCoordiapp) {
-                $serie['Observacion_Navegacion'] = 'Navegando con observacion: posible serie mal capturada en Coordiapp; validada con Folio Pisa ' . $coincidenciaDiscrepanciaCoordiapp['folio_pisa'];
-            } else {
-                $serie['Observacion_Navegacion'] = null;
+            $observacionesNavegacion = array();
+            if ($navegando && $serieTacRecuperada) {
+                $observacionesNavegacion[] = 'Numero de serie recuperado de la navegacion: ' . $serieNormalizada
+                    . '; validado con el telefono ECI ' . $telefonoEci;
             }
+            if ($navegando && $discrepanciaCoordiapp) {
+                $observacionesNavegacion[] = 'Posible serie mal capturada en Coordiapp: validada con Folio Pisa '
+                    . $coincidenciaDiscrepanciaCoordiapp['folio_pisa'];
+            }
+            $serie['Observacion_Navegacion'] = !empty($observacionesNavegacion)
+                ? 'Navegando con observacion: ' . implode(' | ', $observacionesNavegacion)
+                : null;
 
             if ($navegando) {
-                $serie['Estado_Navegacion'] = $discrepanciaCoordiapp ? 'navegando-observacion' : 'navegando';
+                $serie['Estado_Navegacion'] = ($discrepanciaCoordiapp || $serieTacRecuperada)
+                    ? 'navegando-observacion'
+                    : 'navegando';
+            } elseif (!empty($eciPerdioNavegacion[$serieNormalizada])) {
+                $serie['Estado_Navegacion'] = 'negro';
+                $serie['Motivos_No_Navegacion'][] = 'Perdida de navegacion: el ultimo registro ECI tiene DID_ACTIVO=0 y el penultimo DID_ACTIVO=1';
             } elseif ((int)$serie['Alerta_Eci_Pendiente'] === 1) {
                 $serie['Estado_Navegacion'] = 'rojo';
             } elseif ($hayEci && ($hayCoordiapp || $hayTac) && !$telefonosCoinciden) {
