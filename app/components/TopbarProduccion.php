@@ -97,13 +97,12 @@ $topbar_hide_search = !empty($topbar_hide_search);
     </nav>
 
 <?php if (!$topbar_hide_search): ?>
-        <!-- Contenedor de Filtros de Búsqueda -->
+        <!-- Contenedor 1: Filtros de Búsqueda -->
         <div class="card card-filtros-container mb-4">
             <div class="card-header-filtros d-flex align-items-center">
                 <i class="fas fa-filter mr-2"></i> Filtros de búsqueda
             </div>
             <div class="card-body bg-white py-3">
-                <!-- Usamos d-flex wrap para alineación directa y fluida -->
                 <div class="d-flex flex-wrap align-items-end" style="gap: 1rem;">
                     
                     <!-- Rango de Fechas + Botón Buscar -->
@@ -128,7 +127,7 @@ $topbar_hide_search = !empty($topbar_hide_search);
                         </div>
                     </div>
 
-                    <!-- Option Select de Tipo de Tarea (ancho delimitado similar a una fecha) -->
+                    <!-- Option Select de Tipo de Tarea -->
                     <div style="min-width: 220px; max-width: 280px; flex: 1;">
                         <label class="filter-label">Seleccione Tipo de tarea</label>
                         <select name="TipoTarea" id="TipoTarea" class="form-control select2-topbar">
@@ -138,6 +137,48 @@ $topbar_hide_search = !empty($topbar_hide_search);
                             <option value="MIGRACIONES" <?= $tbTipoTarea === 'MIGRACIONES' ? 'selected' : '' ?>>MIGRACIONES</option>
                             <option value="A4" <?= $tbTipoTarea === 'A4' ? 'selected' : '' ?>>A4</option>
                             <option value="CAMBIOS DE DOMICILIO" <?= $tbTipoTarea === 'CAMBIOS DE DOMICILIO' ? 'selected' : '' ?>>CAMBIOS DE DOMICILIO</option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Contenedor 2: Filtros Adicionales (Nuevo bloque duplicado abajo) -->
+        <div class="card card-filtros-container mb-4">
+            <div class="card-header-filtros d-flex align-items-center">
+                <i class="fas fa-sliders-h mr-2"></i> Filtros adicionales
+            </div>
+            <div class="card-body bg-white py-3">
+                <div class="d-flex flex-wrap align-items-end" style="gap: 1rem;">
+                    
+                    <!-- Rango de Fechas 2 -->
+                    <div>
+                        <label class="filter-label">Rango de Fechas Secundario</label>
+                        <div class="input-group">
+                            <input type="date" name="Fecha1_2" id="Fecha1_2" value="" 
+                                   class="form-control bg-light border-1 small" 
+                                   style="width: 170px;"
+                                   aria-label="DESDE">
+
+                            <input type="date" name="Fecha2_2" id="Fecha2_2" value="" 
+                                   class="form-control bg-light border-1 small ml-2" 
+                                   style="width: 170px;"
+                                   aria-label="HASTA">
+
+                            <div class="input-group-append ml-2">
+                                <button class="btn btn-primary" type="button">
+                                    <i class="fas fa-search fa-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Option Select Secundario -->
+                    <div style="min-width: 220px; max-width: 280px; flex: 1;">
+                        <label class="filter-label">Seleccione opción</label>
+                        <select name="TipoTarea2" id="TipoTarea2" class="form-control select2-topbar">
+                            <option value=""></option>
                         </select>
                     </div>
 
