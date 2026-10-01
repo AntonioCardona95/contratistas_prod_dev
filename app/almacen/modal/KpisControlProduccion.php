@@ -55,6 +55,23 @@ if (is_array($qrProduccionFechas)) {
     $TotalProduccionFechas = (int)$qrProduccionFechas;
 }
 
+
+// TOTAL ONT / EQUIPOS SIN ENTRADA A ALMACÉN (GENERAL)
+$TotalOntSinAlmacen = 0;
+$qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen($Fecha1, $Fecha2, $idContratistas);
+
+if (is_array($qrOntSinAlmacen)) {
+    if (!empty($qrOntSinAlmacen)) {
+        foreach ($qrOntSinAlmacen as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalOntSinAlmacen = (int)$row['TOTAL'];
+            }
+        }
+    }
+} else {
+    $TotalOntSinAlmacen = (int)$qrOntSinAlmacen;
+}
+
 // TOTAL PRODUCCION HISTORICO (usa ClassConsultasProduccion)
 $TotalProduccion = 0;
 $qrProduccionTotal = $consultas->CountProduccionTotal();
@@ -212,18 +229,18 @@ foreach ((array)$chart_tecnicos as $row) {
     </div>
 
 
-    <!-- Card 2: Sin asignar en fecha -->
-    <div class="col-xl col-md-6 mb-4">
-      <a href="detalle_ont_disponibles.php" data-detalle="fecha" class="kpi-card-link">
-        <div class="kpi-card kpi-card-warning">
-          <div class="kpi-card-body">
-            <div class="kpi-card-icon"><i class="fas fa-clock"></i></div>
-            <div class="kpi-card-label">Números de serie sin asignar (en fecha)</div>
-            <div class="kpi-card-number"><?php echo number_format($TotalDisponible); ?></div>
-          </div>
+    <!-- Card: Total ONT Sin Entrada a Almacén (General) -->
+<div class="col-xl col-md-6 mb-4">
+    <a href="#" class="kpi-card-link">
+        <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #dc3545;">
+            <div class="kpi-card-body">
+                <div class="kpi-card-icon"><i class="fas fa-boxes"></i></div>
+                <div class="kpi-card-label">ONT sin Entrada a Almacén</div>
+                <div class="kpi-card-number"><?php echo number_format($TotalOntSinAlmacen); ?></div>
+            </div>
         </div>
-      </a>
-    </div>
+    </a>
+</div>
 
     <!-- Card 3: Asignados -->
     <div class="col-xl col-md-6 mb-4">

@@ -919,6 +919,31 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
 } */
 
 
+    /**
+ * Cuenta el total de equipos/ONT que NO han ingresado a almacén en un rango de fechas
+ * (Donde ni la serie de producción ni la serie ECI han entrado)
+ */
+public function CountOntSinEntradaAlmacen($fechaInicio, $fechaFin, $idContratista = null)
+{
+    $sql = "SELECT COUNT(1) AS TOTAL
+            FROM seg_produccion_diaria
+            WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin
+              AND Existe_Serie_Prod_Almacen = 0
+              AND Existe_Serie_Eci_Almacen = 0";
+
+    $params = array(
+        ':fechaInicio' => $fechaInicio,
+        ':fechaFin'    => $fechaFin
+    );
+
+    if (!empty($idContratista)) {
+        $sql .= " AND idContratista = :idContratista";
+        $params[':idContratista'] = $idContratista;
+    }
+
+    return $this->runQuery($sql, $params, 'default');
+}
+
 
 }
 
