@@ -166,18 +166,19 @@ foreach ((array)$chart_tecnicos as $row) {
 <div class="row kpi-cards-row">
 
     <!-- Card 0: Total Producción -->
-    <div class="col-xl col-md-6 mb-4">
-        <a href="#" class="kpi-card-link">
-            <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #343a40;">
-                <div class="kpi-card-body">
-                    <div class="kpi-card-icon"><i class="fas fa-industry"></i></div>
-                    <div class="kpi-card-label">Total Producción</div>
-                    <!-- Aquí ya se imprime el valor calculado con ClassConsultasProduccion -->
-                    <div class="kpi-card-number"><?php echo number_format($TotalProduccion); ?></div>
-                </div>
+<div class="col-xl col-md-6 mb-4">
+    <a href="#" class="kpi-card-link">
+        <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #343a40;">
+            <div class="kpi-card-body">
+                <div class="kpi-card-icon"><i class="fas fa-industry"></i></div>
+                <div class="kpi-card-label">Total Producción</div>
+                <!-- Aquí ya se imprime el valor correcto -->
+                <div class="kpi-card-number"><?php echo number_format($TotalProduccion); ?></div>
             </div>
-        </a>
-    </div>
+        </div>
+    </a>
+</div>
+
 
     <!-- Card 1: Totales sin asignar -->
     <div class="col-xl col-md-6 mb-4">
