@@ -8,6 +8,8 @@ error_reporting(E_ALL);
 
 require_once("../controller/ClassConsultasProduccion.php");
 require_once("../controller/ClassIndex.php");
+require_once(__DIR__ . '/../../config/ContratistaContexto.php');
+
 
 session_start();
 $Contratista = $_SESSION['Contratista'];
