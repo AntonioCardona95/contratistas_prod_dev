@@ -36,6 +36,25 @@ if (!empty($Fecha1) && !empty($Fecha2)) {
 $index = new Index();
 $consultas = new ClassConsultasProduccion();
 
+// TOTAL PRODUCCION HISTORICO
+$TotalProduccion = 0;
+// ... (tu lógica existente) ...
+
+// NUEVO: PRODUCCION POR FECHAS SELECCIONADAS
+$TotalProduccionFechas = 0;
+$qrProduccionFechas = $consultas->CountProduccionPorFechas($Fecha1, $Fecha2);
+if (is_array($qrProduccionFechas)) {
+    if (!empty($qrProduccionFechas)) {
+        foreach ($qrProduccionFechas as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalProduccionFechas = (int)$row['TOTAL'];
+            }
+        }
+    }
+} else {
+    $TotalProduccionFechas = (int)$qrProduccionFechas;
+}
+
 // TOTAL PRODUCCION HISTORICO (usa ClassConsultasProduccion)
 $TotalProduccion = 0;
 $qrProduccionTotal = $consultas->CountProduccionTotal();
@@ -178,6 +197,19 @@ foreach ((array)$chart_tecnicos as $row) {
         </div>
     </a>
 </div>
+
+<!-- Nueva Card: Producción Por Fechas -->
+    <div class="col-xl col-md-6 mb-4">
+        <a href="#" class="kpi-card-link">
+            <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #17a2b8;">
+                <div class="kpi-card-body">
+                    <div class="kpi-card-icon"><i class="fas fa-calendar-alt"></i></div>
+                    <div class="kpi-card-label">Producción por Fechas</div>
+                    <div class="kpi-card-number"><?php echo number_format($TotalProduccionFechas); ?></div>
+                </div>
+            </div>
+        </a>
+    </div>
 
 
     <!-- Card 2: Sin asignar en fecha -->

@@ -38,12 +38,18 @@ $topbar_hide_search = !empty($topbar_hide_search);
                        class="form-control bg-light border-0 small mr-2 topbar-date-input" 
                        onchange="validarFechasBtn();" aria-label="HASTA">
 
-                <div class="input-group-append mr-2">
-                    <button class="btn btn-primary font-weight-bold" type="button" id="btnEjecutarProduccion" disabled
-                            onclick="if(typeof window['<?= $onchange_fn ?>']=='function') window['<?= $onchange_fn ?>']();">
-                        <i class="fas fa-play fa-sm mr-1"></i> Ejecutar Producción
-                    </button>
-                </div>
+                <!-- En el Topbar, actualizamos el grupo del botón -->
+<div class="input-group-append mr-2 align-items-center position-relative">
+    <button class="btn btn-primary font-weight-bold d-flex align-items-center" type="button" id="btnEjecutarProduccion" disabled
+            onclick="ejecutarFiltradoProduccion();">
+        <i class="fas fa-play fa-sm mr-1" id="iconEjecutar"></i> 
+        <span id="textEjecutar">Ejecutar Producción</span>
+    </button>
+    <!-- Contenedor del mensaje de estado al terminar -->
+    <div id="statusMensajeProduccion" class="ml-2 font-weight-bold text-success small align-items-center" style="display: none; white-space: nowrap;">
+        <i class="fas fa-check-circle mr-1" style="font-size: 1.1rem;"></i> Ejecución Finalizada
+    </div>
+</div>
             </div>
             <?php if(!empty($topbar_actions)): ?>
                 <div class="topbar-actions-container d-flex align-items-center ml-2">
@@ -117,16 +123,52 @@ function validarFechasBtn() {
     var btn = document.getElementById('btnEjecutarProduccion');
 
     if (btn) {
-        // Habilita el botón solo si ambas fechas tienen valor seleccionado
-        if (f1.trim() !== '' && f2.trim() !== '') {
-            btn.disabled = false;
-        } else {
-            btn.disabled = true;
+        btn.disabled = !(f1.trim() !== '' && f2.trim() !== '');
+    }
+}
+
+function ejecutarFiltradoProduccion() {
+    var btn = document.getElementById('btnEjecutarProduccion');
+    var icon = document.getElementById('iconEjecutar');
+    var text = document.getElementById('textEjecutar');
+    var msgStatus = document.getElementById('statusMensajeProduccion');
+
+    // Estado 1: Cargando / Procesando
+    btn.disabled = true;
+    icon.className = 'fas fa-spinner fa-spin mr-1';
+    text.innerText = 'Procesando...';
+    if (msgStatus) msgStatus.style.display = 'none';
+
+    // Disparar la función de recarga Ajax (por defecto LoadKpisControl o $onchange_fn)
+    var targetFn = "<?= $onchange_fn ?>";
+    
+    if (typeof window[targetFn] === 'function') {
+        // Ejecutar función de recarga y esperar resolución (si devuelve una promesa)
+        Promise.resolve(window[targetFn]()).then(function() {
+            mostrarExito();
+        }).catch(function() {
+            mostrarExito(); // En caso de que LoadKpisControl no retorne promesa explícita
+        });
+    } else {
+        mostrarExito();
+    }
+
+    function mostrarExito() {
+        // Estado 2: Restaurar botón y mostrar palomita / mensaje
+        btn.disabled = false;
+        icon.className = 'fas fa-play fa-sm mr-1';
+        text.innerText = 'Ejecutar Producción';
+
+        if (msgStatus) {
+            msgStatus.style.display = 'inline-flex';
+            // Ocultar automáticamente el mensaje después de 4 segundos
+            setTimeout(function() {
+                msgStatus.style.display = 'none';
+            }, 4000);
         }
     }
 }
 
-// Ejecutar la comprobación al cargar el DOM por si vienen fechas por defecto
 document.addEventListener('DOMContentLoaded', function() {
     validarFechasBtn();
 });
