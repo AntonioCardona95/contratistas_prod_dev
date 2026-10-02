@@ -971,16 +971,19 @@ public function CountOntConEntradaAlmacen($fechaInicio, $fechaFin, $idContratist
 }
 
 /**
- * Obtiene los totales de ONT con y sin entrada a almacén agrupadas por División
+ * Obtiene el conteo de ONT con y sin entrada a almacén para TODAS las divisiones
+ * utilizando la tabla 'divisiones' como catálogo base.
  */
 public function CountOntAlmacenPorDivision($fechaInicio, $fechaFin, $idContratista = null)
 {
     $sql = "SELECT 
-                IFNULL(NOM_DIVISION, 'SIN DIVISION') AS DIVISION,
-                SUM(CASE WHEN Existe_Serie_Prod_Almacen = 1 AND Existe_Serie_Eci_Almacen = 1 THEN 1 ELSE 0 END) AS CON_ALMACEN,
-                SUM(CASE WHEN Existe_Serie_Prod_Almacen = 0 AND Existe_Serie_Eci_Almacen = 0 THEN 1 ELSE 0 END) AS SIN_ALMACEN
-            FROM seg_produccion_diaria
-            WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+                d.Division AS DIVISION,
+                COALESCE(SUM(CASE WHEN p.Existe_Serie_Prod_Almacen = 1 AND p.Existe_Serie_Eci_Almacen = 1 THEN 1 ELSE 0 END), 0) AS CON_ALMACEN,
+                COALESCE(SUM(CASE WHEN p.Existe_Serie_Prod_Almacen = 0 AND p.Existe_Serie_Eci_Almacen = 0 THEN 1 ELSE 0 END), 0) AS SIN_ALMACEN
+            FROM divisiones d
+            LEFT JOIN seg_produccion_diaria p 
+                ON (TRIM(p.NOM_DIVISION) = TRIM(d.Division) OR p.NOM_DIVISION LIKE CONCAT('%', d.Division, '%'))
+                AND p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
 
     $params = array(
         ':fechaInicio' => $fechaInicio,
@@ -988,11 +991,11 @@ public function CountOntAlmacenPorDivision($fechaInicio, $fechaFin, $idContratis
     );
 
     if (!empty($idContratista)) {
-        $sql .= " AND idContratista = :idContratista";
+        $sql .= " AND p.idContratista = :idContratista";
         $params[':idContratista'] = $idContratista;
     }
 
-    $sql .= " GROUP BY NOM_DIVISION ORDER BY NOM_DIVISION ASC";
+    $sql .= " GROUP BY d.idDivision, d.Division ORDER BY d.idDivision ASC";
 
     return $this->runQuery($sql, $params, 'default');
 }

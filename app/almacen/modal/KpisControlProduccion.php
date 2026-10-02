@@ -208,7 +208,7 @@ foreach ((array)$chart_tecnicos as $row) {
         ? round(((int)$row['LIQUIDADAS'] / (int)$row['ASIGNADAS']) * 100, 1) : 0;
 }
 
-// NUEVO: DATOS DE ALMACÉN POR DIVISIÓN PARA LAS DOS ÚLTIMAS GRÁFICAS
+// CONSULTA DE DATOS BASE DE TODAS LAS DIVISIONES
 $chart_divisiones_raw = $consultas->CountOntAlmacenPorDivision($Fecha1, $Fecha2, $idContratistas);
 $chart_div_labels = [];
 $chart_div_con_almacen = [];
@@ -280,7 +280,57 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
         </a>
     </div>
 
- 
+    <!-- Card 4: Sin asignar en fecha -->
+    <div class="col-xl col-md-6 mb-4">
+      <a href="detalle_ont_disponibles.php" data-detalle="fecha" class="kpi-card-link">
+        <div class="kpi-card kpi-card-warning">
+          <div class="kpi-card-body">
+            <div class="kpi-card-icon"><i class="fas fa-clock"></i></div>
+            <div class="kpi-card-label">Números de serie sin asignar (en fecha)</div>
+            <div class="kpi-card-number"><?php echo number_format($TotalDisponible); ?></div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Card 5: Asignados -->
+    <div class="col-xl col-md-6 mb-4">
+      <a href="detalle_ont_asignados.php" class="kpi-card-link">
+        <div class="kpi-card kpi-card-info">
+          <div class="kpi-card-body">
+            <div class="kpi-card-icon"><i class="fas fa-user-check"></i></div>
+            <div class="kpi-card-label">Números de serie asignados</div>
+            <div class="kpi-card-number"><?php echo number_format($TotalAsignados); ?></div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Card 6: Sin liquidar -->
+    <div class="col-xl col-md-6 mb-4">
+      <a href="ont_sin_instalar_det.php" class="kpi-card-link">
+        <div class="kpi-card kpi-card-primary">
+          <div class="kpi-card-body">
+            <div class="kpi-card-icon"><i class="fas fa-hourglass-half"></i></div>
+            <div class="kpi-card-label">Números de serie sin liquidar</div>
+            <div class="kpi-card-number"><?php echo number_format($TotalSinInstalar); ?></div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Card 7: Liquidados -->
+    <div class="col-xl col-md-6 mb-4">
+      <a href="ont_instaladas_det.php" class="kpi-card-link">
+        <div class="kpi-card kpi-card-success">
+          <div class="kpi-card-body">
+            <div class="kpi-card-icon"><i class="fas fa-check-double"></i></div>
+            <div class="kpi-card-label">Números de serie liquidados</div>
+            <div class="kpi-card-number"><?php echo number_format($TotalInstalados); ?></div>
+          </div>
+        </div>
+      </a>
+    </div>
 
 </div>
 
@@ -330,13 +380,13 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
     </div>
   </div>
 
-  <!-- GRÁFICA ADAPTADA 1: ONT sin entrada a almacén por División -->
+  <!-- GRÁFICA: ONT sin entrada a almacén por División -->
   <div class="col-xl-6 mb-4">
     <div class="card shadow h-100">
       <div class="card-header"><strong>ONT sin entrada a almacén por División</strong></div>
       <div class="card-body chart-area">
         <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de divisiones">
-          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 115); ?>px;">
+          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 110); ?>px;">
             <canvas id="chartOntSinAlmacenDiv"></canvas>
           </div>
         </div>
@@ -344,13 +394,13 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
     </div>
   </div>
 
-  <!-- GRÁFICA ADAPTADA 2: ONT con entrada a almacén por División -->
+  <!-- GRÁFICA: ONT con entrada a almacén por División -->
   <div class="col-xl-6 mb-4">
     <div class="card shadow h-100">
       <div class="card-header"><strong>ONT con entrada a almacén por División</strong></div>
       <div class="card-body chart-area">
         <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de divisiones">
-          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 115); ?>px;">
+          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 110); ?>px;">
             <canvas id="chartOntConAlmacenDiv"></canvas>
           </div>
         </div>
@@ -372,7 +422,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
   var liquidadasTecnicos = <?php echo json_encode($chart_tecnicos_liquidadas, JSON_NUMERIC_CHECK); ?>;
   var efectividadTecnicos = <?php echo json_encode($chart_tecnicos_efectividad, JSON_NUMERIC_CHECK); ?>;
 
-  // Variables para las dos nuevas gráficas de División
+  // Carga de Divisiones
   var labelsDivisiones = <?php echo json_encode($chart_div_labels, JSON_UNESCAPED_UNICODE); ?>;
   var conAlmacenDivisiones = <?php echo json_encode($chart_div_con_almacen, JSON_NUMERIC_CHECK); ?>;
   var sinAlmacenDivisiones = <?php echo json_encode($chart_div_sin_almacen, JSON_NUMERIC_CHECK); ?>;
@@ -617,7 +667,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
     }
   );
 
-  // 5. ONT SIN ENTRADA A ALMACÉN POR DIVISIÓN (Sustituye a Inventario)
+  // 5. ONT SIN ENTRADA A ALMACÉN POR DIVISIÓN
   makeChart(
     'chartOntSinAlmacenDiv',
     'bar',
@@ -632,7 +682,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
     common
   );
 
-  // 6. ONT CON ENTRADA A ALMACÉN POR DIVISIÓN (Sustituye a Conciliación)
+  // 6. ONT CON ENTRADA A ALMACÉN POR DIVISIÓN
   makeChart(
     'chartOntConAlmacenDiv',
     'bar',
