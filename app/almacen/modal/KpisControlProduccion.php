@@ -38,9 +38,8 @@ $consultas = new ClassConsultasProduccion();
 
 // TOTAL PRODUCCION HISTORICO
 $TotalProduccion = 0;
-// ... (tu lógica existente) ...
 
-// NUEVO: PRODUCCION POR FECHAS SELECCIONADAS
+// PRODUCCION POR FECHAS SELECCIONADAS
 $TotalProduccionFechas = 0;
 $qrProduccionFechas = $consultas->CountProduccionPorFechas($Fecha1, $Fecha2);
 if (is_array($qrProduccionFechas)) {
@@ -55,11 +54,9 @@ if (is_array($qrProduccionFechas)) {
     $TotalProduccionFechas = (int)$qrProduccionFechas;
 }
 
-
-// TOTAL ONT / EQUIPOS SIN ENTRADA A ALMACÉN (GENERAL)
+// TOTAL ONT SIN ENTRADA A ALMACÉN (GENERAL)
 $TotalOntSinAlmacen = 0;
 $qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen($Fecha1, $Fecha2, $idContratistas);
-
 if (is_array($qrOntSinAlmacen)) {
     if (!empty($qrOntSinAlmacen)) {
         foreach ($qrOntSinAlmacen as $row) {
@@ -72,11 +69,9 @@ if (is_array($qrOntSinAlmacen)) {
     $TotalOntSinAlmacen = (int)$qrOntSinAlmacen;
 }
 
-
-// TOTAL ONT / EQUIPOS QUE SÍ ENTRARON A ALMACÉN
+// TOTAL ONT CON ENTRADA A ALMACÉN (GENERAL)
 $TotalOntConAlmacen = 0;
 $qrOntConAlmacen = $consultas->CountOntConEntradaAlmacen($Fecha1, $Fecha2, $idContratistas);
-
 if (is_array($qrOntConAlmacen)) {
     if (!empty($qrOntConAlmacen)) {
         foreach ($qrOntConAlmacen as $row) {
@@ -184,7 +179,7 @@ if (is_array($qrDisponiblesT)) {
     $TTotalDisponible = (int)$qrDisponiblesT;
 }
 
-// CHARTS
+// CHARTS EXISTENTES
 $chart_dias = $index->CountMaterialesPorDia($idContratistas, $Fecha1, $Fecha2);
 $chart_tecnicos = $index->CountMaterialesPorTecnico($idContratistas, $Fecha1, $Fecha2);
 
@@ -212,27 +207,41 @@ foreach ((array)$chart_tecnicos as $row) {
     $chart_tecnicos_efectividad[] = (int)$row['ASIGNADAS'] > 0
         ? round(((int)$row['LIQUIDADAS'] / (int)$row['ASIGNADAS']) * 100, 1) : 0;
 }
+
+// NUEVO: DATOS DE ALMACÉN POR DIVISIÓN PARA LAS DOS ÚLTIMAS GRÁFICAS
+$chart_divisiones_raw = $consultas->CountOntAlmacenPorDivision($Fecha1, $Fecha2, $idContratistas);
+$chart_div_labels = [];
+$chart_div_con_almacen = [];
+$chart_div_sin_almacen = [];
+
+if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
+    foreach ($chart_divisiones_raw as $row) {
+        $chart_div_labels[]      = trim((string)$row['DIVISION']);
+        $chart_div_con_almacen[] = (int)$row['CON_ALMACEN'];
+        $chart_div_sin_almacen[] = (int)$row['SIN_ALMACEN'];
+    }
+}
 ?>
 
 <link rel="stylesheet" href="css/kpisdashboard.css">
-<!-- Content Row -->
+
+<!-- Content Row KPI Cards -->
 <div class="row kpi-cards-row">
 
     <!-- Card 0: Total Producción -->
-<div class="col-xl col-md-6 mb-4">
-    <a href="#" class="kpi-card-link">
-        <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #343a40;">
-            <div class="kpi-card-body">
-                <div class="kpi-card-icon"><i class="fas fa-industry"></i></div>
-                <div class="kpi-card-label">Total Producción</div>
-                <!-- Aquí ya se imprime el valor correcto -->
-                <div class="kpi-card-number"><?php echo number_format($TotalProduccion); ?></div>
+    <div class="col-xl col-md-6 mb-4">
+        <a href="#" class="kpi-card-link">
+            <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #343a40;">
+                <div class="kpi-card-body">
+                    <div class="kpi-card-icon"><i class="fas fa-industry"></i></div>
+                    <div class="kpi-card-label">Total Producción</div>
+                    <div class="kpi-card-number"><?php echo number_format($TotalProduccion); ?></div>
+                </div>
             </div>
-        </div>
-    </a>
-</div>
+        </a>
+    </div>
 
-<!-- Nueva Card: Producción Por Fechas -->
+    <!-- Card 1: Producción Por Fechas -->
     <div class="col-xl col-md-6 mb-4">
         <a href="#" class="kpi-card-link">
             <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #17a2b8;">
@@ -245,48 +254,89 @@ foreach ((array)$chart_tecnicos as $row) {
         </a>
     </div>
 
-
-    <!-- Card: Total ONT Sin Entrada a Almacén (General) -->
-<div class="col-xl col-md-6 mb-4">
-    <a href="#" class="kpi-card-link">
-        <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #dc3545;">
-            <div class="kpi-card-body">
-                <div class="kpi-card-icon"><i class="fas fa-boxes"></i></div>
-                <div class="kpi-card-label">ONT sin Entrada a Almacén</div>
-                <div class="kpi-card-number"><?php echo number_format($TotalOntSinAlmacen); ?></div>
+    <!-- Card 2: ONT Sin Entrada a Almacén -->
+    <div class="col-xl col-md-6 mb-4">
+        <a href="#" class="kpi-card-link">
+            <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #dc3545;">
+                <div class="kpi-card-body">
+                    <div class="kpi-card-icon"><i class="fas fa-boxes"></i></div>
+                    <div class="kpi-card-label">ONT sin Entrada a Almacén</div>
+                    <div class="kpi-card-number"><?php echo number_format($TotalOntSinAlmacen); ?></div>
+                </div>
             </div>
-        </div>
-    </a>
-</div>
+        </a>
+    </div>
 
-
-<!-- NUEVA CARD: ONT con Entrada a Almacén -->
-<div class="col-xl col-md-6 mb-4">
-    <a href="#" class="kpi-card-link">
-        <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #28a745;">
-            <div class="kpi-card-body">
-                <div class="kpi-card-icon"><i class="fas fa-warehouse"></i></div>
-                <div class="kpi-card-label">ONT con Entrada a Almacén</div>
-                <div class="kpi-card-number"><?php echo number_format($TotalOntConAlmacen); ?></div>
+    <!-- Card 3: ONT Con Entrada a Almacén -->
+    <div class="col-xl col-md-6 mb-4">
+        <a href="#" class="kpi-card-link">
+            <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #28a745;">
+                <div class="kpi-card-body">
+                    <div class="kpi-card-icon"><i class="fas fa-warehouse"></i></div>
+                    <div class="kpi-card-label">ONT con Entrada a Almacén</div>
+                    <div class="kpi-card-number"><?php echo number_format($TotalOntConAlmacen); ?></div>
+                </div>
             </div>
+        </a>
+    </div>
+
+    <!-- Card 4: Sin asignar en fecha -->
+    <div class="col-xl col-md-6 mb-4">
+      <a href="detalle_ont_disponibles.php" data-detalle="fecha" class="kpi-card-link">
+        <div class="kpi-card kpi-card-warning">
+          <div class="kpi-card-body">
+            <div class="kpi-card-icon"><i class="fas fa-clock"></i></div>
+            <div class="kpi-card-label">Números de serie sin asignar (en fecha)</div>
+            <div class="kpi-card-number"><?php echo number_format($TotalDisponible); ?></div>
+          </div>
         </div>
-    </a>
+      </a>
+    </div>
+
+    <!-- Card 5: Asignados -->
+    <div class="col-xl col-md-6 mb-4">
+      <a href="detalle_ont_asignados.php" class="kpi-card-link">
+        <div class="kpi-card kpi-card-info">
+          <div class="kpi-card-body">
+            <div class="kpi-card-icon"><i class="fas fa-user-check"></i></div>
+            <div class="kpi-card-label">Números de serie asignados</div>
+            <div class="kpi-card-number"><?php echo number_format($TotalAsignados); ?></div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Card 6: Sin liquidar -->
+    <div class="col-xl col-md-6 mb-4">
+      <a href="ont_sin_instalar_det.php" class="kpi-card-link">
+        <div class="kpi-card kpi-card-primary">
+          <div class="kpi-card-body">
+            <div class="kpi-card-icon"><i class="fas fa-hourglass-half"></i></div>
+            <div class="kpi-card-label">Números de serie sin liquidar</div>
+            <div class="kpi-card-number"><?php echo number_format($TotalSinInstalar); ?></div>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Card 7: Liquidados -->
+    <div class="col-xl col-md-6 mb-4">
+      <a href="ont_instaladas_det.php" class="kpi-card-link">
+        <div class="kpi-card kpi-card-success">
+          <div class="kpi-card-body">
+            <div class="kpi-card-icon"><i class="fas fa-check-double"></i></div>
+            <div class="kpi-card-label">Números de serie liquidados</div>
+            <div class="kpi-card-number"><?php echo number_format($TotalInstalados); ?></div>
+          </div>
+        </div>
+      </a>
+    </div>
+
 </div>
 
-
-    
-
-</div>
-
-<!-- Seis gráficas derivadas de las tarjetas -->
+<!-- Seis gráficas principales -->
 <div class="row">
-  
-
-
-
-
-
-<!-- Embudo -->
+  <!-- Embudo -->
   <div class="col-xl-6 mb-4">
     <div class="card shadow h-100">
       <div class="card-header"><strong>Embudo operativo de números de serie</strong></div>
@@ -301,8 +351,6 @@ foreach ((array)$chart_tecnicos as $row) {
       <div class="card-body chart-area"><canvas id="chartTendencia"></canvas></div>
     </div>
   </div>
-
-  
 
   <!-- Rendimiento por técnico -->
   <div class="col-xl-6 mb-4">
@@ -332,19 +380,31 @@ foreach ((array)$chart_tecnicos as $row) {
     </div>
   </div>
 
-  <!-- Inventario -->
+  <!-- GRÁFICA ADAPTADA 1: ONT sin entrada a almacén por División -->
   <div class="col-xl-6 mb-4">
     <div class="card shadow h-100">
-      <div class="card-header"><strong>Inventario total contra inventario reciente</strong></div>
-      <div class="card-body chart-area"><canvas id="chartInventario"></canvas></div>
+      <div class="card-header"><strong>ONT sin entrada a almacén por División</strong></div>
+      <div class="card-body chart-area">
+        <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de divisiones">
+          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 115); ?>px;">
+            <canvas id="chartOntSinAlmacenDiv"></canvas>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Conciliación -->
+  <!-- GRÁFICA ADAPTADA 2: ONT con entrada a almacén por División -->
   <div class="col-xl-6 mb-4">
     <div class="card shadow h-100">
-      <div class="card-header"><strong>Conciliación COORDIAPP contra TAC</strong></div>
-      <div class="card-body chart-area"><canvas id="chartConciliacion"></canvas></div>
+      <div class="card-header"><strong>ONT con entrada a almacén por División</strong></div>
+      <div class="card-body chart-area">
+        <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de divisiones">
+          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 115); ?>px;">
+            <canvas id="chartOntConAlmacenDiv"></canvas>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -361,6 +421,12 @@ foreach ((array)$chart_tecnicos as $row) {
   var pendientesTecnicos = <?php echo json_encode($chart_tecnicos_sin_liquidar, JSON_NUMERIC_CHECK); ?>;
   var liquidadasTecnicos = <?php echo json_encode($chart_tecnicos_liquidadas, JSON_NUMERIC_CHECK); ?>;
   var efectividadTecnicos = <?php echo json_encode($chart_tecnicos_efectividad, JSON_NUMERIC_CHECK); ?>;
+
+  // Variables para las dos nuevas gráficas de División
+  var labelsDivisiones = <?php echo json_encode($chart_div_labels, JSON_UNESCAPED_UNICODE); ?>;
+  var conAlmacenDivisiones = <?php echo json_encode($chart_div_con_almacen, JSON_NUMERIC_CHECK); ?>;
+  var sinAlmacenDivisiones = <?php echo json_encode($chart_div_sin_almacen, JSON_NUMERIC_CHECK); ?>;
+
   var charts = [];
   var colors = {
     danger: '#c0392b',
@@ -452,6 +518,7 @@ foreach ((array)$chart_tecnicos as $row) {
     }
   };
 
+  // 1. Embudo
   makeChart(
     'chartEmbudo',
     'bar',
@@ -463,75 +530,78 @@ foreach ((array)$chart_tecnicos as $row) {
         <?php echo (int)$TotalSinInstalar; ?>,
         <?php echo (int)$TotalInstalados; ?>
       ],
-            backgroundColor: [colors.info, colors.primary, colors.success],
-            borderRadius: 8,
-            borderSkipped: false,
-            hoverBackgroundColor: [colors.info, colors.primary, colors.success]
+      backgroundColor: [colors.info, colors.primary, colors.success],
+      borderRadius: 8,
+      borderSkipped: false,
+      hoverBackgroundColor: [colors.info, colors.primary, colors.success]
     }],
     common
   );
 
+  // 2. Tendencia
   makeChart('chartTendencia', 'line', labelsDias, [
     {
       label: 'Asignadas',
       data: asignadasDias,
-            borderColor: colors.info,
-            backgroundColor: 'rgba(20, 125, 146, .12)',
-            pointBackgroundColor: colors.info,
-            pointBorderColor: '#ffffff',
-            pointBorderWidth: 2,
-            pointRadius: 4,
-            tension: 0.35,
-            fill: true
+      borderColor: colors.info,
+      backgroundColor: 'rgba(20, 125, 146, .12)',
+      pointBackgroundColor: colors.info,
+      pointBorderColor: '#ffffff',
+      pointBorderWidth: 2,
+      pointRadius: 4,
+      tension: 0.35,
+      fill: true
     },
     {
       label: 'Sin liquidar',
       data: pendientesDias,
-            borderColor: colors.danger,
-            backgroundColor: 'transparent',
-            pointBackgroundColor: colors.danger,
-            pointBorderColor: '#ffffff',
-            pointBorderWidth: 2,
-            pointRadius: 4,
-            tension: 0.35
+      borderColor: colors.danger,
+      backgroundColor: 'transparent',
+      pointBackgroundColor: colors.danger,
+      pointBorderColor: '#ffffff',
+      pointBorderWidth: 2,
+      pointRadius: 4,
+      tension: 0.35
     },
     {
       label: 'Liquidadas',
       data: liquidadasDias,
-            borderColor: colors.warning,
-            backgroundColor: 'transparent',
-            pointBackgroundColor: colors.warning,
-            pointBorderColor: '#ffffff',
-            pointBorderWidth: 2,
-            pointRadius: 4,
-            tension: 0.35
+      borderColor: colors.warning,
+      backgroundColor: 'transparent',
+      pointBackgroundColor: colors.warning,
+      pointBorderColor: '#ffffff',
+      pointBorderWidth: 2,
+      pointRadius: 4,
+      tension: 0.35
     }
   ], common);
 
+  // 3. Rendimiento por técnico
   makeChart('chartRendimiento', 'bar', labelsTecnicos, [
     {
       label: 'Asignadas',
       data: asignadasTecnicos,
-            backgroundColor: colors.info,
-            borderRadius: 6,
-            borderSkipped: false
+      backgroundColor: colors.info,
+      borderRadius: 6,
+      borderSkipped: false
     },
     {
       label: 'Sin liquidar',
       data: pendientesTecnicos,
-            backgroundColor: colors.primary,
-            borderRadius: 6,
-            borderSkipped: false
+      backgroundColor: colors.primary,
+      borderRadius: 6,
+      borderSkipped: false
     },
     {
       label: 'Liquidadas',
       data: liquidadasTecnicos,
-            backgroundColor: colors.success,
-            borderRadius: 6,
-            borderSkipped: false
+      backgroundColor: colors.success,
+      borderRadius: 6,
+      borderSkipped: false
     }
   ], common);
 
+  // 4. Efectividad por técnico
   makeChart(
     'chartEfectividad',
     'bar',
@@ -539,9 +609,9 @@ foreach ((array)$chart_tecnicos as $row) {
     [{
       label: 'Efectividad (%)',
       data: efectividadTecnicos,
-            backgroundColor: colors.success,
-            borderRadius: 6,
-            borderSkipped: false
+      backgroundColor: colors.success,
+      borderRadius: 6,
+      borderSkipped: false
     }],
     {
       responsive: true,
@@ -597,36 +667,32 @@ foreach ((array)$chart_tecnicos as $row) {
     }
   );
 
+  // 5. ONT SIN ENTRADA A ALMACÉN POR DIVISIÓN (Sustituye a Inventario)
   makeChart(
-    'chartInventario',
+    'chartOntSinAlmacenDiv',
     'bar',
-    ['Total sin asignar', 'Sin asignar en fecha'],
+    labelsDivisiones,
     [{
-            label: 'Números de serie',
-      data: [
-        <?php echo (int)$TTotalDisponible; ?>,
-        <?php echo (int)$TotalDisponible; ?>
-      ],
-            backgroundColor: [colors.danger, colors.warning],
-            borderRadius: 8,
-            borderSkipped: false
+      label: 'ONT sin entrada a almacén',
+      data: sinAlmacenDivisiones,
+      backgroundColor: colors.danger,
+      borderRadius: 8,
+      borderSkipped: false
     }],
     common
   );
 
+  // 6. ONT CON ENTRADA A ALMACÉN POR DIVISIÓN (Sustituye a Conciliación)
   makeChart(
-    'chartConciliacion',
+    'chartOntConAlmacenDiv',
     'bar',
-    ['COORDIAPP', 'TAC'],
+    labelsDivisiones,
     [{
-            label: 'Números de serie liquidados',
-      data: [
-        <?php echo (int)$TotalInstalados; ?>,
-        <?php echo (int)$TotalInstaladosTAC; ?>
-      ],
-            backgroundColor: [colors.info, colors.primary],
-            borderRadius: 8,
-            borderSkipped: false
+      label: 'ONT con entrada a almacén',
+      data: conAlmacenDivisiones,
+      backgroundColor: colors.success,
+      borderRadius: 8,
+      borderSkipped: false
     }],
     common
   );
