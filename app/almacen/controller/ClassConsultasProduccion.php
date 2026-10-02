@@ -970,6 +970,33 @@ public function CountOntConEntradaAlmacen($fechaInicio, $fechaFin, $idContratist
     return $this->runQuery($sql, $params, 'erpprint');
 }
 
+/**
+ * Obtiene los totales de ONT con y sin entrada a almacén agrupadas por División
+ */
+public function CountOntAlmacenPorDivision($fechaInicio, $fechaFin, $idContratista = null)
+{
+    $sql = "SELECT 
+                IFNULL(NOM_DIVISION, 'SIN DIVISION') AS DIVISION,
+                SUM(CASE WHEN Existe_Serie_Prod_Almacen = 1 AND Existe_Serie_Eci_Almacen = 1 THEN 1 ELSE 0 END) AS CON_ALMACEN,
+                SUM(CASE WHEN Existe_Serie_Prod_Almacen = 0 AND Existe_Serie_Eci_Almacen = 0 THEN 1 ELSE 0 END) AS SIN_ALMACEN
+            FROM seg_produccion_diaria
+            WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+
+    $params = array(
+        ':fechaInicio' => $fechaInicio,
+        ':fechaFin'    => $fechaFin
+    );
+
+    if (!empty($idContratista)) {
+        $sql .= " AND idContratista = :idContratista";
+        $params[':idContratista'] = $idContratista;
+    }
+
+    $sql .= " GROUP BY NOM_DIVISION ORDER BY NOM_DIVISION ASC";
+
+    return $this->runQuery($sql, $params, 'default');
+}
+
 
 }
 
