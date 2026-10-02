@@ -281,33 +281,7 @@ foreach ((array)$chart_tecnicos as $row) {
 <!-- Seis gráficas derivadas de las tarjetas -->
 <div class="row">
   
-<!-- Gráfica 1: ONT con Entrada a Almacén por División -->
-  <div class="col-xl-6 mb-4">
-    <div class="card shadow h-100">
-      <div class="card-header"><strong>ONT con entrada a almacén por División</strong></div>
-      <div class="card-body chart-area">
-        <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de divisiones">
-          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 115); ?>px;">
-            <canvas id="chartOntConAlmacenDiv"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Gráfica 2: ONT sin Entrada a Almacén por División -->
-  <div class="col-xl-6 mb-4">
-    <div class="card shadow h-100">
-      <div class="card-header"><strong>ONT sin entrada a almacén por División</strong></div>
-      <div class="card-body chart-area">
-        <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de divisiones">
-          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 115); ?>px;">
-            <canvas id="chartOntSinAlmacenDiv"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
 
 
@@ -657,43 +631,4 @@ foreach ((array)$chart_tecnicos as $row) {
     common
   );
 })();
-</script>
-
-<script>
-  var labelsDiv = <?php echo json_encode($chart_div_labels, JSON_UNESCAPED_UNICODE); ?>;
-var conAlmacenDiv = <?php echo json_encode($chart_div_con_almacen, JSON_NUMERIC_CHECK); ?>;
-var sinAlmacenDiv = <?php echo json_encode($chart_div_sin_almacen, JSON_NUMERIC_CHECK); ?>;
-
-// Paleta de colores idéntica a tu diseño original
-var divisionColors = ['#147d92', '#17a2b8', '#25834b', '#c0392b', '#b7791f', '#185abc', '#6f42c1', '#fd7e14'];
-
-// 1. Gráfica: ONT CON ENTRADA A ALMACÉN POR DIVISIÓN
-makeChart(
-  'chartOntConAlmacenDiv',
-  'bar',
-  labelsDiv,
-  [{
-    label: 'ONT con entrada',
-    data: conAlmacenDiv,
-    backgroundColor: colors.success, // O usa divisionColors si quieres cada barra de diferente color
-    borderRadius: 8,
-    borderSkipped: false
-  }],
-  common
-);
-
-// 2. Gráfica: ONT SIN ENTRADA A ALMACÉN POR DIVISIÓN
-makeChart(
-  'chartOntSinAlmacenDiv',
-  'bar',
-  labelsDiv,
-  [{
-    label: 'ONT sin entrada',
-    data: sinAlmacenDiv,
-    backgroundColor: colors.danger, // Color rojo idéntico al de tus KPIs/alertas
-    borderRadius: 8,
-    borderSkipped: false
-  }],
-  common
-);
 </script>
