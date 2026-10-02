@@ -658,3 +658,42 @@ foreach ((array)$chart_tecnicos as $row) {
   );
 })();
 </script>
+
+<script>
+  var labelsDiv = <?php echo json_encode($chart_div_labels, JSON_UNESCAPED_UNICODE); ?>;
+var conAlmacenDiv = <?php echo json_encode($chart_div_con_almacen, JSON_NUMERIC_CHECK); ?>;
+var sinAlmacenDiv = <?php echo json_encode($chart_div_sin_almacen, JSON_NUMERIC_CHECK); ?>;
+
+// Paleta de colores idéntica a tu diseño original
+var divisionColors = ['#147d92', '#17a2b8', '#25834b', '#c0392b', '#b7791f', '#185abc', '#6f42c1', '#fd7e14'];
+
+// 1. Gráfica: ONT CON ENTRADA A ALMACÉN POR DIVISIÓN
+makeChart(
+  'chartOntConAlmacenDiv',
+  'bar',
+  labelsDiv,
+  [{
+    label: 'ONT con entrada',
+    data: conAlmacenDiv,
+    backgroundColor: colors.success, // O usa divisionColors si quieres cada barra de diferente color
+    borderRadius: 8,
+    borderSkipped: false
+  }],
+  common
+);
+
+// 2. Gráfica: ONT SIN ENTRADA A ALMACÉN POR DIVISIÓN
+makeChart(
+  'chartOntSinAlmacenDiv',
+  'bar',
+  labelsDiv,
+  [{
+    label: 'ONT sin entrada',
+    data: sinAlmacenDiv,
+    backgroundColor: colors.danger, // Color rojo idéntico al de tus KPIs/alertas
+    borderRadius: 8,
+    borderSkipped: false
+  }],
+  common
+);
+</script>
