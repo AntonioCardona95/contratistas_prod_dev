@@ -336,6 +336,40 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
 
 <!-- Seis gráficas principales -->
 <div class="row">
+
+
+<!-- GRÁFICA: ONT sin entrada a almacén por División -->
+  <div class="col-xl-6 mb-4">
+    <div class="card shadow h-100">
+      <div class="card-header"><strong>ONT sin entrada a almacén por División</strong></div>
+      <div class="card-body chart-area">
+        <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de divisiones">
+          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 110); ?>px;">
+            <canvas id="chartOntSinAlmacenDiv"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRÁFICA: ONT con entrada a almacén por División -->
+  <div class="col-xl-6 mb-4">
+    <div class="card shadow h-100">
+      <div class="card-header"><strong>ONT con entrada a almacén por División</strong></div>
+      <div class="card-body chart-area">
+        <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de divisiones">
+          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 110); ?>px;">
+            <canvas id="chartOntConAlmacenDiv"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
   <!-- Embudo -->
   <div class="col-xl-6 mb-4">
     <div class="card shadow h-100">
@@ -380,34 +414,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
     </div>
   </div>
 
-  <!-- GRÁFICA: ONT sin entrada a almacén por División -->
-  <div class="col-xl-6 mb-4">
-    <div class="card shadow h-100">
-      <div class="card-header"><strong>ONT sin entrada a almacén por División</strong></div>
-      <div class="card-body chart-area">
-        <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de divisiones">
-          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 110); ?>px;">
-            <canvas id="chartOntSinAlmacenDiv"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- GRÁFICA: ONT con entrada a almacén por División -->
-  <div class="col-xl-6 mb-4">
-    <div class="card shadow h-100">
-      <div class="card-header"><strong>ONT con entrada a almacén por División</strong></div>
-      <div class="card-body chart-area">
-        <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de divisiones">
-          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 110); ?>px;">
-            <canvas id="chartOntConAlmacenDiv"></canvas>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+  
 
 
 <script>
