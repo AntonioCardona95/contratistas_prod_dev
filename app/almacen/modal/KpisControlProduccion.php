@@ -280,57 +280,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
         </a>
     </div>
 
-    <!-- Card 4: Sin asignar en fecha -->
-    <div class="col-xl col-md-6 mb-4">
-      <a href="detalle_ont_disponibles.php" data-detalle="fecha" class="kpi-card-link">
-        <div class="kpi-card kpi-card-warning">
-          <div class="kpi-card-body">
-            <div class="kpi-card-icon"><i class="fas fa-clock"></i></div>
-            <div class="kpi-card-label">Números de serie sin asignar (en fecha)</div>
-            <div class="kpi-card-number"><?php echo number_format($TotalDisponible); ?></div>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    <!-- Card 5: Asignados -->
-    <div class="col-xl col-md-6 mb-4">
-      <a href="detalle_ont_asignados.php" class="kpi-card-link">
-        <div class="kpi-card kpi-card-info">
-          <div class="kpi-card-body">
-            <div class="kpi-card-icon"><i class="fas fa-user-check"></i></div>
-            <div class="kpi-card-label">Números de serie asignados</div>
-            <div class="kpi-card-number"><?php echo number_format($TotalAsignados); ?></div>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    <!-- Card 6: Sin liquidar -->
-    <div class="col-xl col-md-6 mb-4">
-      <a href="ont_sin_instalar_det.php" class="kpi-card-link">
-        <div class="kpi-card kpi-card-primary">
-          <div class="kpi-card-body">
-            <div class="kpi-card-icon"><i class="fas fa-hourglass-half"></i></div>
-            <div class="kpi-card-label">Números de serie sin liquidar</div>
-            <div class="kpi-card-number"><?php echo number_format($TotalSinInstalar); ?></div>
-          </div>
-        </div>
-      </a>
-    </div>
-
-    <!-- Card 7: Liquidados -->
-    <div class="col-xl col-md-6 mb-4">
-      <a href="ont_instaladas_det.php" class="kpi-card-link">
-        <div class="kpi-card kpi-card-success">
-          <div class="kpi-card-body">
-            <div class="kpi-card-icon"><i class="fas fa-check-double"></i></div>
-            <div class="kpi-card-label">Números de serie liquidados</div>
-            <div class="kpi-card-number"><?php echo number_format($TotalInstalados); ?></div>
-          </div>
-        </div>
-      </a>
-    </div>
+ 
 
 </div>
 
