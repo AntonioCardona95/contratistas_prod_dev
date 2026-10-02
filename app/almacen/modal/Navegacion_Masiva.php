@@ -41,6 +41,7 @@ $conteoEstados = array(
     'negro' => 0,
     'rojo' => 0,
     'gris' => 0,
+    'naranja' => 0,
     'amarillo' => 0,
     'verde' => 0,
     'blanco' => 0
@@ -63,6 +64,7 @@ $etiquetasEstado = array(
     'negro' => 'No navegando: perdida de navegacion, ECI se apago',
     'rojo' => 'No navegando: requiere seguimiento por mas de 14 dias',
     'gris' => 'No navegando: telefonos no coinciden',
+    'naranja' => 'No navegando: pendiente por mas de 3 semanas desde la liquidacion',
     'amarillo' => 'No navegando: en espera de cumplir 3 dias desde la liquidacion',
     'verde' => 'No navegando: liquidacion reciente',
     'blanco' => 'Sin liquidacion para clasificar'
@@ -177,6 +179,11 @@ unset($filasTablaMasiva);
 
         #tabla-navegacion-masiva tbody tr.estado-gris {
             background: #e9ecef !important;
+        }
+
+        #tabla-navegacion-masiva tbody tr.estado-naranja {
+            background: #ffe2cc !important;
+            box-shadow: inset 5px 0 0 #fd7e14;
         }
 
         #tabla-navegacion-masiva tbody tr.estado-amarillo {
@@ -326,6 +333,7 @@ unset($filasTablaMasiva);
                         <option value="negro">Negro: perdida de navegacion (<?= $conteoEstados['negro'] ?>)</option>
                         <option value="rojo">Rojo: seguimiento (<?= $conteoEstados['rojo'] ?>)</option>
                         <option value="gris">Gris: telefonos diferentes (<?= $conteoEstados['gris'] ?>)</option>
+                        <option value="naranja">Naranja: mas de 3 semanas (<?= $conteoEstados['naranja'] ?>)</option>
                         <option value="amarillo">Amarillo: Navegacion reciente (<?= $conteoEstados['amarillo'] ?>)</option>
                         <option value="verde">Verde: pendiente reciente (<?= $conteoEstados['verde'] ?>)</option>
                         <option value="blanco">Blanco: sin liquidacion (<?= $conteoEstados['blanco'] ?>)</option>
