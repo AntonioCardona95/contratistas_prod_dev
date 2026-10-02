@@ -997,7 +997,7 @@ public function CountOntAlmacenPorDivision($fechaInicio, $fechaFin, $idContratis
 
     $sql .= " GROUP BY d.idDivision, d.Division ORDER BY d.idDivision ASC";
 
-    return $this->runQuery($sql, $params, 'default');
+    return $this->runQuery($sql, $params, 'erpprint');
 }
 
 
