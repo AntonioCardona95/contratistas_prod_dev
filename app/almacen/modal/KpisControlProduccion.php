@@ -280,22 +280,17 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
         </a>
     </div>
 
-    
-
-
 </div>
 
-<!-- Seis gráficas principales -->
+<!-- Fila de Gráficas por División -->
 <div class="row">
-
-
-<!-- GRÁFICA: ONT sin entrada a almacén por División -->
+  <!-- GRÁFICA: ONT sin entrada a almacén por División -->
   <div class="col-xl-6 mb-4">
     <div class="card shadow h-100">
       <div class="card-header"><strong>ONT sin entrada a almacén por División</strong></div>
       <div class="card-body chart-area">
         <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de divisiones">
-          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 110); ?>px;">
+          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 115); ?>px;">
             <canvas id="chartOntSinAlmacenDiv"></canvas>
           </div>
         </div>
@@ -309,7 +304,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
       <div class="card-header"><strong>ONT con entrada a almacén por División</strong></div>
       <div class="card-body chart-area">
         <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de divisiones">
-          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 110); ?>px;">
+          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 115); ?>px;">
             <canvas id="chartOntConAlmacenDiv"></canvas>
           </div>
         </div>
@@ -318,9 +313,8 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
   </div>
 </div>
 
-
-
-
+<!-- Fila de Otras Gráficas -->
+<div class="row">
   <!-- Embudo -->
   <div class="col-xl-6 mb-4">
     <div class="card shadow h-100">
@@ -364,8 +358,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
       </div>
     </div>
   </div>
-
-  
+</div>
 
 
 <script>
@@ -476,7 +469,37 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
     }
   };
 
-  // 1. Embudo
+  // 1. ONT SIN ENTRADA A ALMACÉN POR DIVISIÓN
+  makeChart(
+    'chartOntSinAlmacenDiv',
+    'bar',
+    labelsDivisiones,
+    [{
+      label: 'ONT sin entrada a almacén',
+      data: sinAlmacenDivisiones,
+      backgroundColor: colors.danger,
+      borderRadius: 8,
+      borderSkipped: false
+    }],
+    common
+  );
+
+  // 2. ONT CON ENTRADA A ALMACÉN POR DIVISIÓN
+  makeChart(
+    'chartOntConAlmacenDiv',
+    'bar',
+    labelsDivisiones,
+    [{
+      label: 'ONT con entrada a almacén',
+      data: conAlmacenDivisiones,
+      backgroundColor: colors.success,
+      borderRadius: 8,
+      borderSkipped: false
+    }],
+    common
+  );
+
+  // 3. Embudo
   makeChart(
     'chartEmbudo',
     'bar',
@@ -496,7 +519,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
     common
   );
 
-  // 2. Tendencia
+  // 4. Tendencia
   makeChart('chartTendencia', 'line', labelsDias, [
     {
       label: 'Asignadas',
@@ -534,7 +557,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
     }
   ], common);
 
-  // 3. Rendimiento por técnico
+  // 5. Rendimiento por técnico
   makeChart('chartRendimiento', 'bar', labelsTecnicos, [
     {
       label: 'Asignadas',
@@ -559,7 +582,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
     }
   ], common);
 
-  // 4. Efectividad por técnico
+  // 6. Efectividad por técnico
   makeChart(
     'chartEfectividad',
     'bar',
@@ -623,36 +646,6 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
         }
       }
     }
-  );
-
-  // 5. ONT SIN ENTRADA A ALMACÉN POR DIVISIÓN
-  makeChart(
-    'chartOntSinAlmacenDiv',
-    'bar',
-    labelsDivisiones,
-    [{
-      label: 'ONT sin entrada a almacén',
-      data: sinAlmacenDivisiones,
-      backgroundColor: colors.danger,
-      borderRadius: 8,
-      borderSkipped: false
-    }],
-    common
-  );
-
-  // 6. ONT CON ENTRADA A ALMACÉN POR DIVISIÓN
-  makeChart(
-    'chartOntConAlmacenDiv',
-    'bar',
-    labelsDivisiones,
-    [{
-      label: 'ONT con entrada a almacén',
-      data: conAlmacenDivisiones,
-      backgroundColor: colors.success,
-      borderRadius: 8,
-      borderSkipped: false
-    }],
-    common
   );
 })();
 </script>
