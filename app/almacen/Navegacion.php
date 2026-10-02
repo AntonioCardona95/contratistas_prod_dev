@@ -287,6 +287,7 @@
                     <p><span class="badge badge-dark mr-2">Negro</span> Perdida de navegacion: el ultimo registro ECI tiene DID_ACTIVO=0 y el anterior tenia DID_ACTIVO=1.</p>
                     <p><span class="badge badge-danger mr-2">Rojo</span> Tiene una liquidacion de mas de 14 dias y no aparece Navegando. Requiere seguimiento.</p>
                     <p><span class="badge badge-secondary mr-2">Gris</span> Existe Navegacion, pero algun telefono de TAC o Coordiapp no coincide.</p>
+                    <p><span class="badge mr-2" style="background-color:#fd7e14;color:#212529;">Naranja</span> Sigue pendiente la validacion de los 3 dias y ya pasaron mas de 3 semanas desde la liquidacion.</p>
                     <p><span class="badge badge-warning mr-2">Amarillo</span> Los telefonos coinciden, pero la Navegacion aun no cumple 3 dias desde la liquidacion.</p>
                     <p><span class="badge badge-success mr-2" style="background-color:#28a745;">Verde</span> Hay TAC o Coordiapp reciente, pero aun no aparece Navegacion.</p>
                     <p><span class="badge badge-light border mr-2">Blanco</span> No hay Liquidacion para clasificar la serie.</p>
