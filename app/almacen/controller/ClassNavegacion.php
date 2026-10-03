@@ -49,7 +49,7 @@ class Navegacion extends Conexion
     {
         $rows = array();
         // TAC y ECI están en analisis_bd, por eso usan otra conexión.
-        $conexionAnalisis = $this->get_conexion_analytics();
+        $conexionAnalisis = $this->get_conexion_analisis();
 
         try {
             $statement = $conexionAnalisis->prepare($sql);

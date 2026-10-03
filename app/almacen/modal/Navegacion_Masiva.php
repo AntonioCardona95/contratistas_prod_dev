@@ -201,6 +201,14 @@ unset($filasTablaMasiva);
             text-align: center;
         }
 
+        #tabla-navegacion-masiva_wrapper .dt-scroll-head th,
+        #tabla-navegacion-masiva_wrapper .dt-scroll-foot th,
+        #tabla-navegacion-masiva thead th,
+        #tabla-navegacion-masiva tfoot th {
+            text-align: center !important;
+            vertical-align: middle !important;
+        }
+
         #filtro-estado-masivo {
             max-width: 280px;
         }
