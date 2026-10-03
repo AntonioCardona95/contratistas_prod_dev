@@ -755,6 +755,10 @@ class Navegacion extends Conexion
             $serieNormalizada = $this->normalizarSerie($serie['Num_Serie_S'] ?? '');
             $registroTac = $tacPorSerie[$serieNormalizada] ?? array();
             $registroEci = $eciPorSerie[$serieNormalizada] ?? array();
+            if ((int)($registroEci['DID_ACTIVO'] ?? 0) === 0
+                && empty($eciPerdioNavegacion[$serieNormalizada])) {
+                $registroEci = array();
+            }
 
             $telefonoEci = $this->normalizarTelefono($registroEci['TELEFONO'] ?? '');
 
