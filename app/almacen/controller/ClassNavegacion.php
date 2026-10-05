@@ -818,6 +818,48 @@ class Navegacion extends Conexion
                 $serie['Serie_Coordiapp'] = $registroCoordiappSeleccionado['Ont'] ?? null;
             }
 
+            $coordiappTelefonoValidadoPorTac = null;
+            $telefonoCoordiappSeleccionado = $this->normalizarTelefono($registroCoordiappSeleccionado['Telefono'] ?? '');
+            if (!$discrepanciaCoordiapp
+                && $telefonoEci !== ''
+                && $telefonoCoordiappSeleccionado !== ''
+                && $telefonoCoordiappSeleccionado !== $telefonoEci) {
+                foreach ($tacRegistrosPorSerie[$serieNormalizada] ?? array() as $registroTacCandidato) {
+                    $serieTacCandidata = $this->normalizarSerie($registroTacCandidato['Num__Serie'] ?? '');
+                    $telefonoTacCandidato = $this->normalizarTelefono($registroTacCandidato['TELEFONO'] ?? '');
+                    $folioTacCandidato = $this->normalizarFolioPisa($registroTacCandidato['Folio_Pisa'] ?? '');
+
+                    if ($serieTacCandidata !== $serieNormalizada
+                        || $telefonoTacCandidato !== $telefonoEci
+                        || $folioTacCandidato === '') {
+                        continue;
+                    }
+
+                    foreach ($coordiappRegistrosPorSerie[$serieNormalizada] ?? array() as $registroCoordiappCandidato) {
+                        $serieCoordiappCandidata = $this->normalizarSerie($registroCoordiappCandidato['Ont'] ?? '');
+                        $telefonoCoordiappCandidato = $this->normalizarTelefono($registroCoordiappCandidato['Telefono'] ?? '');
+                        $folioCoordiappCandidato = $this->normalizarFolioPisa($registroCoordiappCandidato['Folio_Pisa'] ?? '');
+
+                        if ($serieCoordiappCandidata === $serieNormalizada
+                            && $folioCoordiappCandidato === $folioTacCandidato
+                            && $telefonoCoordiappCandidato !== ''
+                            && $telefonoCoordiappCandidato !== $telefonoEci) {
+                            $coordiappTelefonoValidadoPorTac = array(
+                                'coordiapp' => $registroCoordiappCandidato,
+                                'tac' => $registroTacCandidato,
+                                'folio_pisa' => $folioTacCandidato
+                            );
+                            break 2;
+                        }
+                    }
+                }
+            }
+
+            if ($coordiappTelefonoValidadoPorTac !== null) {
+                $registroCoordiappSeleccionado = $coordiappTelefonoValidadoPorTac['coordiapp'];
+                $registroTacSeleccionado = $coordiappTelefonoValidadoPorTac['tac'];
+            }
+
             $serieTacRecuperada = !empty($registroTacSeleccionado['Serie_Recuperada_Eci']);
             if ($telefonoEci !== '' && $this->esSerieTacSinNumero($registroTacSeleccionado['Num__Serie'] ?? '')) {
                 $candidatosTacSinSerie = array();
@@ -946,13 +988,14 @@ class Navegacion extends Conexion
             $hayTac = $telefonoTacSeleccionado !== '';
             $hayEci = $eciActivo;
             $fuentesConTelefono = array_values(array_filter(array(
-                $telefonoCoordiappSeleccionado,
+                $coordiappTelefonoValidadoPorTac === null ? $telefonoCoordiappSeleccionado : '',
                 $telefonoTacSeleccionado,
                 $telefonoEci
             )));
             $telefonosCoinciden = count(array_unique($fuentesConTelefono)) <= 1;
 
-            if ($hayEci && $hayCoordiapp && $telefonoCoordiappSeleccionado !== $telefonoEci) {
+            if ($hayEci && $hayCoordiapp && $telefonoCoordiappSeleccionado !== $telefonoEci
+                && $coordiappTelefonoValidadoPorTac === null) {
                 $motivosNoNavegacion[] = 'El telefono de Coordiapp no coincide el de la Navegacion';
             }
 
@@ -1000,12 +1043,16 @@ class Navegacion extends Conexion
                 $observacionesNavegacion[] = 'Posible serie mal capturada en Coordiapp: validada con Folio Pisa '
                     . $coincidenciaDiscrepanciaCoordiapp['folio_pisa'];
             }
+            if ($navegando && $coordiappTelefonoValidadoPorTac !== null) {
+                $observacionesNavegacion[] = 'Telefono de Coordiapp distinto: serie y Folio Pisa validados con TAC '
+                    . $coordiappTelefonoValidadoPorTac['folio_pisa'];
+            }
             $serie['Observacion_Navegacion'] = !empty($observacionesNavegacion)
                 ? 'Navegando con observacion: ' . implode('; ', $observacionesNavegacion)
                 : null;
 
             if ($navegando) {
-                $serie['Estado_Navegacion'] = ($discrepanciaCoordiapp || $serieTacRecuperada)
+                $serie['Estado_Navegacion'] = ($discrepanciaCoordiapp || $serieTacRecuperada || $coordiappTelefonoValidadoPorTac !== null)
                     ? 'navegando-observacion'
                     : 'navegando';
             } elseif (!empty($eciPerdioNavegacion[$serieNormalizada])) {
