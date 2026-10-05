@@ -85,7 +85,7 @@ try {
                 'success' => true,
                 'folio_real' => $folio,
                 'cambio_folio' => $folioProvisional !== $folio,
-                'redirect' => 'salidas.php'
+                'redirect' => 'Salidas.php'
             ]);
         } else {
             throw new Exception("Error al registrar la transferencia.");

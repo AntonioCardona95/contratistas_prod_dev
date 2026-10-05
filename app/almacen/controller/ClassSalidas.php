@@ -81,6 +81,51 @@
             return $this->runQuery($sql, [':Folio_Salida_Det' => $Folio_Salida_Det]);
         }
 
+        public function ObtenerEncabezadoSalidaPDF($Folio_Salida_T, $idContratistas)
+        {
+            $sql = "SELECT
+                        s.Folio_Salida_T,
+                        s.Fecha_T,
+                        s.Cantidad_T,
+                        CONCAT(t.Nombre_T, ' ', t.Apellidos_T) AS Tecnico,
+                        CONCAT(c.Contratista, ' ', c.apellido_paterno, ' ', c.apellido_materno) AS Contratista
+                    FROM salidas_contratista_t AS s
+                    INNER JOIN tecnicos AS t ON t.idTecnico = s.FK_Tecnico_T
+                    INNER JOIN contratistas AS c ON c.idContratistas = s.FK_Contratista_T
+                    WHERE s.Folio_Salida_T = :folio
+                        AND s.FK_Contratista_T = COALESCE(NULLIF(:idContratistas, 0), s.FK_Contratista_T)
+                    LIMIT 1";
+
+            return $this->runQuery($sql, array(
+                'folio' => (int)$Folio_Salida_T,
+                'idContratistas' => (int)$idContratistas
+            ));
+        }
+
+        public function ObtenerMaterialesSalidaPDF($Folio_Salida_T)
+        {
+            $sql = "SELECT
+                        p.Producto,
+                        p.Modelo,
+                        p.Descripcion,
+                        p.Tecnologia,
+                        p.Presentacion,
+                        p.UM,
+                        COUNT(s.Num_Serie_Salida_Det) AS Cantidad
+                    FROM salidas_contratistas AS s
+                    INNER JOIN producto AS p ON p.idProducto = s.FK_Material_Salidas_Contratistas
+                    WHERE s.Folio_Salida_Det = :folio
+                    GROUP BY p.idProducto, p.Producto, p.Modelo, p.Descripcion, p.Tecnologia, p.Presentacion, p.UM
+                    ORDER BY p.Producto, p.Modelo";
+
+            return $this->runQuery($sql, array('folio' => (int)$Folio_Salida_T));
+        }
+
+        public function ObtenerSeriesSalidaPDF($Folio_Salida_T)
+        {
+            return $this->SalidasDet($Folio_Salida_T);
+        }
+
         // OBTENER EL FOLIO PROVISIONAL
         public function FolioProvisionalSalida()
         {

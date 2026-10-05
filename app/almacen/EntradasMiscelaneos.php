@@ -97,14 +97,14 @@
 
             <!-- Nav Item - Tables -->
             <li class="nav-item">
-                <a class="nav-link" href="entradas.php">
+                <a class="nav-link" href="Entradas.php">
                     <i class="fas fa-fw fa-table"></i>
                     <span>ENTRADAS DE MATERIALES</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a class="nav-link" href="salidas.php">
+                <a class="nav-link" href="Salidas.php">
                     <i class="fas fa-fw fa-table"></i>
                     <span>ONT ASIGANADAS A MIS TECNICOS</span>
                 </a>
