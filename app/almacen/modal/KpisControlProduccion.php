@@ -36,6 +36,12 @@ if (!empty($Fecha1) && !empty($Fecha2)) {
 $idContratistaSeleccionado = $_POST['selectContratista'] ?? null;
 //var_dump($idContratistaSeleccionado);
 
+// Ejecutar consulta de detalle agrupado por área
+$detalleArea = [];
+if (!empty($idContratistaSeleccionado)) {
+    $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea($idContratistaSeleccionado, $Fecha1, $Fecha2);
+}
+
 // Instancias de las clases
 $index = new Index();
 $consultas = new ClassConsultasProduccion();
