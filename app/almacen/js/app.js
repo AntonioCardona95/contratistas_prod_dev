@@ -72,8 +72,39 @@ function LoadKPIS(){
     });
 }
 
+function LoadKpisControl(ejecutar) {
+    // 1. Convertimos los datos del formulario de fechas a un String/Objeto
+    var parametros = $("#FormQueryUnidades").serialize();
 
-function LoadKpisControl(){
+    // 2. Le concatenamos el valor del select de contratistas
+    var selectContratista = $('#selectContratista').val();
+    if (selectContratista) {
+        parametros += '&selectContratista=' + encodeURIComponent(selectContratista);
+    }
+
+    // 3. Si viene la bandera opcional de 'ejecutar'
+    if (ejecutar) {
+        parametros += '&ejecutar=1';
+    }
+
+    $("#LoadKpisControl").fadeIn('slow');
+
+    // Retornamos la promesa de AJAX para que ejecute la animación correctamente en ejecutarFiltradoProduccion()
+    return $.ajax({
+        type: 'POST',
+        url: 'modal/KpisControlProduccion.php',
+        data: parametros,
+        beforeSend: function(objeto) {
+            $("#LoadKpisControl").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
+        },
+        success: function(data) {
+            $("#LoadKpisControl").html(data);
+        }
+    });
+}
+
+
+/*function LoadKpisControl(){
     var parametros = $("#FormQueryUnidades").serialize();
     $("#LoadKpisControl").fadeIn('slow');
     $.ajax({
@@ -87,7 +118,7 @@ function LoadKpisControl(){
             $("#LoadKpisControl").html(data);
         }
     });
-}
+} */
 
 
 
