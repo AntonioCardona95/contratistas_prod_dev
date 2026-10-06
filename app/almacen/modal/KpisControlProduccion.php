@@ -34,7 +34,7 @@ if (!empty($Fecha1) && !empty($Fecha2)) {
 }
 
 $idContratistaSeleccionado = $_POST['selectContratista'] ?? null;
-var_dump($idContratistaSeleccionado);
+
 // Instancias de las clases
 $index = new Index();
 $consultas = new ClassConsultasProduccion();
