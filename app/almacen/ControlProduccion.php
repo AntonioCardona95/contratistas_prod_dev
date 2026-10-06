@@ -9,6 +9,11 @@
     require_once("controller/ClassOps.php");
     require_once(__DIR__ . '/../config/ContratistaContexto.php');
 
+require_once(__DIR__ . "/../controller/ClassConsultasProduccion.php");
+$objProduccion = new ClassConsultasProduccion();
+$listaContratistas = $objProduccion->obtenerTodosContratistas();
+
+
     session_start();
     $Contratista = $_SESSION['Contratista'];
     requerirSesionAlmacen();
