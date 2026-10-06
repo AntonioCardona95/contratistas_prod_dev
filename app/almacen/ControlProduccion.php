@@ -1,29 +1,33 @@
 <?php
-
+    // Configuración inicial
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
-    
     date_default_timezone_set('America/Monterrey');
-    
+
+    // Sesión
+    session_start();
+
+    // Dependencias
     require_once("controller/ClassOps.php");
     require_once(__DIR__ . '/../config/ContratistaContexto.php');
+    require_once(__DIR__ . "/controller/ClassConsultasProduccion.php");
 
-require_once(__DIR__ . "/controller/ClassConsultasProduccion.php");
-$objProduccion = new ClassConsultasProduccion();
-$listaContratistas = $objProduccion->obtenerTodosContratistas();
+    // Instancias
+    $objProduccion = new ClassConsultasProduccion();
+    $listaContratistas = $objProduccion->obtenerTodosContratistas();
 
-
-    session_start();
-    $Contratista = $_SESSION['Contratista'];
+    // Validación de sesión y contexto
+    $Contratista = $_SESSION['Contratista'] ?? null;
     requerirSesionAlmacen();
     $idContratistas = obtenerIdContratistaContexto();
-    
+
+    // Parámetros de entrada
     $Fecha1 = $_POST['Fecha1'] ?? '';
     $Fecha2 = $_POST['Fecha2'] ?? '';
     $mes_anterior = date('Y-m-d', strtotime('-3 month'));
-    
 ?>
+
 <!DOCTYPE html>
 <html lang="es">    
 <head>
