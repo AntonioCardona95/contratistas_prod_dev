@@ -1018,6 +1018,54 @@ public function CountOntAlmacenPorDivision($fechaInicio, $fechaFin, $idContratis
 }
 
 
+public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = null, $fechaFin = null) {
+    // Si no se especifica contratista, retornar array vacío o ajustar según requerimiento
+    if (empty($idContratista)) {
+        return [];
+    }
+
+    $sql = "SELECT 
+                NOM_AREA AS Area,
+                NOM_DIVISION AS Division,
+                NOM_CT AS Cope,
+                -- ALTAS (Inician con A, excluyendo A4)
+                SUM(CASE WHEN Tipo_de_Tarea LIKE 'A%' AND Tipo_de_Tarea NOT LIKE 'A4%' THEN 1 ELSE 0 END) AS Altas,
+                -- MIGRACIONES (FC, TI, TS, TV)
+                SUM(CASE WHEN Tipo_de_Tarea LIKE 'FC%' OR Tipo_de_Tarea LIKE 'TI%' OR Tipo_de_Tarea LIKE 'TS%' OR Tipo_de_Tarea LIKE 'TV%' THEN 1 ELSE 0 END) AS Migraciones,
+                -- CAMBIOS DE DOMICILIO (Inician con D)
+                SUM(CASE WHEN Tipo_de_Tarea LIKE 'D%' THEN 1 ELSE 0 END) AS CambiosDomicilio,
+                -- QUEJAS (Q, R, C, EB, EI, EU, GD, MG, F597, F841)
+                SUM(CASE WHEN Tipo_de_Tarea LIKE 'Q%' OR Tipo_de_Tarea LIKE 'R%' OR Tipo_de_Tarea LIKE 'C%' 
+                             OR Tipo_de_Tarea LIKE 'EB%' OR Tipo_de_Tarea LIKE 'EI%' OR Tipo_de_Tarea LIKE 'EU%' 
+                             OR Tipo_de_Tarea LIKE 'GD%' OR Tipo_de_Tarea LIKE 'MG%' OR Tipo_de_Tarea LIKE 'F597%' 
+                             OR Tipo_de_Tarea LIKE 'F841%' THEN 1 ELSE 0 END) AS Quejas,
+                -- A4
+                SUM(CASE WHEN Tipo_de_Tarea LIKE 'A4%' THEN 1 ELSE 0 END) AS A4,
+                -- TOTAL ONTs EN ALMACÉN (Al menos una serie está en almacén)
+                SUM(CASE WHEN Existe_Serie_Prod_Almacen = 1 OR Existe_Serie_Eci_Almacen = 1 THEN 1 ELSE 0 END) AS TotalConAlmacen,
+                -- TOTAL ONTs NO ENTRARON A ALMACÉN (Ninguna serie está en almacén)
+                SUM(CASE WHEN Existe_Serie_Prod_Almacen = 0 AND Existe_Serie_Eci_Almacen = 0 THEN 1 ELSE 0 END) AS TotalSinAlmacen
+            FROM seg_produccion_diaria
+            WHERE idContratista = :idContratista";
+
+    $params = [':idContratista' => $idContratista];
+
+    // Aplicar filtro por fechas si existen
+    if (!empty($fechaInicio) && !empty($fechaFin)) {
+        $sql .= " AND FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+        $params[':fechaInicio'] = $fechaInicio;
+        $params[':fechaFin'] = $fechaFin;
+    }
+
+    $sql .= " GROUP BY NOM_AREA, NOM_DIVISION, NOM_CT ORDER BY NOM_AREA ASC, NOM_CT ASC";
+
+    $stmt = $this->db->prepare($sql);
+    $stmt->execute($params);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
 }
 
 
