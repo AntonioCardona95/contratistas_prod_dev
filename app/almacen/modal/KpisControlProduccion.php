@@ -10,6 +10,7 @@ require_once("../controller/ClassConsultasProduccion.php");
 require_once("../controller/ClassIndex.php");
 require_once(__DIR__ . '/../../config/ContratistaContexto.php');
 
+
 session_start();
 $Contratista = $_SESSION['Contratista'];
 $idContratistas = obtenerIdContratistaContexto();
@@ -20,6 +21,7 @@ $Fecha2 = $_POST['Fecha2'] ?? '';
 @$Division = $_POST['Division'] ?? '';
 @$Area = $_POST['Area'] ?? '';
 @$Cope = $_POST['Cope'] ?? '';
+
 
 $mes_anterior = date('Y-m-d', strtotime('-3 month'));
 
@@ -32,16 +34,17 @@ if (!empty($Fecha1) && !empty($Fecha2)) {
 }
 
 $idContratistaSeleccionado = $_POST['selectContratista'] ?? null;
+//var_dump($idContratistaSeleccionado);
 
-// INSTANCIAS DE LAS CLASES (SE INSTANCIAN PRIMERO PARA EVITAR ERRORES DE VARIABLE INDEFINIDA)
-$index = new Index();
-$consultas = new ClassConsultasProduccion();
-
-// EJECUTAR CONSULTA DE DETALLE AGRUPADO POR ÁREA
+// Ejecutar consulta de detalle agrupado por área
 $detalleArea = [];
 if (!empty($idContratistaSeleccionado)) {
     $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea($idContratistaSeleccionado, $Fecha1, $Fecha2);
 }
+
+// Instancias de las clases
+$index = new Index();
+$consultas = new ClassConsultasProduccion();
 
 // TOTAL PRODUCCION HISTORICO
 $TotalProduccion = 0;
