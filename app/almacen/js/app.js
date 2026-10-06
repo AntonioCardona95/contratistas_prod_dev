@@ -72,7 +72,7 @@ function LoadKPIS(){
     });
 }
 
-function LoadKpisControl(ejecutar) {
+/*function LoadKpisControl(ejecutar) {
     // 1. Convertimos los datos del formulario de fechas a un String/Objeto
     var parametros = $("#FormQueryUnidades").serialize();
 
@@ -101,10 +101,10 @@ function LoadKpisControl(ejecutar) {
             $("#LoadKpisControl").html(data);
         }
     });
-}
+} */
 
 
-/*function LoadKpisControl(){
+function LoadKpisControl(){
     var parametros = $("#FormQueryUnidades").serialize();
     $("#LoadKpisControl").fadeIn('slow');
     $.ajax({
@@ -118,7 +118,7 @@ function LoadKpisControl(ejecutar) {
             $("#LoadKpisControl").html(data);
         }
     });
-} */
+} 
 
 
 
