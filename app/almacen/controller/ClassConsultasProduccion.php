@@ -987,12 +987,59 @@ public function CountOntConEntradaAlmacen($fechaInicio, $fechaFin, $idContratist
     return $this->runQuery($sql, $params, 'erpprint');
 }
 
+public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio, $fechaFin)
+{
+    $sql = "SELECT 
+                p.Area,
+                p.Division,
+                p.Cope,
+                SUM(CASE WHEN p.Tipo_Trabajo = 'ALTA' THEN 1 ELSE 0 END) AS Altas,
+                SUM(CASE WHEN p.Tipo_Trabajo = 'MIGRACION' THEN 1 ELSE 0 END) AS Migraciones,
+                SUM(CASE WHEN p.Tipo_Trabajo = 'CAMBIO DE DOMICILIO' THEN 1 ELSE 0 END) AS CambiosDomicilio,
+                SUM(CASE WHEN p.Tipo_Trabajo = 'QUEJA' THEN 1 ELSE 0 END) AS Quejas,
+                SUM(CASE WHEN p.Tipo_Trabajo = 'A4' THEN 1 ELSE 0 END) AS A4,
+                SUM(CASE WHEN p.Entrada_Almacen = 1 THEN 1 ELSE 0 END) AS TotalConAlmacen,
+                SUM(CASE WHEN p.Entrada_Almacen = 0 THEN 1 ELSE 0 END) AS TotalSinAlmacen
+            FROM produccion p
+            WHERE p.idContratistas = :idContratista
+              AND p.Fecha_Liquidacion BETWEEN :fechaInicio AND :fechaFin
+            GROUP BY p.Area, p.Division, p.Cope
+            ORDER BY p.Area ASC";
+
+    $params = array(
+        ':idContratista' => $idContratista,
+        ':fechaInicio'   => $fechaInicio,
+        ':fechaFin'      => $fechaFin
+    );
+
+    echo "<pre>SQL preparado:\n$sql\n</pre>";
+    echo "<pre>Parámetros:\n" . print_r($params, true) . "</pre>";
+
+    try {
+        $resultado = $this->runQuery($sql, $params, 'erpprint');
+
+        echo "<pre>Resultado de la consulta:\n" . print_r($resultado, true) . "</pre>";
+
+        if (empty($resultado)) {
+            echo "<p><strong>No se encontraron registros.</strong></p>";
+        } else {
+            echo "<p><strong>Consulta ejecutada correctamente.</strong></p>";
+        }
+
+        return $resultado;
+    } catch (Exception $e) {
+        echo "<p style='color:red'>Error al ejecutar consulta: " . $e->getMessage() . "</p>";
+        return null;
+    }
+}
+
+
 
 
 /**
  * Obtiene el detalle de órdenes agrupadas por área para un contratista en un rango de fechas
  */
-public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio, $fechaFin)
+/*public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio, $fechaFin)
 {
     $sql = "SELECT 
                 p.Area,
@@ -1019,7 +1066,7 @@ public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio, $fech
 
     // Se usa runQuery respetando el motor de base de datos de la clase
     return $this->runQuery($sql, $params, 'erpprint');
-}
+} */
 
 
 }
