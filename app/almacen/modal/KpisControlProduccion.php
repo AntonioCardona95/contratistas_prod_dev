@@ -16,11 +16,11 @@ $Contratista = $_SESSION['Contratista'];
 $idContratistas = obtenerIdContratistaContexto();
 
 // RECIBIMOS PARAMETROS
-$Fecha1 = $_POST['Fecha1'];
-$Fecha2 = $_POST['Fecha2'];
-@$Division = $_POST['Division'];
-@$Area = $_POST['Area'];
-@$Cope = $_POST['Cope'];
+$Fecha1 = $_POST['Fecha1'] ?? '';
+$Fecha2 = $_POST['Fecha2'] ?? '';
+@$Division = $_POST['Division'] ?? '';
+@$Area = $_POST['Area'] ?? '';
+@$Cope = $_POST['Cope'] ?? '';
 
 $mes_anterior = date('Y-m-d', strtotime('-3 month'));
 
@@ -313,13 +313,13 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
   </div>
 </div>
 
-<!-- NUEVA TARJETA: DETALLE DE ÓRDENES POR ÁREA -->
-<div class="row" id="contenedorTablaDetalle" style="display: none;">
+<!-- NUEVA TARJETA: DETALLE DE ÓRDENES POR ÁREA (SIEMPRE VISIBLE) -->
+<div class="row" id="contenedorTablaDetalle">
     <div class="col-12 mb-4">
         <div class="card shadow">
             <div class="card-header py-3 bg-white d-flex flex-row align-items-center justify-content-between">
                 <h6 class="m-0 font-weight-bold text-primary" id="tituloDetalleContratista">
-                    Detalle de Órdenes por Área
+                    <i class="fas fa-table mr-1"></i> Detalle de Órdenes por Área
                 </h6>
             </div>
             <div class="card-body">
@@ -340,7 +340,11 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
                             </tr>
                         </thead>
                         <tbody id="tbodyDetalleArea">
-                            <!-- Se poblará vía AJAX -->
+                            <tr>
+                                <td colspan="10" class="text-muted font-italic py-4">
+                                    No hay datos disponibles para mostrar. Selecciona los filtros correspondientes.
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
