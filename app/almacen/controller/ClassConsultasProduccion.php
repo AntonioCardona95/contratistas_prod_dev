@@ -987,109 +987,12 @@ public function CountOntConEntradaAlmacen($fechaInicio, $fechaFin, $idContratist
     return $this->runQuery($sql, $params, 'erpprint');
 }
 
-/**
- * Obtiene el detalle de órdenes agrupadas por Área, División y COPE desde seg_produccion_diaria
- * Incluye bloque completo de depuración respetando las conexiones de ClassConsultasProduccion
- */
-public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = null, $fechaFin = null, $conexionTipo = 'erpprint')
-{
-    $sql = "SELECT 
-                p.NOM_AREA AS Area,
-                p.NOM_DIVISION AS Division,
-                p.NOM_CT AS Cope,
-                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) = 'ALTA' THEN 1 ELSE 0 END) AS Altas,
-                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) = 'MIGRACION' THEN 1 ELSE 0 END) AS Migraciones,
-                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) IN ('CAMBIO DE DOMICILIO', 'CAMBIO DOMICILIO', 'CAMBIO_DOMICILIO') THEN 1 ELSE 0 END) AS CambiosDomicilio,
-                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) = 'QUEJA' THEN 1 ELSE 0 END) AS Quejas,
-                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) = 'A4' THEN 1 ELSE 0 END) AS A4,
-                SUM(CASE WHEN (p.Existe_Serie_Prod_Almacen = 1 OR p.Existe_Serie_Eci_Almacen = 1) THEN 1 ELSE 0 END) AS TotalConAlmacen,
-                SUM(CASE WHEN (p.Existe_Serie_Prod_Almacen = 0 AND p.Existe_Serie_Eci_Almacen = 0) THEN 1 ELSE 0 END) AS TotalSinAlmacen
-            FROM seg_produccion_diaria p
-            WHERE p.idContratista = :idContratista
-            GROUP BY p.NOM_AREA, p.NOM_DIVISION, p.NOM_CT
-            ORDER BY p.NOM_AREA ASC";
 
-    $params = array(
-        ':idContratista' => $idContratista
-    );
-
-    // =========================================================================
-    // BLOQUE DE DEPURACIÓN EN PANTALLA
-    // =========================================================================
-    echo "<div style='background:#111; color:#00FF66; padding:20px; margin:20px 0; border:2px solid #00FF66; border-radius:8px; font-family:Consolas, monospace; font-size:13px; text-align:left;'>";
-    echo "<h3 style='color:#FFF; margin-top:0; border-bottom:1px solid #00FF66; padding-bottom:5px;'>🔍 DEPURACIÓN DE CONSULTA EN PANTALLA</h3>";
-    echo "<b>Conexión Seleccionada:</b> " . htmlspecialchars($conexionTipo) . "<br>";
-    echo "<b>ID Contratista Recibido:</b> ";
-    var_dump($idContratista);
-    echo "<br><b>SQL Ejecutado:</b><pre style='background:#000; color:#00E5FF; padding:10px; border-radius:4px;'>" . htmlspecialchars($sql) . "</pre>";
-
-    // Selección de conexión respetando el switch de tu clase
-    switch ($conexionTipo) {
-        case 'analisis':
-        case 'analytics':
-            $conexion = $this->get_conexion_analisis();
-            break;
-        case 'nass':
-            $conexion = $this->get_conexion_nass();
-            break;
-        case 'dos':
-            $conexion = $this->get_conexiondos();
-            break;
-        case 'erpprint':
-            $conexion = $this->conexion();
-            break;
-        default:
-            $conexion = $this->get_conexion();
-            break;
-    }
-
-    try {
-        if (!$conexion) {
-            echo "<b style='color:#FF3333;'>❌ ERROR CRÍTICO:</b> No se pudo establecer la conexión '" . htmlspecialchars($conexionTipo) . "'.<br>";
-            echo "</div>";
-            return array();
-        }
-
-        // Habilitar temporalmente los errores de PDO para ver la causa exacta en pantalla
-        $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        $stmt = $conexion->prepare($sql);
-        foreach ($params as $key => $val) {
-            if (is_int($key)) {
-                $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
-            } else {
-                $param = ':' . ltrim($key, ':');
-                $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
-            }
-        }
-
-        $stmt->execute();
-        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        if (method_exists($stmt, 'closeCursor')) {
-            $stmt->closeCursor();
-        }
-
-        echo "<b style='color:#FFFF00;'>Total de Registros Obtenidos:</b> " . count($rows) . "<br><br>";
-        echo "<b>Resultado de la Consulta (var_dump):</b><pre style='background:#000; color:#FFF; padding:10px; border-radius:4px; max-height:300px; overflow:auto;'>";
-        var_dump($rows);
-        echo "</pre>";
-        echo "</div>";
-
-        return $rows;
-
-    } catch (PDOException $e) {
-        echo "<b style='color:#FF3333;'>❌ ERROR MYSQL / PDO:</b> " . htmlspecialchars($e->getMessage()) . "<br>";
-        echo "<b>Código de Error SQLSTATE:</b> " . htmlspecialchars($e->getCode()) . "<br>";
-        echo "</div>";
-        return array();
-    }
-}
 
 /**
  * Obtiene el detalle de órdenes agrupadas por área para un contratista en un rango de fechas
  */
-/*public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio, $fechaFin)
+public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio, $fechaFin)
 {
     $sql = "SELECT 
                 p.Area,
@@ -1116,7 +1019,7 @@ public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = null
 
     // Se usa runQuery respetando el motor de base de datos de la clase
     return $this->runQuery($sql, $params, 'erpprint');
-} */
+}
 
 
 }
