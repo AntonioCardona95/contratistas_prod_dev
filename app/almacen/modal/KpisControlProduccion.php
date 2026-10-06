@@ -323,7 +323,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
   </div>
 </div>
 
-<!-- NUEVA TARJETA: DETALLE DE ÓRDENES POR ÁREA (SIEMPRE VISIBLE) -->
+<!-- NUEVA TARJETA: DETALLE DE ÓRDENES POR ÁREA -->
 <div class="row" id="contenedorTablaDetalle">
     <div class="col-12 mb-4">
         <div class="card shadow">
@@ -350,11 +350,32 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
                             </tr>
                         </thead>
                         <tbody id="tbodyDetalleArea">
-                            <tr>
-                                <td colspan="10" class="text-muted font-italic py-4">
-                                    No hay datos disponibles para mostrar. Selecciona los filtros correspondientes.
-                                </td>
-                            </tr>
+                            <?php if (!empty($detalleArea)): ?>
+                                <?php foreach ($detalleArea as $row): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($row['Area'] ?? 'N/A'); ?></td>
+                                        <td><?php echo htmlspecialchars($row['Division'] ?? 'N/A'); ?></td>
+                                        <td><?php echo htmlspecialchars($row['Cope'] ?? 'N/A'); ?></td>
+                                        <td class="font-weight-bold text-primary"><?php echo number_format($row['Altas']); ?></td>
+                                        <td><?php echo number_format($row['Migraciones']); ?></td>
+                                        <td><?php echo number_format($row['CambiosDomicilio']); ?></td>
+                                        <td><?php echo number_format($row['Quejas']); ?></td>
+                                        <td><?php echo number_format($row['A4']); ?></td>
+                                        <td class="table-success font-weight-bold"><?php echo number_format($row['TotalConAlmacen']); ?></td>
+                                        <td class="table-danger font-weight-bold"><?php echo number_format($row['TotalSinAlmacen']); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="10" class="text-muted font-italic py-4">
+                                        <?php if (empty($idContratistaSeleccionado)): ?>
+                                            Por favor, selecciona un contratista para visualizar el detalle por área.
+                                        <?php else: ?>
+                                            No se encontraron registros de producciones para el contratista y rango de fechas seleccionado.
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
