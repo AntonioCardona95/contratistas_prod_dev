@@ -1017,66 +1017,33 @@ public function CountOntAlmacenPorDivision($fechaInicio, $fechaFin, $idContratis
     return $this->runQuery($sql, $params, 'erpprint');
 }
 
+/**
+ * Obtiene el detalle de órdenes agrupadas por Área, División y COPE desde seg_produccion_diaria
+ */
 public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = null, $fechaFin = null)
 {
-    // 1. Definir la consulta SIN filtro de fechas de momento
     $sql = "SELECT 
-                p.Area,
-                p.Division,
-                p.Cope,
-                SUM(CASE WHEN p.Tipo_Trabajo = 'ALTA' THEN 1 ELSE 0 END) AS Altas,
-                SUM(CASE WHEN p.Tipo_Trabajo = 'MIGRACION' THEN 1 ELSE 0 END) AS Migraciones,
-                SUM(CASE WHEN p.Tipo_Trabajo = 'CAMBIO DE DOMICILIO' THEN 1 ELSE 0 END) AS CambiosDomicilio,
-                SUM(CASE WHEN p.Tipo_Trabajo = 'QUEJA' THEN 1 ELSE 0 END) AS Quejas,
-                SUM(CASE WHEN p.Tipo_Trabajo = 'A4' THEN 1 ELSE 0 END) AS A4,
-                SUM(CASE WHEN p.Entrada_Almacen = 1 THEN 1 ELSE 0 END) AS TotalConAlmacen,
-                SUM(CASE WHEN p.Entrada_Almacen = 0 THEN 1 ELSE 0 END) AS TotalSinAlmacen
-            FROM produccion p
-            WHERE p.idContratistas = :idContratista
-            GROUP BY p.Area, p.Division, p.Cope
-            ORDER BY p.Area ASC";
+                p.NOM_AREA AS Area,
+                p.NOM_DIVISION AS Division,
+                p.NOM_CT AS Cope,
+                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) = 'ALTA' THEN 1 ELSE 0 END) AS Altas,
+                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) = 'MIGRACION' THEN 1 ELSE 0 END) AS Migraciones,
+                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) IN ('CAMBIO DE DOMICILIO', 'CAMBIO DOMICILIO', 'CAMBIO_DOMICILIO') THEN 1 ELSE 0 END) AS CambiosDomicilio,
+                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) = 'QUEJA' THEN 1 ELSE 0 END) AS Quejas,
+                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) = 'A4' THEN 1 ELSE 0 END) AS A4,
+                SUM(CASE WHEN (p.Existe_Serie_Prod_Almacen = 1 OR p.Existe_Serie_Eci_Almacen = 1) THEN 1 ELSE 0 END) AS TotalConAlmacen,
+                SUM(CASE WHEN (p.Existe_Serie_Prod_Almacen = 0 AND p.Existe_Serie_Eci_Almacen = 0) THEN 1 ELSE 0 END) AS TotalSinAlmacen
+            FROM seg_produccion_diaria p
+            WHERE p.idContratista = :idContratista
+            GROUP BY p.NOM_AREA, p.NOM_DIVISION, p.NOM_CT
+            ORDER BY p.NOM_AREA ASC";
 
     $params = array(
         ':idContratista' => $idContratista
     );
 
-    // --- DEPURACIÓN EN PANTALLA ---
-    echo "<div style='background:#111; color:#00ff00; padding:15px; margin:20px; font-family:monospace; border-radius:5px;'>";
-    echo "<h3>=== DEPURACIÓN EN VIVO ===</h3>";
-    echo "<b>ID Contratista Recibido:</b> " . var_export($idContratista, true) . "<br>";
-    echo "<b>SQL Ejecutado:</b><pre>" . htmlspecialchars($sql) . "</pre>";
-
-    try {
-        // Obtener conexión
-        $conexion = $this->get_conexion(); // o $this->conexion() / $this->get_conexiondos() según corresponda
-        
-        if (!$conexion) {
-            echo "<b style='color:red;'>ERROR:</b> La conexión retornado es NULL o FALSE.<br>";
-        } else {
-            // Habilitar errores explícitos de PDO
-            $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-            $stmt = $conexion->prepare($sql);
-            $stmt->execute($params);
-            $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            echo "<b>Registros devueltos por MySQL:</b> " . count($resultado) . "<br><br>";
-            echo "<b>Estructura / Resultado (var_dump):</b><pre>";
-            var_dump($resultado);
-            echo "</pre>";
-            echo "</div>";
-
-            return $resultado;
-        }
-    } catch (PDOException $e) {
-        echo "<b style='color:red;'>ERROR PDO / MYSQL:</b> " . $e->getMessage() . "<br>";
-        echo "<b>Código Error:</b> " . $e->getCode() . "<br>";
-        echo "</div>";
-        return array();
-    }
-
-    echo "</div>";
-    return array();
+    // Ejecuta la consulta a través de runQuery
+    return $this->runQuery($sql, $params, 'default');
 }
 
 
