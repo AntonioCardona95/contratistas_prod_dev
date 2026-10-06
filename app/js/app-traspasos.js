@@ -25,7 +25,7 @@ function LoadTraspasos(){
     $("#LoadTraspasos").fadeIn('slow');
     $.ajax({
         type:'POST',
-        url:'modal/TablaTraspasos.php',
+        url:'modal/Traspasos_Tabla.php',
         data: parametros,
          beforeSend: function(objeto){
             $("#LoadTraspasos").html("<center><img src='../image/loading-46.gif'></center>");

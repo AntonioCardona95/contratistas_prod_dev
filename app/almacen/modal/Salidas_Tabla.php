@@ -29,12 +29,11 @@
 ?>
 
 <style>
-    @media (max-width: 768px) {
-        .dt-buttons {
-            margin-bottom: 15px;
-        }
+    /* ── BUSCADOR MOVIL ── */
+    #salidas-mobile-search {
+        display: none;
     }
-
+    
     #salidas-table-wrapper {
         width: 100%;
         overflow-x: auto;
@@ -112,17 +111,6 @@
         min-width: 120px;
     }
 
-    @media (max-width: 1200px) {
-        #salidas-cards-container {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    /* ── BUSCADOR MOVIL ── */
-    #salidas-mobile-search {
-        display: none;
-    }
-
     @media (max-width: 768px) {
         #salidas-table-wrapper {
             display: none;
@@ -144,6 +132,10 @@
 
         h2 {
             font-size: 15px !important;
+        }
+
+        .dt-buttons {
+            margin-bottom: 15px;
         }
     }
 </style>

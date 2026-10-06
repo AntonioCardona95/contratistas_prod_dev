@@ -349,7 +349,7 @@ $tecnicosTraspaso = $idContratistaTraspaso > 0
             });
         });
 
-        $(document).on('click', '#LoadTraspasos a[href*="TraspasoDet.php"]', function (event) {
+        $(document).on('click', '#LoadTraspasos a[href*="Traspasos_Detalles.php"]', function (event) {
             event.preventDefault();
             const url = $(this).attr('href');
             $('#modalTraspasoContenido').html('<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>');

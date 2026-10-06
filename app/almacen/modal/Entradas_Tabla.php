@@ -146,11 +146,6 @@
         }
     }
 
-    @media (max-width: 1200px) {
-        #entradas-cards-container {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
 </style>
 
 <div id="entradas-loading" style="text-align: center; padding: 20px;">

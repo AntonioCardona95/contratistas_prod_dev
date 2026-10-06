@@ -149,7 +149,7 @@
             $('#modalEntradaDetalle').modal('show');
 
             $.ajax({
-                url: 'modal/EntradasDet.php',
+                url: 'modal/Entradas_Detalles.php',
                 type: 'POST',
                 data: { folio: folio },
                 success: function (contenido) {

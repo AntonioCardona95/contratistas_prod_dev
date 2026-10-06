@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 $baseDir = realpath(__DIR__ . '/..'); 
 $logo_path = $baseDir . '/img/enlace.png';
 
-$main_color = '#0066cc';
+$main_color = '#0f172a';
 
 $logo_html = '';
 if (file_exists($logo_path)) {

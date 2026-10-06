@@ -112,7 +112,7 @@
             
             <!--
             <li class="nav-item">
-                <a class="nav-link" href="traspasos.php">
+                <a class="nav-link" href="Traspasos.php">
                     <i class="fas fa-fw fa-table"></i>
                     <span>TRASPASO MATERIAL</span>
                 </a>
