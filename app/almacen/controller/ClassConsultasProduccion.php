@@ -87,6 +87,23 @@ class ClassConsultasProduccion extends Conexion
             return 0;
         }
     }
+
+
+    /**
+ * Obtiene la lista completa de contratistas con su nombre completo
+ */
+public function obtenerTodosContratistas()
+{
+    $sql = "SELECT 
+                idContratistas,
+                CONCAT_WS(' ', Contratista, apellido_paterno, apellido_materno) AS nombre_completo
+            FROM contratistas
+            ORDER BY Contratista ASC";
+
+    return $this->runQuery($sql, array(), 'erpprint');
+}
+
+
     /**
      * Cuenta el total de producción en la vista/tabla seg_ns_prod_eval para un rango de fechas
      */
