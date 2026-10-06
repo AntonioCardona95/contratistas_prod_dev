@@ -313,8 +313,41 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
   </div>
 </div>
 
-
-
+<!-- NUEVA TARJETA: DETALLE DE ÓRDENES POR ÁREA -->
+<div class="row" id="contenedorTablaDetalle" style="display: none;">
+    <div class="col-12 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3 bg-white d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary" id="tituloDetalleContratista">
+                    Detalle de Órdenes por Área
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover text-center align-middle" id="tablaDetalleArea" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Área</th>
+                                <th>División</th>
+                                <th>Cope</th>
+                                <th>Altas</th>
+                                <th>Migraciones</th>
+                                <th>Cambios de domicilio</th>
+                                <th>Quejas</th>
+                                <th>A4</th>
+                                <th>Total ONTs en Almacén</th>
+                                <th>Total ONTs No Entraron Almacén</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyDetalleArea">
+                            <!-- Se poblará vía AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 (function () {
