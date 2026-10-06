@@ -1018,51 +1018,36 @@ public function CountOntAlmacenPorDivision($fechaInicio, $fechaFin, $idContratis
 }
 
 
-public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = null, $fechaFin = null) {
-    // Si no se especifica contratista, retornar array vacío o ajustar según requerimiento
-    if (empty($idContratista)) {
-        return [];
-    }
-
+/**
+ * Obtiene el detalle de órdenes agrupadas por área para un contratista en un rango de fechas
+ */
+public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio, $fechaFin)
+{
     $sql = "SELECT 
-                NOM_AREA AS Area,
-                NOM_DIVISION AS Division,
-                NOM_CT AS Cope,
-                -- ALTAS (Inician con A, excluyendo A4)
-                SUM(CASE WHEN Tipo_de_Tarea LIKE 'A%' AND Tipo_de_Tarea NOT LIKE 'A4%' THEN 1 ELSE 0 END) AS Altas,
-                -- MIGRACIONES (FC, TI, TS, TV)
-                SUM(CASE WHEN Tipo_de_Tarea LIKE 'FC%' OR Tipo_de_Tarea LIKE 'TI%' OR Tipo_de_Tarea LIKE 'TS%' OR Tipo_de_Tarea LIKE 'TV%' THEN 1 ELSE 0 END) AS Migraciones,
-                -- CAMBIOS DE DOMICILIO (Inician con D)
-                SUM(CASE WHEN Tipo_de_Tarea LIKE 'D%' THEN 1 ELSE 0 END) AS CambiosDomicilio,
-                -- QUEJAS (Q, R, C, EB, EI, EU, GD, MG, F597, F841)
-                SUM(CASE WHEN Tipo_de_Tarea LIKE 'Q%' OR Tipo_de_Tarea LIKE 'R%' OR Tipo_de_Tarea LIKE 'C%' 
-                             OR Tipo_de_Tarea LIKE 'EB%' OR Tipo_de_Tarea LIKE 'EI%' OR Tipo_de_Tarea LIKE 'EU%' 
-                             OR Tipo_de_Tarea LIKE 'GD%' OR Tipo_de_Tarea LIKE 'MG%' OR Tipo_de_Tarea LIKE 'F597%' 
-                             OR Tipo_de_Tarea LIKE 'F841%' THEN 1 ELSE 0 END) AS Quejas,
-                -- A4
-                SUM(CASE WHEN Tipo_de_Tarea LIKE 'A4%' THEN 1 ELSE 0 END) AS A4,
-                -- TOTAL ONTs EN ALMACÉN (Al menos una serie está en almacén)
-                SUM(CASE WHEN Existe_Serie_Prod_Almacen = 1 OR Existe_Serie_Eci_Almacen = 1 THEN 1 ELSE 0 END) AS TotalConAlmacen,
-                -- TOTAL ONTs NO ENTRARON A ALMACÉN (Ninguna serie está en almacén)
-                SUM(CASE WHEN Existe_Serie_Prod_Almacen = 0 AND Existe_Serie_Eci_Almacen = 0 THEN 1 ELSE 0 END) AS TotalSinAlmacen
-            FROM seg_produccion_diaria
-            WHERE idContratista = :idContratista";
+                p.Area,
+                p.Division,
+                p.Cope,
+                SUM(CASE WHEN p.Tipo_Trabajo = 'ALTA' THEN 1 ELSE 0 END) AS Altas,
+                SUM(CASE WHEN p.Tipo_Trabajo = 'MIGRACION' THEN 1 ELSE 0 END) AS Migraciones,
+                SUM(CASE WHEN p.Tipo_Trabajo = 'CAMBIO DE DOMICILIO' THEN 1 ELSE 0 END) AS CambiosDomicilio,
+                SUM(CASE WHEN p.Tipo_Trabajo = 'QUEJA' THEN 1 ELSE 0 END) AS Quejas,
+                SUM(CASE WHEN p.Tipo_Trabajo = 'A4' THEN 1 ELSE 0 END) AS A4,
+                SUM(CASE WHEN p.Entrada_Almacen = 1 THEN 1 ELSE 0 END) AS TotalConAlmacen,
+                SUM(CASE WHEN p.Entrada_Almacen = 0 THEN 1 ELSE 0 END) AS TotalSinAlmacen
+            FROM produccion p
+            WHERE p.idContratistas = :idContratista
+              AND p.Fecha_Liquidacion BETWEEN :fechaInicio AND :fechaFin
+            GROUP BY p.Area, p.Division, p.Cope
+            ORDER BY p.Area ASC";
 
-    $params = [':idContratista' => $idContratista];
+    $params = array(
+        ':idContratista' => $idContratista,
+        ':fechaInicio'   => $fechaInicio,
+        ':fechaFin'      => $fechaFin
+    );
 
-    // Aplicar filtro por fechas si existen
-    if (!empty($fechaInicio) && !empty($fechaFin)) {
-        $sql .= " AND FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
-        $params[':fechaInicio'] = $fechaInicio;
-        $params[':fechaFin'] = $fechaFin;
-    }
-
-    $sql .= " GROUP BY NOM_AREA, NOM_DIVISION, NOM_CT ORDER BY NOM_AREA ASC, NOM_CT ASC";
-
-    $stmt = $this->db->prepare($sql);
-    $stmt->execute($params);
-
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    // Se usa runQuery respetando el motor de base de datos de la clase
+    return $this->runQuery($sql, $params, 'erpprint');
 }
 
 
