@@ -988,42 +988,11 @@ public function CountOntConEntradaAlmacen($fechaInicio, $fechaFin, $idContratist
 }
 
 /**
- * Obtiene el conteo de ONT con y sin entrada a almacén para TODAS las divisiones
- * utilizando la tabla 'divisiones' como catálogo base.
- */
-public function CountOntAlmacenPorDivision($fechaInicio, $fechaFin, $idContratista = null)
-{
-    $sql = "SELECT 
-                d.Division AS DIVISION,
-                COALESCE(SUM(CASE WHEN p.Existe_Serie_Prod_Almacen = 1 AND p.Existe_Serie_Eci_Almacen = 1 THEN 1 ELSE 0 END), 0) AS CON_ALMACEN,
-                COALESCE(SUM(CASE WHEN p.Existe_Serie_Prod_Almacen = 0 AND p.Existe_Serie_Eci_Almacen = 0 THEN 1 ELSE 0 END), 0) AS SIN_ALMACEN
-            FROM divisiones d
-            LEFT JOIN seg_produccion_diaria p 
-                ON (TRIM(p.NOM_DIVISION) = TRIM(d.Division) OR p.NOM_DIVISION LIKE CONCAT('%', d.Division, '%'))
-                AND p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
-
-    $params = array(
-        ':fechaInicio' => $fechaInicio,
-        ':fechaFin'    => $fechaFin
-    );
-
-    if (!empty($idContratista)) {
-        $sql .= " AND p.idContratista = :idContratista";
-        $params[':idContratista'] = $idContratista;
-    }
-
-    $sql .= " GROUP BY d.idDivision, d.Division ORDER BY d.idDivision ASC";
-
-    return $this->runQuery($sql, $params, 'erpprint');
-}
-
-/**
  * Obtiene el detalle de órdenes agrupadas por Área, División y COPE desde seg_produccion_diaria
- * Incluye bloque de depuración en pantalla (var_dump y errores PDO/MySQL).
+ * Incluye bloque completo de depuración respetando las conexiones de ClassConsultasProduccion
  */
-public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = null, $fechaFin = null)
+public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = null, $fechaFin = null, $conexionTipo = 'erpprint')
 {
-    // Consulta ajustada a la tabla seg_produccion_diaria y sus columnas reales
     $sql = "SELECT 
                 p.NOM_AREA AS Area,
                 p.NOM_DIVISION AS Division,
@@ -1047,44 +1016,71 @@ public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = null
     // =========================================================================
     // BLOQUE DE DEPURACIÓN EN PANTALLA
     // =========================================================================
-    echo "<div style='background:#181818; color:#00FF66; padding:20px; margin:20px 0; border:2px solid #00FF66; border-radius:8px; font-family:Consolas, monospace; font-size:14px; text-align:left; z-index:9999; relative;'>";
+    echo "<div style='background:#111; color:#00FF66; padding:20px; margin:20px 0; border:2px solid #00FF66; border-radius:8px; font-family:Consolas, monospace; font-size:13px; text-align:left;'>";
     echo "<h3 style='color:#FFF; margin-top:0; border-bottom:1px solid #00FF66; padding-bottom:5px;'>🔍 DEPURACIÓN DE CONSULTA EN PANTALLA</h3>";
+    echo "<b>Conexión Seleccionada:</b> " . htmlspecialchars($conexionTipo) . "<br>";
     echo "<b>ID Contratista Recibido:</b> ";
     var_dump($idContratista);
     echo "<br><b>SQL Ejecutado:</b><pre style='background:#000; color:#00E5FF; padding:10px; border-radius:4px;'>" . htmlspecialchars($sql) . "</pre>";
 
-    try {
-        // Intentar obtener la conexión PDO de la clase
-        $conexion = method_exists($this, 'get_conexion') ? $this->get_conexion() : (isset($this->conexion) ? $this->conexion : null);
+    // Selección de conexión respetando el switch de tu clase
+    switch ($conexionTipo) {
+        case 'analisis':
+        case 'analytics':
+            $conexion = $this->get_conexion_analisis();
+            break;
+        case 'nass':
+            $conexion = $this->get_conexion_nass();
+            break;
+        case 'dos':
+            $conexion = $this->get_conexiondos();
+            break;
+        case 'erpprint':
+            $conexion = $this->conexion();
+            break;
+        default:
+            $conexion = $this->get_conexion();
+            break;
+    }
 
+    try {
         if (!$conexion) {
-            echo "<b style='color:#FF3333;'>❌ ERROR CRÍTICO:</b> No se pudo obtener el objeto de conexión PDO.<br>";
+            echo "<b style='color:#FF3333;'>❌ ERROR CRÍTICO:</b> No se pudo establecer la conexión '" . htmlspecialchars($conexionTipo) . "'.<br>";
             echo "</div>";
             return array();
         }
 
-        // Forzar la activación de excepciones en PDO para capturar errores de MySQL
+        // Habilitar temporalmente los errores de PDO para ver la causa exacta en pantalla
         $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         $stmt = $conexion->prepare($sql);
-        $stmt->execute($params);
-        $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($params as $key => $val) {
+            if (is_int($key)) {
+                $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+            } else {
+                $param = ':' . ltrim($key, ':');
+                $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+            }
+        }
 
-        echo "<b style='color:#FFFF00;'>Total Registros Encontrados:</b> " . count($resultado) . "<br><br>";
+        $stmt->execute();
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (method_exists($stmt, 'closeCursor')) {
+            $stmt->closeCursor();
+        }
+
+        echo "<b style='color:#FFFF00;'>Total de Registros Obtenidos:</b> " . count($rows) . "<br><br>";
         echo "<b>Resultado de la Consulta (var_dump):</b><pre style='background:#000; color:#FFF; padding:10px; border-radius:4px; max-height:300px; overflow:auto;'>";
-        var_dump($resultado);
+        var_dump($rows);
         echo "</pre>";
         echo "</div>";
 
-        return $resultado;
+        return $rows;
 
     } catch (PDOException $e) {
         echo "<b style='color:#FF3333;'>❌ ERROR MYSQL / PDO:</b> " . htmlspecialchars($e->getMessage()) . "<br>";
-        echo "<b>Código Estado SQL (SQLSTATE):</b> " . htmlspecialchars($e->getCode()) . "<br>";
-        echo "</div>";
-        return array();
-    } catch (Exception $e) {
-        echo "<b style='color:#FF3333;'>❌ ERROR GENERAL:</b> " . htmlspecialchars($e->getMessage()) . "<br>";
+        echo "<b>Código de Error SQLSTATE:</b> " . htmlspecialchars($e->getCode()) . "<br>";
         echo "</div>";
         return array();
     }
