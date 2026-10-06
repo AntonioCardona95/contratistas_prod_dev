@@ -644,7 +644,7 @@
             $('#modalSalidaDetalle').modal('show');
 
             $.ajax({
-                url: 'modal/SalidasDet.php',
+                url: 'modal/Salidas_Detalles.php',
                 type: 'POST',
                 data: { folio: folio },
                 success: function (contenido) {

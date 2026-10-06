@@ -105,8 +105,8 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
 	</li>
 
 	<?php if (esAdministradorContratista()): ?>
-	<li class="nav-item <?php echo $paginaActual === 'traspasos.php' ? 'active' : ''; ?>">
-		<a class="nav-link" href="traspasos.php">
+	<li class="nav-item <?php echo $paginaActual === 'Traspasos.php' ? 'active' : ''; ?>">
+		<a class="nav-link" href="Traspasos.php">
 			<i class="fa-solid fa-right-left"></i>
 			<span>TRASPASOS</span>
 		</a>

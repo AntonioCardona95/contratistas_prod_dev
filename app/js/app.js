@@ -3,7 +3,7 @@ function LoadEntradas(){
     $("#LoadEntradas").fadeIn('slow');
     $.ajax({
         type:'POST',
-        url:'modal/TablaEntradas.php',
+        url:'modal/Entradas_Tabla.php',
         data: parametros,
          beforeSend: function(objeto){
             $("#LoadEntradas").html("<center><img src='../image/loading-46.gif'></center>");
@@ -51,7 +51,7 @@ function LoadSalidas(){
     $("#LoadSalidas").fadeIn('slow');
     $.ajax({
         type:'POST',
-        url:'modal/TablaSalidas.php',
+        url:'modal/Salidas_Tabla.php',
         data: parametros,
          beforeSend: function(objeto){
             $("#LoadSalidas").html("<center><img src='../image/loading-46.gif'></center>");

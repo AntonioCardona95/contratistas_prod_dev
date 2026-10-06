@@ -11,7 +11,7 @@ function LoadSalidas() {
 
     $.ajax({
         type: 'POST',
-        url:'../../handler/Almacen/TablaSalidas.php',
+        url:'../../handler/Almacen/Salidas_Tabla.php',
         data: parametros,
         beforeSend: function () {
             $('#LoadSalidas').html('<div class="text-center py-3"><div class="spinner-border text-primary" role="status"><span class="sr-only">Cargando...</span></div></div>');
