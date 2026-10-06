@@ -29,10 +29,10 @@
 ?>
 
 <style>
-    @media (max-width: 768px) {
-        .dt-buttons {
-            margin-bottom: 15px;
-        }
+
+    /* ── BUSCADOR MOVIL ── */
+    #entradas-mobile-search {
+        display: none;
     }
 
     #entradas-table-wrapper {
@@ -112,17 +112,6 @@
         min-width: 120px;
     }
 
-    @media (max-width: 1200px) {
-        #entradas-cards-container {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    /* ── BUSCADOR MOVIL ── */
-    #entradas-mobile-search {
-        display: none;
-    }
-
     @media (max-width: 768px) {
         #entradas-table-wrapper {
             display: none;
@@ -144,6 +133,22 @@
 
         h2 {
             font-size: 15px !important;
+        }
+
+        .dt-buttons {
+            margin-bottom: 15px;
+        }
+
+        /* ACOMODAR EL TITULO CON EL SELECT DEL ADMIN */
+        .card-header{
+            flex-direction: column;
+            gap: 5px;
+        }
+    }
+
+    @media (max-width: 1200px) {
+        #entradas-cards-container {
+            grid-template-columns: repeat(2, 1fr);
         }
     }
 </style>
@@ -196,14 +201,15 @@
                         <td><?= $row['Cantidad_ST'] ?></td>
                         <td><?= $row['Fecha_Salida_ST'] ?></td>
                         <td>
-                            <div class="btn-group" role="group" aria-label="Acciones de entrada">
-                                <a class="btn btn-danger btn-sm" href="modal/Entradas_PDF.php?id=<?= rawurlencode((string)$row['Folio_Salida_ST']) ?>" target="_blank" rel="noopener noreferrer" title="Ver PDF" aria-label="Ver comprobante PDF">
-                                    <i class="fas fa-file-pdf" aria-hidden="true"></i>
-                                </a>
-                                <button type="button" class="btn btn-dark btn-sm btn-detalle-entrada" data-folio="<?= htmlspecialchars($row['Folio_Salida_ST'], ENT_QUOTES, 'UTF-8') ?>" title="Ver detalle" aria-label="Ver detalle">
-                                    <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
-                                </button>
-                            </div>
+                            <!-- BOTON DE PDF -->
+                            <a class="btn btn-danger btn-sm" href="modal/Entradas_PDF.php?id=<?= rawurlencode((string)$row['Folio_Salida_ST']) ?>" target="_blank" rel="noopener noreferrer" title="Ver PDF" aria-label="Ver comprobante PDF">
+                                <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                            </a>
+
+                            <!-- BOTON DE DETALLE DE ENTRADA -->
+                            <button type="button" class="btn btn-dark btn-sm btn-detalle-entrada" data-folio="<?= htmlspecialchars($row['Folio_Salida_ST'], ENT_QUOTES, 'UTF-8') ?>" title="Ver detalle" aria-label="Ver detalle">
+                                <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+                            </button>
                         </td>
                     </tr>
                 <?php endforeach; endif; ?>
@@ -229,6 +235,7 @@
             responsive: true,
             language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
             ordering: true,
+            order: [[0, 'desc']],
             searching: true,
             scrollY: true,
             scrollX: true,

@@ -110,7 +110,7 @@
             return $this->runQuery($sql, ['folio' => $Folio_Salida]);
         }
 
-        // METODO PARA EL PDF DE SALIDAS
+        // METODO PARA EL PDF DE MATERIAL RECIBIDO
         public function CabeceraPDF($Folio_Salida)
         {
             $sql = "SELECT 
@@ -148,7 +148,7 @@
             ]);
         }
 
-        // METODO PARA OBTENER LOS DETALLES DE LOS PRODUCTOS DE UNA SALIDA PARA EL PDF
+        // METODO PARA OBTENER LOS DETALLES DEL MATERIAL RECIBIDO PARA EL PDF
         public function DetallesPDF($Folio_Salida)
         {
             $sql = "SELECT 
@@ -252,7 +252,7 @@
             ]);
         }
 
-        // FUNCION PARA OBTENER LOS DATOS DE LA DEVOLUCION +
+        // FUNCION PARA OBTENER LOS DATOS DE LA DEVOLUCION
         public function DevolucionPDF($Folio){
             $sql = "SELECT d.Folio_Dev_T,
                 d.Fecha_Dev_T,
@@ -279,7 +279,7 @@
             return $this->runQuery($sql, ['Folio' => $Folio]);
         }
 
-        // FUNCION PARA OBTENER LOS DETALLES DE LA DEVOLUCION +
+        // FUNCION PARA OBTENER LOS DETALLES DE LA DEVOLUCION
         public function DetallesDevolucionPDF($Folio){
             $sql = "SELECT d.Cantidad_Dev AS Cantidad_Dev_Det,
                 p.Producto,
@@ -296,7 +296,7 @@
 
         }
 
-        // FUNCION PARA OBTENER LOS NUMEROS DE SERIE DE LA TRANSFERENCIA +
+        // FUNCION PARA OBTENER LOS NUMEROS DE SERIE DE LA DEVOLUCION
         public function ONTsDevoluciones($Folio){
             $sql = "SELECT Modelo, Producto, Num_SerieDev FROM material_det_devoluciones
             INNER JOIN producto ON material_det_devoluciones.FK_MaterialDev = producto.idProducto

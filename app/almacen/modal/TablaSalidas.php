@@ -192,16 +192,16 @@
                         <td><?= $row['Cantidad_T'] ?></td>
                         <td><?= $row['Fecha_T'] ?></td>
                         <td>
-                            <div class="btn-group" role="group" aria-label="Acciones de salida">
-                                <a class="btn btn-danger btn-sm" href="modal/Salidas_PDF.php?id=<?= rawurlencode((string)$row['Folio_Salida_T']) ?>" target="_blank" rel="noopener noreferrer" title="Ver PDF" aria-label="Ver comprobante PDF">
-                                    <i class="fas fa-file-pdf" aria-hidden="true"></i>
-                                </a>
-                                <button type="button" class="btn btn-dark btn-sm btn-detalle-salida"
-                                    data-folio="<?= htmlspecialchars($row['Folio_Salida_T'], ENT_QUOTES, 'UTF-8') ?>"
-                                    title="Ver detalle" aria-label="Ver detalle">
-                                    <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
-                                </button>
-                            </div>
+                            <!-- BOTON DE PDF -->
+                            <a class="btn btn-danger btn-sm" href="modal/Salidas_PDF.php?id=<?= rawurlencode((string)$row['Folio_Salida_T']) ?>" target="_blank" rel="noopener noreferrer" title="Ver PDF" aria-label="Ver comprobante PDF">
+                                <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                            </a>
+                            <!-- BOTON DE DETALLE DE SALIDA -->
+                            <button type="button" class="btn btn-dark btn-sm btn-detalle-salida"
+                                data-folio="<?= htmlspecialchars($row['Folio_Salida_T'], ENT_QUOTES, 'UTF-8') ?>"
+                                title="Ver detalle" aria-label="Ver detalle">
+                                <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+                            </button>
                         </td>
                     </tr>
                 <?php endforeach; endif; ?>
@@ -227,6 +227,7 @@
             responsive: true,
             language: { url: 'https://cdn.datatables.net/plug-ins/1.10.16/i18n/Spanish.json' },
             ordering: true,
+            order: [[4, 'desc']],
             searching: true,
             scrollY: true,
             scrollX: true,
