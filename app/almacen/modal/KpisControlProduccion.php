@@ -22,6 +22,7 @@ $Fecha2 = $_POST['Fecha2'] ?? '';
 @$Area = $_POST['Area'] ?? '';
 @$Cope = $_POST['Cope'] ?? '';
 
+
 $mes_anterior = date('Y-m-d', strtotime('-3 month'));
 
 if (!empty($Fecha1) && !empty($Fecha2)) {
@@ -31,6 +32,7 @@ if (!empty($Fecha1) && !empty($Fecha2)) {
     $Fecha1 = $mes_anterior . " 00:00:00";
     $Fecha2 = date('Y-m-d') . " 23:59:59";
 }
+
 
 // Instancias de las clases
 $index = new Index();
