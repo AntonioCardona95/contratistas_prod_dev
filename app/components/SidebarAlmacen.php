@@ -69,8 +69,8 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
 
 
 
-	<li class="nav-item <?php echo $paginaActual === 'entradas.php' ? 'active' : ''; ?>">
-		<a class="nav-link" href="entradas.php">
+	<li class="nav-item <?php echo $paginaActual === 'Entradas.php' ? 'active' : ''; ?>">
+		<a class="nav-link" href="Entradas.php">
 			<i class="fa-solid fa-clipboard-check"></i>
 			<span>MATERIAL RECIBIDO</span>
 		</a>
@@ -90,8 +90,8 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
 		</a>
 	</li>
 
-	<li class="nav-item <?php echo $paginaActual === 'salidas.php' ? 'active' : ''; ?>">
-		<a class="nav-link" href="salidas.php">
+	<li class="nav-item <?php echo $paginaActual === 'Salidas.php' ? 'active' : ''; ?>">
+		<a class="nav-link" href="Salidas.php">
 			<i class="fa-solid fa-square-plus"></i>
 			<span>ASIGNAR MATERIAL</span>
 		</a>

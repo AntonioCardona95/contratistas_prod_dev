@@ -41,6 +41,7 @@ $conteoEstados = array(
 	'negro' => 0,
 	'rojo' => 0,
 	'gris' => 0,
+	'naranja' => 0,
 	'amarillo' => 0,
 	'verde' => 0,
 	'blanco' => 0
@@ -57,6 +58,7 @@ $etiquetasEstado = array(
 	'negro' => 'No navegando: perdida de navegacion, ECI se apago',
 	'rojo' => 'No navegando: requiere seguimiento por mas de 14 dias',
 	'gris' => 'No navegando: telefonos no coinciden',
+	'naranja' => 'No navegando: pendiente por mas de 3 semanas desde la liquidacion',
 	'amarillo' => 'No navegando: en espera de cumplir 3 dias desde la liquidacion',
 	'verde' => 'No navegando: liquidacion reciente',
 	'blanco' => 'Sin liquidacion para clasificar'
@@ -90,6 +92,11 @@ $etiquetasEstado = array(
 		#tac_series_tabla tbody tr.serie-gris {
 			background-color: #e9ecef !important;
 			box-shadow: inset 5px 0 0 #6c757d;
+		}
+
+		#tac_series_tabla tbody tr.serie-naranja {
+			background-color: #ffe2cc !important;
+			box-shadow: inset 5px 0 0 #fd7e14;
 		}
 
 		#tac_series_tabla tbody tr.serie-amarillo {
@@ -206,6 +213,11 @@ $etiquetasEstado = array(
 		.tac-serie-card.gris {
 			border-left-color: #6c757d;
 			background: #e9ecef;
+		}
+
+		.tac-serie-card.naranja {
+			border-left-color: #fd7e14;
+			background: #ffe2cc;
 		}
 
 		.tac-serie-card.amarillo {
@@ -419,6 +431,7 @@ $etiquetasEstado = array(
 			<option value="negro">Negro: perdida de navegacion (<?= $conteoEstados['negro'] ?>)</option>
 			<option value="rojo">Rojo: seguimiento (<?= $conteoEstados['rojo'] ?>)</option>
 			<option value="gris">Gris: telefonos diferentes (<?= $conteoEstados['gris'] ?>)</option>
+			<option value="naranja">Naranja: mas de 3 semanas (<?= $conteoEstados['naranja'] ?>)</option>
 			<option value="amarillo">Amarillo: Navegacion reciente (<?= $conteoEstados['amarillo'] ?>)</option>
 			<option value="verde">Verde: pendiente reciente (<?= $conteoEstados['verde'] ?>)</option>
 			<option value="blanco">Blanco: sin liquidacion (<?= $conteoEstados['blanco'] ?>)</option>
@@ -668,19 +681,19 @@ $etiquetasEstado = array(
 					return;
 				}
 
-				if (['negro', 'rojo', 'gris', 'amarillo', 'verde', 'blanco'].indexOf(filtroActual) !== -1 && estadoNavegacion !== filtroActual) {
+				if (['negro', 'rojo', 'gris', 'naranja', 'amarillo', 'verde', 'blanco'].indexOf(filtroActual) !== -1 && estadoNavegacion !== filtroActual) {
 					return;
 				}
 
 				const tieneObservacion = estadoNavegacion === 'navegando-observacion';
-				const estado = tieneObservacion ? 'Navegando con observacion' : (estadoNavegacion === 'negro' ? 'Perdida de navegacion' : (estaNavegando ? 'Navegando' : 'No navegando'));
+				const estado = tieneObservacion ? 'Navegando con observacion' : (estadoNavegacion === 'negro' ? 'Perdida de navegacion' : (estadoNavegacion === 'naranja' ? 'Seguimiento prolongado' : (estaNavegando ? 'Navegando' : 'No navegando')));
 				const claseTarjeta = tieneObservacion ? ' navegando-observacion' : (estaNavegando ? ' navegando' : ' ' + (estadoNavegacion === 'rojo' ? 'alerta-eci' : estadoNavegacion));
 				const motivos = (serie.Motivos_No_Navegacion || []).join('; ');
 				const textoMotivo = serie.Observacion_Navegacion || (estaNavegando ? 'Navegando correctamente' : motivos);
 
 				const indicadorEstado = tieneObservacion
 					? '<span class="estado-observacion-texto"><i class="fa-brands fa-tailwind-css fa-float icon-navegacion-observacion mr-1" style="--fa-animation-duration: 2s;" aria-hidden="true"></i>' + escaparHtml(estado) + '</span>'
-					: '<span class="badge ' + (estadoNavegacion === 'negro' ? 'badge-dark' : (estaNavegando ? 'badge-info' : 'badge-secondary')) + '">' +
+					: '<span class="badge ' + (estadoNavegacion === 'negro' ? 'badge-dark' : (estadoNavegacion === 'naranja' ? 'badge-warning' : (estaNavegando ? 'badge-info' : 'badge-secondary'))) + '">' +
 						(estaNavegando ? '<i class="fas fa-wifi mr-1"></i>' : '') + estado +
 					'</span>';
 

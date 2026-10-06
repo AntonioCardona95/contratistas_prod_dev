@@ -192,11 +192,16 @@
                         <td><?= $row['Cantidad_T'] ?></td>
                         <td><?= $row['Fecha_T'] ?></td>
                         <td>
-                            <button type="button" class="btn btn-danger btn-sm btn-detalle-salida"
-                                data-folio="<?= htmlspecialchars($row['Folio_Salida_T'], ENT_QUOTES, 'UTF-8') ?>"
-                                title="Ver detalle">
-                                <i class="fa-solid fa-file-lines"></i>
-                            </button>
+                            <div class="btn-group" role="group" aria-label="Acciones de salida">
+                                <a class="btn btn-danger btn-sm" href="modal/Salidas_PDF.php?id=<?= rawurlencode((string)$row['Folio_Salida_T']) ?>" target="_blank" rel="noopener noreferrer" title="Ver PDF" aria-label="Ver comprobante PDF">
+                                    <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                                </a>
+                                <button type="button" class="btn btn-dark btn-sm btn-detalle-salida"
+                                    data-folio="<?= htmlspecialchars($row['Folio_Salida_T'], ENT_QUOTES, 'UTF-8') ?>"
+                                    title="Ver detalle" aria-label="Ver detalle">
+                                    <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; endif; ?>
@@ -270,10 +275,15 @@
                                 <div class="font-weight-bold">${folio}</div>
                                 <div class="text-muted small">${contratista}</div>
                             </div>
-                            <button type="button" class="btn btn-danger btn-sm btn-detalle-salida"
-                                data-folio="${folio}" title="Ver detalle">
-                                <i class="fa-solid fa-file-lines"></i>
-                            </button>
+                            <div class="btn-group" role="group" aria-label="Acciones de salida">
+                                <a class="btn btn-danger btn-sm" href="modal/Salidas_PDF.php?id=${encodeURIComponent(folio)}" target="_blank" rel="noopener noreferrer" title="Ver PDF" aria-label="Ver comprobante PDF">
+                                    <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                                </a>
+                                <button type="button" class="btn btn-dark btn-sm btn-detalle-salida"
+                                    data-folio="${folio}" title="Ver detalle" aria-label="Ver detalle">
+                                    <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="salida-card-body">
                             <div class="salida-field">

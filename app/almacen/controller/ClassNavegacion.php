@@ -49,7 +49,7 @@ class Navegacion extends Conexion
     {
         $rows = array();
         // TAC y ECI están en analisis_bd, por eso usan otra conexión.
-        $conexionAnalisis = $this->get_conexion_analytics();
+        $conexionAnalisis = $this->get_conexion_analisis();
 
         try {
             $statement = $conexionAnalisis->prepare($sql);
@@ -557,6 +557,12 @@ class Navegacion extends Conexion
             }
         }
 
+        foreach ($eciPorSerie as $serieEci => $registroEci) {
+            if ((int)($registroEci['DID_ACTIVO'] ?? 0) === 0 && empty($eciPerdioNavegacion[$serieEci])) {
+                unset($eciPorSerie[$serieEci]);
+            }
+        }
+
         $eciSeriesActivasPorTelefono = array();
         foreach ($eciPorSerie as $serieEci => $registroEci) {
             $telefonoEci = $this->normalizarTelefono($registroEci['TELEFONO'] ?? '');
@@ -749,6 +755,10 @@ class Navegacion extends Conexion
             $serieNormalizada = $this->normalizarSerie($serie['Num_Serie_S'] ?? '');
             $registroTac = $tacPorSerie[$serieNormalizada] ?? array();
             $registroEci = $eciPorSerie[$serieNormalizada] ?? array();
+            if ((int)($registroEci['DID_ACTIVO'] ?? 0) === 0
+                && empty($eciPerdioNavegacion[$serieNormalizada])) {
+                $registroEci = array();
+            }
 
             $telefonoEci = $this->normalizarTelefono($registroEci['TELEFONO'] ?? '');
 
@@ -806,6 +816,48 @@ class Navegacion extends Conexion
                 // El registro se encontró por teléfono y Folio Pisa, no por
                 // coincidencia exacta de serie; reflejar la serie recuperada.
                 $serie['Serie_Coordiapp'] = $registroCoordiappSeleccionado['Ont'] ?? null;
+            }
+
+            $coordiappTelefonoValidadoPorTac = null;
+            $telefonoCoordiappSeleccionado = $this->normalizarTelefono($registroCoordiappSeleccionado['Telefono'] ?? '');
+            if (!$discrepanciaCoordiapp
+                && $telefonoEci !== ''
+                && $telefonoCoordiappSeleccionado !== ''
+                && $telefonoCoordiappSeleccionado !== $telefonoEci) {
+                foreach ($tacRegistrosPorSerie[$serieNormalizada] ?? array() as $registroTacCandidato) {
+                    $serieTacCandidata = $this->normalizarSerie($registroTacCandidato['Num__Serie'] ?? '');
+                    $telefonoTacCandidato = $this->normalizarTelefono($registroTacCandidato['TELEFONO'] ?? '');
+                    $folioTacCandidato = $this->normalizarFolioPisa($registroTacCandidato['Folio_Pisa'] ?? '');
+
+                    if ($serieTacCandidata !== $serieNormalizada
+                        || $telefonoTacCandidato !== $telefonoEci
+                        || $folioTacCandidato === '') {
+                        continue;
+                    }
+
+                    foreach ($coordiappRegistrosPorSerie[$serieNormalizada] ?? array() as $registroCoordiappCandidato) {
+                        $serieCoordiappCandidata = $this->normalizarSerie($registroCoordiappCandidato['Ont'] ?? '');
+                        $telefonoCoordiappCandidato = $this->normalizarTelefono($registroCoordiappCandidato['Telefono'] ?? '');
+                        $folioCoordiappCandidato = $this->normalizarFolioPisa($registroCoordiappCandidato['Folio_Pisa'] ?? '');
+
+                        if ($serieCoordiappCandidata === $serieNormalizada
+                            && $folioCoordiappCandidato === $folioTacCandidato
+                            && $telefonoCoordiappCandidato !== ''
+                            && $telefonoCoordiappCandidato !== $telefonoEci) {
+                            $coordiappTelefonoValidadoPorTac = array(
+                                'coordiapp' => $registroCoordiappCandidato,
+                                'tac' => $registroTacCandidato,
+                                'folio_pisa' => $folioTacCandidato
+                            );
+                            break 2;
+                        }
+                    }
+                }
+            }
+
+            if ($coordiappTelefonoValidadoPorTac !== null) {
+                $registroCoordiappSeleccionado = $coordiappTelefonoValidadoPorTac['coordiapp'];
+                $registroTacSeleccionado = $coordiappTelefonoValidadoPorTac['tac'];
             }
 
             $serieTacRecuperada = !empty($registroTacSeleccionado['Serie_Recuperada_Eci']);
@@ -891,6 +943,9 @@ class Navegacion extends Conexion
             if (!empty($fechaUltimoEventoEci)) {
                 $fechaEciValida = $fechaBase === null || strtotime($fechaUltimoEventoEci) >= strtotime($fechaBase . ' +3 days');
             }
+            $fechaBaseTimestamp = !empty($fechaBase) ? strtotime($fechaBase) : false;
+            $liquidacionSuperaTresSemanas = $fechaBaseTimestamp !== false
+                && $fechaBaseTimestamp < strtotime('-3 weeks');
 
             $serie['Telefono_Coordiapp'] = $registroCoordiappSeleccionado['Telefono'] ?? null;
             $serie['Fecha_Coordiapp'] = $fechaCoordiapp;
@@ -917,23 +972,30 @@ class Navegacion extends Conexion
                 }
             }
 
+            $hayRegistroEci = !empty($registroEci);
+            $eciActivo = $hayRegistroEci && (int)($registroEci['DID_ACTIVO'] ?? 0) === 1;
             $serie['Alerta_Eci_Pendiente'] = 0;
-            if ($fechaLiquidacionMasAntigua !== null && empty($registroEci)) {
-                $serie['Alerta_Eci_Pendiente'] = strtotime($fechaLiquidacionMasAntigua) <= strtotime('-14 days') ? 1 : 0;
+            if ($fechaLiquidacionMasAntigua !== null
+                && !$eciActivo
+                && empty($eciPerdioNavegacion[$serieNormalizada])) {
+                $fechaLiquidacionTimestamp = strtotime($fechaLiquidacionMasAntigua);
+                $serie['Alerta_Eci_Pendiente'] = $fechaLiquidacionTimestamp !== false
+                    && $fechaLiquidacionTimestamp <= strtotime('-14 days') ? 1 : 0;
             }
 
             $motivosNoNavegacion = array();
             $hayCoordiapp = $telefonoCoordiappSeleccionado !== '';
             $hayTac = $telefonoTacSeleccionado !== '';
-            $hayEci = !empty($registroEci);
+            $hayEci = $eciActivo;
             $fuentesConTelefono = array_values(array_filter(array(
-                $telefonoCoordiappSeleccionado,
+                $coordiappTelefonoValidadoPorTac === null ? $telefonoCoordiappSeleccionado : '',
                 $telefonoTacSeleccionado,
                 $telefonoEci
             )));
             $telefonosCoinciden = count(array_unique($fuentesConTelefono)) <= 1;
 
-            if ($hayEci && $hayCoordiapp && $telefonoCoordiappSeleccionado !== $telefonoEci) {
+            if ($hayEci && $hayCoordiapp && $telefonoCoordiappSeleccionado !== $telefonoEci
+                && $coordiappTelefonoValidadoPorTac === null) {
                 $motivosNoNavegacion[] = 'El telefono de Coordiapp no coincide el de la Navegacion';
             }
 
@@ -953,7 +1015,7 @@ class Navegacion extends Conexion
                 $motivosNoNavegacion[] = 'La Navegacion aun no cumple 3 dias desde la liquidacion';
             }
 
-            if (!$hayCoordiapp && !$hayTac && !$hayEci) {
+            if (!$hayCoordiapp && !$hayTac && !$hayRegistroEci) {
                 $motivosNoNavegacion[] = 'Sin registros en Coordiapp, TAC o Navegacion';
             }
 
@@ -961,30 +1023,36 @@ class Navegacion extends Conexion
                 $motivosNoNavegacion[] = 'Liquidacion con mas de 14 dias sin Navegacion';
             }
 
-            if (!$hayEci && ($hayCoordiapp || $hayTac) && (int)$serie['Alerta_Eci_Pendiente'] !== 1) {
+            if (!$hayEci
+                && ($hayCoordiapp || $hayTac)
+                && (int)$serie['Alerta_Eci_Pendiente'] !== 1
+                && empty($eciPerdioNavegacion[$serieNormalizada])) {
                 $motivosNoNavegacion[] = 'Liquidacion reciente sin Navegacion';
             }
 
             // NAVEGA SI ECI ESTA ACTIVO, EL TELEFONO ES CONSISTENTE Y LA FECHA ES VALIDA.
-            $eciActivo = !empty($registroEci) && (int)($registroEci['DID_ACTIVO'] ?? 0) === 1;
             $navegando = $eciActivo && $telefonosCoinciden && $fechaEciValida;
             $serie['Navegando'] = $navegando ? 1 : 0;
             $serie['Motivos_No_Navegacion'] = $navegando ? array() : $motivosNoNavegacion;
             $observacionesNavegacion = array();
             if ($navegando && $serieTacRecuperada) {
                 $observacionesNavegacion[] = 'Numero de serie recuperado de la navegacion: ' . $serieNormalizada
-                    . '; validado con el telefono ECI ' . $telefonoEci;
+                    . ': validado con el telefono navegando ' . $telefonoEci;
             }
             if ($navegando && $discrepanciaCoordiapp) {
                 $observacionesNavegacion[] = 'Posible serie mal capturada en Coordiapp: validada con Folio Pisa '
                     . $coincidenciaDiscrepanciaCoordiapp['folio_pisa'];
             }
+            if ($navegando && $coordiappTelefonoValidadoPorTac !== null) {
+                $observacionesNavegacion[] = 'Telefono de Coordiapp distinto: serie y Folio Pisa validados con TAC '
+                    . $coordiappTelefonoValidadoPorTac['folio_pisa'];
+            }
             $serie['Observacion_Navegacion'] = !empty($observacionesNavegacion)
-                ? 'Navegando con observacion: ' . implode(' | ', $observacionesNavegacion)
+                ? 'Navegando con observacion: ' . implode('; ', $observacionesNavegacion)
                 : null;
 
             if ($navegando) {
-                $serie['Estado_Navegacion'] = ($discrepanciaCoordiapp || $serieTacRecuperada)
+                $serie['Estado_Navegacion'] = ($discrepanciaCoordiapp || $serieTacRecuperada || $coordiappTelefonoValidadoPorTac !== null)
                     ? 'navegando-observacion'
                     : 'navegando';
             } elseif (!empty($eciPerdioNavegacion[$serieNormalizada])) {
@@ -995,6 +1063,9 @@ class Navegacion extends Conexion
                 $serie['Estado_Navegacion'] = 'rojo';
             } elseif ($hayEci && ($hayCoordiapp || $hayTac) && !$telefonosCoinciden) {
                 $serie['Estado_Navegacion'] = 'gris';
+            } elseif ($hayEci && ($hayCoordiapp || $hayTac) && $telefonosCoinciden && !$fechaEciValida && $liquidacionSuperaTresSemanas) {
+                $serie['Estado_Navegacion'] = 'naranja';
+                $serie['Motivos_No_Navegacion'][] = 'Navegacion pendiente: han pasado mas de 3 semanas desde la liquidacion y ECI aun no registra un evento valido';
             } elseif ($hayEci && ($hayCoordiapp || $hayTac) && $telefonosCoinciden && !$fechaEciValida) {
                 $serie['Estado_Navegacion'] = 'amarillo';
             } elseif (!$hayEci && ($hayCoordiapp || $hayTac)) {
