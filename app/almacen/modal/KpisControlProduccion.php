@@ -33,7 +33,8 @@ if (!empty($Fecha1) && !empty($Fecha2)) {
     $Fecha2 = date('Y-m-d') . " 23:59:59";
 }
 
-//$idContratistaSeleccionado = $_POST['selectContratista'] ?? null;
+$idContratistaSeleccionado = $_POST['selectContratista'] ?? null;
+var_dump($idContratistaSeleccionado);
 
 // Instancias de las clases
 $index = new Index();
