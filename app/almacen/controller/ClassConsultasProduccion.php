@@ -1019,9 +1019,11 @@ public function CountOntAlmacenPorDivision($fechaInicio, $fechaFin, $idContratis
 
 /**
  * Obtiene el detalle de órdenes agrupadas por Área, División y COPE desde seg_produccion_diaria
+ * Incluye bloque de depuración en pantalla (var_dump y errores PDO/MySQL).
  */
 public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = null, $fechaFin = null)
 {
+    // Consulta ajustada a la tabla seg_produccion_diaria y sus columnas reales
     $sql = "SELECT 
                 p.NOM_AREA AS Area,
                 p.NOM_DIVISION AS Division,
@@ -1042,10 +1044,51 @@ public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = null
         ':idContratista' => $idContratista
     );
 
-    // Ejecuta la consulta a través de runQuery
-    return $this->runQuery($sql, $params, 'default');
-}
+    // =========================================================================
+    // BLOQUE DE DEPURACIÓN EN PANTALLA
+    // =========================================================================
+    echo "<div style='background:#181818; color:#00FF66; padding:20px; margin:20px 0; border:2px solid #00FF66; border-radius:8px; font-family:Consolas, monospace; font-size:14px; text-align:left; z-index:9999; relative;'>";
+    echo "<h3 style='color:#FFF; margin-top:0; border-bottom:1px solid #00FF66; padding-bottom:5px;'>🔍 DEPURACIÓN DE CONSULTA EN PANTALLA</h3>";
+    echo "<b>ID Contratista Recibido:</b> ";
+    var_dump($idContratista);
+    echo "<br><b>SQL Ejecutado:</b><pre style='background:#000; color:#00E5FF; padding:10px; border-radius:4px;'>" . htmlspecialchars($sql) . "</pre>";
 
+    try {
+        // Intentar obtener la conexión PDO de la clase
+        $conexion = method_exists($this, 'get_conexion') ? $this->get_conexion() : (isset($this->conexion) ? $this->conexion : null);
+
+        if (!$conexion) {
+            echo "<b style='color:#FF3333;'>❌ ERROR CRÍTICO:</b> No se pudo obtener el objeto de conexión PDO.<br>";
+            echo "</div>";
+            return array();
+        }
+
+        // Forzar la activación de excepciones en PDO para capturar errores de MySQL
+        $conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $stmt = $conexion->prepare($sql);
+        $stmt->execute($params);
+        $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo "<b style='color:#FFFF00;'>Total Registros Encontrados:</b> " . count($resultado) . "<br><br>";
+        echo "<b>Resultado de la Consulta (var_dump):</b><pre style='background:#000; color:#FFF; padding:10px; border-radius:4px; max-height:300px; overflow:auto;'>";
+        var_dump($resultado);
+        echo "</pre>";
+        echo "</div>";
+
+        return $resultado;
+
+    } catch (PDOException $e) {
+        echo "<b style='color:#FF3333;'>❌ ERROR MYSQL / PDO:</b> " . htmlspecialchars($e->getMessage()) . "<br>";
+        echo "<b>Código Estado SQL (SQLSTATE):</b> " . htmlspecialchars($e->getCode()) . "<br>";
+        echo "</div>";
+        return array();
+    } catch (Exception $e) {
+        echo "<b style='color:#FF3333;'>❌ ERROR GENERAL:</b> " . htmlspecialchars($e->getMessage()) . "<br>";
+        echo "</div>";
+        return array();
+    }
+}
 
 /**
  * Obtiene el detalle de órdenes agrupadas por área para un contratista en un rango de fechas
