@@ -33,14 +33,14 @@ if (!empty($Fecha1) && !empty($Fecha2)) {
 
 $idContratistaSeleccionado = $_POST['selectContratista'] ?? null;
 
-// INSTANCIAS DE LAS CLASES
+// INSTANCIAS DE LAS CLASES (Puestas al inicio para evitar errores de variable nula)
 $index = new Index();
 $consultas = new ClassConsultasProduccion();
 
-// CONSULTA DE DETALLE POR ÁREA DE LA TABLA seg_produccion_diaria
+// Ejecutar consulta de detalle agrupado por área
 $detalleArea = [];
 if (!empty($idContratistaSeleccionado)) {
-    $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea($idContratistaSeleccionado);
+    $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea($idContratistaSeleccionado, $Fecha1, $Fecha2);
 }
 
 // TOTAL PRODUCCION HISTORICO
@@ -91,7 +91,7 @@ if (is_array($qrOntConAlmacen)) {
     $TotalOntConAlmacen = (int)$qrOntConAlmacen;
 }
 
-// TOTAL PRODUCCION HISTORICO
+// TOTAL PRODUCCION HISTORICO (usa ClassConsultasProduccion)
 $TotalProduccion = 0;
 $qrProduccionTotal = $consultas->CountProduccionTotal();
 if (is_array($qrProduccionTotal)) {
@@ -104,6 +104,86 @@ if (is_array($qrProduccionTotal)) {
     }
 } else {
     $TotalProduccion = (int)$qrProduccionTotal;
+}
+
+// NUMEROS DE SERIE ASIGNADOS A TECNICOS (usa Index)
+$TotalAsignados = 0;
+$sqlCompletas = $index->CountMaterialesAsignados($idContratistas, $Fecha1, $Fecha2);
+if (is_array($sqlCompletas)) {
+    if (!empty($sqlCompletas)) {
+        foreach ($sqlCompletas as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalAsignados = (int)$row['TOTAL'];
+            }
+        }
+    }
+} else {
+    $TotalAsignados = (int)$sqlCompletas;
+}
+
+// NUMEROS DE SERIE SIN INSTALAR
+$TotalSinInstalar = 0;
+$qrIncompletas = $index->CountMaterialesSinInstalar($idContratistas, $Fecha1, $Fecha2);
+if (is_array($qrIncompletas)) {
+    if (!empty($qrIncompletas)) {
+        foreach ($qrIncompletas as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalSinInstalar = (int)$row['TOTAL'];
+            }
+        }
+    }
+} else {
+    $TotalSinInstalar = (int)$qrIncompletas;
+}
+
+// NUMEROS DE SERIE INSTALADOS COORDIAPP
+$TotalInstalados = 0;
+$qrInstalados = $index->CountMaterialesInstalados($idContratistas, $Fecha1, $Fecha2);
+if (is_array($qrInstalados)) {
+    if (!empty($qrInstalados)) {
+        foreach ($qrInstalados as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalInstalados = (int)$row['TOTAL'];
+            }
+        }
+    }
+} else {
+    $TotalInstalados = (int)$qrInstalados;
+}
+
+// NUMEROS DE SERIE INSTALADOS TAC
+$TotalInstaladosTAC = 0;
+$qrInstaladosTAC = $index->CountOntInstaladosTAC($idContratistas, $Fecha1, $Fecha2);
+$TotalInstaladosTAC = (int)$qrInstaladosTAC;
+
+// NUMEROS DE SERIE DISPONIBLES ERP
+$TotalDisponible = 0;
+$qrDisponibles = $index->CountONTDisponibles($idContratistas, $Fecha1, $Fecha2);
+if (is_array($qrDisponibles)) {
+    if (!empty($qrDisponibles)) {
+        foreach ($qrDisponibles as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalDisponible = (int)$row['TOTAL'];
+            }
+        }
+    }
+} else {
+    $TotalDisponible = (int)$qrDisponibles;
+}
+
+// NUMEROS DE SERIE DISPONIBLES ERP (T)
+$TTotalDisponible = 0;
+$qrDisponiblesT = $index->CountONTDisponiblesT($idContratistas);
+if (is_array($qrDisponiblesT)) {
+    if (!empty($qrDisponiblesT)) {
+        foreach ($qrDisponiblesT as $row) {
+            if (isset($row['TOTAL'])) {
+                $TTotalDisponible = (int)$row['TOTAL'];
+            }
+        }
+    }
+} else {
+    $TTotalDisponible = (int)$qrDisponiblesT;
 }
 
 // CHARTS EXISTENTES
