@@ -87,6 +87,26 @@ $listaContratistas = $objProduccion->obtenerTodosContratistas();
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">PRODUCCION GENERAL</h1>
                     </div>
+
+                    <div class="card shadow mb-4">
+    <div class="card-body py-3">
+        <div class="row align-items-center">
+            <div class="col-md-6 col-lg-4">
+                <label for="selectContratista" class="font-weight-bold text-primary mb-1">
+                    <i class="fas fa-user-tie mr-1"></i> Seleccionar Contratista:
+                </label>
+                <select class="form-control select2-busqueda" id="selectContratista" name="selectContratista" onchange="LoadKpisControl();">
+                    <option value="">-- Todos los contratistas --</option>
+                    <?php foreach ($listaContratistas as $row): ?>
+                        <option value="<?= htmlspecialchars($row['idContratistas']) ?>">
+                            <?= htmlspecialchars($row['nombre_completo']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
                     
                     <!-- CONTENEDOR DINÁMICO QUE CARGA LOS KPI Y GRÁFICAS -->
                     <div id="LoadKpisControl">
@@ -142,6 +162,23 @@ $listaContratistas = $objProduccion->obtenerTodosContratistas();
 
        
     </script>
+
+    <!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.js"></script>
+
+<script>
+    $(document).ready(function(){
+        // Inicializar el plugin Select2 con buscador
+        $('.select2-busqueda').select2({
+            theme: 'bootstrap4',
+            placeholder: '-- Seleccionar Contratista --',
+            allowClear: true,
+            width: '100%'
+        });
+
+        LoadKpisControl();
+    });
+</script>
 </body>
 </html>
 
