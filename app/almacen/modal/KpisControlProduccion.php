@@ -99,14 +99,16 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
 }
 
 // PRODUCCION POR FECHAS SELECCIONADAS
-// Llamada a la función con todos los parámetros
 $TotalProduccionFechas = 0;
 $qrProduccionFechas = $consultas->CountProduccionPorFechas(
     $Fecha1, 
     $Fecha2, 
     $fechascard1, 
     $fechascard2, 
-    $idContratistaSeleccionado
+    $idContratistaSeleccionado,
+    $Area,
+    $Division,
+    $Cope
 );
 
 if (is_array($qrProduccionFechas)) {
