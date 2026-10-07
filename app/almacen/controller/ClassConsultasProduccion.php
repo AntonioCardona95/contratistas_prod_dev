@@ -104,22 +104,33 @@ public function obtenerTodosContratistas()
 }
 
 
-    /**
-     * Cuenta el total de producción en la vista/tabla seg_ns_prod_eval para un rango de fechas
+    * Cuenta el total de producción en la vista/tabla seg_ns_prod_eval evaluando rangos independientes de fechas y contratista
      */
-    public function CountProduccionPorFechas($fechaInicio, $fechaFin)
+    public function CountProduccionPorFechas($fechaInicio = null, $fechaFin = null, $fechascard1 = null, $fechascard2 = null, $idContratista = null)
     {
-        $sql = "SELECT COUNT(1) AS TOTAL
-                FROM seg_ns_prod_eval
-                WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+        $sql = "SELECT COUNT(1) AS TOTAL FROM seg_ns_prod_eval WHERE 1=1";
+        $params = array();
 
-        $params = array(
-            ':fechaInicio' => $fechaInicio,
-            ':fechaFin'    => $fechaFin
-        );
+        if (!empty($fechaInicio) && !empty($fechaFin)) {
+            $sql .= " AND FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+            $params[':fechaInicio'] = $fechaInicio;
+            $params[':fechaFin']    = $fechaFin;
+        }
+
+        if (!empty($fechascard1) && !empty($fechascard2)) {
+            $sql .= " AND FECHA_LIQ BETWEEN :fechascard1 AND :fechascard2";
+            $params[':fechascard1'] = $fechascard1;
+            $params[':fechascard2'] = $fechascard2;
+        }
+
+        if (!empty($idContratista)) {
+            $sql .= " AND idContratista = :idContratista";
+            $params[':idContratista'] = $idContratista;
+        }
 
         return $this->runQuery($sql, $params, 'analisis');
     }
+
 
     /**
      * Cuenta el total acumulado histórico de producción
@@ -936,56 +947,70 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
 } */
 
 
+   /**
+     * Cuenta el total de equipos/ONT que NO han ingresado a almacén evaluando rangos independientes de fechas y contratista
+     */
+    public function CountOntSinEntradaAlmacen($fechaInicio = null, $fechaFin = null, $idContratistaContexto = null, $fechascard1 = null, $fechascard2 = null, $idContratistaSeleccionado = null)
+    {
+        $sql = "SELECT COUNT(1) AS TOTAL
+                FROM seg_produccion_diaria
+                WHERE Existe_Serie_Prod_Almacen = 0
+                  AND Existe_Serie_Eci_Almacen = 0";
+        $params = array();
+
+        if (!empty($fechaInicio) && !empty($fechaFin)) {
+            $sql .= " AND FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+            $params[':fechaInicio'] = $fechaInicio;
+            $params[':fechaFin']    = $fechaFin;
+        }
+
+        if (!empty($fechascard1) && !empty($fechascard2)) {
+            $sql .= " AND FECHA_LIQ BETWEEN :fechascard1 AND :fechascard2";
+            $params[':fechascard1'] = $fechascard1;
+            $params[':fechascard2'] = $fechascard2;
+        }
+
+        $contratistaFinal = !empty($idContratistaSeleccionado) ? $idContratistaSeleccionado : $idContratistaContexto;
+        if (!empty($contratistaFinal)) {
+            $sql .= " AND idContratista = :idContratista";
+            $params[':idContratista'] = $contratistaFinal;
+        }
+
+        return $this->runQuery($sql, $params, 'erpprint');
+    }
+
+
     /**
- * Cuenta el total de equipos/ONT que NO han ingresado a almacén en un rango de fechas
- * (Donde ni la serie de producción ni la serie ECI han entrado)
- */
-public function CountOntSinEntradaAlmacen($fechaInicio, $fechaFin, $idContratista = null)
-{
-    $sql = "SELECT COUNT(1) AS TOTAL
-            FROM seg_produccion_diaria
-            WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin
-              AND Existe_Serie_Prod_Almacen = 0
-              AND Existe_Serie_Eci_Almacen = 0";
+     * Cuenta el total de ONT / equipos que SÍ ingresaron a almacén evaluando rangos independientes de fechas y contratista
+     */
+    public function CountOntConEntradaAlmacen($fechaInicio = null, $fechaFin = null, $idContratistaContexto = null, $fechascard1 = null, $fechascard2 = null, $idContratistaSeleccionado = null)
+    {
+        $sql = "SELECT COUNT(1) AS TOTAL
+                FROM seg_produccion_diaria
+                WHERE Existe_Serie_Prod_Almacen = 1
+                  AND Existe_Serie_Eci_Almacen = 1";
+        $params = array();
 
-    $params = array(
-        ':fechaInicio' => $fechaInicio,
-        ':fechaFin'    => $fechaFin
-    );
+        if (!empty($fechaInicio) && !empty($fechaFin)) {
+            $sql .= " AND FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+            $params[':fechaInicio'] = $fechaInicio;
+            $params[':fechaFin']    = $fechaFin;
+        }
 
-    if (!empty($idContratista)) {
-        $sql .= " AND idContratista = :idContratista";
-        $params[':idContratista'] = $idContratista;
+        if (!empty($fechascard1) && !empty($fechascard2)) {
+            $sql .= " AND FECHA_LIQ BETWEEN :fechascard1 AND :fechascard2";
+            $params[':fechascard1'] = $fechascard1;
+            $params[':fechascard2'] = $fechascard2;
+        }
+
+        $contratistaFinal = !empty($idContratistaSeleccionado) ? $idContratistaSeleccionado : $idContratistaContexto;
+        if (!empty($contratistaFinal)) {
+            $sql .= " AND idContratista = :idContratista";
+            $params[':idContratista'] = $contratistaFinal;
+        }
+
+        return $this->runQuery($sql, $params, 'erpprint');
     }
-
-    return $this->runQuery($sql, $params, 'erpprint');
-}
-
-
-/**
- * Cuenta el total de ONT / equipos que SÍ ingresaron a almacén en un rango de fechas
- * (Donde tanto Existe_Serie_Prod_Almacen como Existe_Serie_Eci_Almacen son igual a 1)
- */
-public function CountOntConEntradaAlmacen($fechaInicio, $fechaFin, $idContratista = null)
-{
-    $sql = "SELECT COUNT(1) AS TOTAL
-            FROM seg_produccion_diaria
-            WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin
-              AND Existe_Serie_Prod_Almacen = 1
-              AND Existe_Serie_Eci_Almacen = 1";
-
-    $params = array(
-        ':fechaInicio' => $fechaInicio,
-        ':fechaFin'    => $fechaFin
-    );
-
-    if (!empty($idContratista)) {
-        $sql .= " AND idContratista = :idContratista";
-        $params[':idContratista'] = $idContratista;
-    }
-
-    return $this->runQuery($sql, $params, 'erpprint');
-}
 
 /**
  * Obtiene el conteo de ONT con y sin entrada a almacén para TODAS las divisiones
