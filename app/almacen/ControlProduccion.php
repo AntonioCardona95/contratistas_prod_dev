@@ -120,8 +120,8 @@
                 <label for="selectContratista" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-user-tie mr-1"></i> Seleccionar Contratista:
                 </label>
-                <select class="form-control select2-busqueda" id="selectContratista" name="selectContratista" onchange="LoadKpisControl();">
-                    <option value="">-- Todos los contratistas --</option>
+                <select class="form-control select2-busqueda" id="selectContratista" name="selectContratista" data-placeholder="-- Seleccionar Contratista --" onchange="LoadKpisControl();">
+                    <option value=""></option>
                     <?php foreach ($listaContratistas as $row): ?>
                         <option value="<?= htmlspecialchars($row['idContratistas']) ?>">
                             <?= htmlspecialchars($row['nombre_completo']) ?>
@@ -135,8 +135,8 @@
                 <label for="selectArea" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-building mr-1"></i> Seleccionar Área:
                 </label>
-                <select class="form-control select2-busqueda" id="selectArea" name="selectArea" onchange="LoadKpisControl();">
-                    <option value="">-- Todas las áreas --</option>
+                <select class="form-control select2-busqueda" id="selectArea" name="selectArea" data-placeholder="-- Seleccionar Área --" onchange="LoadKpisControl();">
+                    <option value=""></option>
                     <?php foreach ($listaAreas as $row): ?>
                         <option value="<?= htmlspecialchars($row['idAreas']) ?>">
                             <?= htmlspecialchars($row['area']) ?>
@@ -146,24 +146,24 @@
             </div>
 
             <!-- DIVISIÓN -->
-<div class="col-md-3 col-lg-3">
-    <label for="selectDivision" class="font-weight-bold text-primary mb-1">
-        <i class="fas fa-sitemap mr-1"></i> Seleccionar División:
-    </label>
-    <select class="form-control select2-busqueda" id="selectDivision" name="selectDivision" onchange="LoadCopes();" disabled>
-        <option value="">Seleccione division</option>
-    </select>
-</div>
+            <div class="col-md-3 col-lg-3">
+                <label for="selectDivision" class="font-weight-bold text-primary mb-1">
+                    <i class="fas fa-sitemap mr-1"></i> Seleccionar División:
+                </label>
+                <select class="form-control select2-busqueda" id="selectDivision" name="selectDivision" data-placeholder="-- Seleccionar División --" onchange="LoadKpisControl();" disabled>
+                    <option value=""></option>
+                </select>
+            </div>
 
-<!-- COPE -->
-<div class="col-md-3 col-lg-3">
-    <label for="selectCope" class="font-weight-bold text-primary mb-1">
-        <i class="fas fa-network-wired mr-1"></i> Seleccionar Cope:
-    </label>
-    <select class="form-control select2-busqueda" id="selectCope" name="selectCope" onchange="LoadKpisControl();" disabled>
-        <option value="">-- Seleccione cope</option>
-    </select>
-</div>
+            <!-- COPE -->
+            <div class="col-md-3 col-lg-3">
+                <label for="selectCope" class="font-weight-bold text-primary mb-1">
+                    <i class="fas fa-network-wired mr-1"></i> Seleccionar Cope:
+                </label>
+                <select class="form-control select2-busqueda" id="selectCope" name="selectCope" data-placeholder="-- Seleccionar Cope --" onchange="LoadKpisControl();" disabled>
+                    <option value=""></option>
+                </select>
+            </div>
 
         </div>
     </div>
@@ -228,40 +228,22 @@
     <!-- Select2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.js"></script>
 
+
 <script>
-   $(document).ready(function(){
-    $('#selectContratista').select2({
-        theme: 'bootstrap4',
-        placeholder: '-- Seleccionar Contratista --',
-        allowClear: true,
-        width: '100%'
+    $(document).ready(function(){
+        // Inicializar todos los select2 con su propio data-placeholder
+        $('.select2-busqueda').select2({
+            theme: 'bootstrap4',
+            allowClear: true,
+            width: '100%'
+        });
+
+        LoadKpisControl();
     });
-
-    $('#selectArea').select2({
-        theme: 'bootstrap4',
-        placeholder: '-- Seleccionar Área --',
-        allowClear: true,
-        width: '100%'
-    });
-
-    $('#selectDivision').select2({
-        theme: 'bootstrap4',
-        placeholder: '-- Seleccionar División --',
-        allowClear: true,
-        width: '100%'
-    });
-
-    $('#selectCope').select2({
-        theme: 'bootstrap4',
-        placeholder: '-- Seleccionar Cope --',
-        allowClear: true,
-        width: '100%'
-    });
-
-    LoadKpisControl();
-});
-
 </script>
+
+
+
 
 
 
