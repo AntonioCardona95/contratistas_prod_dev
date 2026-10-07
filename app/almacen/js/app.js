@@ -82,7 +82,26 @@ function LoadKpisControl(ejecutar) {
         parametros += '&selectContratista=' + encodeURIComponent(selectContratista);
     }
 
-    // 3. Si viene la bandera opcional de 'ejecutar'
+    // 3. Obtenemos y concatenamos los valores de los selectores de fechas
+    var fechascard1 = $('#fechascard1').val();
+    var fechascard2 = $('#fechascard2').val();
+
+    if (fechascard1) {
+        parametros += '&fechascard1=' + encodeURIComponent(fechascard1);
+    }
+    if (fechascard2) {
+        parametros += '&fechascard2=' + encodeURIComponent(fechascard2);
+    }
+
+    // --- CONSOLE LOG PARA VERIFICACIÓN ---
+    console.log("Valores enviados en LoadKpisControl:", {
+        fechaInicial: fechascard1,
+        fechaFinal: fechascard2,
+        contratista: selectContratista,
+        cadenaParametros: parametros
+    });
+
+    // 4. Si viene la bandera opcional de 'ejecutar'
     if (ejecutar) {
         parametros += '&ejecutar=1';
     }
@@ -101,7 +120,7 @@ function LoadKpisControl(ejecutar) {
             $("#LoadKpisControl").html(data);
         }
     });
-} 
+}
 
 
 /*function LoadKpisControl(){
