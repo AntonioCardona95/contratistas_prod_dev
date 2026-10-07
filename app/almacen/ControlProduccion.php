@@ -95,12 +95,12 @@
                         <h1 class="h3 mb-0 text-gray-800">PRODUCCION GENERAL</h1>
                     </div>
 
-                    <div class="card shadow mb-4">
+<div class="card shadow mb-4">
     <div class="card-body py-3">
         <div class="row align-items-center">
 
-        <!-- FECHA INICIAL -->
-            <div class="col-md-4 col-lg-3 mb-2 mb-md-0">
+            <!-- FECHA INICIAL -->
+            <div class="col-md-3 col-lg-3 mb-2 mb-md-0">
                 <label for="fechascard1" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-calendar-alt mr-1"></i> Fecha Inicial:
                 </label>
@@ -108,13 +108,15 @@
             </div>
 
             <!-- FECHA FINAL -->
-            <div class="col-md-4 col-lg-3 mb-2 mb-md-0">
+            <div class="col-md-3 col-lg-3 mb-2 mb-md-0">
                 <label for="fechascard2" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-calendar-alt mr-1"></i> Fecha Final:
                 </label>
                 <input type="date" class="form-control" id="fechascard2" name="fechascard2" onchange="LoadKpisControl();">
             </div>
-            <div class="col-md-6 col-lg-4">
+
+            <!-- CONTRATISTA -->
+            <div class="col-md-3 col-lg-3">
                 <label for="selectContratista" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-user-tie mr-1"></i> Seleccionar Contratista:
                 </label>
@@ -128,23 +130,25 @@
                 </select>
             </div>
 
-            <div class="col-md-6 col-lg-4">
-    <label for="selectArea" class="font-weight-bold text-primary mb-1">
-        <i class="fas fa-building mr-1"></i> Seleccionar Área:
-    </label>
-    <select class="form-control select2-busqueda" id="selectArea" name="selectArea" onchange="LoadKpisControl();">
-        <option value="">-- Todas las áreas --</option>
-        <?php foreach ($listaAreas as $row): ?>
-            <option value="<?= htmlspecialchars($row['idAreas']) ?>">
-                <?= htmlspecialchars($row['area']) ?>
-            </option>
-        <?php endforeach; ?>
-    </select>
-</div>
+            <!-- ÁREA -->
+            <div class="col-md-3 col-lg-3">
+                <label for="selectArea" class="font-weight-bold text-primary mb-1">
+                    <i class="fas fa-building mr-1"></i> Seleccionar Área:
+                </label>
+                <select class="form-control select2-busqueda" id="selectArea" name="selectArea" onchange="LoadKpisControl();">
+                    <option value="">-- Todas las áreas --</option>
+                    <?php foreach ($listaAreas as $row): ?>
+                        <option value="<?= htmlspecialchars($row['idAreas']) ?>">
+                            <?= htmlspecialchars($row['area']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
 
         </div>
     </div>
 </div>
+
                     
                     <!-- CONTENEDOR DINÁMICO QUE CARGA LOS KPI Y GRÁFICAS -->
                     <div id="LoadKpisControl">
