@@ -145,6 +145,26 @@
                 </select>
             </div>
 
+            <!-- DIVISIÓN -->
+<div class="col-md-3 col-lg-3">
+    <label for="selectDivision" class="font-weight-bold text-primary mb-1">
+        <i class="fas fa-sitemap mr-1"></i> Seleccionar División:
+    </label>
+    <select class="form-control select2-busqueda" id="selectDivision" name="selectDivision" onchange="LoadCopes();" disabled>
+        <option value="">-- Seleccione primero un área --</option>
+    </select>
+</div>
+
+<!-- COPE -->
+<div class="col-md-3 col-lg-3">
+    <label for="selectCope" class="font-weight-bold text-primary mb-1">
+        <i class="fas fa-network-wired mr-1"></i> Seleccionar Cope:
+    </label>
+    <select class="form-control select2-busqueda" id="selectCope" name="selectCope" onchange="LoadKpisControl();" disabled>
+        <option value="">-- Seleccione primero una división --</option>
+    </select>
+</div>
+
         </div>
     </div>
 </div>
