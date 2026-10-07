@@ -84,25 +84,31 @@ function LoadKpisControl(ejecutar) {
         parametros += '&selectContratista=' + encodeURIComponent(selectContratista);
     }
 
-    // 3. Área
+    // 3. Tipo de Tarea (NUEVO)
+    var TipoTarea = $('#TipoTarea').val();
+    if (TipoTarea) {
+        parametros += '&TipoTarea=' + encodeURIComponent(TipoTarea);
+    }
+
+    // 4. Área
     var selectArea = $('#selectArea').val();
     if (selectArea) {
         parametros += '&selectArea=' + encodeURIComponent(selectArea);
     }
 
-    // 4. División
+    // 5. División
     var selectDivision = $('#selectDivision').val();
     if (selectDivision) {
         parametros += '&selectDivision=' + encodeURIComponent(selectDivision);
     }
 
-    // 5. Cope
+    // 6. Cope
     var selectCope = $('#selectCope').val();
     if (selectCope) {
         parametros += '&selectCope=' + encodeURIComponent(selectCope);
     }
 
-    // 6. Fechas
+    // 7. Fechas
     var fechascard1 = $('#fechascard1').val();
     var fechascard2 = $('#fechascard2').val();
 
@@ -113,14 +119,14 @@ function LoadKpisControl(ejecutar) {
         parametros += '&fechascard2=' + encodeURIComponent(fechascard2);
     }
 
-    // 7. Bandera ejecutar
+    // 8. Bandera ejecutar
     if (ejecutar) {
         parametros += '&ejecutar=1';
     }
 
     $("#LoadKpisControl").fadeIn('slow');
 
-    // 8. Llamada principal para refrescar KPIs
+    // 9. Llamada principal para refrescar KPIs
     return $.ajax({
         type: 'POST',
         url: 'modal/KpisControlProduccion.php',
