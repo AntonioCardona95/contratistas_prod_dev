@@ -142,10 +142,18 @@ public function obtenerCopesPorArea($idArea) {
 
 /**
  * Cuenta el total de producción en seg_ns_prod_eval.
- * Permite filtrar por fechas principales, fechas de card y/o contratista.
+ * Permite filtrar por fechas, contratista, área, división y cope.
  */
-public function CountProduccionPorFechas($fechaInicio = null, $fechaFin = null, $fechascard1 = null, $fechascard2 = null, $idContratista = null)
-{
+public function CountProduccionPorFechas(
+    $fechaInicio = null, 
+    $fechaFin = null, 
+    $fechascard1 = null, 
+    $fechascard2 = null, 
+    $idContratista = null,
+    $idArea = null,
+    $idDivision = null,
+    $idCope = null
+) {
     // Determinar qué rango de fechas usar (prioridad a las fechas de la card si existen)
     $fIni = !empty($fechascard1) ? $fechascard1 : $fechaInicio;
     $fFin = !empty($fechascard2) ? $fechascard2 : $fechaFin;
@@ -153,7 +161,7 @@ public function CountProduccionPorFechas($fechaInicio = null, $fechaFin = null, 
     $where = array();
     $params = array();
 
-    // Filtro de rango de fechas (si existe alguno de los dos rangos)
+    // Filtro de rango de fechas
     if (!empty($fIni) && !empty($fFin)) {
         $where[] = "FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
         $params[':fechaInicio'] = $fIni;
@@ -164,6 +172,24 @@ public function CountProduccionPorFechas($fechaInicio = null, $fechaFin = null, 
     if (!empty($idContratista)) {
         $where[] = "ID_CONTRATISTA = :idContratista";
         $params[':idContratista'] = $idContratista;
+    }
+
+    // Filtro opcional por Área
+    if (!empty($idArea)) {
+        $where[] = "ID_AREA = :idArea";
+        $params[':idArea'] = $idArea;
+    }
+
+    // Filtro opcional por División
+    if (!empty($idDivision)) {
+        $where[] = "ID_DIVISION = :idDivision";
+        $params[':idDivision'] = $idDivision;
+    }
+
+    // Filtro opcional por Cope
+    if (!empty($idCope)) {
+        $where[] = "ID_COPE = :idCope";
+        $params[':idCope'] = $idCope;
     }
 
     // Construir la consulta SQL
