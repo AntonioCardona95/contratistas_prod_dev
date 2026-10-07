@@ -125,16 +125,15 @@ public function obtenerDivisionPorArea($idArea) {
             INNER JOIN areas a ON a.FK_Division = d.idDivision
             WHERE a.idAreas = ?";
     $result = $this->runQuery($sql, [$idArea], 'erpprint');
-    return $result ? $result[0] : null; // solo una división por área
+    return $result ? $result[0] : null; // cada área tiene una sola división
 }
 
-public function obtenerCopesPorDivision($idDivision) {
-    $sql = "SELECT c.id, c.COPE
-            FROM copes c
-            INNER JOIN areas a ON c.FK_Area = a.idAreas
-            WHERE a.FK_Division = ?
-            ORDER BY c.COPE ASC";
-    return $this->runQuery($sql, [$idDivision], 'erpprint');
+public function obtenerCopesPorArea($idArea) {
+    $sql = "SELECT id, COPE
+            FROM copes
+            WHERE FK_Area = ?
+            ORDER BY COPE ASC";
+    return $this->runQuery($sql, [$idArea], 'erpprint');
 }
 
 
