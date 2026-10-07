@@ -21,17 +21,6 @@ $Fecha2 = $_POST['Fecha2'] ?? '';
 @$Area = $_POST['Area'] ?? '';
 @$Cope = $_POST['Cope'] ?? '';
 
-// FECHAS INDEPENDIENTES DE LAS CARDS
-$fechascard1 = $_POST['fechascard1'] ?? '';
-$fechascard2 = $_POST['fechascard2'] ?? '';
-
-if (!empty($fechascard1)) {
-    $fechascard1 = $fechascard1 . " 00:00:00";
-}
-if (!empty($fechascard2)) {
-    $fechascard2 = $fechascard2 . " 23:59:59";
-}
-
 $mes_anterior = date('Y-m-d', strtotime('-3 month'));
 
 if (!empty($Fecha1) && !empty($Fecha2)) {
@@ -60,7 +49,7 @@ $TotalProduccion = 0;
 
 // PRODUCCION POR FECHAS SELECCIONADAS
 $TotalProduccionFechas = 0;
-$qrProduccionFechas = $consultas->CountProduccionPorFechas($Fecha1, $Fecha2, $fechascard1, $fechascard2, $idContratistaSeleccionado);
+$qrProduccionFechas = $consultas->CountProduccionPorFechas($Fecha1, $Fecha2);
 if (is_array($qrProduccionFechas)) {
     if (!empty($qrProduccionFechas)) {
         foreach ($qrProduccionFechas as $row) {
@@ -75,7 +64,7 @@ if (is_array($qrProduccionFechas)) {
 
 // TOTAL ONT SIN ENTRADA A ALMACÉN (GENERAL)
 $TotalOntSinAlmacen = 0;
-$qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen($Fecha1, $Fecha2, $idContratistas, $fechascard1, $fechascard2, $idContratistaSeleccionado);
+$qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen($Fecha1, $Fecha2, $idContratistas);
 if (is_array($qrOntSinAlmacen)) {
     if (!empty($qrOntSinAlmacen)) {
         foreach ($qrOntSinAlmacen as $row) {
@@ -90,7 +79,7 @@ if (is_array($qrOntSinAlmacen)) {
 
 // TOTAL ONT CON ENTRADA A ALMACÉN (GENERAL)
 $TotalOntConAlmacen = 0;
-$qrOntConAlmacen = $consultas->CountOntConEntradaAlmacen($Fecha1, $Fecha2, $idContratistas, $fechascard1, $fechascard2, $idContratistaSeleccionado);
+$qrOntConAlmacen = $consultas->CountOntConEntradaAlmacen($Fecha1, $Fecha2, $idContratistas);
 if (is_array($qrOntConAlmacen)) {
     if (!empty($qrOntConAlmacen)) {
         foreach ($qrOntConAlmacen as $row) {
