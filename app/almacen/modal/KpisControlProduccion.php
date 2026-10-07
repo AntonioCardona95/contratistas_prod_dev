@@ -159,6 +159,7 @@ $qrOntConAlmacen = $consultas->CountOntConEntradaAlmacen(
     $fechascard1, 
     $fechascard2, 
     $idContratistaSeleccionado,
+    $TipoTarea,
     $Area,
     $Division,
     $Cope
