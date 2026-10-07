@@ -151,7 +151,7 @@
         <i class="fas fa-sitemap mr-1"></i> Seleccionar División:
     </label>
     <select class="form-control select2-busqueda" id="selectDivision" name="selectDivision" onchange="LoadCopes();" disabled>
-        <option value="">-- Seleccione primero un área --</option>
+        <option value="">Seleccione primero un área</option>
     </select>
 </div>
 
