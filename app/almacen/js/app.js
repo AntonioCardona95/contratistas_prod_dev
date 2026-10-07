@@ -182,6 +182,25 @@ function CargarDependenciasArea() {
 }
 
 
+// Resetea los selectores de Área, División y Cope a su estado inicial
+function LimpiarSelectoresUbicacion() {
+    // 1. Resetear Área a su valor por defecto (vacío)
+    $('#selectArea').val('').trigger('change.select2');
+
+    // 2. Limpiar y deshabilitar División
+    $('#selectDivision')
+        .html('<option value=""></option>')
+        .prop('disabled', true)
+        .trigger('change.select2');
+
+    // 3. Limpiar y deshabilitar Cope
+    $('#selectCope')
+        .html('<option value=""></option>')
+        .prop('disabled', true)
+        .trigger('change.select2');
+}
+
+
 
 /*function LoadKpisControl(){
     var parametros = $("#FormQueryUnidades").serialize();
