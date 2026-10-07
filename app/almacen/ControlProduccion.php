@@ -229,42 +229,38 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.js"></script>
 
 <script>
-    $(document).ready(function(){
-        // Contratista
-        $('#selectContratista').select2({
-            theme: 'bootstrap4',
-            placeholder: '-- Seleccionar Contratista --',
-            allowClear: true,
-            width: '100%'
-        });
-
-        // Área
-        $('#selectArea').select2({
-            theme: 'bootstrap4',
-            placeholder: '-- Seleccionar Área --',
-            allowClear: true,
-            width: '100%'
-        });
-
-        // División
-        $('#selectDivision').select2({
-            theme: 'bootstrap4',
-            placeholder: '-- Seleccionar División --',
-            allowClear: true,
-            width: '100%'
-        });
-
-        // Cope
-        $('#selectCope').select2({
-            theme: 'bootstrap4',
-            placeholder: '-- Seleccionar Cope --',
-            allowClear: true,
-            width: '100%'
-        });
-
-        // Ejecutar carga inicial
-        LoadKpisControl();
+   $(document).ready(function(){
+    $('#selectContratista').select2({
+        theme: 'bootstrap4',
+        placeholder: '-- Seleccionar Contratista --',
+        allowClear: true,
+        width: '100%'
     });
+
+    $('#selectArea').select2({
+        theme: 'bootstrap4',
+        placeholder: '-- Seleccionar Área --',
+        allowClear: true,
+        width: '100%'
+    });
+
+    $('#selectDivision').select2({
+        theme: 'bootstrap4',
+        placeholder: '-- Seleccionar División --',
+        allowClear: true,
+        width: '100%'
+    });
+
+    $('#selectCope').select2({
+        theme: 'bootstrap4',
+        placeholder: '-- Seleccionar Cope --',
+        allowClear: true,
+        width: '100%'
+    });
+
+    LoadKpisControl();
+});
+
 </script>
 
 
