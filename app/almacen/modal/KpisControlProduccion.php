@@ -54,12 +54,13 @@ if (!empty($idContratistaSeleccionado)) {
     // Ahora la función solo recibe el contratista
     $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea($idContratistaSeleccionado);
 }
+
 // TOTAL PRODUCCION HISTORICO
 $TotalProduccion = 0;
 
 // PRODUCCION POR FECHAS SELECCIONADAS
 $TotalProduccionFechas = 0;
-$qrProduccionFechas = $consultas->CountProduccionPorFechas($Fecha1, $Fecha2);
+$qrProduccionFechas = $consultas->CountProduccionPorFechas($Fecha1, $Fecha2, $fechascard1, $fechascard2, $idContratistaSeleccionado);
 if (is_array($qrProduccionFechas)) {
     if (!empty($qrProduccionFechas)) {
         foreach ($qrProduccionFechas as $row) {
@@ -74,7 +75,7 @@ if (is_array($qrProduccionFechas)) {
 
 // TOTAL ONT SIN ENTRADA A ALMACÉN (GENERAL)
 $TotalOntSinAlmacen = 0;
-$qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen($Fecha1, $Fecha2, $idContratistas);
+$qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen($Fecha1, $Fecha2, $idContratistas, $fechascard1, $fechascard2, $idContratistaSeleccionado);
 if (is_array($qrOntSinAlmacen)) {
     if (!empty($qrOntSinAlmacen)) {
         foreach ($qrOntSinAlmacen as $row) {
@@ -89,7 +90,7 @@ if (is_array($qrOntSinAlmacen)) {
 
 // TOTAL ONT CON ENTRADA A ALMACÉN (GENERAL)
 $TotalOntConAlmacen = 0;
-$qrOntConAlmacen = $consultas->CountOntConEntradaAlmacen($Fecha1, $Fecha2, $idContratistas);
+$qrOntConAlmacen = $consultas->CountOntConEntradaAlmacen($Fecha1, $Fecha2, $idContratistas, $fechascard1, $fechascard2, $idContratistaSeleccionado);
 if (is_array($qrOntConAlmacen)) {
     if (!empty($qrOntConAlmacen)) {
         foreach ($qrOntConAlmacen as $row) {
@@ -116,7 +117,6 @@ if (is_array($qrProduccionTotal)) {
 } else {
     $TotalProduccion = (int)$qrProduccionTotal;
 }
-
 // CHARTS EXISTENTES
 $chart_dias = $index->CountMaterialesPorDia($idContratistas, $Fecha1, $Fecha2);
 $chart_tecnicos = $index->CountMaterialesPorTecnico($idContratistas, $Fecha1, $Fecha2);
