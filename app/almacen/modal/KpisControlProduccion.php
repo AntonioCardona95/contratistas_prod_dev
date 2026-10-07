@@ -107,6 +107,7 @@ $qrProduccionFechas = $consultas->CountProduccionPorFechas(
     $fechascard1, 
     $fechascard2, 
     $idContratistaSeleccionado,
+    $TipoTarea,
     $Area,
     $Division,
     $Cope
