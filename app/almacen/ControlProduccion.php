@@ -151,7 +151,7 @@
         <i class="fas fa-sitemap mr-1"></i> Seleccionar División:
     </label>
     <select class="form-control select2-busqueda" id="selectDivision" name="selectDivision" onchange="LoadCopes();" disabled>
-        <option value="">Seleccione primero un área</option>
+        <option value="">Seleccione division</option>
     </select>
 </div>
 
@@ -161,7 +161,7 @@
         <i class="fas fa-network-wired mr-1"></i> Seleccionar Cope:
     </label>
     <select class="form-control select2-busqueda" id="selectCope" name="selectCope" onchange="LoadKpisControl();" disabled>
-        <option value="">-- Seleccione primero una división --</option>
+        <option value="">-- Seleccione cope</option>
     </select>
 </div>
 
