@@ -104,6 +104,22 @@ public function obtenerTodosContratistas()
 }
 
 
+/**
+ * Obtiene la lista completa de áreas
+ */
+public function obtenerTodasAreas()
+{
+    $sql = "SELECT 
+                idAreas,
+                area
+            FROM areas
+            ORDER BY area ASC";
+
+    return $this->runQuery($sql, array(), 'erpprint');
+}
+
+
+
 
 /**
  * Cuenta el total de producción en seg_ns_prod_eval.
