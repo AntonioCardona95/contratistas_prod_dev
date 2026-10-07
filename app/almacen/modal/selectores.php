@@ -11,9 +11,9 @@ if ($action === 'getDivisionByArea') {
     exit;
 }
 
-if ($action === 'getCopesByDivision') {
-    $idDivision = $_POST['idDivision'] ?? 0;
-    $copes = $obj->obtenerCopesPorDivision($idDivision);
+if ($action === 'getCopesByArea') {
+    $idArea = $_POST['idArea'] ?? 0;
+    $copes = $obj->obtenerCopesPorArea($idArea);
     echo json_encode($copes);
     exit;
 }
