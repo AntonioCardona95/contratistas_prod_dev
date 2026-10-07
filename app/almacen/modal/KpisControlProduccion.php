@@ -40,6 +40,7 @@ $consultas = new ClassConsultasProduccion();
 // CONSULTA DE DETALLE POR ÁREA DE LA TABLA seg_produccion_diaria
 $detalleArea = [];
 if (!empty($idContratistaSeleccionado)) {
+    // Ahora la función solo recibe el contratista
     $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea($idContratistaSeleccionado);
 }
 
