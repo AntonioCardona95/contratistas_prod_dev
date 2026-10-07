@@ -130,7 +130,10 @@ $qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen(
     $Fecha2, 
     $fechascard1, 
     $fechascard2, 
-    $idContratistaSeleccionado
+    $idContratistaSeleccionado,
+    $Area,
+    $Division,
+    $Cope
 );
 
 if (is_array($qrOntSinAlmacen)) {
