@@ -124,7 +124,14 @@ if (is_array($qrProduccionFechas)) {
 
 // TOTAL ONT SIN ENTRADA A ALMACÉN (GENERAL)
 $TotalOntSinAlmacen = 0;
-$qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen($Fecha1, $Fecha2, $idContratistas);
+$qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen(
+    $Fecha1, 
+    $Fecha2, 
+    $fechascard1, 
+    $fechascard2, 
+    $idContratistaSeleccionado
+);
+
 if (is_array($qrOntSinAlmacen)) {
     if (!empty($qrOntSinAlmacen)) {
         foreach ($qrOntSinAlmacen as $row) {
