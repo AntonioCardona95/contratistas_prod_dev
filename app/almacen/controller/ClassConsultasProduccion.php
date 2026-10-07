@@ -104,22 +104,44 @@ public function obtenerTodosContratistas()
 }
 
 
-    /**
-     * Cuenta el total de producción en la vista/tabla seg_ns_prod_eval para un rango de fechas
-     */
-    public function CountProduccionPorFechas($fechaInicio, $fechaFin)
-    {
-        $sql = "SELECT COUNT(1) AS TOTAL
-                FROM seg_ns_prod_eval
-                WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
 
-        $params = array(
-            ':fechaInicio' => $fechaInicio,
-            ':fechaFin'    => $fechaFin
-        );
+/**
+ * Cuenta el total de producción en seg_ns_prod_eval.
+ * Permite filtrar por fechas principales, fechas de card y/o contratista.
+ */
+public function CountProduccionPorFechas($fechaInicio = null, $fechaFin = null, $fechascard1 = null, $fechascard2 = null, $idContratista = null)
+{
+    // Determinar qué rango de fechas usar (prioridad a las fechas de la card si existen)
+    $fIni = !empty($fechascard1) ? $fechascard1 : $fechaInicio;
+    $fFin = !empty($fechascard2) ? $fechascard2 : $fechaFin;
 
-        return $this->runQuery($sql, $params, 'analisis');
+    $where = array();
+    $params = array();
+
+    // Filtro de rango de fechas (si existe alguno de los dos rangos)
+    if (!empty($fIni) && !empty($fFin)) {
+        $where[] = "FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+        $params[':fechaInicio'] = $fIni;
+        $params[':fechaFin']    = $fFin;
     }
+
+    // Filtro opcional por contratista
+    if (!empty($idContratista)) {
+        $where[] = "ID_CONTRATISTA = :idContratista";
+        $params[':idContratista'] = $idContratista;
+    }
+
+    // Construir la consulta SQL
+    $sql = "SELECT COUNT(1) AS TOTAL FROM seg_ns_prod_eval";
+
+    if (count($where) > 0) {
+        $sql .= " WHERE " . implode(" AND ", $where);
+    }
+
+    return $this->runQuery($sql, $params, 'analisis');
+}
+
+
 
     /**
      * Cuenta el total acumulado histórico de producción
