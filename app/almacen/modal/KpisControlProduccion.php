@@ -181,8 +181,15 @@ if (is_array($qrProduccionTotal)) {
     $TotalProduccion = (int)$qrProduccionTotal;
 }
 
-// CONSULTA DE DATOS BASE DE TODAS LAS DIVISIONES
-$chart_divisiones_raw = $consultas->CountOntAlmacenPorDivision($Fecha1, $Fecha2, $idContratistas);
+
+// CONSULTA DE DATOS BASE DE TODAS LAS DIVISIONES (PARA LA GRÁFICA)
+$chart_divisiones_raw = $consultas->CountOntAlmacenPorDivision(
+    $Fecha1, 
+    $Fecha2, 
+    $fechascard1, 
+    $fechascard2, 
+    $idContratistaSeleccionado
+);
 
 $chart_div_labels = [];
 $chart_div_con_almacen = [];
