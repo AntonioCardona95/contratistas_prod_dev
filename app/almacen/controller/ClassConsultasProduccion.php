@@ -1035,35 +1035,46 @@ public function CountOntConEntradaAlmacen($fechaInicio = null, $fechaFin = null,
 }
 
 /**
- * Obtiene el conteo de ONT con y sin entrada a almacén para TODAS las divisiones
- * utilizando la tabla 'divisiones' como catálogo base.
+ * Obtiene el conteo de ONT con y sin entrada a almacén para TODAS las divisiones.
+ * Permite filtrar por fechas principales, fechas de card y/o contratista.
  */
-public function CountOntAlmacenPorDivision($fechaInicio, $fechaFin, $idContratista = null)
+public function CountOntAlmacenPorDivision($fechaInicio = null, $fechaFin = null, $fechascard1 = null, $fechascard2 = null, $idContratista = null)
 {
+    // Determinar qué rango de fechas usar (prioridad a las fechas de la card si existen)
+    $fIni = !empty($fechascard1) ? $fechascard1 : $fechaInicio;
+    $fFin = !empty($fechascard2) ? $fechascard2 : $fechaFin;
+
+    $joinConditions = array(
+        "(TRIM(p.NOM_DIVISION) = TRIM(d.Division) OR p.NOM_DIVISION LIKE CONCAT('%', d.Division, '%'))"
+    );
+    $params = array();
+
+    // Filtro opcional de rango de fechas
+    if (!empty($fIni) && !empty($fFin)) {
+        $joinConditions[] = "p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+        $params[':fechaInicio'] = $fIni;
+        $params[':fechaFin']    = $fFin;
+    }
+
+    // Filtro opcional por contratista
+    if (!empty($idContratista)) {
+        $joinConditions[] = "p.idContratista = :idContratista";
+        $params[':idContratista'] = $idContratista;
+    }
+
+    // Construcción de la consulta SQL
     $sql = "SELECT 
                 d.Division AS DIVISION,
                 COALESCE(SUM(CASE WHEN p.Existe_Serie_Prod_Almacen = 1 AND p.Existe_Serie_Eci_Almacen = 1 THEN 1 ELSE 0 END), 0) AS CON_ALMACEN,
                 COALESCE(SUM(CASE WHEN p.Existe_Serie_Prod_Almacen = 0 AND p.Existe_Serie_Eci_Almacen = 0 THEN 1 ELSE 0 END), 0) AS SIN_ALMACEN
             FROM divisiones d
             LEFT JOIN seg_produccion_diaria p 
-                ON (TRIM(p.NOM_DIVISION) = TRIM(d.Division) OR p.NOM_DIVISION LIKE CONCAT('%', d.Division, '%'))
-                AND p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
-
-    $params = array(
-        ':fechaInicio' => $fechaInicio,
-        ':fechaFin'    => $fechaFin
-    );
-
-    if (!empty($idContratista)) {
-        $sql .= " AND p.idContratista = :idContratista";
-        $params[':idContratista'] = $idContratista;
-    }
-
-    $sql .= " GROUP BY d.idDivision, d.Division ORDER BY d.idDivision ASC";
+                ON " . implode(" AND ", $joinConditions) . "
+            GROUP BY d.idDivision, d.Division 
+            ORDER BY d.idDivision ASC";
 
     return $this->runQuery($sql, $params, 'erpprint');
 }
-
 
 
 /**
