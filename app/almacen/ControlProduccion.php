@@ -244,6 +244,7 @@
 
 <script>
 function LoadDivisiones() {
+    console.log('entro a funcion de divisiones');
     var idArea = $('#selectArea').val();
     console.log("Área seleccionada:", idArea);
 
