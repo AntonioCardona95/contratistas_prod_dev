@@ -95,6 +95,22 @@
                     <div class="card shadow mb-4">
     <div class="card-body py-3">
         <div class="row align-items-center">
+
+        <!-- FECHA INICIAL -->
+            <div class="col-md-4 col-lg-3 mb-2 mb-md-0">
+                <label for="fechascard1" class="font-weight-bold text-primary mb-1">
+                    <i class="fas fa-calendar-alt mr-1"></i> Fecha Inicial:
+                </label>
+                <input type="date" class="form-control" id="fechascard1" name="fechascard1" onchange="LoadKpisControl();">
+            </div>
+
+            <!-- FECHA FINAL -->
+            <div class="col-md-4 col-lg-3 mb-2 mb-md-0">
+                <label for="fechascard2" class="font-weight-bold text-primary mb-1">
+                    <i class="fas fa-calendar-alt mr-1"></i> Fecha Final:
+                </label>
+                <input type="date" class="form-control" id="fechascard2" name="fechascard2" onchange="LoadKpisControl();">
+            </div>
             <div class="col-md-6 col-lg-4">
                 <label for="selectContratista" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-user-tie mr-1"></i> Seleccionar Contratista:
