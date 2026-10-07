@@ -20,9 +20,22 @@ $idContratistas = obtenerIdContratistaContexto();
 // RECIBIMOS PARAMETROS
 $Fecha1 = $_POST['Fecha1'] ?? '';
 $Fecha2 = $_POST['Fecha2'] ?? '';
+
 @$Division = $_POST['Division'] ?? '';
 @$Area = $_POST['Area'] ?? '';
 @$Cope = $_POST['Cope'] ?? '';
+
+
+// FECHAS INDEPENDIENTES DE LAS CARDS
+$fechascard1 = $_POST['fechascard1'] ?? '';
+$fechascard2 = $_POST['fechascard2'] ?? '';
+
+if (!empty($fechascard1)) {
+    $fechascard1 = $fechascard1 . " 00:00:00";
+}
+if (!empty($fechascard2)) {
+    $fechascard2 = $fechascard2 . " 23:59:59";
+}
 
 $mes_anterior = date('Y-m-d', strtotime('-3 month'));
 
