@@ -88,7 +88,19 @@ function LoadKpisControl(ejecutar) {
         parametros += '&selectArea=' + encodeURIComponent(selectArea);
     }
 
-    // 4. Obtenemos y concatenamos los valores de los selectores de fechas
+    // 4. Le concatenamos el valor del select de divisiones
+    var selectDivision = $('#selectDivision').val();
+    if (selectDivision) {
+        parametros += '&selectDivision=' + encodeURIComponent(selectDivision);
+    }
+
+    // 5. Le concatenamos el valor del select de copes
+    var selectCope = $('#selectCope').val();
+    if (selectCope) {
+        parametros += '&selectCope=' + encodeURIComponent(selectCope);
+    }
+
+    // 6. Obtenemos y concatenamos los valores de los selectores de fechas
     var fechascard1 = $('#fechascard1').val();
     var fechascard2 = $('#fechascard2').val();
 
@@ -99,7 +111,7 @@ function LoadKpisControl(ejecutar) {
         parametros += '&fechascard2=' + encodeURIComponent(fechascard2);
     }
 
-    // 5. Si viene la bandera opcional de 'ejecutar'
+    // 7. Si viene la bandera opcional de 'ejecutar'
     if (ejecutar) {
         parametros += '&ejecutar=1';
     }
