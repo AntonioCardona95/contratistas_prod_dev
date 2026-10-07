@@ -1053,20 +1053,19 @@ public function CountOntAlmacenPorDivision($fechaInicio, $fechaFin, $idContratis
 
 public function ObtenerDetalleOrdenesPorArea($idContratista)
 {
-    // Consulta principal con SUM y GROUP BY
     $sql = "SELECT 
                 p.Area,
                 p.Division,
                 p.Cope,
-                SUM(CASE WHEN p.Tipo_Trabajo = 'ALTA' THEN 1 ELSE 0 END) AS Altas,
-                SUM(CASE WHEN p.Tipo_Trabajo = 'MIGRACION' THEN 1 ELSE 0 END) AS Migraciones,
-                SUM(CASE WHEN p.Tipo_Trabajo = 'CAMBIO DE DOMICILIO' THEN 1 ELSE 0 END) AS CambiosDomicilio,
-                SUM(CASE WHEN p.Tipo_Trabajo = 'QUEJA' THEN 1 ELSE 0 END) AS Quejas,
-                SUM(CASE WHEN p.Tipo_Trabajo = 'A4' THEN 1 ELSE 0 END) AS A4,
+                SUM(CASE WHEN p.Tipo_de_Tarea = 'ALTA' THEN 1 ELSE 0 END) AS Altas,
+                SUM(CASE WHEN p.Tipo_de_Tarea = 'MIGRACION' THEN 1 ELSE 0 END) AS Migraciones,
+                SUM(CASE WHEN p.Tipo_de_Tarea = 'CAMBIO DE DOMICILIO' THEN 1 ELSE 0 END) AS CambiosDomicilio,
+                SUM(CASE WHEN p.Tipo_de_Tarea = 'QUEJA' THEN 1 ELSE 0 END) AS Quejas,
+                SUM(CASE WHEN p.Tipo_de_Tarea = 'A4' THEN 1 ELSE 0 END) AS A4,
                 SUM(CASE WHEN p.Entrada_Almacen = 1 THEN 1 ELSE 0 END) AS TotalConAlmacen,
                 SUM(CASE WHEN p.Entrada_Almacen = 0 THEN 1 ELSE 0 END) AS TotalSinAlmacen
             FROM seg_produccion_diaria p
-            WHERE p.idContratistas = :idContratista
+            WHERE p.idContratista = :idContratista
             GROUP BY p.Area, p.Division, p.Cope
             ORDER BY p.Area ASC";
 
@@ -1074,40 +1073,19 @@ public function ObtenerDetalleOrdenesPorArea($idContratista)
         ':idContratista' => $idContratista
     );
 
-    // Debug: mostrar SQL y parámetros
     echo "<pre>SQL ejecutado:\n$sql\n</pre>";
     echo "<pre>Parámetros:\n" . print_r($params, true) . "</pre>";
 
     try {
-        // Debug: ver base de datos activa
-        $dbName = $this->runQuery("SELECT DATABASE() AS DB", [], 'erpprint');
-        echo "<p>Base de datos activa: " . ($dbName[0]['DB'] ?? 'ERROR') . "</p>";
-
-        // Debug: consulta cruda para ver registros antes del GROUP BY
-        $sqlDebug = "SELECT p.idContratistas, p.Area, p.Division, p.Cope, p.Tipo_Trabajo, p.Entrada_Almacen
-                     FROM seg_produccion_diaria p
-                     WHERE p.idContratistas = :idContratista
-                     LIMIT 10";
-
-        $debugRows = $this->runQuery($sqlDebug, $params, 'erpprint');
-        echo "<pre>Primeros registros crudos:\n" . print_r($debugRows, true) . "</pre>";
-
-        // Consulta principal
         $resultado = $this->runQuery($sql, $params, 'erpprint');
         echo "<pre>Resultado agrupado:\n" . print_r($resultado, true) . "</pre>";
-
-        if (empty($resultado)) {
-            echo "<p style='color:red'><strong>No se encontraron registros en la consulta agrupada.</strong></p>";
-        } else {
-            echo "<p><strong>Consulta ejecutada correctamente.</strong></p>";
-        }
-
         return $resultado;
     } catch (Exception $e) {
         echo "<p style='color:red'>Error al ejecutar consulta: " . $e->getMessage() . "</p>";
         return null;
     }
 }
+
 
 
 
