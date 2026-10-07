@@ -245,11 +245,15 @@
 <script>
 function LoadDivisiones() {
     var idArea = $('#selectArea').val();
+    console.log("Área seleccionada:", idArea);
 
     $('#selectDivision').html('<option value="">-- Seleccione primero un área --</option>').prop('disabled', true);
-    $('#selectCope').html('<option value="">-- Seleccione primero un área --</option>').prop('disabled', true);
+    $('#selectCope').html('<option value="">-- Seleccione primero una división --</option>').prop('disabled', true);
 
-    if (!idArea) return;
+    if (!idArea) {
+        console.log("No se seleccionó área, se detiene.");
+        return;
+    }
 
     $.ajax({
         type: 'POST',
@@ -257,12 +261,16 @@ function LoadDivisiones() {
         data: { action: 'getDivisionByArea', idArea: idArea },
         dataType: 'json',
         success: function(data) {
+            console.log("Respuesta divisiones:", data);
             if (data) {
                 $('#selectDivision').html('<option value="'+data.idDivision+'">'+data.Division+'</option>');
                 $('#selectDivision').prop('disabled', false);
             } else {
                 $('#selectDivision').html('<option value="">No hay división para esta área</option>');
             }
+        },
+        error: function(xhr, status, error) {
+            console.error("Error AJAX divisiones:", status, error);
         }
     });
 
@@ -272,6 +280,7 @@ function LoadDivisiones() {
         data: { action: 'getCopesByArea', idArea: idArea },
         dataType: 'json',
         success: function(data) {
+            console.log("Respuesta copes:", data);
             if (data.length > 0) {
                 $('#selectCope').html('<option value="">-- Seleccione un cope --</option>');
                 $.each(data, function(index, item) {
@@ -281,6 +290,9 @@ function LoadDivisiones() {
             } else {
                 $('#selectCope').html('<option value="">No hay copes en esta área</option>');
             }
+        },
+        error: function(xhr, status, error) {
+            console.error("Error AJAX copes:", status, error);
         }
     });
 }
