@@ -82,7 +82,13 @@ function LoadKpisControl(ejecutar) {
         parametros += '&selectContratista=' + encodeURIComponent(selectContratista);
     }
 
-    // 3. Obtenemos y concatenamos los valores de los selectores de fechas
+    // 3. Le concatenamos el valor del select de áreas
+    var selectArea = $('#selectArea').val();
+    if (selectArea) {
+        parametros += '&selectArea=' + encodeURIComponent(selectArea);
+    }
+
+    // 4. Obtenemos y concatenamos los valores de los selectores de fechas
     var fechascard1 = $('#fechascard1').val();
     var fechascard2 = $('#fechascard2').val();
 
@@ -93,7 +99,7 @@ function LoadKpisControl(ejecutar) {
         parametros += '&fechascard2=' + encodeURIComponent(fechascard2);
     }
 
-    // 4. Si viene la bandera opcional de 'ejecutar'
+    // 5. Si viene la bandera opcional de 'ejecutar'
     if (ejecutar) {
         parametros += '&ejecutar=1';
     }
@@ -113,6 +119,7 @@ function LoadKpisControl(ejecutar) {
         }
     });
 }
+
 
 
 /*function LoadKpisControl(){
