@@ -1064,7 +1064,7 @@ public function ObtenerDetalleOrdenesPorArea($idContratista)
                 SUM(CASE WHEN p.Tipo_Trabajo = 'A4' THEN 1 ELSE 0 END) AS A4,
                 SUM(CASE WHEN p.Entrada_Almacen = 1 THEN 1 ELSE 0 END) AS TotalConAlmacen,
                 SUM(CASE WHEN p.Entrada_Almacen = 0 THEN 1 ELSE 0 END) AS TotalSinAlmacen
-            FROM produccion p
+            FROM seg_produccion_diaria p
             WHERE p.idContratistas = :idContratista
             GROUP BY p.Area, p.Division, p.Cope
             ORDER BY p.Area ASC";
@@ -1080,19 +1080,13 @@ public function ObtenerDetalleOrdenesPorArea($idContratista)
     try {
         $resultado = $this->runQuery($sql, $params, 'erpprint');
         echo "<pre>Resultado:\n" . print_r($resultado, true) . "</pre>";
-
-        if (empty($resultado)) {
-            echo "<p><strong>No se encontraron registros.</strong></p>";
-        } else {
-            echo "<p><strong>Consulta ejecutada correctamente.</strong></p>";
-        }
-
         return $resultado;
     } catch (Exception $e) {
         echo "<p style='color:red'>Error al ejecutar consulta: " . $e->getMessage() . "</p>";
         return null;
     }
 }
+
 
 
 
