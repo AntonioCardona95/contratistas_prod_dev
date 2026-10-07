@@ -1053,39 +1053,40 @@ public function CountOntAlmacenPorDivision($fechaInicio, $fechaFin, $idContratis
 
 public function ObtenerDetalleOrdenesPorArea($idContratista)
 {
+    // Consulta ajustada a las columnas reales
     $sql = "SELECT 
-                p.Area,
-                p.Division,
-                p.Cope,
-                SUM(CASE WHEN p.Tipo_de_Tarea = 'ALTA' THEN 1 ELSE 0 END) AS Altas,
-                SUM(CASE WHEN p.Tipo_de_Tarea = 'MIGRACION' THEN 1 ELSE 0 END) AS Migraciones,
-                SUM(CASE WHEN p.Tipo_de_Tarea = 'CAMBIO DE DOMICILIO' THEN 1 ELSE 0 END) AS CambiosDomicilio,
-                SUM(CASE WHEN p.Tipo_de_Tarea = 'QUEJA' THEN 1 ELSE 0 END) AS Quejas,
-                SUM(CASE WHEN p.Tipo_de_Tarea = 'A4' THEN 1 ELSE 0 END) AS A4,
-                SUM(CASE WHEN p.Entrada_Almacen = 1 THEN 1 ELSE 0 END) AS TotalConAlmacen,
-                SUM(CASE WHEN p.Entrada_Almacen = 0 THEN 1 ELSE 0 END) AS TotalSinAlmacen
+                p.NOM_CT,
+                p.Tipo_de_Tarea,
+                COUNT(*) AS Total
             FROM seg_produccion_diaria p
             WHERE p.idContratista = :idContratista
-            GROUP BY p.Area, p.Division, p.Cope
-            ORDER BY p.Area ASC";
+            GROUP BY p.NOM_CT, p.Tipo_de_Tarea
+            ORDER BY p.NOM_CT ASC";
 
-    $params = array(
-        ':idContratista' => $idContratista
-    );
+    $params = [':idContratista' => $idContratista];
 
     echo "<pre>SQL ejecutado:\n$sql\n</pre>";
     echo "<pre>Parámetros:\n" . print_r($params, true) . "</pre>";
 
     try {
+        // Debug: registros crudos
+        $sqlDebug = "SELECT p.idContratista, p.NOM_CT, p.Tipo_de_Tarea, p.FECHA_LIQ
+                     FROM seg_produccion_diaria p
+                     WHERE p.idContratista = :idContratista
+                     LIMIT 20";
+        $debugRows = $this->runQuery($sqlDebug, $params, 'erpprint');
+        echo "<pre>Primeros registros crudos:\n" . print_r($debugRows, true) . "</pre>";
+
+        // Consulta principal
         $resultado = $this->runQuery($sql, $params, 'erpprint');
         echo "<pre>Resultado agrupado:\n" . print_r($resultado, true) . "</pre>";
+
         return $resultado;
     } catch (Exception $e) {
-        echo "<p style='color:red'>Error al ejecutar consulta: " . $e->getMessage() . "</p>";
+        echo "<p style='color:red'>Error: " . $e->getMessage() . "</p>";
         return null;
     }
 }
-
 
 
 
