@@ -72,7 +72,7 @@ $etiquetasEstado = array(
     'blanco' => 'Sin liquidacion para clasificar'
 );
 
-foreach (array_chunk($foliosIds, 25) as $foliosLote) {
+foreach (array_chunk($foliosIds, 250) as $foliosLote) {
     $detallesLote = $navegacion->ObtenerDetalleFolios($foliosLote, $contratistaId);
 
     foreach ($detallesLote as $serie) {
