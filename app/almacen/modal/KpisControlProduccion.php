@@ -10,7 +10,6 @@ require_once("../controller/ClassConsultasProduccion.php");
 require_once("../controller/ClassIndex.php");
 require_once(__DIR__ . '/../../config/ContratistaContexto.php');
 
-
 session_start();
 $Contratista = $_SESSION['Contratista'];
 $idContratistas = obtenerIdContratistaContexto();
@@ -21,7 +20,6 @@ $Fecha2 = $_POST['Fecha2'] ?? '';
 @$Division = $_POST['Division'] ?? '';
 @$Area = $_POST['Area'] ?? '';
 @$Cope = $_POST['Cope'] ?? '';
-
 
 $mes_anterior = date('Y-m-d', strtotime('-3 month'));
 
@@ -34,17 +32,16 @@ if (!empty($Fecha1) && !empty($Fecha2)) {
 }
 
 $idContratistaSeleccionado = $_POST['selectContratista'] ?? null;
-//var_dump($idContratistaSeleccionado);
 
-// Ejecutar consulta de detalle agrupado por área
-$detalleArea = [];
-if (!empty($idContratistaSeleccionado)) {
-    $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea($idContratistaSeleccionado, $Fecha1, $Fecha2);
-}
-
-// Instancias de las clases
+// INSTANCIAS DE LAS CLASES
 $index = new Index();
 $consultas = new ClassConsultasProduccion();
+
+// CONSULTA DE DETALLE POR ÁREA DE LA TABLA seg_produccion_diaria
+$detalleArea = [];
+if (!empty($idContratistaSeleccionado)) {
+    $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea($idContratistaSeleccionado);
+}
 
 // TOTAL PRODUCCION HISTORICO
 $TotalProduccion = 0;
@@ -94,7 +91,7 @@ if (is_array($qrOntConAlmacen)) {
     $TotalOntConAlmacen = (int)$qrOntConAlmacen;
 }
 
-// TOTAL PRODUCCION HISTORICO (usa ClassConsultasProduccion)
+// TOTAL PRODUCCION HISTORICO
 $TotalProduccion = 0;
 $qrProduccionTotal = $consultas->CountProduccionTotal();
 if (is_array($qrProduccionTotal)) {
@@ -107,86 +104,6 @@ if (is_array($qrProduccionTotal)) {
     }
 } else {
     $TotalProduccion = (int)$qrProduccionTotal;
-}
-
-// NUMEROS DE SERIE ASIGNADOS A TECNICOS (usa Index)
-$TotalAsignados = 0;
-$sqlCompletas = $index->CountMaterialesAsignados($idContratistas, $Fecha1, $Fecha2);
-if (is_array($sqlCompletas)) {
-    if (!empty($sqlCompletas)) {
-        foreach ($sqlCompletas as $row) {
-            if (isset($row['TOTAL'])) {
-                $TotalAsignados = (int)$row['TOTAL'];
-            }
-        }
-    }
-} else {
-    $TotalAsignados = (int)$sqlCompletas;
-}
-
-// NUMEROS DE SERIE SIN INSTALAR
-$TotalSinInstalar = 0;
-$qrIncompletas = $index->CountMaterialesSinInstalar($idContratistas, $Fecha1, $Fecha2);
-if (is_array($qrIncompletas)) {
-    if (!empty($qrIncompletas)) {
-        foreach ($qrIncompletas as $row) {
-            if (isset($row['TOTAL'])) {
-                $TotalSinInstalar = (int)$row['TOTAL'];
-            }
-        }
-    }
-} else {
-    $TotalSinInstalar = (int)$qrIncompletas;
-}
-
-// NUMEROS DE SERIE INSTALADOS COORDIAPP
-$TotalInstalados = 0;
-$qrInstalados = $index->CountMaterialesInstalados($idContratistas, $Fecha1, $Fecha2);
-if (is_array($qrInstalados)) {
-    if (!empty($qrInstalados)) {
-        foreach ($qrInstalados as $row) {
-            if (isset($row['TOTAL'])) {
-                $TotalInstalados = (int)$row['TOTAL'];
-            }
-        }
-    }
-} else {
-    $TotalInstalados = (int)$qrInstalados;
-}
-
-// NUMEROS DE SERIE INSTALADOS TAC
-$TotalInstaladosTAC = 0;
-$qrInstaladosTAC = $index->CountOntInstaladosTAC($idContratistas, $Fecha1, $Fecha2);
-$TotalInstaladosTAC = (int)$qrInstaladosTAC;
-
-// NUMEROS DE SERIE DISPONIBLES ERP
-$TotalDisponible = 0;
-$qrDisponibles = $index->CountONTDisponibles($idContratistas, $Fecha1, $Fecha2);
-if (is_array($qrDisponibles)) {
-    if (!empty($qrDisponibles)) {
-        foreach ($qrDisponibles as $row) {
-            if (isset($row['TOTAL'])) {
-                $TotalDisponible = (int)$row['TOTAL'];
-            }
-        }
-    }
-} else {
-    $TotalDisponible = (int)$qrDisponibles;
-}
-
-// NUMEROS DE SERIE DISPONIBLES ERP (T)
-$TTotalDisponible = 0;
-$qrDisponiblesT = $index->CountONTDisponiblesT($idContratistas);
-if (is_array($qrDisponiblesT)) {
-    if (!empty($qrDisponiblesT)) {
-        foreach ($qrDisponiblesT as $row) {
-            if (isset($row['TOTAL'])) {
-                $TTotalDisponible = (int)$row['TOTAL'];
-            }
-        }
-    }
-} else {
-    $TTotalDisponible = (int)$qrDisponiblesT;
 }
 
 // CHARTS EXISTENTES
@@ -323,7 +240,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
   </div>
 </div>
 
-<!-- NUEVA TARJETA: DETALLE DE ÓRDENES POR ÁREA (SIEMPRE VISIBLE) -->
+<!-- NUEVA TARJETA: DETALLE DE ÓRDENES POR ÁREA -->
 <div class="row" id="contenedorTablaDetalle">
     <div class="col-12 mb-4">
         <div class="card shadow">
@@ -350,11 +267,32 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
                             </tr>
                         </thead>
                         <tbody id="tbodyDetalleArea">
-                            <tr>
-                                <td colspan="10" class="text-muted font-italic py-4">
-                                    No hay datos disponibles para mostrar. Selecciona los filtros correspondientes.
-                                </td>
-                            </tr>
+                            <?php if (!empty($detalleArea)): ?>
+                                <?php foreach ($detalleArea as $row): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($row['Area'] ?? 'N/A'); ?></td>
+                                        <td><?php echo htmlspecialchars($row['Division'] ?? 'N/A'); ?></td>
+                                        <td><?php echo htmlspecialchars($row['Cope'] ?? 'N/A'); ?></td>
+                                        <td class="font-weight-bold text-primary"><?php echo number_format($row['Altas']); ?></td>
+                                        <td><?php echo number_format($row['Migraciones']); ?></td>
+                                        <td><?php echo number_format($row['CambiosDomicilio']); ?></td>
+                                        <td><?php echo number_format($row['Quejas']); ?></td>
+                                        <td><?php echo number_format($row['A4']); ?></td>
+                                        <td class="table-success font-weight-bold"><?php echo number_format($row['TotalConAlmacen']); ?></td>
+                                        <td class="table-danger font-weight-bold"><?php echo number_format($row['TotalSinAlmacen']); ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="10" class="text-muted font-italic py-4">
+                                        <?php if (empty($idContratistaSeleccionado)): ?>
+                                            Por favor, selecciona un contratista para visualizar el detalle por área.
+                                        <?php else: ?>
+                                            No se encontraron registros de producciones para el contratista y rango de fechas seleccionado.
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
