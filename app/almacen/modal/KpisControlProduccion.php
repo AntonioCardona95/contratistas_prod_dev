@@ -268,33 +268,29 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
                             </tr>
                         </thead>
                         <tbody id="tbodyDetalleArea">
-                            <?php if (!empty($detalleArea)): ?>
-                                <?php foreach ($detalleArea as $row): ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($row['Area'] ?? 'N/A'); ?></td>
-                                        <td><?php echo htmlspecialchars($row['Division'] ?? 'N/A'); ?></td>
-                                        <td><?php echo htmlspecialchars($row['Cope'] ?? 'N/A'); ?></td>
-                                        <td class="font-weight-bold text-primary"><?php echo number_format($row['Altas']); ?></td>
-                                        <td><?php echo number_format($row['Migraciones']); ?></td>
-                                        <td><?php echo number_format($row['CambiosDomicilio']); ?></td>
-                                        <td><?php echo number_format($row['Quejas']); ?></td>
-                                        <td><?php echo number_format($row['A4']); ?></td>
-                                        <td class="table-success font-weight-bold"><?php echo number_format($row['TotalConAlmacen']); ?></td>
-                                        <td class="table-danger font-weight-bold"><?php echo number_format($row['TotalSinAlmacen']); ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="10" class="text-muted font-italic py-4">
-                                        <?php if (empty($idContratistaSeleccionado)): ?>
-                                            Por favor, selecciona un contratista para visualizar el detalle por área.
-                                        <?php else: ?>
-                                            No se encontraron registros de producciones para el contratista y rango de fechas seleccionado.
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
-                        </tbody>
+    <?php if (!empty($detalleArea)): ?>
+        <?php foreach ($detalleArea as $row): ?>
+            <tr>
+                <td><?php echo htmlspecialchars($row['Area'] ?? 'N/A'); ?></td>
+                <td><?php echo htmlspecialchars($row['Division'] ?? 'N/A'); ?></td>
+                <td><?php echo htmlspecialchars($row['Cope'] ?? 'N/A'); ?></td>
+                <td class="font-weight-bold text-primary"><?php echo number_format($row['Altas'] ?? 0); ?></td>
+                <td><?php echo number_format($row['Migraciones'] ?? 0); ?></td>
+                <td><?php echo number_format($row['CambiosDomicilio'] ?? 0); ?></td>
+                <td><?php echo number_format($row['Quejas'] ?? 0); ?></td>
+                <td><?php echo number_format($row['A4'] ?? 0); ?></td>
+                <td class="table-success font-weight-bold"><?php echo number_format($row['TotalConAlmacen'] ?? 0); ?></td>
+                <td class="table-danger font-weight-bold"><?php echo number_format($row['TotalSinAlmacen'] ?? 0); ?></td>
+            </tr>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <tr>
+            <td colspan="10" class="text-muted font-italic py-4">
+                No se encontraron registros de producciones para el contratista seleccionado.
+            </td>
+        </tr>
+    <?php endif; ?>
+</tbody>
                     </table>
                 </div>
             </div>
