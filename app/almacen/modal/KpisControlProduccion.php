@@ -22,6 +22,8 @@ var_dump($Fecha1);
 var_dump($Fecha2);
 
 
+
+
 @$Division = $_POST['Division'] ?? '';
 @$Area = $_POST['Area'] ?? '';
 @$Cope = $_POST['Cope'] ?? '';
@@ -40,6 +42,7 @@ if (!empty($Fecha1) && !empty($Fecha2)) {
     $Fecha2 = date('Y-m-d') . " 23:59:59";
     echo "📅 Fecha1 (default): $Fecha1<br>";
     echo "📅 Fecha2 (default): $Fecha2<br>";
+}
 
 /*if (!empty($Fecha1) && !empty($Fecha2)) {
     $Fecha1 = $_POST['Fecha1'] . " 00:00:00";
