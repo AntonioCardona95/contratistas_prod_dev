@@ -272,6 +272,11 @@ public function obtenerTodosContratistas()
      */
     public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
     {
+        // --- CÓDIGO DE PRUEBA / DEBUG ---
+    echo "<div style='background-color: #d4edda; color: #155724; padding: 15px; border: 1px solid #c3e6cb; font-family: sans-serif; font-weight: bold;'>";
+    echo "¡SÍ ENTRÓ A LA FUNCIÓN InsertBatchProduccionYSenalamiento!<br>";
+    echo "Cantidad de registros recibidos: " . count($registros);
+    echo "</div>";
         if (empty($registros)) return true;
 
         $conexion = $this->conexion(); // Conexión 'erpprint'
