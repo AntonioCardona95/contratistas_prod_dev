@@ -146,7 +146,14 @@ if (is_array($qrOntSinAlmacen)) {
 
 // TOTAL ONT CON ENTRADA A ALMACÉN (GENERAL)
 $TotalOntConAlmacen = 0;
-$qrOntConAlmacen = $consultas->CountOntConEntradaAlmacen($Fecha1, $Fecha2, $idContratistas);
+$qrOntConAlmacen = $consultas->CountOntConEntradaAlmacen(
+    $Fecha1, 
+    $Fecha2, 
+    $fechascard1, 
+    $fechascard2, 
+    $idContratistaSeleccionado
+);
+
 if (is_array($qrOntConAlmacen)) {
     if (!empty($qrOntConAlmacen)) {
         foreach ($qrOntConAlmacen as $row) {
