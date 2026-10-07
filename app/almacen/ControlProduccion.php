@@ -130,6 +130,21 @@
                 </select>
             </div>
 
+            <!-- Option Select de Tipo de Tarea -->
+<div class="col-md-3 col-lg-3">
+    <label for="TipoTarea" class="font-weight-bold text-primary mb-1">
+        <i class="fas fa-tasks mr-1"></i> Seleccione Tipo de tarea:
+    </label>
+    <select name="TipoTarea" id="TipoTarea" class="form-control select2-busqueda" onchange="LoadKpisControl();">
+        <option value=""></option>
+        <option value="QUEJAS" <?= $tbTipoTarea === 'QUEJAS' ? 'selected' : '' ?>>QUEJAS</option>
+        <option value="ALTAS" <?= $tbTipoTarea === 'ALTAS' ? 'selected' : '' ?>>ALTAS</option>
+        <option value="MIGRACIONES" <?= $tbTipoTarea === 'MIGRACIONES' ? 'selected' : '' ?>>MIGRACIONES</option>
+        <option value="A4" <?= $tbTipoTarea === 'A4' ? 'selected' : '' ?>>A4</option>
+        <option value="CAMBIOS DE DOMICILIO" <?= $tbTipoTarea === 'CAMBIOS DE DOMICILIO' ? 'selected' : '' ?>>CAMBIOS DE DOMICILIO</option>
+    </select>
+</div>
+
             <!-- ÁREA -->
             <div class="col-md-3 col-lg-3">
                 <label for="selectArea" class="font-weight-bold text-primary mb-1">
