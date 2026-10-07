@@ -119,6 +119,26 @@ public function obtenerTodasAreas()
 }
 
 
+public function obtenerDivisionPorArea($idArea) {
+    $sql = "SELECT d.idDivision, d.Division
+            FROM divisiones d
+            INNER JOIN areas a ON a.FK_Division = d.idDivision
+            WHERE a.idAreas = ?";
+    $result = $this->runQuery($sql, [$idArea], 'erpprint');
+    return $result ? $result[0] : null; // solo una división por área
+}
+
+public function obtenerCopesPorDivision($idDivision) {
+    $sql = "SELECT c.id, c.COPE
+            FROM copes c
+            INNER JOIN areas a ON c.FK_Area = a.idAreas
+            WHERE a.FK_Division = ?
+            ORDER BY c.COPE ASC";
+    return $this->runQuery($sql, [$idDivision], 'erpprint');
+}
+
+
+
 
 
 /**
