@@ -998,26 +998,38 @@ public function CountOntSinEntradaAlmacen($fechaInicio = null, $fechaFin = null,
 
 
 /**
- * Cuenta el total de ONT / equipos que SÍ ingresaron a almacén en un rango de fechas
- * (Donde tanto Existe_Serie_Prod_Almacen como Existe_Serie_Eci_Almacen son igual a 1)
+ * Cuenta el total de ONT / equipos que SÍ ingresaron a almacén.
+ * Permite filtrar por fechas principales, fechas de card y/o contratista.
  */
-public function CountOntConEntradaAlmacen($fechaInicio, $fechaFin, $idContratista = null)
+public function CountOntConEntradaAlmacen($fechaInicio = null, $fechaFin = null, $fechascard1 = null, $fechascard2 = null, $idContratista = null)
 {
-    $sql = "SELECT COUNT(1) AS TOTAL
-            FROM seg_produccion_diaria
-            WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin
-              AND Existe_Serie_Prod_Almacen = 1
-              AND Existe_Serie_Eci_Almacen = 1";
+    // Determinar qué rango de fechas usar (prioridad a las fechas de la card si existen)
+    $fIni = !empty($fechascard1) ? $fechascard1 : $fechaInicio;
+    $fFin = !empty($fechascard2) ? $fechascard2 : $fechaFin;
 
-    $params = array(
-        ':fechaInicio' => $fechaInicio,
-        ':fechaFin'    => $fechaFin
+    $where = array(
+        "Existe_Serie_Prod_Almacen = 1",
+        "Existe_Serie_Eci_Almacen = 1"
     );
+    $params = array();
 
+    // Filtro opcional por rango de fechas
+    if (!empty($fIni) && !empty($fFin)) {
+        $where[] = "FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+        $params[':fechaInicio'] = $fIni;
+        $params[':fechaFin']    = $fFin;
+    }
+
+    // Filtro opcional por contratista
     if (!empty($idContratista)) {
-        $sql .= " AND idContratista = :idContratista";
+        $where[] = "idContratista = :idContratista";
         $params[':idContratista'] = $idContratista;
     }
+
+    // Construir la consulta SQL
+    $sql = "SELECT COUNT(1) AS TOTAL 
+            FROM seg_produccion_diaria 
+            WHERE " . implode(" AND ", $where);
 
     return $this->runQuery($sql, $params, 'erpprint');
 }
