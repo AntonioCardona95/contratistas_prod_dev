@@ -24,7 +24,7 @@ $Fecha2 = $_POST['Fecha2'] ?? '';
 $Area        = $_POST['selectArea'] ?? '';
 $Division    = $_POST['selectDivision'] ?? '';
 $Cope        = $_POST['selectCope'] ?? '';
-$TipoTarea                 = $_POST['TipoTarea'] ?? '';
+$TipoTarea = $_POST['TipoTarea'] ?? '';
 
 // FECHAS INDEPENDIENTES DE LAS CARDS
 $fechascard1 = $_POST['fechascard1'] ?? '';
