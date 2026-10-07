@@ -1053,39 +1053,44 @@ public function CountOntAlmacenPorDivision($fechaInicio, $fechaFin, $idContratis
 
 public function ObtenerDetalleOrdenesPorArea($idContratista)
 {
-    // Consulta con pivot para obtener todas las columnas que espera la tabla HTML
     $sql = "SELECT 
                 p.NOM_AREA AS Area,
                 p.NOM_DIVISION AS Division,
                 p.NOM_CT AS Cope,
-                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) = 'ALTA' THEN 1 ELSE 0 END) AS Altas,
-                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) = 'MIGRACION' THEN 1 ELSE 0 END) AS Migraciones,
-                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) IN ('CAMBIO DE DOMICILIO', 'CAMBIO DOMICILIO', 'CAMBIO_DOMICILIO') THEN 1 ELSE 0 END) AS CambiosDomicilio,
-                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) = 'QUEJA' THEN 1 ELSE 0 END) AS Quejas,
+                
+                /* ALTAS: Inicia con 'A' pero NO es 'A4' */
+                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) LIKE 'A%' AND UPPER(TRIM(p.Tipo_de_Tarea)) != 'A4' THEN 1 ELSE 0 END) AS Altas,
+                
+                /* MIGRACION: Inicia con 'FC', 'TI', 'TS' o 'TV' */
+                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) REGEXP '^(FC|TI|TS|TV)' THEN 1 ELSE 0 END) AS Migraciones,
+                
+                /* CAMBIOS DE DOMICILIO: Inicia con 'D' */
+                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) LIKE 'D%' THEN 1 ELSE 0 END) AS CambiosDomicilio,
+                
+                /* QUEJAS: Inicia con 'Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597' o 'F841' */
+                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) REGEXP '^(Q|R|C|EB|EI|EU|GD|MG|F597|F841)' THEN 1 ELSE 0 END) AS Quejas,
+                
+                /* A4: Exactamente 'A4' */
                 SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) = 'A4' THEN 1 ELSE 0 END) AS A4,
+                
+                /* TOTAL CON ALMACÉN: Si al menos una de las dos series entró (1) */
                 SUM(CASE WHEN (p.Existe_Serie_Prod_Almacen = 1 OR p.Existe_Serie_Eci_Almacen = 1) THEN 1 ELSE 0 END) AS TotalConAlmacen,
+                
+                /* TOTAL SIN ALMACÉN: Si ambas series están fuera de almacén (0) */
                 SUM(CASE WHEN (p.Existe_Serie_Prod_Almacen = 0 AND p.Existe_Serie_Eci_Almacen = 0) THEN 1 ELSE 0 END) AS TotalSinAlmacen
+
             FROM seg_produccion_diaria p
             WHERE p.idContratista = :idContratista
             GROUP BY p.NOM_AREA, p.NOM_DIVISION, p.NOM_CT
-            ORDER BY p.NOM_AREA ASC";
+            ORDER BY p.NOM_AREA ASC, p.NOM_CT ASC";
 
     $params = [':idContratista' => $idContratista];
 
-    echo "<pre>SQL ejecutado:\n$sql\n</pre>";
-    echo "<pre>Parámetros:\n" . print_r($params, true) . "</pre>";
-
     try {
-        // Consulta principal ejecutada con tu método runQuery
         $resultado = $this->runQuery($sql, $params, 'erpprint');
-        
-        echo "<pre>Resultado agrupado (var_dump):\n";
-        var_dump($resultado);
-        echo "</pre>";
-
-        return $resultado;
+        return is_array($resultado) ? $resultado : array();
     } catch (Exception $e) {
-        echo "<p style='color:red'>Error: " . $e->getMessage() . "</p>";
+        error_log("Error en ObtenerDetalleOrdenesPorArea: " . $e->getMessage());
         return array();
     }
 }
