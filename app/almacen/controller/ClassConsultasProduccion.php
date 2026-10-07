@@ -1024,8 +1024,16 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
  * Cuenta el total de equipos/ONT que NO han ingresado a almacén.
  * Permite filtrar por fechas principales, fechas de card y/o contratista.
  */
-public function CountOntSinEntradaAlmacen($fechaInicio = null, $fechaFin = null, $fechascard1 = null, $fechascard2 = null, $idContratista = null)
-{
+public function CountOntSinEntradaAlmacen(
+    $fechaInicio = null, 
+    $fechaFin = null, 
+    $fechascard1 = null, 
+    $fechascard2 = null, 
+    $idContratista = null,
+    $idArea = null,
+    $idDivision = null,
+    $idCope = null
+) {
     // Determinar qué rango de fechas usar (prioridad a las fechas de la card si existen)
     $fIni = !empty($fechascard1) ? $fechascard1 : $fechaInicio;
     $fFin = !empty($fechascard2) ? $fechascard2 : $fechaFin;
@@ -1047,6 +1055,24 @@ public function CountOntSinEntradaAlmacen($fechaInicio = null, $fechaFin = null,
     if (!empty($idContratista)) {
         $where[] = "idContratista = :idContratista";
         $params[':idContratista'] = $idContratista;
+    }
+
+    // Filtro opcional por Área
+    if (!empty($idArea)) {
+        $where[] = "idAreas = :idArea";
+        $params[':idArea'] = $idArea;
+    }
+
+    // Filtro opcional por División
+    if (!empty($idDivision)) {
+        $where[] = "idDivisiones = :idDivision";
+        $params[':idDivision'] = $idDivision;
+    }
+
+    // Filtro opcional por Cope
+    if (!empty($idCope)) {
+        $where[] = "idCopes = :idCope";
+        $params[':idCope'] = $idCope;
     }
 
     // Construir la consulta SQL
