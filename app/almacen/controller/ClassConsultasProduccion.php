@@ -104,8 +104,6 @@ public function obtenerTodosContratistas()
 }
 
 
-    * Cuenta el total de producción en la vista/tabla seg_ns_prod_eval evaluando rangos independientes de fechas y contratista
-     */
     public function CountProduccionPorFechas($fechaInicio = null, $fechaFin = null, $fechascard1 = null, $fechascard2 = null, $idContratista = null)
     {
         $sql = "SELECT COUNT(1) AS TOTAL FROM seg_ns_prod_eval WHERE 1=1";
