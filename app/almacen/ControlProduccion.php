@@ -120,7 +120,7 @@
                 <label for="selectContratista" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-user-tie mr-1"></i> Seleccionar Contratista:
                 </label>
-                <select class="form-control select2-busqueda" id="selectContratista" name="selectContratista" data-placeholder="-- Seleccionar Contratista --" onchange="LoadKpisControl();">
+                <select class="form-control select2-busqueda" id="selectContratista" name="selectContratista" data-placeholder="-- Seleccionar Contratista --" onchange="LimpiarSelectoresUbicacion(); LoadKpisControl();">
                     <option value=""></option>
                     <?php foreach ($listaContratistas as $row): ?>
                         <option value="<?= htmlspecialchars($row['idContratistas']) ?>">
