@@ -10,6 +10,7 @@ require_once("../controller/ClassConsultasProduccion.php");
 require_once("../controller/ClassIndex.php");
 require_once(__DIR__ . '/../../config/ContratistaContexto.php');
 
+
 session_start();
 $Contratista = $_SESSION['Contratista'];
 $idContratistas = obtenerIdContratistaContexto();
@@ -20,6 +21,7 @@ $Fecha2 = $_POST['Fecha2'] ?? '';
 @$Division = $_POST['Division'] ?? '';
 @$Area = $_POST['Area'] ?? '';
 @$Cope = $_POST['Cope'] ?? '';
+
 
 $mes_anterior = date('Y-m-d', strtotime('-3 month'));
 
@@ -32,16 +34,17 @@ if (!empty($Fecha1) && !empty($Fecha2)) {
 }
 
 $idContratistaSeleccionado = $_POST['selectContratista'] ?? null;
-
-// INSTANCIAS DE LAS CLASES (Puestas al inicio para evitar errores de variable nula)
-$index = new Index();
-$consultas = new ClassConsultasProduccion();
+//var_dump($idContratistaSeleccionado);
 
 // Ejecutar consulta de detalle agrupado por área
 $detalleArea = [];
 if (!empty($idContratistaSeleccionado)) {
     $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea($idContratistaSeleccionado, $Fecha1, $Fecha2);
 }
+
+// Instancias de las clases
+$index = new Index();
+$consultas = new ClassConsultasProduccion();
 
 // TOTAL PRODUCCION HISTORICO
 $TotalProduccion = 0;
@@ -320,7 +323,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
   </div>
 </div>
 
-<!-- NUEVA TARJETA: DETALLE DE ÓRDENES POR ÁREA -->
+<!-- NUEVA TARJETA: DETALLE DE ÓRDENES POR ÁREA (SIEMPRE VISIBLE) -->
 <div class="row" id="contenedorTablaDetalle">
     <div class="col-12 mb-4">
         <div class="card shadow">
@@ -347,32 +350,11 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
                             </tr>
                         </thead>
                         <tbody id="tbodyDetalleArea">
-                            <?php if (!empty($detalleArea)): ?>
-                                <?php foreach ($detalleArea as $row): ?>
-                                    <tr>
-                                        <td><?php echo htmlspecialchars($row['Area'] ?? 'N/A'); ?></td>
-                                        <td><?php echo htmlspecialchars($row['Division'] ?? 'N/A'); ?></td>
-                                        <td><?php echo htmlspecialchars($row['Cope'] ?? 'N/A'); ?></td>
-                                        <td class="font-weight-bold text-primary"><?php echo number_format($row['Altas']); ?></td>
-                                        <td><?php echo number_format($row['Migraciones']); ?></td>
-                                        <td><?php echo number_format($row['CambiosDomicilio']); ?></td>
-                                        <td><?php echo number_format($row['Quejas']); ?></td>
-                                        <td><?php echo number_format($row['A4']); ?></td>
-                                        <td class="table-success font-weight-bold"><?php echo number_format($row['TotalConAlmacen']); ?></td>
-                                        <td class="table-danger font-weight-bold"><?php echo number_format($row['TotalSinAlmacen']); ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <tr>
-                                    <td colspan="10" class="text-muted font-italic py-4">
-                                        <?php if (empty($idContratistaSeleccionado)): ?>
-                                            Por favor, selecciona un contratista para visualizar el detalle por área.
-                                        <?php else: ?>
-                                            No se encontraron registros de producciones para el contratista y rango de fechas seleccionado.
-                                        <?php endif; ?>
-                                    </td>
-                                </tr>
-                            <?php endif; ?>
+                            <tr>
+                                <td colspan="10" class="text-muted font-italic py-4">
+                                    No hay datos disponibles para mostrar. Selecciona los filtros correspondientes.
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
