@@ -22,7 +22,7 @@ $Fecha1 = $_POST['Fecha1'] ?? '';
 $Fecha2 = $_POST['Fecha2'] ?? '';
 
 @$Division = $_POST['Division'] ?? '';
-@$Area = $_POST['Area'] ?? '';
+@$Area = $_POST['selectArea'] ?? '';
 @$Cope = $_POST['Cope'] ?? '';
 
 
