@@ -73,34 +73,78 @@ function LoadKPIS(){
 }
 
 function LoadKpisControl(ejecutar) {
+    console.log("Entró a LoadKpisControl");
+
     // 1. Convertimos los datos del formulario de fechas a un String/Objeto
     var parametros = $("#FormQueryUnidades").serialize();
 
-    // 2. Le concatenamos el valor del select de contratistas
+    // 2. Contratista
     var selectContratista = $('#selectContratista').val();
     if (selectContratista) {
         parametros += '&selectContratista=' + encodeURIComponent(selectContratista);
     }
 
-    // 3. Le concatenamos el valor del select de áreas
+    // 3. Área
     var selectArea = $('#selectArea').val();
     if (selectArea) {
         parametros += '&selectArea=' + encodeURIComponent(selectArea);
+
+        // --- Cargar división y copes en base al área seleccionada ---
+        $.ajax({
+            type: 'POST',
+            url: 'modal/selectores.php',
+            data: { action: 'getDivisionByArea', idArea: selectArea },
+            dataType: 'json',
+            success: function(data) {
+                console.log("Respuesta divisiones:", data);
+                if (data) {
+                    $('#selectDivision').html('<option value="'+data.idDivision+'">'+data.Division+'</option>');
+                    $('#selectDivision').prop('disabled', false);
+                } else {
+                    $('#selectDivision').html('<option value="">No hay división para esta área</option>');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Error AJAX divisiones:", status, error);
+            }
+        });
+
+        $.ajax({
+            type: 'POST',
+            url: 'modal/selectores.php',
+            data: { action: 'getCopesByArea', idArea: selectArea },
+            dataType: 'json',
+            success: function(data) {
+                console.log("Respuesta copes:", data);
+                if (data.length > 0) {
+                    $('#selectCope').html('<option value="">-- Seleccione un cope --</option>');
+                    $.each(data, function(index, item) {
+                        $('#selectCope').append('<option value="'+item.id+'">'+item.COPE+'</option>');
+                    });
+                    $('#selectCope').prop('disabled', false);
+                } else {
+                    $('#selectCope').html('<option value="">No hay copes en esta área</option>');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Error AJAX copes:", status, error);
+            }
+        });
     }
 
-    // 4. Le concatenamos el valor del select de divisiones
+    // 4. División
     var selectDivision = $('#selectDivision').val();
     if (selectDivision) {
         parametros += '&selectDivision=' + encodeURIComponent(selectDivision);
     }
 
-    // 5. Le concatenamos el valor del select de copes
+    // 5. Cope
     var selectCope = $('#selectCope').val();
     if (selectCope) {
         parametros += '&selectCope=' + encodeURIComponent(selectCope);
     }
 
-    // 6. Obtenemos y concatenamos los valores de los selectores de fechas
+    // 6. Fechas
     var fechascard1 = $('#fechascard1').val();
     var fechascard2 = $('#fechascard2').val();
 
@@ -111,14 +155,14 @@ function LoadKpisControl(ejecutar) {
         parametros += '&fechascard2=' + encodeURIComponent(fechascard2);
     }
 
-    // 7. Si viene la bandera opcional de 'ejecutar'
+    // 7. Bandera ejecutar
     if (ejecutar) {
         parametros += '&ejecutar=1';
     }
 
     $("#LoadKpisControl").fadeIn('slow');
 
-    // Retornamos la promesa de AJAX para que ejecute la animación correctamente en ejecutarFiltradoProduccion()
+    // 8. Llamada principal para refrescar KPIs
     return $.ajax({
         type: 'POST',
         url: 'modal/KpisControlProduccion.php',
@@ -131,6 +175,7 @@ function LoadKpisControl(ejecutar) {
         }
     });
 }
+
 
 
 
