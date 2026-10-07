@@ -243,11 +243,11 @@
 </script>
 
 <script>
-    function LoadDivisiones() {
+function LoadDivisiones() {
     var idArea = $('#selectArea').val();
 
     $('#selectDivision').html('<option value="">-- Seleccione primero un área --</option>').prop('disabled', true);
-    $('#selectCope').html('<option value="">-- Seleccione primero una división --</option>').prop('disabled', true);
+    $('#selectCope').html('<option value="">-- Seleccione primero un área --</option>').prop('disabled', true);
 
     if (!idArea) return;
 
@@ -265,19 +265,11 @@
             }
         }
     });
-}
-
-function LoadCopes() {
-    var idDivision = $('#selectDivision').val();
-
-    $('#selectCope').html('<option value="">-- Seleccione primero una división --</option>').prop('disabled', true);
-
-    if (!idDivision) return;
 
     $.ajax({
         type: 'POST',
         url: 'modal/selectores.php',
-        data: { action: 'getCopesByDivision', idDivision: idDivision },
+        data: { action: 'getCopesByArea', idArea: idArea },
         dataType: 'json',
         success: function(data) {
             if (data.length > 0) {
@@ -287,11 +279,12 @@ function LoadCopes() {
                 });
                 $('#selectCope').prop('disabled', false);
             } else {
-                $('#selectCope').html('<option value="">No hay copes en esta división</option>');
+                $('#selectCope').html('<option value="">No hay copes en esta área</option>');
             }
         }
     });
 }
+
 
 </script>
 
