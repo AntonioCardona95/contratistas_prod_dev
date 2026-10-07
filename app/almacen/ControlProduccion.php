@@ -16,6 +16,9 @@
     // Instancias
     $objProduccion = new ClassConsultasProduccion();
     $listaContratistas = $objProduccion->obtenerTodosContratistas();
+    $listaAreas = $objProduccion->obtenerTodasAreas();
+
+
 
     // Validación de sesión y contexto
     $Contratista = $_SESSION['Contratista'] ?? null;
@@ -124,6 +127,21 @@
                     <?php endforeach; ?>
                 </select>
             </div>
+
+            <div class="col-md-6 col-lg-4">
+    <label for="selectArea" class="font-weight-bold text-primary mb-1">
+        <i class="fas fa-building mr-1"></i> Seleccionar Área:
+    </label>
+    <select class="form-control select2-busqueda" id="selectArea" name="selectArea" onchange="LoadKpisControl();">
+        <option value="">-- Todas las áreas --</option>
+        <?php foreach ($listaAreas as $row): ?>
+            <option value="<?= htmlspecialchars($row['idAreas']) ?>">
+                <?= htmlspecialchars($row['area']) ?>
+            </option>
+        <?php endforeach; ?>
+    </select>
+</div>
+
         </div>
     </div>
 </div>
