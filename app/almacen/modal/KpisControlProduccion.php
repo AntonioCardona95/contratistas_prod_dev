@@ -21,10 +21,9 @@ $idContratistas = obtenerIdContratistaContexto();
 $Fecha1 = $_POST['Fecha1'] ?? '';
 $Fecha2 = $_POST['Fecha2'] ?? '';
 
-@$Division = $_POST['Division'] ?? '';
-@$Area = $_POST['selectArea'] ?? '';
-@$Cope = $_POST['Cope'] ?? '';
-
+$Area        = $_POST['selectArea'] ?? '';
+$Division    = $_POST['selectDivision'] ?? '';
+$Cope        = $_POST['selectCope'] ?? '';
 
 // FECHAS INDEPENDIENTES DE LAS CARDS
 $fechascard1 = $_POST['fechascard1'] ?? '';
