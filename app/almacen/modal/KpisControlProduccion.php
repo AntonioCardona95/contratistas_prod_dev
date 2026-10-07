@@ -133,6 +133,7 @@ $qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen(
     $fechascard1, 
     $fechascard2, 
     $idContratistaSeleccionado,
+    $TipoTarea,
     $Area,
     $Division,
     $Cope
