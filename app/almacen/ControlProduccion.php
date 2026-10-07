@@ -241,6 +241,62 @@
         LoadKpisControl();
     });
 </script>
+
+<script>
+    function LoadDivisiones() {
+    var idArea = $('#selectArea').val();
+
+    $('#selectDivision').html('<option value="">-- Seleccione primero un área --</option>').prop('disabled', true);
+    $('#selectCope').html('<option value="">-- Seleccione primero una división --</option>').prop('disabled', true);
+
+    if (!idArea) return;
+
+    $.ajax({
+        type: 'POST',
+        url: 'modal/selectores.php',
+        data: { action: 'getDivisionByArea', idArea: idArea },
+        dataType: 'json',
+        success: function(data) {
+            if (data) {
+                $('#selectDivision').html('<option value="'+data.idDivision+'">'+data.Division+'</option>');
+                $('#selectDivision').prop('disabled', false);
+            } else {
+                $('#selectDivision').html('<option value="">No hay división para esta área</option>');
+            }
+        }
+    });
+}
+
+function LoadCopes() {
+    var idDivision = $('#selectDivision').val();
+
+    $('#selectCope').html('<option value="">-- Seleccione primero una división --</option>').prop('disabled', true);
+
+    if (!idDivision) return;
+
+    $.ajax({
+        type: 'POST',
+        url: 'modal/selectores.php',
+        data: { action: 'getCopesByDivision', idDivision: idDivision },
+        dataType: 'json',
+        success: function(data) {
+            if (data.length > 0) {
+                $('#selectCope').html('<option value="">-- Seleccione un cope --</option>');
+                $.each(data, function(index, item) {
+                    $('#selectCope').append('<option value="'+item.id+'">'+item.COPE+'</option>');
+                });
+                $('#selectCope').prop('disabled', false);
+            } else {
+                $('#selectCope').html('<option value="">No hay copes en esta división</option>');
+            }
+        }
+    });
+}
+
+</script>
+
+
+
 </body>
 </html>
 
