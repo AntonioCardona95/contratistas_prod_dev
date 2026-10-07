@@ -658,3 +658,9 @@ $haySeriesMasivas = $totalSeries > 0;
 fclose($jsonDetallesSeriesMasivas);
 fclose($jsonDatosTablaMasiva);
 ?>
+<div class="alert alert-info mt-2">
+    Diagnostico temporal PHP —
+    Limite: <?= htmlspecialchars((string)ini_get('memory_limit'), ENT_QUOTES, 'UTF-8') ?>;
+    memoria actual: <?= round(memory_get_usage(true) / 1024 / 1024, 2) ?> MiB;
+    pico de esta peticion: <?= round(memory_get_peak_usage(true) / 1024 / 1024, 2) ?> MiB.
+</div>
