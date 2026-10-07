@@ -29,7 +29,7 @@
     $Fecha1 = $_POST['Fecha1'] ?? '';
     $Fecha2 = $_POST['Fecha2'] ?? '';
     $mes_anterior = date('Y-m-d', strtotime('-3 month'));
-    $tbTipoTarea = $_POST['TipoTarea'] ?? '';
+    //$tbTipoTarea = $_POST['TipoTarea'] ?? '';
 ?>
 
 <!DOCTYPE html>
