@@ -1051,7 +1051,7 @@ public function CountOntAlmacenPorDivision($fechaInicio, $fechaFin, $idContratis
     return $this->runQuery($sql, $params, 'erpprint');
 } */
 
-    public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio, $fechaFin)
+public function ObtenerDetalleOrdenesPorArea($idContratista)
 {
     $sql = "SELECT 
                 p.Area,
@@ -1066,23 +1066,20 @@ public function CountOntAlmacenPorDivision($fechaInicio, $fechaFin, $idContratis
                 SUM(CASE WHEN p.Entrada_Almacen = 0 THEN 1 ELSE 0 END) AS TotalSinAlmacen
             FROM produccion p
             WHERE p.idContratistas = :idContratista
-              AND p.Fecha_Liquidacion BETWEEN :fechaInicio AND :fechaFin
             GROUP BY p.Area, p.Division, p.Cope
             ORDER BY p.Area ASC";
 
     $params = array(
-        ':idContratista' => $idContratista,
-        ':fechaInicio'   => $fechaInicio,
-        ':fechaFin'      => $fechaFin
+        ':idContratista' => $idContratista
     );
 
-    echo "<pre>SQL preparado:\n$sql\n</pre>";
+    // Debug en pantalla
+    echo "<pre>SQL ejecutado:\n$sql\n</pre>";
     echo "<pre>Parámetros:\n" . print_r($params, true) . "</pre>";
 
     try {
         $resultado = $this->runQuery($sql, $params, 'erpprint');
-
-        echo "<pre>Resultado de la consulta:\n" . print_r($resultado, true) . "</pre>";
+        echo "<pre>Resultado:\n" . print_r($resultado, true) . "</pre>";
 
         if (empty($resultado)) {
             echo "<p><strong>No se encontraron registros.</strong></p>";
@@ -1096,6 +1093,7 @@ public function CountOntAlmacenPorDivision($fechaInicio, $fechaFin, $idContratis
         return null;
     }
 }
+
 
 
 
