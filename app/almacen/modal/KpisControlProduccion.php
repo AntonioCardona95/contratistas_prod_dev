@@ -1,4 +1,8 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 define('WP_DEBUG', true);
 define('WP_DEBUG_DISPLAY', false);
 
@@ -10,20 +14,12 @@ require_once("../controller/ClassConsultasProduccion.php");
 require_once("../controller/ClassIndex.php");
 require_once(__DIR__ . '/../../config/ContratistaContexto.php');
 
-session_start();
-$Contratista = $_SESSION['Contratista'];
+$Contratista = $_SESSION['Contratista'] ?? null;
 $idContratistas = obtenerIdContratistaContexto();
 
 // RECIBIMOS PARAMETROS
 $Fecha1 = $_POST['Fecha1'] ?? '';
 $Fecha2 = $_POST['Fecha2'] ?? '';
-
-var_dump($Fecha1);
-var_dump($Fecha2);
-
-
-
-
 @$Division = $_POST['Division'] ?? '';
 @$Area = $_POST['Area'] ?? '';
 @$Cope = $_POST['Cope'] ?? '';
@@ -31,26 +27,12 @@ var_dump($Fecha2);
 $mes_anterior = date('Y-m-d', strtotime('-3 month'));
 
 if (!empty($Fecha1) && !empty($Fecha2)) {
-    echo "✅ Entró al IF: Se recibieron ambas fechas<br>";
     $Fecha1 = $_POST['Fecha1'] . " 00:00:00";
     $Fecha2 = $_POST['Fecha2'] . " 23:59:59";
-    echo "📅 Fecha1: $Fecha1<br>";
-    echo "📅 Fecha2: $Fecha2<br>";
 } else {
-    echo "⚠️ Entró al ELSE: No se recibieron ambas fechas<br>";
     $Fecha1 = $mes_anterior . " 00:00:00";
     $Fecha2 = date('Y-m-d') . " 23:59:59";
-    echo "📅 Fecha1 (default): $Fecha1<br>";
-    echo "📅 Fecha2 (default): $Fecha2<br>";
 }
-
-/*if (!empty($Fecha1) && !empty($Fecha2)) {
-    $Fecha1 = $_POST['Fecha1'] . " 00:00:00";
-    $Fecha2 = $_POST['Fecha2'] . " 23:59:59";
-} else {
-    $Fecha1 = $mes_anterior . " 00:00:00";
-    $Fecha2 = date('Y-m-d') . " 23:59:59";
-} */
 
 $idContratistaSeleccionado = $_POST['selectContratista'] ?? null;
 
@@ -61,12 +43,48 @@ $consultas = new ClassConsultasProduccion();
 // CONSULTA DE DETALLE POR ÁREA DE LA TABLA seg_produccion_diaria
 $detalleArea = [];
 if (!empty($idContratistaSeleccionado)) {
-    // Ahora la función solo recibe el contratista
     $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea($idContratistaSeleccionado);
 }
 
-// TOTAL PRODUCCION HISTORICO
-$TotalProduccion = 0;
+// PROCESAMIENTO Y ACTUALIZACIÓN SI SE ENVIARON FECHAS POR POST
+$TotalSinNavegacion = 0;
+if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
+    // Conteo de 'Sin Navegación' en el rango de fechas
+    $TotalSinNavegacion = (int)$consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
+
+    // Obtener los registros de producción del periodo y procesar la sincronización
+    $registros = $consultas->GetProduccionPorFechas($Fecha1, $Fecha2);
+
+    if (!empty($registros)) {
+        // Paso A: Mapear datos detallados de ESCI por teléfono
+        $telefonos = array_column($registros, 'TELEFONO');
+        $mapEciDetalle = $consultas->GetDetalleEciPorTelefonos($telefonos);
+
+        // Paso B: Recolectar números de serie válidos (Producción + ESCI)
+        $seriesABuscar = [];
+        foreach ($registros as $reg) {
+            $tel = trim($reg['TELEFONO'] ?? '');
+            $serieProd = trim($reg['Num__Serie'] ?? '');
+            
+            $eciInfo  = $mapEciDetalle[$tel] ?? null;
+            $serieEci = $eciInfo['M_SERIE'] ?? null;
+
+            if (!$consultas->esSerieInvalida($serieProd)) {
+                $seriesABuscar[] = $serieProd;
+            }
+            if ($serieEci !== null && !$consultas->esSerieInvalida($serieEci)) {
+                $seriesABuscar[] = $serieEci;
+            }
+        }
+
+        // Paso C: Consultar existencia en almacén
+        $existentesEnAlmacen = $consultas->GetNumSeriesEnAlmacen($seriesABuscar);
+        $mapExistentes = array_flip($existentesEnAlmacen);
+
+        // Paso D: Procesar inserción/actualización de producción, navegación y señalamientos
+        $consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes, $mapEciDetalle);
+    }
+}
 
 // PRODUCCION POR FECHAS SELECCIONADAS
 $TotalProduccionFechas = 0;
