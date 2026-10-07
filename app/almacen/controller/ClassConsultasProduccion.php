@@ -1053,15 +1053,22 @@ public function CountOntAlmacenPorDivision($fechaInicio, $fechaFin, $idContratis
 
 public function ObtenerDetalleOrdenesPorArea($idContratista)
 {
-    // Consulta ajustada a las columnas reales
+    // Consulta con pivot para obtener todas las columnas que espera la tabla HTML
     $sql = "SELECT 
-                p.NOM_CT,
-                p.Tipo_de_Tarea,
-                COUNT(*) AS Total
+                p.NOM_AREA AS Area,
+                p.NOM_DIVISION AS Division,
+                p.NOM_CT AS Cope,
+                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) = 'ALTA' THEN 1 ELSE 0 END) AS Altas,
+                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) = 'MIGRACION' THEN 1 ELSE 0 END) AS Migraciones,
+                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) IN ('CAMBIO DE DOMICILIO', 'CAMBIO DOMICILIO', 'CAMBIO_DOMICILIO') THEN 1 ELSE 0 END) AS CambiosDomicilio,
+                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) = 'QUEJA' THEN 1 ELSE 0 END) AS Quejas,
+                SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) = 'A4' THEN 1 ELSE 0 END) AS A4,
+                SUM(CASE WHEN (p.Existe_Serie_Prod_Almacen = 1 OR p.Existe_Serie_Eci_Almacen = 1) THEN 1 ELSE 0 END) AS TotalConAlmacen,
+                SUM(CASE WHEN (p.Existe_Serie_Prod_Almacen = 0 AND p.Existe_Serie_Eci_Almacen = 0) THEN 1 ELSE 0 END) AS TotalSinAlmacen
             FROM seg_produccion_diaria p
             WHERE p.idContratista = :idContratista
-            GROUP BY p.NOM_CT, p.Tipo_de_Tarea
-            ORDER BY p.NOM_CT ASC";
+            GROUP BY p.NOM_AREA, p.NOM_DIVISION, p.NOM_CT
+            ORDER BY p.NOM_AREA ASC";
 
     $params = [':idContratista' => $idContratista];
 
@@ -1069,25 +1076,19 @@ public function ObtenerDetalleOrdenesPorArea($idContratista)
     echo "<pre>Parámetros:\n" . print_r($params, true) . "</pre>";
 
     try {
-        // Debug: registros crudos
-        $sqlDebug = "SELECT p.idContratista, p.NOM_CT, p.Tipo_de_Tarea, p.FECHA_LIQ
-                     FROM seg_produccion_diaria p
-                     WHERE p.idContratista = :idContratista
-                     LIMIT 20";
-        $debugRows = $this->runQuery($sqlDebug, $params, 'erpprint');
-        echo "<pre>Primeros registros crudos:\n" . print_r($debugRows, true) . "</pre>";
-
-        // Consulta principal
+        // Consulta principal ejecutada con tu método runQuery
         $resultado = $this->runQuery($sql, $params, 'erpprint');
-        echo "<pre>Resultado agrupado:\n" . print_r($resultado, true) . "</pre>";
+        
+        echo "<pre>Resultado agrupado (var_dump):\n";
+        var_dump($resultado);
+        echo "</pre>";
 
         return $resultado;
     } catch (Exception $e) {
         echo "<p style='color:red'>Error: " . $e->getMessage() . "</p>";
-        return null;
+        return array();
     }
 }
-
 
 
 
