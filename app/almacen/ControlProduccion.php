@@ -230,17 +230,43 @@
 
 <script>
     $(document).ready(function(){
-        // Inicializar el plugin Select2 con buscador
-        $('.select2-busqueda').select2({
+        // Contratista
+        $('#selectContratista').select2({
             theme: 'bootstrap4',
             placeholder: '-- Seleccionar Contratista --',
             allowClear: true,
             width: '100%'
         });
 
+        // Área
+        $('#selectArea').select2({
+            theme: 'bootstrap4',
+            placeholder: '-- Seleccionar Área --',
+            allowClear: true,
+            width: '100%'
+        });
+
+        // División
+        $('#selectDivision').select2({
+            theme: 'bootstrap4',
+            placeholder: '-- Seleccionar División --',
+            allowClear: true,
+            width: '100%'
+        });
+
+        // Cope
+        $('#selectCope').select2({
+            theme: 'bootstrap4',
+            placeholder: '-- Seleccionar Cope --',
+            allowClear: true,
+            width: '100%'
+        });
+
+        // Ejecutar carga inicial
         LoadKpisControl();
     });
 </script>
+
 
 
 
