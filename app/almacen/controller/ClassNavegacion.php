@@ -52,6 +52,7 @@ class Navegacion extends Conexion
         $conexionAnalisis = $this->get_conexion_analisis();
 
         try {
+            $conexionAnalisis->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
             $statement = $conexionAnalisis->prepare($sql);
             $statement->execute($params);
             $rows = $statement->fetchAll(PDO::FETCH_ASSOC);
@@ -61,6 +62,42 @@ class Navegacion extends Conexion
         }
 
         return is_array($rows) ? $rows : array();
+    }
+
+    protected function runAnalysisQueryGroupedBySerie($sql, $params, $maxRegistrosPorSerie)
+    {
+        $registrosPorSerie = array();
+        $conexionAnalisis = $this->get_conexion_analisis();
+        $statement = null;
+
+        try {
+            $conexionAnalisis->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, false);
+            $statement = $conexionAnalisis->prepare($sql);
+            $statement->execute($params);
+
+            while (($registro = $statement->fetch(PDO::FETCH_ASSOC)) !== false) {
+                $serie = $this->normalizarSerie($registro['M_SERIE'] ?? '');
+                if ($serie === '' || count($registrosPorSerie[$serie] ?? array()) >= $maxRegistrosPorSerie) {
+                    continue;
+                }
+
+                $registrosPorSerie[$serie][] = $registro;
+            }
+        } catch (PDOException $e) {
+            error_log('[Navegacion::runAnalysisQueryGroupedBySerie] Error: ' . $e->getMessage());
+            $registrosPorSerie = array();
+        } finally {
+            if ($statement !== null) {
+                try {
+                    $statement->closeCursor();
+                } catch (PDOException $e) {
+                    error_log('[Navegacion::runAnalysisQueryGroupedBySerie] Error al cerrar cursor: ' . $e->getMessage());
+                    $registrosPorSerie = array();
+                }
+            }
+        }
+
+        return $registrosPorSerie;
     }
 
     protected function normalizarSerie($serie)
@@ -396,6 +433,7 @@ class Navegacion extends Conexion
                     $coordiappRegistrosPorSerie[$serieCoordiapp][] = $registroCoordiapp;
                 }
             }
+            unset($registrosCoordiapp);
         }
 
         // UNA SERIE ES DUPLICADA EN COORDIAPP SI TIENE TELÉFONOS DIFERENTES.
@@ -445,7 +483,7 @@ class Navegacion extends Conexion
         if (!empty($seriesUnicas)) {
             $seriesParaTac = array_keys($seriesUnicas);
             $marcadoresTac = implode(',', array_fill(0, count($seriesParaTac), '?'));
-            $registrosTacPorSerie = $this->runAnalysisQuery(
+            $registrosTacTodos = $this->runAnalysisQuery(
                 "SELECT Folio_Pisa, Num__Serie, TELEFONO, FECHA_LIQ, Calificador_Edo, Tipo_de_Tarea
                  FROM qm_tac
                  WHERE Num__Serie IN ($marcadoresTac)
@@ -453,7 +491,6 @@ class Navegacion extends Conexion
                  ORDER BY FECHA_LIQ DESC",
                 $seriesParaTac
             );
-            $registrosTacTodos = $registrosTacPorSerie;
         }
 
         $registrosTacUnicos = array();
@@ -467,8 +504,8 @@ class Navegacion extends Conexion
             ));
             $registrosTacUnicos[$claveTac] = $registroTac;
         }
-        $clavesTacVistas = $registrosTacUnicos;
         $registrosTacTodos = array_values($registrosTacUnicos);
+        unset($registrosTacUnicos);
 
         // AGRUPAR TODOS LOS REGISTROS TAC ENCONTRADOS POR SERIE.
         foreach ($registrosTacTodos as $registroTac) {
@@ -498,6 +535,7 @@ class Navegacion extends Conexion
                 $duplicadosTacPorSerie[$serieTac] = $registrosTacSerie;
             }
         }
+        unset($registrosTacTodos);
 
         // GUARDAR LA BANDERA Y TODOS LOS DETALLES DE LOS DUPLICADOS TAC.
         foreach ($series as &$serie) {
@@ -519,29 +557,21 @@ class Navegacion extends Conexion
         }
         $seriesUnicas = $seriesUnicasParaEci;
 
-        // 4. BUSCAR TODO EL HISTORIAL ECI PARA IDENTIFICAR EL ESTADO MAS RECIENTE.
-        // SEPARAR POR COLUMNAS EVITA EL OR Y PERMITE USAR EL ÍNDICE CORRESPONDIENTE.
+        // CONSERVAR SOLO LOS DOS EVENTOS ECI MAS RECIENTES POR SERIE.
         $eciPorSerie = array();
         $eciRegistrosPorSerie = array();
-        $filasEciPorSerie = array();
 
         if (!empty($seriesUnicas)) {
             $seriesParaEci = array_keys($seriesUnicas);
             $marcadoresSerieEci = implode(',', array_fill(0, count($seriesParaEci), '?'));
-            $filasEciPorSerie = $this->runAnalysisQuery(
+            $eciRegistrosPorSerie = $this->runAnalysisQueryGroupedBySerie(
                 "SELECT TELEFONO, M_SERIE, FECHA_ULTIMO_EVENTO, DID_ACTIVO, TECNOLOGIA
                  FROM seg_ns_eci
                  WHERE M_SERIE IN ($marcadoresSerieEci)
                  ORDER BY FECHA_ULTIMO_EVENTO DESC",
-                $seriesParaEci
+                $seriesParaEci,
+                2
             );
-
-            foreach ($filasEciPorSerie as $registroEci) {
-                $serieEci = $this->normalizarSerie($registroEci['M_SERIE'] ?? '');
-                if ($serieEci !== '') {
-                    $eciRegistrosPorSerie[$serieEci][] = $registroEci;
-                }
-            }
         }
 
         // ELEGIR EL MAS RECIENTE Y DETECTAR SI EL ANTERIOR ESTABA ACTIVO.
@@ -687,23 +717,17 @@ class Navegacion extends Conexion
         if (!empty($seriesEciPorTelefono) && !empty($telefonosCandidatos)) {
             $seriesEciCandidatas = array_keys($seriesEciPorTelefono);
             $marcadoresSerieEci = implode(',', array_fill(0, count($seriesEciCandidatas), '?'));
-            $registrosEciPorTelefono = $this->runAnalysisQuery(
+            $eciMasRecientePorSerie = $this->runAnalysisQueryGroupedBySerie(
                 "SELECT TELEFONO, M_SERIE, FECHA_ULTIMO_EVENTO, DID_ACTIVO, TECNOLOGIA
                  FROM seg_ns_eci
                  WHERE M_SERIE IN ($marcadoresSerieEci)
                  ORDER BY FECHA_ULTIMO_EVENTO DESC",
-                $seriesEciCandidatas
+                $seriesEciCandidatas,
+                1
             );
 
-            $eciMasRecientePorSerie = array();
-            foreach ($registrosEciPorTelefono as $registroEci) {
-                $serieEci = $this->normalizarSerie($registroEci['M_SERIE'] ?? '');
-                if ($serieEci !== '' && !isset($eciMasRecientePorSerie[$serieEci])) {
-                    $eciMasRecientePorSerie[$serieEci] = $registroEci;
-                }
-            }
-
-            foreach ($eciMasRecientePorSerie as $registroEci) {
+            foreach ($eciMasRecientePorSerie as $registrosEciSerie) {
+                $registroEci = $registrosEciSerie[0];
                 if ((int)($registroEci['DID_ACTIVO'] ?? 0) !== 1) {
                     continue;
                 }
@@ -748,6 +772,7 @@ class Navegacion extends Conexion
 
                 $coordiappRegistrosPorTelefono[$telefono][] = $registroCoordiapp;
             }
+            unset($registrosCoordiappPorTelefono);
         }
 
         // 5. RESOLVER EL ESTADO DE NAVEGACIÓN DE CADA SERIE.

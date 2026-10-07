@@ -19,22 +19,36 @@ $contratistaId = obtenerIdContratistaContexto();
 $navegacion = new Navegacion();
 $folios = $navegacion->FoliosContratista($contratistaId, $fechaInicio, $fechaFin);
 $foliosIds = array_column($folios, 'Folio_Salida_ST');
-$seriesMasivas = array();
-
-foreach (array_chunk($foliosIds, 250) as $foliosLote) {
-    $detallesLote = $navegacion->ObtenerDetalleFolios($foliosLote, $contratistaId);
-
-    foreach ($detallesLote as $serie) {
-        $serie['Folio_Masivo'] = (string)($serie['Folio_Salida_Material_Det_S'] ?? '');
-        $seriesMasivas[] = $serie;
-    }
-
-    unset($detallesLote);
+$jsonDatosTablaMasiva = fopen('php://temp/maxmemory:2097152', 'w+b');
+$jsonDetallesSeriesMasivas = fopen('php://temp/maxmemory:2097152', 'w+b');
+if ($jsonDatosTablaMasiva === false || $jsonDetallesSeriesMasivas === false) {
+    throw new RuntimeException('No fue posible preparar la salida de Navegacion masiva.');
 }
 
-unset($folios, $foliosIds, $navegacion);
+$escribirTextoJson = static function ($stream, $texto) {
+    $longitud = strlen($texto);
+    $escritos = 0;
+    while ($escritos < $longitud) {
+        $resultado = fwrite($stream, substr($texto, $escritos));
+        if ($resultado === false || $resultado === 0) {
+            throw new RuntimeException('No fue posible escribir la salida de Navegacion masiva.');
+        }
+        $escritos += $resultado;
+    }
+};
+$escribirValorJson = static function ($stream, $valor) use ($escribirTextoJson) {
+    $json = json_encode($valor, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
+    if ($json === false) {
+        throw new RuntimeException('No fue posible codificar la salida de Navegacion masiva: ' . json_last_error_msg());
+    }
+    $escribirTextoJson($stream, $json);
+};
 
-$totalSeries = count($seriesMasivas);
+$escribirTextoJson($jsonDatosTablaMasiva, '[');
+$escribirTextoJson($jsonDetallesSeriesMasivas, '{');
+$primeraFila = true;
+$primerDetalle = true;
+$totalSeries = 0;
 $totalNavegando = 0;
 $conteoEstados = array(
     'navegando-observacion' => 0,
@@ -46,18 +60,6 @@ $conteoEstados = array(
     'verde' => 0,
     'blanco' => 0
 );
-foreach ($seriesMasivas as $serie) {
-    if ((int)($serie['Navegando'] ?? 0) === 1) {
-        $totalNavegando++;
-    }
-
-    $estado = $serie['Estado_Navegacion'] ?? 'blanco';
-    if (isset($conteoEstados[$estado])) {
-        $conteoEstados[$estado]++;
-    }
-}
-$totalPendientes = $totalSeries - $totalNavegando;
-
 $etiquetasEstado = array(
     'navegando' => 'Navegando correctamente',
     'navegando-observacion' => 'Navegando con observacion',
@@ -70,89 +72,98 @@ $etiquetasEstado = array(
     'blanco' => 'Sin liquidacion para clasificar'
 );
 
-$filasTablaMasiva = array();
-$detallesSeriesMasivas = array();
+foreach (array_chunk($foliosIds, 25) as $foliosLote) {
+    $detallesLote = $navegacion->ObtenerDetalleFolios($foliosLote, $contratistaId);
 
-foreach ($seriesMasivas as $indice => &$serie) {
-    $estado = $serie['Estado_Navegacion'] ?? 'blanco';
-    $navegando = (int)($serie['Navegando'] ?? 0) === 1;
-    $duplicadosHtml = '';
+    foreach ($detallesLote as $serie) {
+        $indice = $totalSeries++;
+        $estado = $serie['Estado_Navegacion'] ?? 'blanco';
+        $navegando = (int)($serie['Navegando'] ?? 0) === 1;
+        if ($navegando) {
+            $totalNavegando++;
+        }
+        if (isset($conteoEstados[$estado])) {
+            $conteoEstados[$estado]++;
+        }
 
-    if (!empty($serie['Duplicado_Tac'])) {
-        $duplicadosHtml .= '<button type="button" class="btn btn-warning btn-sm ver-duplicado-masivo mr-1"'
-            . ' data-tipo-duplicado="tac" data-indice-serie="' . $indice . '">'
-            . '<i class="fas fa-list mr-1" aria-hidden="true"></i>Duplicado TAC</button>';
+        $duplicadosHtml = '';
+        if (!empty($serie['Duplicado_Tac'])) {
+            $duplicadosHtml .= '<button type="button" class="btn btn-warning btn-sm ver-duplicado-masivo mr-1"'
+                . ' data-tipo-duplicado="tac" data-indice-serie="' . $indice . '">'
+                . '<i class="fas fa-list mr-1" aria-hidden="true"></i>Duplicado TAC</button>';
+        }
+        if (!empty($serie['Duplicado_Coordiapp'])) {
+            $duplicadosHtml .= '<button type="button" class="btn btn-info btn-sm ver-duplicado-masivo"'
+                . ' data-tipo-duplicado="coordiapp" data-indice-serie="' . $indice . '">'
+                . '<i class="fas fa-list mr-1" aria-hidden="true"></i>Duplicado Coordiapp</button>';
+        }
+        if ($duplicadosHtml === '') {
+            $duplicadosHtml = '<span class="text-muted">Sin duplicados</span>';
+        }
+
+        if (!$primeraFila) {
+            $escribirTextoJson($jsonDatosTablaMasiva, ',');
+        }
+        $primeraFila = false;
+        $escribirValorJson($jsonDatosTablaMasiva, array(
+            'folio' => $serie['Folio_Salida_Material_Det_S'] ?? '',
+            'modelo' => $serie['Producto'] ?? '',
+            'numero_serie' => $serie['Num_Serie_S'] ?? '',
+            'folio_asignacion' => $serie['Folio_Salida_Det'] ?? 'Sin asignar',
+            'fecha_asignacion' => $serie['Fecha_Salida_Det'] ?? 'Sin asignar',
+            'tecnico' => trim($serie['Tecnico'] ?? '') ?: 'Sin asignar',
+            'telefono_coordiapp' => $serie['Telefono_Coordiapp'] ?? 'Sin dato',
+            'fecha_coordiapp' => $serie['Fecha_Coordiapp'] ?? 'Sin dato',
+            'telefono_tac' => $serie['Telefono_Tac'] ?? 'Sin dato',
+            'fecha_tac' => $serie['Fecha_Liquidacion_Tac'] ?? 'Sin dato',
+            'telefono_eci' => $serie['Telefono_Eci'] ?? 'Sin dato',
+            'fecha_eci' => $serie['Fecha_Ultimo_Evento_Eci'] ?? 'Sin dato',
+            'navegacion_html' => $navegando
+                ? ($estado === 'navegando-observacion'
+                    ? '<i class="fa-brands fa-tailwind-css fa-float icon-navegacion-observacion"'
+                        . ' style="--fa-animation-duration: 2s;"'
+                        . ' aria-label="Navegando con observacion"></i>'
+                    : '<span class="badge estado-navegacion custom-badge">'
+                        . '<i class="fa-brands fa-tailwind-css fa-float mr-1"'
+                        . ' style="--fa-animation-duration: 2s;" aria-hidden="true"></i>'
+                        . '<span class="sr-only">Si</span></span>')
+                : '<span class="badge estado-navegacion badge-secondary">No</span>',
+            'motivo' => $serie['Observacion_Navegacion'] ?? (
+                $navegando
+                    ? 'Navegando correctamente'
+                    : implode('; ', $serie['Motivos_No_Navegacion'] ?? array())
+            ),
+            'duplicados_html' => $duplicadosHtml,
+            'estado_texto' => $etiquetasEstado[$estado] ?? 'No navegando: estado sin clasificar',
+            'estado' => $estado
+        ));
+
+        if (!empty($serie['Duplicado_Tac']) || !empty($serie['Duplicado_Coordiapp'])) {
+            if (!$primerDetalle) {
+                $escribirTextoJson($jsonDetallesSeriesMasivas, ',');
+            }
+            $primerDetalle = false;
+            $escribirValorJson($jsonDetallesSeriesMasivas, (string)$indice);
+            $escribirTextoJson($jsonDetallesSeriesMasivas, ':');
+            $escribirValorJson($jsonDetallesSeriesMasivas, array(
+                'Num_Serie_S' => $serie['Num_Serie_S'] ?? '',
+                'Telefono_Eci' => $serie['Telefono_Eci'] ?? '',
+                'Detalles_Duplicado_Tac' => $serie['Detalles_Duplicado_Tac'] ?? array(),
+                'Detalles_Duplicado_Coordiapp' => $serie['Detalles_Duplicado_Coordiapp'] ?? array()
+            ));
+        }
     }
 
-    if (!empty($serie['Duplicado_Coordiapp'])) {
-        $duplicadosHtml .= '<button type="button" class="btn btn-info btn-sm ver-duplicado-masivo"'
-            . ' data-tipo-duplicado="coordiapp" data-indice-serie="' . $indice . '">'
-            . '<i class="fas fa-list mr-1" aria-hidden="true"></i>Duplicado Coordiapp</button>';
-    }
-
-    if ($duplicadosHtml === '') {
-        $duplicadosHtml = '<span class="text-muted">Sin duplicados</span>';
-    }
-
-    $filasTablaMasiva[] = array(
-        'folio' => $serie['Folio_Salida_Material_Det_S'] ?? '',
-        'modelo' => $serie['Producto'] ?? '',
-        'numero_serie' => $serie['Num_Serie_S'] ?? '',
-        'folio_asignacion' => $serie['Folio_Salida_Det'] ?? 'Sin asignar',
-        'fecha_asignacion' => $serie['Fecha_Salida_Det'] ?? 'Sin asignar',
-        'tecnico' => trim($serie['Tecnico'] ?? '') ?: 'Sin asignar',
-        'telefono_coordiapp' => $serie['Telefono_Coordiapp'] ?? 'Sin dato',
-        'fecha_coordiapp' => $serie['Fecha_Coordiapp'] ?? 'Sin dato',
-        'telefono_tac' => $serie['Telefono_Tac'] ?? 'Sin dato',
-        'fecha_tac' => $serie['Fecha_Liquidacion_Tac'] ?? 'Sin dato',
-        'telefono_eci' => $serie['Telefono_Eci'] ?? 'Sin dato',
-        'fecha_eci' => $serie['Fecha_Ultimo_Evento_Eci'] ?? 'Sin dato',
-        'navegacion_html' => $navegando
-            ? ($estado === 'navegando-observacion'
-                ? '<i class="fa-brands fa-tailwind-css fa-float icon-navegacion-observacion"'
-                    . ' style="--fa-animation-duration: 2s;"'
-                    . ' aria-label="Navegando con observacion"></i>'
-                : '<span class="badge estado-navegacion custom-badge">'
-                    . '<i class="fa-brands fa-tailwind-css fa-float mr-1"'
-                    . ' style="--fa-animation-duration: 2s;" aria-hidden="true"></i>'
-                    . '<span class="sr-only">Si</span></span>')
-            : '<span class="badge estado-navegacion badge-secondary">No</span>',
-        'motivo' => $serie['Observacion_Navegacion'] ?? (
-            $navegando
-                ? 'Navegando correctamente'
-                : implode('; ', $serie['Motivos_No_Navegacion'] ?? array())
-        ),
-        'duplicados_html' => $duplicadosHtml,
-        'estado_texto' => $etiquetasEstado[$estado] ?? 'No navegando: estado sin clasificar',
-        'estado' => $estado
-    );
-
-    if (!empty($serie['Duplicado_Tac']) || !empty($serie['Duplicado_Coordiapp'])) {
-        $detallesSeriesMasivas[$indice] = array(
-            'Num_Serie_S' => $serie['Num_Serie_S'] ?? '',
-            'Telefono_Eci' => $serie['Telefono_Eci'] ?? '',
-            'Detalles_Duplicado_Tac' => $serie['Detalles_Duplicado_Tac'] ?? array(),
-            'Detalles_Duplicado_Coordiapp' => $serie['Detalles_Duplicado_Coordiapp'] ?? array()
-        );
-    }
-
-    $seriesMasivas[$indice] = null;
+    unset($serie, $detallesLote);
 }
-unset($serie, $seriesMasivas);
+unset($folios, $foliosIds, $navegacion);
+$totalPendientes = $totalSeries - $totalNavegando;
+$escribirTextoJson($jsonDatosTablaMasiva, ']');
+$escribirTextoJson($jsonDetallesSeriesMasivas, '}');
+rewind($jsonDatosTablaMasiva);
+rewind($jsonDetallesSeriesMasivas);
 
 $haySeriesMasivas = $totalSeries > 0;
-
-$jsonDetallesSeriesMasivas = json_encode(
-    $detallesSeriesMasivas,
-    JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT
-);
-unset($detallesSeriesMasivas);
-
-$jsonDatosTablaMasiva = json_encode(
-    $filasTablaMasiva,
-    JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT
-);
-unset($filasTablaMasiva);
 ?>
 
 <div class="navegacion-masiva-contenedor">
@@ -431,8 +442,8 @@ unset($filasTablaMasiva);
             return;
         }
 
-        const seriesMasivas = <?= $jsonDetallesSeriesMasivas ?: '[]' ?>;
-        const datosTablaMasiva = <?= $jsonDatosTablaMasiva ?: '[]' ?>;
+        const seriesMasivas = <?php fpassthru($jsonDetallesSeriesMasivas); ?>;
+        const datosTablaMasiva = <?php fpassthru($jsonDatosTablaMasiva); ?>;
 
         function escaparHtml(valor) {
             return $('<div>').text(valor ?? '').html();
@@ -643,3 +654,7 @@ unset($filasTablaMasiva);
         });
     });
 </script>
+<?php
+fclose($jsonDetallesSeriesMasivas);
+fclose($jsonDatosTablaMasiva);
+?>
