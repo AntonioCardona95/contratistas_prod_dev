@@ -117,6 +117,8 @@ if (is_array($qrProduccionTotal)) {
 } else {
     $TotalProduccion = (int)$qrProduccionTotal;
 }
+
+
 // CHARTS EXISTENTES
 $chart_dias = $index->CountMaterialesPorDia($idContratistas, $Fecha1, $Fecha2);
 $chart_tecnicos = $index->CountMaterialesPorTecnico($idContratistas, $Fecha1, $Fecha2);
