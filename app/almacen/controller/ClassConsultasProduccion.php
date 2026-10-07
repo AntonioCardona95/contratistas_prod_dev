@@ -1086,10 +1086,18 @@ public function CountOntSinEntradaAlmacen(
 
 /**
  * Cuenta el total de ONT / equipos que SÍ ingresaron a almacén.
- * Permite filtrar por fechas principales, fechas de card y/o contratista.
+ * Permite filtrar por fechas principales, fechas de card, contratista, área, división y cope.
  */
-public function CountOntConEntradaAlmacen($fechaInicio = null, $fechaFin = null, $fechascard1 = null, $fechascard2 = null, $idContratista = null)
-{
+public function CountOntConEntradaAlmacen(
+    $fechaInicio = null, 
+    $fechaFin = null, 
+    $fechascard1 = null, 
+    $fechascard2 = null, 
+    $idContratista = null,
+    $idArea = null,
+    $idDivision = null,
+    $idCope = null
+) {
     // Determinar qué rango de fechas usar (prioridad a las fechas de la card si existen)
     $fIni = !empty($fechascard1) ? $fechascard1 : $fechaInicio;
     $fFin = !empty($fechascard2) ? $fechascard2 : $fechaFin;
@@ -1113,6 +1121,24 @@ public function CountOntConEntradaAlmacen($fechaInicio = null, $fechaFin = null,
         $params[':idContratista'] = $idContratista;
     }
 
+    // Filtro opcional por Área
+    if (!empty($idArea)) {
+        $where[] = "idAreas = :idArea";
+        $params[':idArea'] = $idArea;
+    }
+
+    // Filtro opcional por División
+    if (!empty($idDivision)) {
+        $where[] = "idDivisiones = :idDivision";
+        $params[':idDivision'] = $idDivision;
+    }
+
+    // Filtro opcional por Cope
+    if (!empty($idCope)) {
+        $where[] = "idCopes = :idCope";
+        $params[':idCope'] = $idCope;
+    }
+
     // Construir la consulta SQL
     $sql = "SELECT COUNT(1) AS TOTAL 
             FROM seg_produccion_diaria 
@@ -1120,7 +1146,6 @@ public function CountOntConEntradaAlmacen($fechaInicio = null, $fechaFin = null,
 
     return $this->runQuery($sql, $params, 'erpprint');
 }
-
 /**
  * Obtiene el conteo de ONT con y sin entrada a almacén para TODAS las divisiones.
  * Permite filtrar por fechas principales, fechas de card y/o contratista.
