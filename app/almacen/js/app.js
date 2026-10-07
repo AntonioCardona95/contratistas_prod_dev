@@ -93,14 +93,6 @@ function LoadKpisControl(ejecutar) {
         parametros += '&fechascard2=' + encodeURIComponent(fechascard2);
     }
 
-    // --- CONSOLE LOG PARA VERIFICACIÓN ---
-    console.log("Valores enviados en LoadKpisControl:", {
-        fechaInicial: fechascard1,
-        fechaFinal: fechascard2,
-        contratista: selectContratista,
-        cadenaParametros: parametros
-    });
-
     // 4. Si viene la bandera opcional de 'ejecutar'
     if (ejecutar) {
         parametros += '&ejecutar=1';
