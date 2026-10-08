@@ -257,15 +257,6 @@
         LoadKpisControl();
     });
 </script>
-
-
-
-
-
-
-
-
-
 </body>
 </html>
 
