@@ -167,6 +167,10 @@ function LoadKpisControl(ejecutar) {
 // NUEVA FUNCIÓN: Solo recarga División y Cope cuando el usuario CAMBIA de Área
 function CargarDependenciasArea() {
 
+    console.log('================================');
+    console.log('🚀 Entró a LoadKpisControl');
+    console.trace('QUIÉN LLAMÓ A LoadKpisControl');
+
     console.log('========================================');
     console.log('🚀 ENTRÓ A CargarDependenciasArea');
     console.log('🕒 Hora:', new Date().toLocaleTimeString());
