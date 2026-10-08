@@ -17,37 +17,41 @@ require_once(__DIR__ . '/../../config/ContratistaContexto.php');
 $Contratista = $_SESSION['Contratista'] ?? null;
 $idContratistas = obtenerIdContratistaContexto();
 
-// RECIBIMOS PARÁMETROS (IDs y Nombres limpios / null si no están seleccionados)
-$Area           = !empty($_POST['selectArea']) ? trim($_POST['selectArea']) : null;
-$nombreArea     = !empty($_POST['nombreArea']) ? trim($_POST['nombreArea']) : null;
+// RECIBIMOS PARAMETROS
+$Fecha1 = $_POST['Fecha1'] ?? '';
+$Fecha2 = $_POST['Fecha2'] ?? '';
 
-$Division       = !empty($_POST['selectDivision']) ? trim($_POST['selectDivision']) : null;
-$nombreDivision = !empty($_POST['nombreDivision']) ? trim($_POST['nombreDivision']) : null;
-
-$Cope           = !empty($_POST['selectCope']) ? trim($_POST['selectCope']) : null;
-$nombreCope     = !empty($_POST['nombreCope']) ? trim($_POST['nombreCope']) : null;
-
-$TipoTarea      = !empty($_POST['TipoTarea']) ? trim($_POST['TipoTarea']) : null;
-
-$idContratistaSeleccionado = !empty($_POST['selectContratista']) ? trim($_POST['selectContratista']) : null;
+$Area        = $_POST['selectArea'] ?? '';
+$Division    = $_POST['selectDivision'] ?? '';
+$Cope        = $_POST['selectCope'] ?? '';
+$TipoTarea = $_POST['TipoTarea'] ?? '';
 
 // FECHAS INDEPENDIENTES DE LAS CARDS
-$fechascard1 = !empty($_POST['fechascard1']) ? $_POST['fechascard1'] . " 00:00:00" : null;
-$fechascard2 = !empty($_POST['fechascard2']) ? $_POST['fechascard2'] . " 23:59:59" : null;
+$fechascard1 = $_POST['fechascard1'] ?? '';
+$fechascard2 = $_POST['fechascard2'] ?? '';
 
-// FECHAS PRINCIPALES DEL FORMULARIO
-if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
+if (!empty($fechascard1)) {
+    $fechascard1 = $fechascard1 . " 00:00:00";
+}
+if (!empty($fechascard2)) {
+    $fechascard2 = $fechascard2 . " 23:59:59";
+}
+
+$mes_anterior = date('Y-m-d', strtotime('-3 month'));
+
+if (!empty($Fecha1) && !empty($Fecha2)) {
     $Fecha1 = $_POST['Fecha1'] . " 00:00:00";
     $Fecha2 = $_POST['Fecha2'] . " 23:59:59";
 } else {
-    $Fecha1 = null;
-    $Fecha2 = null;
+    $Fecha1 = $mes_anterior . " 00:00:00";
+    $Fecha2 = date('Y-m-d') . " 23:59:59";
 }
 
-// INSTANCIAS DE LAS CLASES
-$index     = new Index();
-$consultas = new ClassConsultasProduccion();
+$idContratistaSeleccionado = $_POST['selectContratista'] ?? null;
 
+// INSTANCIAS DE LAS CLASES
+$index = new Index();
+$consultas = new ClassConsultasProduccion();
 
 // CONSULTA DE DETALLE POR ÁREA DE LA TABLA seg_produccion_diaria
 $detalleArea = [];
@@ -57,7 +61,7 @@ if (!empty($idContratistaSeleccionado)) {
 
 // PROCESAMIENTO Y ACTUALIZACIÓN SI SE ENVIARON FECHAS POR POST
 $TotalSinNavegacion = 0;
-if (!empty($Fecha1) && !empty($Fecha2)) {
+if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
     // Conteo de 'Sin Navegación' en el rango de fechas
     $TotalSinNavegacion = (int)$consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
 
@@ -106,10 +110,7 @@ $qrProduccionFechas = $consultas->CountProduccionPorFechas(
     $TipoTarea,
     $Area,
     $Division,
-    $Cope,
-    $nombreArea,
-    $nombreDivision,
-    $nombreCope
+    $Cope
 );
 
 if (is_array($qrProduccionFechas)) {
@@ -123,6 +124,7 @@ if (is_array($qrProduccionFechas)) {
 } else {
     $TotalProduccionFechas = (int)$qrProduccionFechas;
 }
+
 // TOTAL ONT SIN ENTRADA A ALMACÉN (GENERAL)
 $TotalOntSinAlmacen = 0;
 $qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen(
@@ -187,6 +189,7 @@ if (is_array($qrProduccionTotal)) {
 } else {
     $TotalProduccion = (int)$qrProduccionTotal;
 }
+
 
 // CONSULTA DE DATOS BASE DE TODAS LAS DIVISIONES (PARA LA GRÁFICA)
 $chart_divisiones_raw = $consultas->CountOntAlmacenPorDivision(
