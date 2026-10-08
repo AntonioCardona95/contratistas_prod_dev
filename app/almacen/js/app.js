@@ -165,35 +165,122 @@ function LoadKpisControl(ejecutar) {
 }
 
 /**
+ * Carga los KPIs filtrados por fechas, contratista, tipo de tarea y ubicación.
+ */
+function LoadKpisControl(ejecutar) {
+    console.log("Entró a LoadKpisControl");
+
+    var parametros = $("#FormQueryUnidades").serialize();
+
+    // Contratista
+    var selectContratista = $('#selectContratista').val();
+    if (selectContratista) {
+        parametros += '&selectContratista=' + encodeURIComponent(selectContratista);
+    }
+
+    // Tipo de Tarea
+    var TipoTarea = $('#TipoTarea').val();
+    if (TipoTarea) {
+        parametros += '&TipoTarea=' + encodeURIComponent(TipoTarea);
+    }
+
+    // Área
+    var selectArea = $('#selectArea').val();
+    var nombreArea = $('#selectArea option:selected').data('nombre') || $('#selectArea option:selected').text();
+    if (nombreArea) {
+        nombreArea = $.trim(nombreArea);
+    }
+    if (nombreArea === '-- Seleccionar Área --' || nombreArea === '-- Seleccione un área --') {
+        nombreArea = '';
+    }
+
+    if (selectArea) {
+        parametros += '&selectArea=' + encodeURIComponent(selectArea);
+    }
+    if (nombreArea) {
+        parametros += '&nombreArea=' + encodeURIComponent(nombreArea);
+    }
+
+    // División
+    var selectDivision = $('#selectDivision').val();
+    var nombreDivision = $('#selectDivision option:selected').data('nombre') || $('#selectDivision option:selected').text();
+    if (nombreDivision) {
+        nombreDivision = $.trim(nombreDivision);
+    }
+    if (nombreDivision === '-- Seleccionar División --' || nombreDivision === '-- Seleccione una división --') {
+        nombreDivision = '';
+    }
+
+    if (selectDivision) {
+        parametros += '&selectDivision=' + encodeURIComponent(selectDivision);
+    }
+    if (nombreDivision) {
+        parametros += '&nombreDivision=' + encodeURIComponent(nombreDivision);
+    }
+
+    // Cope
+    var selectCope = $('#selectCope').val();
+    var nombreCope = $('#selectCope option:selected').data('nombre') || $('#selectCope option:selected').text();
+    if (nombreCope) {
+        nombreCope = $.trim(nombreCope);
+    }
+    if (nombreCope === '-- Seleccionar Cope --' || nombreCope === '-- Seleccione un cope --') {
+        nombreCope = '';
+    }
+
+    if (selectCope) {
+        parametros += '&selectCope=' + encodeURIComponent(selectCope);
+    }
+    if (nombreCope) {
+        parametros += '&nombreCope=' + encodeURIComponent(nombreCope);
+    }
+
+    // Fechas
+    var fechascard1 = $('#fechascard1').val();
+    var fechascard2 = $('#fechascard2').val();
+
+    if (fechascard1) {
+        parametros += '&fechascard1=' + encodeURIComponent(fechascard1);
+    }
+    if (fechascard2) {
+        parametros += '&fechascard2=' + encodeURIComponent(fechascard2);
+    }
+
+    // Bandera ejecutar
+    if (ejecutar) {
+        parametros += '&ejecutar=1';
+    }
+
+    $("#LoadKpisControl").fadeIn('slow');
+
+    return $.ajax({
+        type: 'POST',
+        url: 'modal/KpisControlProduccion.php',
+        data: parametros,
+        beforeSend: function() {
+            $("#LoadKpisControl").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
+        },
+        success: function(data) {
+            $("#LoadKpisControl").html(data);
+        }
+    });
+}
+
+/**
  * Carga División y COPES dependientes del Área y después refresca los KPIs.
  */
 function CargarDependenciasArea() {
-    console.log("--------------------------------------------------");
-    console.log("⚙️ [INICIO] CargarDependenciasArea");
-
     var selectArea = $('#selectArea').val();
-    console.log("   -> Área seleccionada ID:", selectArea);
 
     // Limpiar si no hay Área
     if (!selectArea) {
-        console.log("⚠️ No hay área seleccionada. Limpiando División y Cope...");
-        
-        // Evitamos disparar event change al limpiar
-        $('#selectDivision').html('<option value=""></option>').prop('disabled', true);
-        $('#selectCope').html('<option value=""></option>').prop('disabled', true);
-        
-        // Sincronizamos la UI de Select2 silenciosamente
-        if ($('#selectDivision').hasClass("select2-hidden-accessible")) {
-            $('#selectDivision').val(null).trigger('change.select2');
-            $('#selectCope').val(null).trigger('change.select2');
-        }
-
+        $('#selectDivision').html('<option value=""></option>').prop('disabled', true).val('').trigger('change.select2');
+        $('#selectCope').html('<option value=""></option>').prop('disabled', true).val('').trigger('change.select2');
         LoadKpisControl();
         return;
     }
 
     // Petición de División y Copes en paralelo
-    console.log("⏳ Solicitando División y Copes para Área ID:", selectArea);
     var reqDivision = $.ajax({
         type: 'POST',
         url: 'modal/selectores.php',
@@ -208,20 +295,18 @@ function CargarDependenciasArea() {
         dataType: 'json'
     });
 
-    // Esperar a que ambas peticiones terminen
+    // Esperar a que ambas peticiones terminen antes de llamar a LoadKpisControl
     $.when(reqDivision, reqCopes).done(function(resDiv, resCopes) {
         var dataDiv = resDiv[0];
         var dataCopes = resCopes[0];
-
-        console.log("📥 Datos recibidos de División y Copes");
 
         // Llenar División
         if (dataDiv && dataDiv.idDivision) {
             var optionDiv = new Option(dataDiv.Division, dataDiv.idDivision, true, true);
             $(optionDiv).attr('data-nombre', dataDiv.Division);
-            $('#selectDivision').empty().append(optionDiv).prop('disabled', false);
+            $('#selectDivision').html(optionDiv).prop('disabled', false).trigger('change.select2');
         } else {
-            $('#selectDivision').html('<option value="">No hay división</option>').prop('disabled', true);
+            $('#selectDivision').html('<option value="">No hay división</option>').prop('disabled', true).trigger('change.select2');
         }
 
         // Llenar Copes
@@ -230,19 +315,23 @@ function CargarDependenciasArea() {
             $.each(dataCopes, function(index, item) {
                 options += '<option value="'+item.id+'" data-nombre="'+item.COPE+'">'+item.COPE+'</option>';
             });
-            $('#selectCope').html(options).prop('disabled', false);
+            $('#selectCope').html(options).prop('disabled', false).trigger('change.select2');
         } else {
-            $('#selectCope').html('<option value="">No hay copes</option>').prop('disabled', true);
+            $('#selectCope').html('<option value="">No hay copes</option>').prop('disabled', true).trigger('change.select2');
         }
 
-        console.log("🔄 Llenado de HTML listo. Llamando a LoadKpisControl...");
-        
-        // Cargar los KPIs de forma directa y única
+        // Cargar los KPIs cuando todo esté listo
         LoadKpisControl();
-
-    }).fail(function(err) {
-        console.error("❌ Error al cargar dependencias del Área:", err);
     });
+}
+
+/**
+ * Resetea los selectores de Área, División y Cope a su estado inicial.
+ */
+function LimpiarSelectoresUbicacion() {
+    $('#selectArea').val('').trigger('change.select2');
+    $('#selectDivision').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
+    $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
 }
 
 
