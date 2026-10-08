@@ -129,7 +129,10 @@ $qrProduccionFechas = $consultas->CountProduccionPorFechas(
     $TipoTarea,
     $Area,
     $Division,
-    $Cope
+    $Cope,
+    $nombreArea,
+    $nombreDivision,
+    $nombreCope
 );
 
 if (is_array($qrProduccionFechas)) {
@@ -143,7 +146,6 @@ if (is_array($qrProduccionFechas)) {
 } else {
     $TotalProduccionFechas = (int)$qrProduccionFechas;
 }
-
 // TOTAL ONT SIN ENTRADA A ALMACÉN (GENERAL)
 $TotalOntSinAlmacen = 0;
 $qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen(
