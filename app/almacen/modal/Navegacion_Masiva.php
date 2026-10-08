@@ -19,8 +19,8 @@ $contratistaId = obtenerIdContratistaContexto();
 $navegacion = new Navegacion();
 $folios = $navegacion->FoliosContratista($contratistaId, $fechaInicio, $fechaFin);
 $foliosIds = array_column($folios, 'Folio_Salida_ST');
-$jsonDatosTablaMasiva = fopen('php://temp/maxmemory:2097152', 'w+b');
-$jsonDetallesSeriesMasivas = fopen('php://temp/maxmemory:2097152', 'w+b');
+$jsonDatosTablaMasiva = fopen('php://temp/maxmemory:16777216', 'w+b');
+$jsonDetallesSeriesMasivas = fopen('php://temp/maxmemory:16777216', 'w+b');
 if ($jsonDatosTablaMasiva === false || $jsonDetallesSeriesMasivas === false) {
     throw new RuntimeException('No fue posible preparar la salida de Navegacion masiva.');
 }
@@ -72,7 +72,7 @@ $etiquetasEstado = array(
     'blanco' => 'Sin liquidacion para clasificar'
 );
 
-foreach (array_chunk($foliosIds, 250) as $foliosLote) {
+foreach (array_chunk($foliosIds, 500) as $foliosLote) {
     $detallesLote = $navegacion->ObtenerDetalleFolios($foliosLote, $contratistaId);
 
     foreach ($detallesLote as $serie) {
@@ -658,16 +658,3 @@ $haySeriesMasivas = $totalSeries > 0;
 fclose($jsonDetallesSeriesMasivas);
 fclose($jsonDatosTablaMasiva);
 ?>
-<div class="alert alert-info mt-2">
-    PHP ini:
-    <?= htmlspecialchars((string)php_ini_loaded_file(), ENT_QUOTES, 'UTF-8') ?><br>
-
-    Limite:
-    <?= htmlspecialchars((string)ini_get('memory_limit'), ENT_QUOTES, 'UTF-8') ?><br>
-
-    memoria actual:
-    <?= round(memory_get_usage(true) / 1024 / 1024, 2) ?> MiB<br>
-
-    pico:
-    <?= round(memory_get_peak_usage(true) / 1024 / 1024, 2) ?> MiB.
-</div>
