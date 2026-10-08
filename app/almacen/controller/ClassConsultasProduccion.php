@@ -143,6 +143,7 @@ public function obtenerCopesPorArea($idArea) {
 /**
  * Cuenta el total de producción en seg_ns_prod_eval.
  * Permite filtrar por fechas, contratista, área, división, cope y tipo de tarea.
+ * Compatible con nombres de ubicación actualmente y preparada para IDs en el futuro.
  */
 public function CountProduccionPorFechas(
     $fechaInicio = null, 
@@ -153,7 +154,10 @@ public function CountProduccionPorFechas(
     $tipoTarea = null,
     $idArea = null,
     $idDivision = null,
-    $idCope = null
+    $idCope = null,
+    $nombreArea = null,
+    $nombreDivision = null,
+    $nombreCope = null
 ) {
     // Determinar qué rango de fechas usar
     $fIni = !empty($fechascard1) ? $fechascard1 : $fechaInicio;
@@ -206,37 +210,29 @@ public function CountProduccionPorFechas(
         }
     }
 
-    // Filtro opcional por Área (Evalúa ID numérico o Nombre en texto)
-    if (!empty($idArea)) {
-        if (is_numeric($idArea)) {
-            $where[] = "ID_AREA = :idArea";
-            $params[':idArea'] = (int)$idArea;
-        } else {
-            $where[] = "NOM_AREA = :idArea";
-            $params[':idArea'] = trim($idArea);
-        }
+    // Filtro opcional por Área
+    // Prioriza $nombreArea (cadena recibida). Si no está, usa $idArea.
+    $areaABuscar = !empty($nombreArea) ? $nombreArea : $idArea;
+    if (!empty($areaABuscar)) {
+        // NOTA FUTURA: Si agregas la columna ID_AREA a seg_ns_prod_eval, descomentas este if:
+        // if (is_numeric($areaABuscar)) { $where[] = "ID_AREA = :idArea"; $params[':idArea'] = (int)$areaABuscar; } else { ... }
+        
+        $where[] = "TRIM(NOM_AREA) = :nomArea";
+        $params[':nomArea'] = trim($areaABuscar);
     }
 
-    // Filtro opcional por División (Evalúa ID numérico o Nombre en texto)
-    if (!empty($idDivision)) {
-        if (is_numeric($idDivision)) {
-            $where[] = "ID_DIVISION = :idDivision";
-            $params[':idDivision'] = (int)$idDivision;
-        } else {
-            $where[] = "NOM_DIVISION = :idDivision";
-            $params[':idDivision'] = trim($idDivision);
-        }
+    // Filtro opcional por División
+    $divisionABuscar = !empty($nombreDivision) ? $nombreDivision : $idDivision;
+    if (!empty($divisionABuscar)) {
+        $where[] = "TRIM(NOM_DIVISION) = :nomDivision";
+        $params[':nomDivision'] = trim($divisionABuscar);
     }
 
-    // Filtro opcional por Cope (Evalúa ID numérico o Nombre en texto)
-    if (!empty($idCope)) {
-        if (is_numeric($idCope)) {
-            $where[] = "ID_COPE = :idCope";
-            $params[':idCope'] = (int)$idCope;
-        } else {
-            $where[] = "NOM_CT = :idCope";
-            $params[':idCope'] = trim($idCope);
-        }
+    // Filtro opcional por Cope
+    $copeABuscar = !empty($nombreCope) ? $nombreCope : $idCope;
+    if (!empty($copeABuscar)) {
+        $where[] = "TRIM(NOM_CT) = :nomCope";
+        $params[':nomCope'] = trim($copeABuscar);
     }
 
     // Construir la consulta SQL
