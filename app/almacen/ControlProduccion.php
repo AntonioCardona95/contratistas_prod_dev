@@ -146,13 +146,12 @@
     </select>
 </div>
 
-            <!-- ÁREA -->
-            <!-- ÁREA -->
+           <!-- ÁREA -->
 <div class="col-md-3 col-lg-3">
     <label for="selectArea" class="font-weight-bold text-primary mb-1">
         <i class="fas fa-building mr-1"></i> Seleccionar Área:
     </label>
-    <select class="form-control select2-busqueda" id="selectArea" name="selectArea" data-placeholder="-- Seleccionar Área --" onchange="CargarDependenciasArea(); LoadKpisControl();">
+    <select class="form-control select2-busqueda" id="selectArea" name="selectArea" data-placeholder="-- Seleccionar Área --">
         <option value=""></option>
         <?php foreach ($listaAreas as $row): ?>
             <option value="<?= htmlspecialchars($row['idAreas']) ?>" data-nombre="<?= htmlspecialchars($row['area']) ?>">
@@ -162,25 +161,25 @@
     </select>
 </div>
 
-            <!-- DIVISIÓN -->
-            <div class="col-md-3 col-lg-3">
-                <label for="selectDivision" class="font-weight-bold text-primary mb-1">
-                    <i class="fas fa-sitemap mr-1"></i> Seleccionar División:
-                </label>
-                <select class="form-control select2-busqueda" id="selectDivision" name="selectDivision" data-placeholder="-- Seleccionar División --" onchange="LoadKpisControl();" disabled>
-                    <option value=""></option>
-                </select>
-            </div>
+<!-- DIVISIÓN -->
+<div class="col-md-3 col-lg-3">
+    <label for="selectDivision" class="font-weight-bold text-primary mb-1">
+        <i class="fas fa-sitemap mr-1"></i> Seleccionar División:
+    </label>
+    <select class="form-control select2-busqueda" id="selectDivision" name="selectDivision" data-placeholder="-- Seleccionar División --" disabled>
+        <option value=""></option>
+    </select>
+</div>
 
-            <!-- COPE -->
-            <div class="col-md-3 col-lg-3">
-                <label for="selectCope" class="font-weight-bold text-primary mb-1">
-                    <i class="fas fa-network-wired mr-1"></i> Seleccionar Cope:
-                </label>
-                <select class="form-control select2-busqueda" id="selectCope" name="selectCope" data-placeholder="-- Seleccionar Cope --" onchange="LoadKpisControl();" disabled>
-                    <option value=""></option>
-                </select>
-            </div>
+<!-- COPE -->
+<div class="col-md-3 col-lg-3">
+    <label for="selectCope" class="font-weight-bold text-primary mb-1">
+        <i class="fas fa-network-wired mr-1"></i> Seleccionar Cope:
+    </label>
+    <select class="form-control select2-busqueda" id="selectCope" name="selectCope" data-placeholder="-- Seleccionar Cope --" disabled>
+        <option value=""></option>
+    </select>
+</div>
 
         </div>
     </div>
