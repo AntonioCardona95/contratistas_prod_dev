@@ -228,6 +228,7 @@
 <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
 
 <!-- UN SOLO BLOQUE DE SCRIPT UNIFICADO -->
+<!-- UN SOLO BLOQUE DE SCRIPT UNIFICADO Y CORREGIDO -->
 <script>
     $(document).ready(function(){
         // 1. Inicializar Select2
@@ -242,13 +243,12 @@
             LoadKpisControl();
         });
 
-        // 3. Cambio en Contratista
+        // 3. Cambio en Contratista (Conserva el texto visible en el option select)
         $('#selectContratista').off('change').on('change', function() {
-            LimpiarSelectoresUbicacion();
             LoadKpisControl();
         });
 
-        // 4. Cambio en Área (CargarDependenciasArea se encarga internamente de llamar a LoadKpisControl al finalizar la carga AJAX)
+        // 4. Cambio en Área
         $('#selectArea').off('change').on('change', function() {
             CargarDependenciasArea();
         });
