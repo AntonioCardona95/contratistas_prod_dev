@@ -237,42 +237,36 @@
 <!-- UN SOLO BLOQUE DE SCRIPT UNIFICADO -->
 <script>
     $(document).ready(function(){
-        // 1. Inicializar Select2 en los selectores
+        // 1. Inicializar Select2
         $('.select2-busqueda').select2({
             theme: 'bootstrap4',
             allowClear: true,
             width: '100%'
         });
 
-        // 2. Eventos al cambiar fechas
-        $('#fechascard1, #fechascard2').on('change', function() {
+        // 2. Cambio en Fechas
+        $('#fechascard1, #fechascard2').off('change').on('change', function() {
             LoadKpisControl();
         });
 
-        // 3. Evento al cambiar Contratista (Limpia la ubicación)
-        $('#selectContratista').on('select2:select select2:clear', function(e) {
-            if (e.originalEvent) {
-                LimpiarSelectoresUbicacion();
-                LoadKpisControl();
-            }
+        // 3. Cambio en Contratista
+        $('#selectContratista').off('change').on('change', function() {
+            LimpiarSelectoresUbicacion();
+            LoadKpisControl();
         });
 
-        // 4. Control al cambiar Área (Carga dependencias y refresca KPIs una sola vez)
-        $('#selectArea').on('select2:select select2:clear', function(e) {
-            if (e.originalEvent) {
-                CargarDependenciasArea();
-                LoadKpisControl();
-            }
+        // 4. Cambio en Área
+        $('#selectArea').off('change').on('change', function() {
+            CargarDependenciasArea();
+            LoadKpisControl();
         });
 
-        // 5. Control al cambiar División, Cope o Tipo de Tarea
-        $('#selectDivision, #selectCope, #TipoTarea').on('select2:select select2:clear', function(e) {
-            if (e.originalEvent) {
-                LoadKpisControl();
-            }
+        // 5. Cambio en División, Cope o Tipo de Tarea
+        $('#selectDivision, #selectCope, #TipoTarea').off('change').on('change', function() {
+            LoadKpisControl();
         });
 
-        // 6. Carga inicial de la página
+        // 6. Carga inicial
         LoadKpisControl();
     });
 </script>
