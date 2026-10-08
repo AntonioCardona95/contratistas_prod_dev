@@ -121,7 +121,7 @@
                 <label for="selectContratista" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-user-tie mr-1"></i> Seleccionar Contratista:
                 </label>
-                <select class="form-control select2-busqueda" id="selectContratista" name="selectContratista" data-placeholder="-- Seleccionar Contratista --">
+                <select class="form-control select2-busqueda" id="selectContratista" name="selectContratista" data-placeholder="-- Seleccionar Contratista --" onchange="LimpiarSelectoresUbicacion(); LoadKpisControl();">
                     <option value=""></option>
                     <?php foreach ($listaContratistas as $row): ?>
                         <option value="<?= htmlspecialchars($row['idContratistas']) ?>">
@@ -131,27 +131,27 @@
                 </select>
             </div>
 
-            <!-- TIPO DE TAREA -->
-            <div class="col-md-3 col-lg-3">
-                <label for="TipoTarea" class="font-weight-bold text-primary mb-1">
-                    <i class="fas fa-tasks mr-1"></i> Seleccione Tipo de tarea:
-                </label>
-                <select name="TipoTarea" id="TipoTarea" class="form-control select2-busqueda" data-placeholder="-- Seleccionar Tipo de Tareas --">
-                    <option value=""></option>
-                    <option value="QUEJAS">QUEJAS</option>
-                    <option value="ALTAS">ALTAS</option>
-                    <option value="MIGRACIONES">MIGRACIONES</option>
-                    <option value="A4">A4</option>
-                    <option value="CAMBIOS DE DOMICILIO">CAMBIOS DE DOMICILIO</option>
-                </select>
-            </div>
+          <!-- Option Select de Tipo de Tarea -->
+<div class="col-md-3 col-lg-3">
+    <label for="TipoTarea" class="font-weight-bold text-primary mb-1">
+        <i class="fas fa-tasks mr-1"></i> Seleccione Tipo de tarea:
+    </label>
+    <select name="TipoTarea" id="TipoTarea" class="form-control select2-busqueda" onchange="LoadKpisControl();">
+        <option value="">-- Seleccionar Tipo de Tarea --</option>
+        <option value="QUEJAS">QUEJAS</option>
+        <option value="ALTAS">ALTAS</option>
+        <option value="MIGRACIONES">MIGRACIONES</option>
+        <option value="A4">A4</option>
+        <option value="CAMBIOS DE DOMICILIO">CAMBIOS DE DOMICILIO</option>
+    </select>
+</div>
 
             <!-- ÁREA -->
             <div class="col-md-3 col-lg-3">
                 <label for="selectArea" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-building mr-1"></i> Seleccionar Área:
                 </label>
-                <select class="form-control select2-busqueda" id="selectArea" name="selectArea" data-placeholder="-- Seleccionar Área --">
+                <select class="form-control select2-busqueda" id="selectArea" name="selectArea" data-placeholder="-- Seleccionar Área --" onchange="CargarDependenciasArea(); LoadKpisControl();">
                     <option value=""></option>
                     <?php foreach ($listaAreas as $row): ?>
                         <option value="<?= htmlspecialchars($row['idAreas']) ?>">
@@ -166,7 +166,7 @@
                 <label for="selectDivision" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-sitemap mr-1"></i> Seleccionar División:
                 </label>
-                <select class="form-control select2-busqueda" id="selectDivision" name="selectDivision" data-placeholder="-- Seleccionar División --" disabled>
+                <select class="form-control select2-busqueda" id="selectDivision" name="selectDivision" data-placeholder="-- Seleccionar División --" onchange="LoadKpisControl();" disabled>
                     <option value=""></option>
                 </select>
             </div>
@@ -176,7 +176,7 @@
                 <label for="selectCope" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-network-wired mr-1"></i> Seleccionar Cope:
                 </label>
-                <select class="form-control select2-busqueda" id="selectCope" name="selectCope" data-placeholder="-- Seleccionar Cope --" disabled>
+                <select class="form-control select2-busqueda" id="selectCope" name="selectCope" data-placeholder="-- Seleccionar Cope --" onchange="LoadKpisControl();" disabled>
                     <option value=""></option>
                 </select>
             </div>
@@ -233,52 +233,40 @@
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
     <!-- CARGAR CHART.JS -->
     
+    <script>
+        $(document).ready(function(){
+            LoadKpisControl();
+        });
+
+       
+    </script>
+
+    <!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.js"></script>
+
+
 <script>
-    $(document).ready(function() {
-        // Inicializar Select2
+    $(document).ready(function(){
+        // Inicializar todos los select2 con su propio data-placeholder
         $('.select2-busqueda').select2({
             theme: 'bootstrap4',
             allowClear: true,
             width: '100%'
         });
 
-        // Carga inicial
-        if (typeof LoadKpisControl === 'function') {
-            LoadKpisControl();
-        }
-    });
-
-    // Delegación global directa para Select2 (Evita fallos por orden de carga)
-    $(document).on('select2:select change', '#selectArea', function() {
-        console.log('--- CAMBIO EN SELECT AREA DETECTADO ---');
-        if (typeof CargarDependenciasArea === 'function') {
-            CargarDependenciasArea();
-        } else {
-            console.error('La función CargarDependenciasArea no está definida.');
-        }
-    });
-
-    $(document).on('select2:select change', '#selectDivision', function() {
-        if (typeof CargarCopesPorDivision === 'function') {
-            CargarCopesPorDivision();
-        }
-    });
-
-    $(document).on('select2:select change', '#selectContratista', function() {
-        if (typeof LimpiarSelectoresUbicacion === 'function') {
-            LimpiarSelectoresUbicacion();
-        }
-        if (typeof LoadKpisControl === 'function') {
-            LoadKpisControl();
-        }
-    });
-
-    $(document).on('select2:select change', '#TipoTarea, #selectCope', function() {
-        if (typeof LoadKpisControl === 'function') {
-            LoadKpisControl();
-        }
+        LoadKpisControl();
     });
 </script>
+
+
+
+
+
+
+
+
+
 </body>
 </html>
+
 
