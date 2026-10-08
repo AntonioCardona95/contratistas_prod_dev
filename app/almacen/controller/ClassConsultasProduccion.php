@@ -166,8 +166,8 @@ public function CountProduccionPorFechas(
     $idCope = null
 ) {
     // Asignar fechas de la card si existen
-    $fIni = !empty($fechascard1) ? trim($fechascard1) : trim($fechaInicio);
-    $fFin = !empty($fechascard2) ? trim($fechascard2) : trim($fechaFin);
+    $fIni = !empty($fechascard1) ? trim((string)$fechascard1) : trim((string)$fechaInicio);
+    $fFin = !empty($fechascard2) ? trim((string)$fechascard2) : trim((string)$fechaFin);
 
     $where = array();
     $params = array();
@@ -202,13 +202,15 @@ public function CountProduccionPorFechas(
             $params[':idContratista'] = (int)$idContratista;
         } else {
             $where[] = "Contratista = :idContratista";
-            $params[':idContratista'] = trim($idContratista);
+            //$params[':idContratista'] = trim($idContratista);
+            $params[':idContratista'] = trim((string)$idContratista);
         }
     }
 
     // Filtro por Tipo de Tarea
     if (!empty($tipoTarea)) {
-        switch (strtoupper(trim($tipoTarea))) {
+        //switch (strtoupper(trim($tipoTarea))) {
+            switch (strtoupper(trim((string)$tipoTarea))) {
             case 'ALTAS':
                 $where[] = "(Tipo_de_Tarea LIKE 'A%' AND Tipo_de_Tarea NOT LIKE 'A4%')";
                 break;
