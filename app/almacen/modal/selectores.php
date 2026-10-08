@@ -4,28 +4,16 @@ $obj = new ClassConsultasProduccion();
 
 $action = $_POST['action'] ?? '';
 
-// 1. Obtener División por Área
 if ($action === 'getDivisionByArea') {
-    $idArea = (int)($_POST['idArea'] ?? 0);
+    $idArea = $_POST['idArea'] ?? 0;
     $division = $obj->obtenerDivisionPorArea($idArea);
-
-    if ($division !== null) {
-        echo json_encode($division);
-    } else {
-        echo json_encode([
-            'error' => true,
-            'mensaje' => 'No se encontró división asociada para esta área.',
-            'idArea' => $idArea
-        ]);
-    }
+    echo json_encode($division);
     exit;
 }
 
-// 2. Obtener COPEs por División
-if ($action === 'getCopesByDivision') {
-    $idDivision = (int)($_POST['idDivision'] ?? 0);
-    $copes = $obj->obtenerCopesPorDivision($idDivision);
-
-    echo json_encode($copes ? $copes : []);
+if ($action === 'getCopesByArea') {
+    $idArea = $_POST['idArea'] ?? 0;
+    $copes = $obj->obtenerCopesPorArea($idArea);
+    echo json_encode($copes);
     exit;
 }
