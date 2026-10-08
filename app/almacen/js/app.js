@@ -197,7 +197,7 @@ function CargarDependenciasArea() {
     $.when(reqDivision, reqCopes).always(function() {
         LoadKpisControl();
     });
-}
+
 
     // Cargar Copes por Área
     $.ajax({
