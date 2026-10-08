@@ -24,6 +24,20 @@ $Cope      = !empty($_POST['selectCope']) ? trim($_POST['selectCope']) : null;
 $TipoTarea = !empty($_POST['TipoTarea']) ? trim($_POST['TipoTarea']) : null;
 $idContratistaSeleccionado = !empty($_POST['selectContratista']) ? trim($_POST['selectContratista']) : null;
 
+// ==========================================
+// BLOQUE DE DIAGNÓSTICO EN PANTALLA
+// ==========================================
+echo '<div style="background: #1e1e1e; color: #00ff00; padding: 15px; font-family: monospace; border-radius: 5px; margin: 20px; z-index: 99999; position: relative;">';
+echo '<h3>🔍 DIAGNÓSTICO DE PARÁMETROS RECIBIDOS ($_POST)</h3>';
+echo '<ul>';
+echo '<li><b>$_POST["selectArea"]:</b> ' . var_export($_POST['selectArea'] ?? 'NO ENVIADO', true) . ' &rarr; <b>$Area:</b> ' . var_export($Area, true) . '</li>';
+echo '<li><b>$_POST["selectDivision"]:</b> ' . var_export($_POST['selectDivision'] ?? 'NO ENVIADO', true) . ' &rarr; <b>$Division:</b> ' . var_export($Division, true) . '</li>';
+echo '<li><b>$_POST["selectCope"]:</b> ' . var_export($_POST['selectCope'] ?? 'NO ENVIADO', true) . ' &rarr; <b>$Cope:</b> ' . var_export($Cope, true) . '</li>';
+echo '<li><b>$_POST["TipoTarea"]:</b> ' . var_export($_POST['TipoTarea'] ?? 'NO ENVIADO', true) . ' &rarr; <b>$TipoTarea:</b> ' . var_export($TipoTarea, true) . '</li>';
+echo '<li><b>$_POST["selectContratista"]:</b> ' . var_export($_POST['selectContratista'] ?? 'NO ENVIADO', true) . ' &rarr; <b>$idContratistaSeleccionado:</b> ' . var_export($idContratistaSeleccionado, true) . '</li>';
+echo '</ul>';
+echo '</div>';
+
 // FECHAS INDEPENDIENTES DE LAS CARDS
 $fechascard1 = !empty($_POST['fechascard1']) ? $_POST['fechascard1'] . " 00:00:00" : null;
 $fechascard2 = !empty($_POST['fechascard2']) ? $_POST['fechascard2'] . " 23:59:59" : null;
