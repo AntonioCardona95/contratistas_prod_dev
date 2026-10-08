@@ -137,7 +137,7 @@
         <i class="fas fa-tasks mr-1"></i> Seleccione Tipo de tarea:
     </label>
     <select name="TipoTarea" id="TipoTarea" class="form-control select2-busqueda" onchange="LoadKpisControl();">
-        <option value="">-- Seleccionar Tipo de Tarea --</option>
+        <option value="">-- Seleccionar Tipo de Tareas --</option>
         <option value="QUEJAS">QUEJAS</option>
         <option value="ALTAS">ALTAS</option>
         <option value="MIGRACIONES">MIGRACIONES</option>
