@@ -243,7 +243,7 @@
             LoadKpisControl();
         });
 
-        // 3. Cambio en Contratista (Conserva el texto visible en el option select)
+        // 3. Cambio en Contratista
         $('#selectContratista').off('change').on('change', function() {
             LoadKpisControl();
         });
@@ -262,7 +262,6 @@
         LoadKpisControl();
     });
 </script>
-
 
 
 
