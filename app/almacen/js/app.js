@@ -146,7 +146,7 @@ function LoadKpisControl(ejecutar) {
     });
 }
 
-// NUEVA FUNCIÓN: Solo recarga División y Cope cuando el usuario CAMBIA de Área
+// FUNCIÓN CORREGIDA
 function CargarDependenciasArea() {
     var selectArea = $('#selectArea').val();
     
@@ -154,24 +154,50 @@ function CargarDependenciasArea() {
     if (!selectArea) {
         $('#selectDivision').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
         $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
+        LoadKpisControl();
         return;
     }
 
-    // Cargar División por Área
-    $.ajax({
+    // Promesas para esperar a que ambas peticiones (División y Copes) terminen antes de refrescar KPIs
+    var reqDivision = $.ajax({
         type: 'POST',
         url: 'modal/selectores.php',
         data: { action: 'getDivisionByArea', idArea: selectArea },
         dataType: 'json',
         success: function(data) {
             if (data && data.idDivision) {
-                $('#selectDivision').html('<option value="'+data.idDivision+'">'+data.Division+'</option>');
+                // Se usa .val() sin disparar trigger('change') para evitar recargas dobles
+                $('#selectDivision').html('<option value="'+data.idDivision+'" data-nombre="'+data.Division+'" selected>'+data.Division+'</option>');
                 $('#selectDivision').prop('disabled', false).trigger('change.select2');
             } else {
                 $('#selectDivision').html('<option value="">No hay división para esta área</option>').prop('disabled', true).trigger('change.select2');
             }
         }
     });
+
+    var reqCopes = $.ajax({
+        type: 'POST',
+        url: 'modal/selectores.php',
+        data: { action: 'getCopesByArea', idArea: selectArea },
+        dataType: 'json',
+        success: function(data) {
+            if (data && data.length > 0) {
+                var options = '<option value="">-- Seleccione un cope --</option>';
+                $.each(data, function(index, item) {
+                    options += '<option value="'+item.id+'" data-nombre="'+item.COPE+'">'+item.COPE+'</option>';
+                });
+                $('#selectCope').html(options).prop('disabled', false).trigger('change.select2');
+            } else {
+                $('#selectCope').html('<option value="">No hay copes en esta área</option>').prop('disabled', true).trigger('change.select2');
+            }
+        }
+    });
+
+    // Una vez que ambas dependencias fueron cargadas en el DOM, se ejecuta la actualización de KPIs una sola vez
+    $.when(reqDivision, reqCopes).always(function() {
+        LoadKpisControl();
+    });
+}
 
     // Cargar Copes por Área
     $.ajax({
