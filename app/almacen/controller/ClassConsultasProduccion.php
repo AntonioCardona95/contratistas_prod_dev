@@ -4,9 +4,69 @@
  * Clase encargada de la gestión de Producción, Consultas y Estado de Navegación
  */
 
+
+/**
+ * Clase encargada de la gestión de Producción, Consultas y Estado de Navegación
+ */
+
 require_once($_SERVER['DOCUMENT_ROOT'] . "/cnx/cnx.php");
 
 class ClassConsultasProduccion extends Conexion
+{
+    protected function runQuery($sql, $params = array(), $conexionTipo = 'default')
+    {
+        switch ($conexionTipo) {
+            case 'analisis':
+            case 'analytics':
+                $conexion = $this->get_conexion_analisis();
+                break;
+            case 'nass':
+                $conexion = $this->get_conexion_nass();
+                break;
+            case 'dos':
+                $conexion = $this->get_conexiondos();
+                break;
+            case 'erpprint':
+                $conexion = $this->conexion();
+                break;
+            default:
+                $conexion = $this->get_conexion();
+                break;
+        }
+
+        try {
+            $stmt = $conexion->prepare($sql);
+            foreach ($params as $key => $val) {
+                if (is_int($key)) {
+                    $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+                } else {
+                    $param = ':' . ltrim($key, ':');
+                    $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
+                }
+            }
+            $stmt->execute();
+
+            // ✅ En lugar de fetchAll(), iteramos fila por fila
+            $rows = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $rows[] = $row;
+            }
+
+            if (method_exists($stmt, 'closeCursor')) {
+                $stmt->closeCursor();
+            }
+            return $rows;
+        } catch (PDOException $e) {
+            error_log("Error en runQuery: " . $e->getMessage());
+            return array();
+        }
+    }
+}
+
+
+
+
+/*class ClassConsultasProduccion extends Conexion
 {
     protected function runQuery($sql, $params = array(), $conexionTipo = 'default')
     {
@@ -48,7 +108,7 @@ class ClassConsultasProduccion extends Conexion
         } catch (PDOException $e) {
             return array();
         }
-    }
+    } */
 
     protected function runExecute($sql, $params = array(), $conexionTipo = 'default')
     {
