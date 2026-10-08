@@ -142,7 +142,7 @@ public function obtenerCopesPorArea($idArea) {
 
 /**
  * Cuenta el total de producción en seg_ns_prod_eval.
- * Permite filtrar por fechas, contratista, área (por nombre), división (por nombre) y cope.
+ * Permite filtrar por fechas, contratista, área (por nombre), división (por nombre) y cope (por nombre o id).
  */
 public function CountProduccionPorFechas(
     $fechaInicio = null, 
@@ -214,17 +214,21 @@ public function CountProduccionPorFechas(
 
     // Filtro opcional por División (evaluando si es nombre o si no es un ID numérico suelto)
     if (!empty($nombreDivision)) {
-        // Solo aplica si el valor recibido no es un número puro (para evitar filtrar NOM_DIVISION = '5')
         if (!is_numeric($nombreDivision)) {
             $where[] = "TRIM(NOM_DIVISION) = :nombreDivision";
             $params[':nombreDivision'] = trim($nombreDivision);
         }
     }
 
-    // Filtro opcional por Cope
+    // Filtro opcional por Cope (evaluando si es nombre o ID numérico)
     if (!empty($nombreCope)) {
-        $where[] = "TRIM(NOM_CT) = :nombreCope";
-        $params[':nombreCope'] = trim($nombreCope);
+        if (is_numeric($nombreCope)) {
+            $where[] = "idCope = :nombreCope";
+            $params[':nombreCope'] = (int)$nombreCope;
+        } else {
+            $where[] = "TRIM(NOM_CT) = :nombreCope";
+            $params[':nombreCope'] = trim($nombreCope);
+        }
     }
 
     // Construir la consulta SQL
