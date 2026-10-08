@@ -40,19 +40,12 @@ class ClassConsultasProduccion extends Conexion
                 }
             }
             $stmt->execute();
-
-            // ✅ Corrección: iterar fila por fila en lugar de fetchAll()
-            $rows = [];
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $rows[] = $row;
-            }
-
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if (method_exists($stmt, 'closeCursor')) {
                 $stmt->closeCursor();
             }
             return $rows;
         } catch (PDOException $e) {
-            error_log("Error en runQuery: " . $e->getMessage());
             return array();
         }
     }
@@ -91,12 +84,9 @@ class ClassConsultasProduccion extends Conexion
             $stmt->execute();
             return (int)$conexion->lastInsertId();
         } catch (PDOException $e) {
-            error_log("Error en runExecute: " . $e->getMessage());
             return 0;
         }
     }
-
-
 
 
     /**
