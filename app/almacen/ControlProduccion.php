@@ -244,24 +244,24 @@
         });
 
         // 2. Cambio en Fechas
-        $('#fechascard1, #fechascard2').off('change').on('change', function() {
+        $('#fechascard1, #fechascard2').on('change', function() {
             LoadKpisControl();
         });
 
         // 3. Cambio en Contratista
-        $('#selectContratista').off('change').on('change', function() {
+        $('#selectContratista').on('change', function() {
             LimpiarSelectoresUbicacion();
             LoadKpisControl();
         });
 
         // 4. Cambio en Área
-        $('#selectArea').off('change').on('change', function() {
+        $('#selectArea').on('change', function() {
             CargarDependenciasArea();
             LoadKpisControl();
         });
 
         // 5. Cambio en División, Cope o Tipo de Tarea
-        $('#selectDivision, #selectCope, #TipoTarea').off('change').on('change', function() {
+        $('#selectDivision, #selectCope, #TipoTarea').on('change', function() {
             LoadKpisControl();
         });
 
@@ -269,7 +269,6 @@
         LoadKpisControl();
     });
 </script>
-
 
 
 
