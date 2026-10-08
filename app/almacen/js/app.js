@@ -145,6 +145,7 @@ function CargarDependenciasArea() {
 
     console.log('entro a cargad Dependencias Area');
     var selectArea = $('#selectArea').val();
+    console.log('Valor de selectArea:', selectArea);
     
     // Si no hay área seleccionada, reseteamos y deshabilitamos
     if (!selectArea) {
