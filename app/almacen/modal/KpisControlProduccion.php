@@ -18,10 +18,26 @@ $Contratista = $_SESSION['Contratista'] ?? null;
 $idContratistas = obtenerIdContratistaContexto();
 
 // RECIBIMOS PARAMETROS (Limpios/null si no están seleccionados)
-$Area      = !empty($_POST['selectArea']) ? trim($_POST['selectArea']) : null;
+// RECIBIMOS PARÁMETROS
+$idArea     = !empty($_POST['selectArea']) ? trim($_POST['selectArea']) : null;
+$nombreArea = !empty($_POST['nombreArea']) ? trim($_POST['nombreArea']) : null;
+
+// HOY: Usamos preferentemente el $nombreArea porque seg_ns_prod_eval almacena texto en NOM_AREA
+if (!empty($nombreArea)) {
+    $where[] = "TRIM(NOM_AREA) = :area";
+    $params[':area'] = $nombreArea;
+} elseif (!empty($idArea)) {
+    // Respaldo en caso de que solo llegue el valor del select
+    $where[] = "TRIM(NOM_AREA) = :area";
+    $params[':area'] = $idArea;
+}
+
 $Division  = !empty($_POST['selectDivision']) ? trim($_POST['selectDivision']) : null;
+
 $Cope      = !empty($_POST['selectCope']) ? trim($_POST['selectCope']) : null;
+
 $TipoTarea = !empty($_POST['TipoTarea']) ? trim($_POST['TipoTarea']) : null;
+
 $idContratistaSeleccionado = !empty($_POST['selectContratista']) ? trim($_POST['selectContratista']) : null;
 
 // ==========================================
