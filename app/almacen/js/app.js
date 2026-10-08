@@ -121,7 +121,7 @@ function LoadKpisControl(ejecutar) {
         nombreDivision = '';
     }
 
-    // 6. Cope (Obtenemos ID y Nombre del Option seleccionado)
+    // 6. Cope (Solo se envía si hay un valor seleccionado real)
     var selectCope = $('#selectCope').val();
     var nombreCope = $('#selectCope option:selected').data('nombre') || $('#selectCope option:selected').text();
     nombreCope = $.trim(nombreCope);
@@ -158,6 +158,7 @@ function LoadKpisControl(ejecutar) {
         selectDivision: selectDivision,
         nombreDivision: nombreDivision,
         selectCope: selectCope,
+        nombreCope: nombreCope,
         selectContratista: selectContratista,
         TipoTarea: TipoTarea,
         fechas: [fechascard1, fechascard2]
