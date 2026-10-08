@@ -166,50 +166,275 @@ function LoadKpisControl(ejecutar) {
 
 // NUEVA FUNCIÓN: Solo recarga División y Cope cuando el usuario CAMBIA de Área
 function CargarDependenciasArea() {
+
+    console.log('========================================');
+    console.log('🚀 ENTRÓ A CargarDependenciasArea');
+    console.log('🕒 Hora:', new Date().toLocaleTimeString());
+
     var selectArea = $('#selectArea').val();
-    
+
+    console.log('📍 Área seleccionada ID:', selectArea);
+    console.log(
+        '📍 Área seleccionada Nombre:',
+        $('#selectArea option:selected').text()
+    );
+
     // Limpiar y resetear División y Cope si no hay Área
     if (!selectArea) {
-        $('#selectDivision').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
-        $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
+
+        console.warn('⚠ selectArea viene vacío');
+
+        $('#selectDivision')
+            .html('<option value=""></option>')
+            .prop('disabled', true)
+            .trigger('change.select2');
+
+        $('#selectCope')
+            .html('<option value=""></option>')
+            .prop('disabled', true)
+            .trigger('change.select2');
+
+        console.log('⛔ Se canceló la carga porque no hay Área');
+        console.log('========================================');
+
         return;
     }
+
+    console.log('📡 Iniciando carga de División');
 
     // Cargar División por Área
     $.ajax({
         type: 'POST',
         url: 'modal/selectores.php',
-        data: { action: 'getDivisionByArea', idArea: selectArea },
+        data: {
+            action: 'getDivisionByArea',
+            idArea: selectArea
+        },
         dataType: 'json',
+
+        beforeSend: function () {
+
+            console.log(
+                '📤 Enviando petición División',
+                {
+                    action: 'getDivisionByArea',
+                    idArea: selectArea
+                }
+            );
+
+        },
+
         success: function(data) {
+
+            console.log('✅ Respuesta División recibida');
+
+            console.log(data);
+
             if (data && data.idDivision) {
-                $('#selectDivision').html('<option value="'+data.idDivision+'" data-nombre="'+data.Division+'">'+data.Division+'</option>');
-                $('#selectDivision').prop('disabled', false).trigger('change.select2');
+
+                console.log('🏢 División encontrada');
+                console.log('ID División:', data.idDivision);
+                console.log('Nombre División:', data.Division);
+
+                $('#selectDivision').html(
+                    '<option value="' +
+                    data.idDivision +
+                    '" data-nombre="' +
+                    data.Division +
+                    '">' +
+                    data.Division +
+                    '</option>'
+                );
+
+                $('#selectDivision')
+                    .prop('disabled', false)
+                    .trigger('change.select2');
+
+                console.log(
+                    '✅ selectDivision actualizado'
+                );
+
             } else {
-                $('#selectDivision').html('<option value="">No hay división para esta área</option>').prop('disabled', true).trigger('change.select2');
+
+                console.warn(
+                    '⚠ No se encontró División para el área'
+                );
+
+                $('#selectDivision')
+                    .html(
+                        '<option value="">No hay división para esta área</option>'
+                    )
+                    .prop('disabled', true)
+                    .trigger('change.select2');
             }
+        },
+
+        error: function(xhr,status,error){
+
+            console.error('❌ ERROR DIVISIÓN');
+            console.error('Status:', status);
+            console.error('Error:', error);
+            console.error('Response:', xhr.responseText);
+
         }
     });
 
+    console.log('📡 Iniciando carga de COPES');
+
     // Cargar Copes por Área
     $.ajax({
+
         type: 'POST',
         url: 'modal/selectores.php',
-        data: { action: 'getCopesByArea', idArea: selectArea },
+
+        data: {
+            action: 'getCopesByArea',
+            idArea: selectArea
+        },
+
         dataType: 'json',
+
+        beforeSend: function(){
+
+            console.log(
+                '📤 Enviando petición COPES',
+                {
+                    action: 'getCopesByArea',
+                    idArea: selectArea
+                }
+            );
+
+        },
+
         success: function(data) {
+
+            console.log('✅ Respuesta COPES recibida');
+
+            console.log(data);
+
             if (data && data.length > 0) {
-                var options = '<option value="">-- Seleccione un cope --</option>';
+
+                console.log(
+                    '📋 Total COPES encontrados:',
+                    data.length
+                );
+
+                var options =
+                    '<option value="">-- Seleccione un cope --</option>';
+
                 $.each(data, function(index, item) {
-                    options += '<option value="'+item.id+'" data-nombre="'+item.COPE+'">'+item.COPE+'</option>';
+
+                    console.log(
+                        'COPE #' + index,
+                        item
+                    );
+
+                    options +=
+                        '<option value="' +
+                        item.id +
+                        '" data-nombre="' +
+                        item.COPE +
+                        '">' +
+                        item.COPE +
+                        '</option>';
                 });
-                $('#selectCope').html(options).prop('disabled', false).trigger('change.select2');
+
+                $('#selectCope')
+                    .html(options)
+                    .prop('disabled', false)
+                    .trigger('change.select2');
+
+                console.log(
+                    '✅ selectCope actualizado'
+                );
+
             } else {
-                $('#selectCope').html('<option value="">No hay copes en esta área</option>').prop('disabled', true).trigger('change.select2');
+
+                console.warn(
+                    '⚠ No se encontraron COPES para esta área'
+                );
+
+                $('#selectCope')
+                    .html(
+                        '<option value="">No hay copes en esta área</option>'
+                    )
+                    .prop('disabled', true)
+                    .trigger('change.select2');
             }
+        },
+
+        error: function(xhr,status,error){
+
+            console.error('❌ ERROR COPES');
+            console.error('Status:', status);
+            console.error('Error:', error);
+            console.error('Response:', xhr.responseText);
+
+        },
+
+        complete:function(){
+
+            console.log('🏁 Finalizó petición COPES');
+            console.log('========================================');
+
         }
     });
 }
+
+
+// MONITOREAR CAMBIOS DE ÁREA
+$('#selectArea').on('change', function(){
+
+    console.log('');
+    console.log('🔄 CAMBIÓ EL ÁREA');
+
+    console.log(
+        'ID:',
+        $(this).val()
+    );
+
+    console.log(
+        'Nombre:',
+        $('#selectArea option:selected').text()
+    );
+
+});
+
+// MONITOREAR CAMBIOS DE DIVISIÓN
+$('#selectDivision').on('change', function(){
+
+    console.log('');
+    console.log('🔄 CAMBIÓ LA DIVISIÓN');
+
+    console.log(
+        'ID:',
+        $(this).val()
+    );
+
+    console.log(
+        'Nombre:',
+        $('#selectDivision option:selected').text()
+    );
+
+});
+
+// MONITOREAR CAMBIOS DE COPE
+$('#selectCope').on('change', function(){
+
+    console.log('');
+    console.log('🔄 CAMBIÓ EL COPE');
+
+    console.log(
+        'ID:',
+        $(this).val()
+    );
+
+    console.log(
+        'Nombre:',
+        $('#selectCope option:selected').text()
+    );
+
+});
 
 // Resetea los selectores de Área, División y Cope a su estado inicial
 function LimpiarSelectoresUbicacion() {
