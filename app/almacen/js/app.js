@@ -84,16 +84,18 @@ function LoadKpisControl(ejecutar) {
         parametros += '&selectContratista=' + encodeURIComponent(selectContratista);
     }
 
-    // 3. Tipo de Tarea (NUEVO)
+    // 3. Tipo de Tarea
     var TipoTarea = $('#TipoTarea').val();
     if (TipoTarea) {
         parametros += '&TipoTarea=' + encodeURIComponent(TipoTarea);
     }
 
-    // 4. Área
-    // Área
+    // 4. Área (Soporta data-nombre o texto visible de la opción)
     var selectArea = $('#selectArea').val();
-    var nombreArea = $('#selectArea option:selected').data('nombre');
+    var nombreArea = $('#selectArea option:selected').data('nombre') || $('#selectArea option:selected').text().trim();
+    if (nombreArea === '-- Seleccionar Área --' || nombreArea === '-- Seleccione un área --') {
+        nombreArea = '';
+    }
 
     if (selectArea) {
         parametros += '&selectArea=' + encodeURIComponent(selectArea);
@@ -102,16 +104,32 @@ function LoadKpisControl(ejecutar) {
         parametros += '&nombreArea=' + encodeURIComponent(nombreArea);
     }
 
-    // 5. División
+    // 5. División (Agregado envío de id y nombre)
     var selectDivision = $('#selectDivision').val();
+    var nombreDivision = $('#selectDivision option:selected').data('nombre') || $('#selectDivision option:selected').text().trim();
+    if (nombreDivision === '-- Seleccionar División --' || nombreDivision === '-- Seleccione una división --') {
+        nombreDivision = '';
+    }
+
     if (selectDivision) {
         parametros += '&selectDivision=' + encodeURIComponent(selectDivision);
     }
+    if (nombreDivision) {
+        parametros += '&nombreDivision=' + encodeURIComponent(nombreDivision);
+    }
 
-    // 6. Cope
+    // 6. Cope (Agregado envío de id y nombre)
     var selectCope = $('#selectCope').val();
+    var nombreCope = $('#selectCope option:selected').data('nombre') || $('#selectCope option:selected').text().trim();
+    if (nombreCope === '-- Seleccionar Cope --' || nombreCope === '-- Seleccione un cope --') {
+        nombreCope = '';
+    }
+
     if (selectCope) {
         parametros += '&selectCope=' + encodeURIComponent(selectCope);
+    }
+    if (nombreCope) {
+        parametros += '&nombreCope=' + encodeURIComponent(nombreCope);
     }
 
     // 7. Fechas
@@ -165,7 +183,7 @@ function CargarDependenciasArea() {
         dataType: 'json',
         success: function(data) {
             if (data && data.idDivision) {
-                $('#selectDivision').html('<option value="'+data.idDivision+'">'+data.Division+'</option>');
+                $('#selectDivision').html('<option value="'+data.idDivision+'" data-nombre="'+data.Division+'">'+data.Division+'</option>');
                 $('#selectDivision').prop('disabled', false).trigger('change.select2');
             } else {
                 $('#selectDivision').html('<option value="">No hay división para esta área</option>').prop('disabled', true).trigger('change.select2');
@@ -183,7 +201,7 @@ function CargarDependenciasArea() {
             if (data && data.length > 0) {
                 var options = '<option value="">-- Seleccione un cope --</option>';
                 $.each(data, function(index, item) {
-                    options += '<option value="'+item.id+'">'+item.COPE+'</option>';
+                    options += '<option value="'+item.id+'" data-nombre="'+item.COPE+'">'+item.COPE+'</option>';
                 });
                 $('#selectCope').html(options).prop('disabled', false).trigger('change.select2');
             } else {
@@ -192,7 +210,6 @@ function CargarDependenciasArea() {
         }
     });
 }
-
 
 // Resetea los selectores de Área, División y Cope a su estado inicial
 function LimpiarSelectoresUbicacion() {
