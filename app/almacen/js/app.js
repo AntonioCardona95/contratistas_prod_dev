@@ -76,36 +76,36 @@ function LoadKpisControl(ejecutar) {
     console.log("Entró a LoadKpisControl");
 
     // 1. Convertimos los datos del formulario de fechas a un String/Objeto
-    var parametros = $("#FormQueryUnidades").serialize();
+    var parametros = $("#FormQueryUnidades").serialize() || '';
 
     // 2. Contratista
     var selectContratista = $('#selectContratista').val();
     if (selectContratista) {
-        parametros += '&selectContratista=' + encodeURIComponent(selectContratista);
+        parametros += (parametros ? '&' : '') + 'selectContratista=' + encodeURIComponent(selectContratista);
     }
 
-    // 3. Tipo de Tarea (NUEVO)
+    // 3. Tipo de Tarea
     var TipoTarea = $('#TipoTarea').val();
     if (TipoTarea) {
-        parametros += '&TipoTarea=' + encodeURIComponent(TipoTarea);
+        parametros += (parametros ? '&' : '') + 'TipoTarea=' + encodeURIComponent(TipoTarea);
     }
 
     // 4. Área
     var selectArea = $('#selectArea').val();
     if (selectArea) {
-        parametros += '&selectArea=' + encodeURIComponent(selectArea);
+        parametros += (parametros ? '&' : '') + 'selectArea=' + encodeURIComponent(selectArea);
     }
 
     // 5. División
     var selectDivision = $('#selectDivision').val();
     if (selectDivision) {
-        parametros += '&selectDivision=' + encodeURIComponent(selectDivision);
+        parametros += (parametros ? '&' : '') + 'selectDivision=' + encodeURIComponent(selectDivision);
     }
 
     // 6. Cope
     var selectCope = $('#selectCope').val();
     if (selectCope) {
-        parametros += '&selectCope=' + encodeURIComponent(selectCope);
+        parametros += (parametros ? '&' : '') + 'selectCope=' + encodeURIComponent(selectCope);
     }
 
     // 7. Fechas
@@ -113,15 +113,15 @@ function LoadKpisControl(ejecutar) {
     var fechascard2 = $('#fechascard2').val();
 
     if (fechascard1) {
-        parametros += '&fechascard1=' + encodeURIComponent(fechascard1);
+        parametros += (parametros ? '&' : '') + 'fechascard1=' + encodeURIComponent(fechascard1);
     }
     if (fechascard2) {
-        parametros += '&fechascard2=' + encodeURIComponent(fechascard2);
+        parametros += (parametros ? '&' : '') + 'fechascard2=' + encodeURIComponent(fechascard2);
     }
 
     // 8. Bandera ejecutar
     if (ejecutar) {
-        parametros += '&ejecutar=1';
+        parametros += (parametros ? '&' : '') + 'ejecutar=1';
     }
 
     $("#LoadKpisControl").fadeIn('slow');
@@ -140,14 +140,14 @@ function LoadKpisControl(ejecutar) {
     });
 }
 
-// NUEVA FUNCIÓN: Solo recarga División y Cope cuando el usuario CAMBIA de Área
+// 1. Al cambiar ÁREA: Carga División y resetea Cope
 function CargarDependenciasArea() {
     var selectArea = $('#selectArea').val();
     
-    // Limpiar y resetear División y Cope si no hay Área
+    // Resetear y deshabilitar si no hay Área seleccionada
     if (!selectArea) {
-        $('#selectDivision').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
-        $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
+        $('#selectDivision').html('<option value=""></option>').prop('disabled', true).trigger('change');
+        $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change');
         return;
     }
 
@@ -158,54 +158,71 @@ function CargarDependenciasArea() {
         data: { action: 'getDivisionByArea', idArea: selectArea },
         dataType: 'json',
         success: function(data) {
-            if (data && data.idDivision) {
-                $('#selectDivision').html('<option value="'+data.idDivision+'">'+data.Division+'</option>');
-                $('#selectDivision').prop('disabled', false).trigger('change.select2');
+            var options = '<option value=""></option>';
+
+            if (Array.isArray(data) && data.length > 0) {
+                $.each(data, function(index, item) {
+                    options += '<option value="' + (item.idDivision || item.id) + '">' + (item.Division || item.nombre) + '</option>';
+                });
+                $('#selectDivision').html(options).prop('disabled', false).trigger('change');
+            } else if (data && (data.idDivision || data.id)) {
+                var idDiv = data.idDivision || data.id;
+                var nombreDiv = data.Division || data.nombre;
+                options += '<option value="' + idDiv + '">' + nombreDiv + '</option>';
+                $('#selectDivision').html(options).prop('disabled', false).trigger('change');
             } else {
-                $('#selectDivision').html('<option value="">No hay división para esta área</option>').prop('disabled', true).trigger('change.select2');
+                $('#selectDivision').html('<option value="">No hay división para esta área</option>').prop('disabled', true).trigger('change');
             }
+
+            // Al cambiar área, reseteamos Copes hasta que elijan una división
+            $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change');
+        },
+        error: function(xhr, status, error) {
+            console.error("Error al obtener divisiones:", error);
+            $('#selectDivision').html('<option value=""></option>').prop('disabled', true).trigger('change');
+            $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change');
         }
     });
+}
 
-    // Cargar Copes por Área
+// 2. Al cambiar DIVISIÓN: Carga los Copes de la División seleccionada
+function CargarCopesPorDivision() {
+    var selectDivision = $('#selectDivision').val();
+
+    if (!selectDivision) {
+        $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change');
+        return;
+    }
+
     $.ajax({
         type: 'POST',
         url: 'modal/selectores.php',
-        data: { action: 'getCopesByArea', idArea: selectArea },
+        data: { action: 'getCopesByDivision', idDivision: selectDivision },
         dataType: 'json',
         success: function(data) {
             if (data && data.length > 0) {
-                var options = '<option value="">-- Seleccione un cope --</option>';
+                var options = '<option value=""></option>';
                 $.each(data, function(index, item) {
-                    options += '<option value="'+item.id+'">'+item.COPE+'</option>';
+                    options += '<option value="' + item.id + '">' + item.COPE + '</option>';
                 });
-                $('#selectCope').html(options).prop('disabled', false).trigger('change.select2');
+                $('#selectCope').html(options).prop('disabled', false).trigger('change');
             } else {
-                $('#selectCope').html('<option value="">No hay copes en esta área</option>').prop('disabled', true).trigger('change.select2');
+                $('#selectCope').html('<option value="">No hay copes en esta división</option>').prop('disabled', true).trigger('change');
             }
+        },
+        error: function(xhr, status, error) {
+            console.error("Error al obtener copes:", error);
+            $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change');
         }
     });
 }
 
-
-// Resetea los selectores de Área, División y Cope a su estado inicial
+// 3. Resetea los selectores de Área, División y Cope a su estado inicial
 function LimpiarSelectoresUbicacion() {
-    // 1. Resetear Área a su valor por defecto (vacío)
-    $('#selectArea').val('').trigger('change.select2');
-
-    // 2. Limpiar y deshabilitar División
-    $('#selectDivision')
-        .html('<option value=""></option>')
-        .prop('disabled', true)
-        .trigger('change.select2');
-
-    // 3. Limpiar y deshabilitar Cope
-    $('#selectCope')
-        .html('<option value=""></option>')
-        .prop('disabled', true)
-        .trigger('change.select2');
+    $('#selectArea').val('').trigger('change');
+    $('#selectDivision').html('<option value=""></option>').prop('disabled', true).trigger('change');
+    $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change');
 }
-
 
 
 /*function LoadKpisControl(){
