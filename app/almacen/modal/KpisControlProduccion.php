@@ -238,7 +238,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
             <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #17a2b8;">
                 <div class="kpi-card-body">
                     <div class="kpi-card-icon"><i class="fas fa-calendar-alt"></i></div>
-                    <div class="kpi-card-label">Producción por Fechas</div>
+                    <div class="kpi-card-label">Liquidaciones</div>
                     <div class="kpi-card-number"><?php echo number_format($TotalProduccionFechas); ?></div>
                 </div>
             </div>
