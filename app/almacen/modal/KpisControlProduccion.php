@@ -24,10 +24,12 @@ $Fecha2 = $_POST['Fecha2'] ?? '';
 $Area        = $_POST['selectArea'] ?? '';
 $nombreArea = $_POST['nombreArea'] ?? '';
 $nombreDivision = $_POST['nombreDivision'] ?? '';
+$nombreCope     = $_POST['nombreCope'] ?? '';
 echo '<pre>';
 var_dump($Area);
 var_dump($nombreArea);
 var_dump($nombreDivision);
+var_dump($nombreCope);
 echo '</pre>';
 
 
@@ -120,8 +122,8 @@ $qrProduccionFechas = $consultas->CountProduccionPorFechas(
     $idContratistaSeleccionado,
     $TipoTarea,
     $nombreArea,
-    $nombreDivision, // <--- Enfriamos enviando el NOMBRE de la División
-    $Cope
+    $nombreDivision,
+    $nombreCope
 );
 
 if (is_array($qrProduccionFechas)) {
