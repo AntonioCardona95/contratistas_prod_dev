@@ -335,8 +335,10 @@ function CargarDependenciasArea() {
 /**
  * Resetea los selectores de Área, División y Cope a su estado inicial.
  */
+/**
+ * Resetea únicamente División y Cope sin disparar eventos en cadena que borren Contratista o Área.
+ */
 function LimpiarSelectoresUbicacion() {
-    $('#selectArea').val('').trigger('change.select2');
     $('#selectDivision').html('<option value=""></option>').val('').prop('disabled', true).trigger('change.select2');
     $('#selectCope').html('<option value=""></option>').val('').prop('disabled', true).trigger('change.select2');
 }
