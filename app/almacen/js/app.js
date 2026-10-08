@@ -74,7 +74,11 @@ function LoadKPIS(){
 
 function LoadKpisControl(ejecutar) {
     
-    console.log("Entró a LoadKpisControl");
+    //console.log("Entró a LoadKpisControl");
+
+    console.log('================================');
+    console.log('🚀 Entró a LoadKpisControl');
+    console.trace('QUIÉN LLAMÓ A LoadKpisControl');
 
     // 1. Convertimos los datos del formulario de fechas a un String/Objeto
     var parametros = $("#FormQueryUnidades").serialize();
