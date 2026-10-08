@@ -73,104 +73,6 @@ function LoadKPIS(){
 }
 
 function LoadKpisControl(ejecutar) {
-    // Identificador único para distinguir cada llamada en la consola
-    var idLlamada = Math.floor(Math.random() * 1000);
-    
-    console.group("🚀 [LoadKpisControl #" + idLlamada + "] Inicio de ejecución");
-    console.log("--> Parámetro 'ejecutar':", ejecutar);
-    console.trace("--> Traza de llamada (¿Quién llamó a esta función?):");
-
-    // 1. Convertimos los datos del formulario de fechas a un String/Objeto
-    var parametros = $("#FormQueryUnidades").serialize();
-
-    // 2. Contratista
-    var selectContratista = $('#selectContratista').val();
-    if (selectContratista) {
-        parametros += '&selectContratista=' + encodeURIComponent(selectContratista);
-    }
-
-    // 3. Tipo de Tarea
-    var TipoTarea = $('#TipoTarea').val();
-    if (TipoTarea) {
-        parametros += '&TipoTarea=' + encodeURIComponent(TipoTarea);
-    }
-
-    // 4. Área (Obtenemos ID y Nombre del Option seleccionado)
-    var selectArea = $('#selectArea').val();
-    var nombreArea = $('#selectArea option:selected').data('nombre') || $('#selectArea option:selected').text();
-    nombreArea = $.trim(nombreArea);
-
-    if (selectArea) {
-        parametros += '&selectArea=' + encodeURIComponent(selectArea);
-    }
-    if (nombreArea && selectArea) {
-        parametros += '&nombreArea=' + encodeURIComponent(nombreArea);
-    }
-
-    // 5. División
-    var selectDivision = $('#selectDivision').val();
-    if (selectDivision) {
-        parametros += '&selectDivision=' + encodeURIComponent(selectDivision);
-    }
-
-    // 6. Cope
-    var selectCope = $('#selectCope').val();
-    if (selectCope) {
-        parametros += '&selectCope=' + encodeURIComponent(selectCope);
-    }
-
-    // 7. Fechas
-    var fechascard1 = $('#fechascard1').val();
-    var fechascard2 = $('#fechascard2').val();
-
-    if (fechascard1) {
-        parametros += '&fechascard1=' + encodeURIComponent(fechascard1);
-    }
-    if (fechascard2) {
-        parametros += '&fechascard2=' + encodeURIComponent(fechascard2);
-    }
-
-    // 8. Bandera ejecutar
-    if (ejecutar) {
-        parametros += '&ejecutar=1';
-    }
-
-    // Imprimir en consola los datos extraídos antes de enviar
-    console.log("--> Datos recolectados:", {
-        selectArea: selectArea,
-        nombreArea: nombreArea,
-        selectDivision: selectDivision,
-        selectCope: selectCope,
-        selectContratista: selectContratista,
-        TipoTarea: TipoTarea,
-        fechas: [fechascard1, fechascard2]
-    });
-    console.log("--> Query String enviada:", parametros);
-
-    $("#LoadKpisControl").fadeIn('slow');
-
-    // 9. Llamada principal para refrescar KPIs
-    return $.ajax({
-        type: 'POST',
-        url: 'modal/KpisControlProduccion.php',
-        data: parametros,
-        beforeSend: function(objeto) {
-            console.log("⏳ [LoadKpisControl #" + idLlamada + "] Enviando petición a modal/KpisControlProduccion.php...");
-            $("#LoadKpisControl").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
-        },
-        success: function(data) {
-            console.log("✅ [LoadKpisControl #" + idLlamada + "] Respuesta recibida con éxito de KpisControlProduccion.php");
-            $("#LoadKpisControl").html(data);
-            console.groupEnd();
-        },
-        error: function(xhr, status, error) {
-            console.error("❌ [LoadKpisControl #" + idLlamada + "] Error en la petición AJAX:", status, error);
-            console.groupEnd();
-        }
-    });
-}
-
-/*function LoadKpisControl(ejecutar) {
     console.log("Entró a LoadKpisControl");
 
     // 1. Convertimos los datos del formulario de fechas a un String/Objeto
@@ -242,7 +144,7 @@ function LoadKpisControl(ejecutar) {
             $("#LoadKpisControl").html(data);
         }
     });
-} */
+}
 
 // FUNCIÓN CORREGIDA
 function CargarDependenciasArea() {
