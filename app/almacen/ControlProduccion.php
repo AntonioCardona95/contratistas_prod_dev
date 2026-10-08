@@ -147,7 +147,7 @@
 </div>
 
            
-            <!-- ÁREA -->
+         <!-- ÁREA -->
             <div class="col-md-3 col-lg-3">
                 <label for="selectArea" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-building mr-1"></i> Seleccionar Área:
