@@ -235,46 +235,48 @@
     
 <script>
     $(document).ready(function() {
-        // 1. Inicialización de Select2
+        // Inicializar Select2
         $('.select2-busqueda').select2({
             theme: 'bootstrap4',
             allowClear: true,
             width: '100%'
         });
 
-        // 2. Evento para ÁREA (Llama a CargarDependenciasArea)
-        $('#selectArea').on('change', function(e) {
-            // Solo si el cambio fue realizado por la interacción del usuario
-            if (e.originalEvent || e.isTrigger) {
-                CargarDependenciasArea();
-            }
-        });
-
-        // 3. Evento para DIVISIÓN (Llama a CargarCopesPorDivision)
-        $('#selectDivision').on('change', function(e) {
-            if (e.originalEvent || e.isTrigger) {
-                CargarCopesPorDivision();
-            }
-        });
-
-        // 4. Evento para COPE
-        $('#selectCope').on('change', function() {
-            LoadKpisControl();
-        });
-
-        // 5. Evento para CONTRATISTA
-        $('#selectContratista').on('change', function() {
-            LimpiarSelectoresUbicacion();
-            LoadKpisControl();
-        });
-
-        // 6. Evento para TIPO DE TAREA
-        $('#TipoTarea').on('change', function() {
-            LoadKpisControl();
-        });
-
         // Carga inicial
-        LoadKpisControl();
+        if (typeof LoadKpisControl === 'function') {
+            LoadKpisControl();
+        }
+    });
+
+    // Delegación global directa para Select2 (Evita fallos por orden de carga)
+    $(document).on('select2:select change', '#selectArea', function() {
+        console.log('--- CAMBIO EN SELECT AREA DETECTADO ---');
+        if (typeof CargarDependenciasArea === 'function') {
+            CargarDependenciasArea();
+        } else {
+            console.error('La función CargarDependenciasArea no está definida.');
+        }
+    });
+
+    $(document).on('select2:select change', '#selectDivision', function() {
+        if (typeof CargarCopesPorDivision === 'function') {
+            CargarCopesPorDivision();
+        }
+    });
+
+    $(document).on('select2:select change', '#selectContratista', function() {
+        if (typeof LimpiarSelectoresUbicacion === 'function') {
+            LimpiarSelectoresUbicacion();
+        }
+        if (typeof LoadKpisControl === 'function') {
+            LoadKpisControl();
+        }
+    });
+
+    $(document).on('select2:select change', '#TipoTarea, #selectCope', function() {
+        if (typeof LoadKpisControl === 'function') {
+            LoadKpisControl();
+        }
     });
 </script>
 </body>
