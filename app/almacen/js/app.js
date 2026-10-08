@@ -246,6 +246,7 @@ function CargarCopesPorDivision() {
 
 // 3. Resetea los selectores de Ubicación
 function LimpiarSelectoresUbicacion() {
+    console.log('Limpiando selectores de ubicación');
     $('#selectArea').val('').trigger('change.select2');
     $('#selectDivision').html('<option value=""></option>').prop('disabled', true).val('').trigger('change.select2');
     $('#selectCope').html('<option value=""></option>').prop('disabled', true).val('').trigger('change.select2');
