@@ -17,49 +17,25 @@ require_once(__DIR__ . '/../../config/ContratistaContexto.php');
 $Contratista = $_SESSION['Contratista'] ?? null;
 $idContratistas = obtenerIdContratistaContexto();
 
-// RECIBIMOS PARAMETROS (Limpios/null si no están seleccionados)
-// RECIBIMOS PARÁMETROS
-$idArea     = !empty($_POST['selectArea']) ? trim($_POST['selectArea']) : null;
-$nombreArea = !empty($_POST['nombreArea']) ? trim($_POST['nombreArea']) : null;
+// RECIBIMOS PARÁMETROS (IDs y Nombres limpios / null si no están seleccionados)
+$Area           = !empty($_POST['selectArea']) ? trim($_POST['selectArea']) : null;
+$nombreArea     = !empty($_POST['nombreArea']) ? trim($_POST['nombreArea']) : null;
 
-// HOY: Usamos preferentemente el $nombreArea porque seg_ns_prod_eval almacena texto en NOM_AREA
-if (!empty($nombreArea)) {
-    $where[] = "TRIM(NOM_AREA) = :area";
-    $params[':area'] = $nombreArea;
-} elseif (!empty($idArea)) {
-    // Respaldo en caso de que solo llegue el valor del select
-    $where[] = "TRIM(NOM_AREA) = :area";
-    $params[':area'] = $idArea;
-}
+$Division       = !empty($_POST['selectDivision']) ? trim($_POST['selectDivision']) : null;
+$nombreDivision = !empty($_POST['nombreDivision']) ? trim($_POST['nombreDivision']) : null;
 
-$Division  = !empty($_POST['selectDivision']) ? trim($_POST['selectDivision']) : null;
+$Cope           = !empty($_POST['selectCope']) ? trim($_POST['selectCope']) : null;
+$nombreCope     = !empty($_POST['nombreCope']) ? trim($_POST['nombreCope']) : null;
 
-$Cope      = !empty($_POST['selectCope']) ? trim($_POST['selectCope']) : null;
-
-$TipoTarea = !empty($_POST['TipoTarea']) ? trim($_POST['TipoTarea']) : null;
+$TipoTarea      = !empty($_POST['TipoTarea']) ? trim($_POST['TipoTarea']) : null;
 
 $idContratistaSeleccionado = !empty($_POST['selectContratista']) ? trim($_POST['selectContratista']) : null;
-
-// ==========================================
-// BLOQUE DE DIAGNÓSTICO EN PANTALLA
-// ==========================================
-/*echo '<div style="background: #1e1e1e; color: #00ff00; padding: 15px; font-family: monospace; border-radius: 5px; margin: 20px; z-index: 99999; position: relative;">';
-echo '<h3>🔍 DIAGNÓSTICO DE PARÁMETROS RECIBIDOS ($_POST)</h3>';
-echo '<ul>';
-echo '<li><b>$_POST["selectArea"]:</b> ' . var_export($_POST['selectArea'] ?? 'NO ENVIADO', true) . ' &rarr; <b>$Area:</b> ' . var_export($Area, true) . '</li>';
-echo '<li><b>$_POST["selectDivision"]:</b> ' . var_export($_POST['selectDivision'] ?? 'NO ENVIADO', true) . ' &rarr; <b>$Division:</b> ' . var_export($Division, true) . '</li>';
-echo '<li><b>$_POST["selectCope"]:</b> ' . var_export($_POST['selectCope'] ?? 'NO ENVIADO', true) . ' &rarr; <b>$Cope:</b> ' . var_export($Cope, true) . '</li>';
-echo '<li><b>$_POST["TipoTarea"]:</b> ' . var_export($_POST['TipoTarea'] ?? 'NO ENVIADO', true) . ' &rarr; <b>$TipoTarea:</b> ' . var_export($TipoTarea, true) . '</li>';
-echo '<li><b>$_POST["selectContratista"]:</b> ' . var_export($_POST['selectContratista'] ?? 'NO ENVIADO', true) . ' &rarr; <b>$idContratistaSeleccionado:</b> ' . var_export($idContratistaSeleccionado, true) . '</li>';
-echo '</ul>';
-echo '</div>'; */
 
 // FECHAS INDEPENDIENTES DE LAS CARDS
 $fechascard1 = !empty($_POST['fechascard1']) ? $_POST['fechascard1'] . " 00:00:00" : null;
 $fechascard2 = !empty($_POST['fechascard2']) ? $_POST['fechascard2'] . " 23:59:59" : null;
 
 // FECHAS PRINCIPALES DEL FORMULARIO
-// Si el usuario envió un rango de fechas, lo formateamos. Si no, quedan en null para no forzar filtro de fecha.
 if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
     $Fecha1 = $_POST['Fecha1'] . " 00:00:00";
     $Fecha2 = $_POST['Fecha2'] . " 23:59:59";
@@ -69,8 +45,9 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
 }
 
 // INSTANCIAS DE LAS CLASES
-$index = new Index();
+$index     = new Index();
 $consultas = new ClassConsultasProduccion();
+
 
 // CONSULTA DE DETALLE POR ÁREA DE LA TABLA seg_produccion_diaria
 $detalleArea = [];
