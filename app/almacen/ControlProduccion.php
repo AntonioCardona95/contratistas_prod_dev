@@ -185,54 +185,48 @@
     </div>
 </div>
 
-                    
-                    <!-- CONTENEDOR DINÁMICO QUE CARGA LOS KPI Y GRÁFICAS -->
-                    <div id="LoadKpisControl">
+<!-- CONTENEDOR DINÁMICO QUE CARGA LOS KPI Y GRÁFICAS -->
+<div id="LoadKpisControl"></div>
 
-                    </div>
+<!-- FIN DEL CONTENIDO -->
+</div>
 
-                </div>
-                <!-- FIN DEL CONTENIDO -->
+<!-- FIN DEL CONTENIDO PRINCIPAL -->
+</div>
 
+<!-- PIE DE PÁGINA -->
+<?php include_once(__DIR__ . '/../components/FooterContratistas.php'); ?>
+
+<!-- FIN DEL PIE -->
+</div>
+
+<!-- FIN DEL CONTENEDOR DEL CONTENIDO -->
+</div>
+
+<!-- FIN DEL CONTENEDOR PRINCIPAL -->
+<a class="scroll-to-top rounded" href="#page-top">
+    <i class="fas fa-angle-up"></i>
+</a>
+
+<!-- MODAL DE CIERRE DE SESION -->
+<?php include_once(__DIR__ . '/../components/ModalCierreSesion.php'); ?>
+
+<div class="modal fade" id="modalKpiDetalle" tabindex="-1" role="dialog" aria-labelledby="modalKpiDetalleTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header modal-header-gradient text-white">
+                <h5 class="modal-title" id="modalKpiDetalleTitulo">Detalle</h5>
+                <button type="button" class="btn btn-light" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
-            <!-- FIN DEL CONTENIDO PRINCIPAL -->
-
-            <!-- PIE DE PÁGINA -->
-            <?php include_once(__DIR__ . '/../components/FooterContratistas.php'); ?>
-            <!-- FIN DEL PIE -->
-
-        </div>
-        <!-- FIN DEL CONTENEDOR DEL CONTENIDO -->
-
-    </div>
-    <!-- FIN DEL CONTENEDOR PRINCIPAL -->
-
-    <!-- BOTÓN PARA VOLVER AL INICIO -->
-    <a class="scroll-to-top rounded" href="#page-top">
-        <i class="fas fa-angle-up"></i>
-    </a>
-    
-    <!-- MODAL DE CIERRE DE SESION -->
-    <?php include_once(__DIR__ . '/../components/ModalCierreSesion.php'); ?>
-
-    <div class="modal fade" id="modalKpiDetalle" tabindex="-1" role="dialog" aria-labelledby="modalKpiDetalleTitulo" aria-hidden="true">
-        <div class="modal-dialog modal-xl" role="document">
-            <div class="modal-content">
-                <div class="modal-header modal-header-gradient text-white">
-                    <h5 class="modal-title" id="modalKpiDetalleTitulo">Detalle</h5>
-                    <button type="button" class="btn btn-light" data-dismiss="modal" aria-label="Cerrar">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body" id="modalKpiDetalleContenido">
-                </div>
-            </div>
+            <div class="modal-body" id="modalKpiDetalleContenido"></div>
         </div>
     </div>
+</div>
 
-    <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
-    <!-- CARGAR CHART.JS -->
-    
+<?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
+
 <!-- UN SOLO BLOQUE DE SCRIPT UNIFICADO -->
 <script>
     $(document).ready(function(){
@@ -244,24 +238,23 @@
         });
 
         // 2. Cambio en Fechas
-        $('#fechascard1, #fechascard2').on('change', function() {
+        $('#fechascard1, #fechascard2').off('change').on('change', function() {
             LoadKpisControl();
         });
 
         // 3. Cambio en Contratista
-        $('#selectContratista').on('change', function() {
+        $('#selectContratista').off('change').on('change', function() {
             LimpiarSelectoresUbicacion();
             LoadKpisControl();
         });
 
-        // 4. Cambio en Área
-        $('#selectArea').on('change', function() {
+        // 4. Cambio en Área (CargarDependenciasArea se encarga internamente de llamar a LoadKpisControl al finalizar la carga AJAX)
+        $('#selectArea').off('change').on('change', function() {
             CargarDependenciasArea();
-            LoadKpisControl();
         });
 
         // 5. Cambio en División, Cope o Tipo de Tarea
-        $('#selectDivision, #selectCope, #TipoTarea').on('change', function() {
+        $('#selectDivision, #selectCope, #TipoTarea').off('change').on('change', function() {
             LoadKpisControl();
         });
 
