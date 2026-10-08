@@ -142,6 +142,8 @@ function LoadKpisControl(ejecutar) {
 
 // 1. Al cambiar ÁREA: Carga División y resetea Cope
 function CargarDependenciasArea() {
+
+    console.log('entro a cargad Dependencias Area');
     var selectArea = $('#selectArea').val();
     
     // Si no hay área seleccionada, reseteamos y deshabilitamos
