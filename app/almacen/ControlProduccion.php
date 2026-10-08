@@ -151,14 +151,14 @@
                 <label for="selectArea" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-building mr-1"></i> Seleccionar Área:
                 </label>
-                <select class="form-control select2-busqueda" id="selectArea" name="selectArea" data-placeholder="-- Seleccionar Área --" onchange="CargarDependenciasArea(); LoadKpisControl();">
-                    <option value=""></option>
-                    <?php foreach ($listaAreas as $row): ?>
-                        <option value="<?= htmlspecialchars($row['idAreas']) ?>">
-                            <?= htmlspecialchars($row['area']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+                <select class="form-control select2-busqueda" id="selectArea" name="selectArea" data-placeholder="-- Seleccionar Área --" onchange="CargarDependenciasArea();">
+    <option value=""></option>
+    <?php foreach ($listaAreas as $row): ?>
+        <option value="<?= htmlspecialchars($row['idAreas']) ?>">
+            <?= htmlspecialchars($row['area']) ?>
+        </option>
+    <?php endforeach; ?>
+</select>
             </div>
 
             <!-- DIVISIÓN -->
@@ -166,9 +166,9 @@
                 <label for="selectDivision" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-sitemap mr-1"></i> Seleccionar División:
                 </label>
-                <select class="form-control select2-busqueda" id="selectDivision" name="selectDivision" data-placeholder="-- Seleccionar División --" onchange="LoadKpisControl();" disabled>
-                    <option value=""></option>
-                </select>
+                <select class="form-control select2-busqueda" id="selectDivision" name="selectDivision" data-placeholder="-- Seleccionar División --" onchange="CargarCopesPorDivision();" disabled>
+    <option value=""></option>
+</select>
             </div>
 
             <!-- COPE -->
