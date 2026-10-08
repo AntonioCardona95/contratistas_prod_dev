@@ -1,10 +1,14 @@
 <?php
 
+/**
+ * Clase encargada de la gestión de Producción, Consultas y Estado de Navegación
+ */
+
 require_once($_SERVER['DOCUMENT_ROOT'] . "/cnx/cnx.php");
 
 class ClassConsultasProduccion extends Conexion
 {
-    protected function runQuery($sql, $params = array(), $conexionTipo = 'default', $limit = 1000, $offset = 0)
+    protected function runQuery($sql, $params = array(), $conexionTipo = 'default')
     {
         switch ($conexionTipo) {
             case 'analisis':
@@ -26,10 +30,7 @@ class ClassConsultasProduccion extends Conexion
         }
 
         try {
-            // Agregamos paginación automática
-            $sql .= " LIMIT :limit OFFSET :offset";
             $stmt = $conexion->prepare($sql);
-
             foreach ($params as $key => $val) {
                 if (is_int($key)) {
                     $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
@@ -38,23 +39,13 @@ class ClassConsultasProduccion extends Conexion
                     $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
                 }
             }
-
-            $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
-            $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
-
             $stmt->execute();
-
-            $rows = [];
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $rows[] = $row;
-            }
-
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if (method_exists($stmt, 'closeCursor')) {
                 $stmt->closeCursor();
             }
             return $rows;
         } catch (PDOException $e) {
-            error_log("Error en runQuery: " . $e->getMessage());
             return array();
         }
     }
@@ -93,11 +84,9 @@ class ClassConsultasProduccion extends Conexion
             $stmt->execute();
             return (int)$conexion->lastInsertId();
         } catch (PDOException $e) {
-            error_log("Error en runExecute: " . $e->getMessage());
             return 0;
         }
     }
-
 
 
     /**
@@ -130,44 +119,21 @@ public function obtenerTodasAreas()
 }
 
 
-/**
- * Obtiene la división asociada a un área específica
- */
-public function obtenerDivisionPorArea($idArea)
-{
-    $idArea = (int)$idArea;
-
+public function obtenerDivisionPorArea($idArea) {
     $sql = "SELECT d.idDivision, d.Division
             FROM divisiones d
             INNER JOIN areas a ON a.FK_Division = d.idDivision
             WHERE a.idAreas = ?";
-
     $result = $this->runQuery($sql, [$idArea], 'erpprint');
-
-    if ($result && isset($result[0])) {
-        return [
-            'idDivision' => $result[0]['idDivision'],
-            'Division'   => $result[0]['Division']
-        ];
-    }
-
-    return null;
+    return $result ? $result[0] : null; // cada área tiene una sola división
 }
 
-/**
- * Obtiene todos los COPEs pertenecientes a las áreas de una división
- */
-public function obtenerCopesPorDivision($idDivision)
-{
-    $idDivision = (int)$idDivision;
-
-    $sql = "SELECT DISTINCT c.id, c.COPE
-            FROM copes c
-            INNER JOIN areas a ON c.FK_Area = a.idAreas
-            WHERE a.FK_Division = ?
-            ORDER BY c.COPE ASC";
-
-    return $this->runQuery($sql, [$idDivision], 'erpprint');
+public function obtenerCopesPorArea($idArea) {
+    $sql = "SELECT id, COPE
+            FROM copes
+            WHERE FK_Area = ?
+            ORDER BY COPE ASC";
+    return $this->runQuery($sql, [$idArea], 'erpprint');
 }
 
 
@@ -175,7 +141,8 @@ public function obtenerCopesPorDivision($idDivision)
 
 
 /**
- * Cuenta el total de producción en seg_ns_prod_eval para la card de fechas.
+ * Cuenta el total de producción en seg_ns_prod_eval.
+ * Permite filtrar por fechas, contratista, área, división y cope.
  */
 public function CountProduccionPorFechas(
     $fechaInicio = null, 
@@ -188,92 +155,76 @@ public function CountProduccionPorFechas(
     $idDivision = null,
     $idCope = null
 ) {
-    // Asignar fechas de la card si existen
-    $fIni = !empty($fechascard1) ? trim((string)$fechascard1) : trim((string)$fechaInicio);
-    $fFin = !empty($fechascard2) ? trim((string)$fechascard2) : trim((string)$fechaFin);
+    // Determinar qué rango de fechas usar (prioridad a las fechas de la card si existen)
+    $fIni = !empty($fechascard1) ? $fechascard1 : $fechaInicio;
+    $fFin = !empty($fechascard2) ? $fechascard2 : $fechaFin;
 
     $where = array();
     $params = array();
 
-    // Convertir de DD/MM/YYYY a YYYY-MM-DD si vienen en formato latino
-    if (!empty($fIni) && strpos($fIni, '/') !== false) {
-        $p = explode('/', $fIni);
-        if (count($p) === 3) { $fIni = "{$p[2]}-{$p[1]}-{$p[0]}"; }
-    }
-    if (!empty($fFin) && strpos($fFin, '/') !== false) {
-        $p = explode('/', $fFin);
-        if (count($p) === 3) { $fFin = "{$p[2]}-{$p[1]}-{$p[0]}"; }
-    }
-
-    // Filtro por rango de fechas (utiliza FECHA_LIQD o FECHA_LIQ)
+    // Filtro de rango de fechas
     if (!empty($fIni) && !empty($fFin)) {
-        $where[] = "FECHA_LIQD BETWEEN :fechaInicio AND :fechaFin";
+        $where[] = "FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
         $params[':fechaInicio'] = $fIni;
         $params[':fechaFin']    = $fFin;
-    } elseif (!empty($fIni)) {
-        $where[] = "FECHA_LIQD >= :fechaInicio";
-        $params[':fechaInicio'] = $fIni;
-    } elseif (!empty($fFin)) {
-        $where[] = "FECHA_LIQD <= :fechaFin";
-        $params[':fechaFin'] = $fFin;
     }
 
-    // Filtro por Contratista (Soporta ID numérico en idContratista o Nombre en Contratista)
-    if (!empty($idContratista) && $idContratista !== '-- Seleccionar --' && $idContratista !== '0') {
-        if (is_numeric($idContratista)) {
-            $where[] = "idContratista = :idContratista";
-            $params[':idContratista'] = (int)$idContratista;
-        } else {
-            $where[] = "Contratista = :idContratista";
-            //$params[':idContratista'] = trim($idContratista);
-            $params[':idContratista'] = trim((string)$idContratista);
-        }
+    // Filtro opcional por contratista
+    if (!empty($idContratista)) {
+        $where[] = "ID_CONTRATISTA = :idContratista";
+        $params[':idContratista'] = $idContratista;
     }
 
-    // Filtro por Tipo de Tarea
+    // Filtro opcional por Tipo de Tarea
     if (!empty($tipoTarea)) {
-        //switch (strtoupper(trim($tipoTarea))) {
-            switch (strtoupper(trim((string)$tipoTarea))) {
+        switch (strtoupper(trim($tipoTarea))) {
             case 'ALTAS':
+                // Inician con 'A' pero NO son 'A4'
                 $where[] = "(Tipo_de_Tarea LIKE 'A%' AND Tipo_de_Tarea NOT LIKE 'A4%')";
                 break;
 
             case 'A4':
+                // Exactamente inician con 'A4'
                 $where[] = "Tipo_de_Tarea LIKE 'A4%'";
                 break;
 
             case 'MIGRACIONES':
             case 'MIGRACION':
+                // Inician con 'FC', 'TI', 'TS' o 'TV'
                 $where[] = "(Tipo_de_Tarea LIKE 'FC%' OR Tipo_de_Tarea LIKE 'TI%' OR Tipo_de_Tarea LIKE 'TS%' OR Tipo_de_Tarea LIKE 'TV%')";
                 break;
 
             case 'CAMBIOS DE DOMICILIO':
+                // Inician con 'D'
                 $where[] = "Tipo_de_Tarea LIKE 'D%'";
                 break;
 
             case 'QUEJAS':
+                // Inician con 'Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597' o 'F841'
                 $where[] = "(Tipo_de_Tarea LIKE 'Q%' OR Tipo_de_Tarea LIKE 'R%' OR Tipo_de_Tarea LIKE 'C%' OR Tipo_de_Tarea LIKE 'EB%' OR Tipo_de_Tarea LIKE 'EI%' OR Tipo_de_Tarea LIKE 'EU%' OR Tipo_de_Tarea LIKE 'GD%' OR Tipo_de_Tarea LIKE 'MG%' OR Tipo_de_Tarea LIKE 'F597%' OR Tipo_de_Tarea LIKE 'F841%')";
                 break;
         }
     }
 
-    // Filtros por Área, División y CT/Cope con las columnas correctas de la tabla
+    // Filtro opcional por Área
     if (!empty($idArea)) {
-        $where[] = "NOM_AREA = :idArea";
+        $where[] = "ID_AREA = :idArea";
         $params[':idArea'] = $idArea;
     }
 
+    // Filtro opcional por División
     if (!empty($idDivision)) {
-        $where[] = "NOM_DIVISION = :idDivision";
+        $where[] = "ID_DIVISION = :idDivision";
         $params[':idDivision'] = $idDivision;
     }
 
+    // Filtro opcional por Cope
     if (!empty($idCope)) {
-        $where[] = "NOM_CT = :idCope";
+        $where[] = "ID_COPE = :idCope";
         $params[':idCope'] = $idCope;
     }
 
-    // Consulta SQL
+    // Construir la consulta SQL
     $sql = "SELECT COUNT(1) AS TOTAL FROM seg_ns_prod_eval";
 
     if (count($where) > 0) {
@@ -282,6 +233,7 @@ public function CountProduccionPorFechas(
 
     return $this->runQuery($sql, $params, 'analisis');
 }
+
 
     /**
      * Cuenta el total acumulado histórico de producción
@@ -1101,7 +1053,7 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
 
   /**
  * Cuenta el total de equipos/ONT que NO han ingresado a almacén.
- * Permite filtrar por fechas, contratista, tipo de tarea, área, división y cope.
+ * Permite filtrar por fechas principales, fechas de card y/o contratista.
  */
 public function CountOntSinEntradaAlmacen(
     $fechaInicio = null, 
@@ -1109,7 +1061,6 @@ public function CountOntSinEntradaAlmacen(
     $fechascard1 = null, 
     $fechascard2 = null, 
     $idContratista = null,
-    $tipoTarea = null,
     $idArea = null,
     $idDivision = null,
     $idCope = null
@@ -1124,7 +1075,7 @@ public function CountOntSinEntradaAlmacen(
     );
     $params = array();
 
-    // Filtro de rango de fechas
+    // Filtro de rango de fechas (si existe alguno)
     if (!empty($fIni) && !empty($fFin)) {
         $where[] = "FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
         $params[':fechaInicio'] = $fIni;
@@ -1135,37 +1086,6 @@ public function CountOntSinEntradaAlmacen(
     if (!empty($idContratista)) {
         $where[] = "idContratista = :idContratista";
         $params[':idContratista'] = $idContratista;
-    }
-
-    // Filtro opcional por Tipo de Tarea
-    if (!empty($tipoTarea)) {
-        switch (strtoupper(trim($tipoTarea))) {
-            case 'ALTAS':
-                // Inician con 'A' pero NO son 'A4'
-                $where[] = "(Tipo_de_Tarea LIKE 'A%' AND Tipo_de_Tarea NOT LIKE 'A4%')";
-                break;
-
-            case 'A4':
-                // Exactamente inician con 'A4'
-                $where[] = "Tipo_de_Tarea LIKE 'A4%'";
-                break;
-
-            case 'MIGRACIONES':
-            case 'MIGRACION':
-                // Inician con 'FC', 'TI', 'TS' o 'TV'
-                $where[] = "(Tipo_de_Tarea LIKE 'FC%' OR Tipo_de_Tarea LIKE 'TI%' OR Tipo_de_Tarea LIKE 'TS%' OR Tipo_de_Tarea LIKE 'TV%')";
-                break;
-
-            case 'CAMBIOS DE DOMICILIO':
-                // Inician con 'D'
-                $where[] = "Tipo_de_Tarea LIKE 'D%'";
-                break;
-
-            case 'QUEJAS':
-                // Inician con 'Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597' o 'F841'
-                $where[] = "(Tipo_de_Tarea LIKE 'Q%' OR Tipo_de_Tarea LIKE 'R%' OR Tipo_de_Tarea LIKE 'C%' OR Tipo_de_Tarea LIKE 'EB%' OR Tipo_de_Tarea LIKE 'EI%' OR Tipo_de_Tarea LIKE 'EU%' OR Tipo_de_Tarea LIKE 'GD%' OR Tipo_de_Tarea LIKE 'MG%' OR Tipo_de_Tarea LIKE 'F597%' OR Tipo_de_Tarea LIKE 'F841%')";
-                break;
-        }
     }
 
     // Filtro opcional por Área
@@ -1197,7 +1117,7 @@ public function CountOntSinEntradaAlmacen(
 
 /**
  * Cuenta el total de ONT / equipos que SÍ ingresaron a almacén.
- * Permite filtrar por fechas principales, fechas de card, contratista, tipo de tarea, área, división y cope.
+ * Permite filtrar por fechas principales, fechas de card, contratista, área, división y cope.
  */
 public function CountOntConEntradaAlmacen(
     $fechaInicio = null, 
@@ -1205,7 +1125,6 @@ public function CountOntConEntradaAlmacen(
     $fechascard1 = null, 
     $fechascard2 = null, 
     $idContratista = null,
-    $tipoTarea = null,
     $idArea = null,
     $idDivision = null,
     $idCope = null
@@ -1231,37 +1150,6 @@ public function CountOntConEntradaAlmacen(
     if (!empty($idContratista)) {
         $where[] = "idContratista = :idContratista";
         $params[':idContratista'] = $idContratista;
-    }
-
-    // Filtro opcional por Tipo de Tarea
-    if (!empty($tipoTarea)) {
-        switch (strtoupper(trim($tipoTarea))) {
-            case 'ALTAS':
-                // Inician con 'A' pero NO son 'A4'
-                $where[] = "(Tipo_de_Tarea LIKE 'A%' AND Tipo_de_Tarea NOT LIKE 'A4%')";
-                break;
-
-            case 'A4':
-                // Exactamente inician con 'A4'
-                $where[] = "Tipo_de_Tarea LIKE 'A4%'";
-                break;
-
-            case 'MIGRACIONES':
-            case 'MIGRACION':
-                // Inician con 'FC', 'TI', 'TS' o 'TV'
-                $where[] = "(Tipo_de_Tarea LIKE 'FC%' OR Tipo_de_Tarea LIKE 'TI%' OR Tipo_de_Tarea LIKE 'TS%' OR Tipo_de_Tarea LIKE 'TV%')";
-                break;
-
-            case 'CAMBIOS DE DOMICILIO':
-                // Inician con 'D'
-                $where[] = "Tipo_de_Tarea LIKE 'D%'";
-                break;
-
-            case 'QUEJAS':
-                // Inician con 'Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597' o 'F841'
-                $where[] = "(Tipo_de_Tarea LIKE 'Q%' OR Tipo_de_Tarea LIKE 'R%' OR Tipo_de_Tarea LIKE 'C%' OR Tipo_de_Tarea LIKE 'EB%' OR Tipo_de_Tarea LIKE 'EI%' OR Tipo_de_Tarea LIKE 'EU%' OR Tipo_de_Tarea LIKE 'GD%' OR Tipo_de_Tarea LIKE 'MG%' OR Tipo_de_Tarea LIKE 'F597%' OR Tipo_de_Tarea LIKE 'F841%')";
-                break;
-        }
     }
 
     // Filtro opcional por Área
