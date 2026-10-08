@@ -142,7 +142,7 @@ public function obtenerCopesPorArea($idArea) {
 
 /**
  * Cuenta el total de producción en seg_ns_prod_eval.
- * Permite filtrar por fechas, contratista, área (por nombre), división y cope.
+ * Permite filtrar por fechas, contratista, área (por nombre), división (por nombre) y cope.
  */
 public function CountProduccionPorFechas(
     $fechaInicio = null, 
@@ -151,9 +151,9 @@ public function CountProduccionPorFechas(
     $fechascard2 = null, 
     $idContratista = null,
     $tipoTarea = null,
-    $nombreArea = null, // <-- Recibe el nombre del área
-    $idDivision = null,
-    $idCope = null
+    $nombreArea = null,      // Recibe el nombre del área
+    $nombreDivision = null,  // Recibe el nombre de la división
+    $nombreCope = null       // Recibe el nombre del cope (o idCope)
 ) {
     // Determinar qué rango de fechas usar
     $fIni = !empty($fechascard1) ? $fechascard1 : $fechaInicio;
@@ -175,8 +175,8 @@ public function CountProduccionPorFechas(
             $where[] = "idContratista = :idContratista";
             $params[':idContratista'] = (int)$idContratista;
         } else {
-            $where[] = "Contratista = :idContratista";
-            $params[':idContratista'] = $idContratista;
+            $where[] = "TRIM(Contratista) = :idContratista";
+            $params[':idContratista'] = trim($idContratista);
         }
     }
 
@@ -206,22 +206,25 @@ public function CountProduccionPorFechas(
         }
     }
 
-    // Filtro opcional por Área (usando el nombre recibido)
+    // Filtro opcional por Área (usando TRIM para asegurar coincidencia exacta)
     if (!empty($nombreArea)) {
-        $where[] = "NOM_AREA = :nombreArea";
-        $params[':nombreArea'] = $nombreArea;
+        $where[] = "TRIM(NOM_AREA) = :nombreArea";
+        $params[':nombreArea'] = trim($nombreArea);
     }
 
-    // Filtro opcional por División
-    if (!empty($idDivision)) {
-        $where[] = "NOM_DIVISION = :idDivision";
-        $params[':idDivision'] = $idDivision;
+    // Filtro opcional por División (evaluando si es nombre o si no es un ID numérico suelto)
+    if (!empty($nombreDivision)) {
+        // Solo aplica si el valor recibido no es un número puro (para evitar filtrar NOM_DIVISION = '5')
+        if (!is_numeric($nombreDivision)) {
+            $where[] = "TRIM(NOM_DIVISION) = :nombreDivision";
+            $params[':nombreDivision'] = trim($nombreDivision);
+        }
     }
 
     // Filtro opcional por Cope
-    if (!empty($idCope)) {
-        $where[] = "NOM_CT = :idCope";
-        $params[':idCope'] = $idCope;
+    if (!empty($nombreCope)) {
+        $where[] = "TRIM(NOM_CT) = :nombreCope";
+        $params[':nombreCope'] = trim($nombreCope);
     }
 
     // Construir la consulta SQL
@@ -233,7 +236,6 @@ public function CountProduccionPorFechas(
 
     return $this->runQuery($sql, $params, 'analisis');
 }
-
     /**
      * Cuenta el total acumulado histórico de producción
      */
