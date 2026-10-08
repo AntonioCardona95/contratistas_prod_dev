@@ -242,19 +242,36 @@
        
     </script>
 
-    <!-- Select2 JS -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.js"></script>
 
+
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
     $(document).ready(function(){
-        // Inicializar todos los select2 con su propio data-placeholder
+        // 1. Inicializar Select2 en todos los elementos indicados
         $('.select2-busqueda').select2({
             theme: 'bootstrap4',
             allowClear: true,
             width: '100%'
         });
 
+        // 2. Control al cambiar Área (Se ejecuta CargarDependenciasArea y se refrescan KPIs)
+        $('#selectArea').off('change').on('change', function(e) {
+            if (e.originalEvent) { // Detecta interacción directa del usuario
+                CargarDependenciasArea();
+                LoadKpisControl();
+            }
+        });
+
+        // 3. Control al cambiar División, Cope, Contratista o Tarea
+        $('#selectDivision, #selectCope, #selectContratista, #TipoTarea').off('change').on('change', function(e) {
+            if (e.originalEvent) { // Bloquea ejecuciones automáticas/en segundo plano
+                LoadKpisControl();
+            }
+        });
+
+        // 4. Carga inicial de KPIs
         LoadKpisControl();
     });
 </script>
