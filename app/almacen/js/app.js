@@ -168,7 +168,8 @@ function LoadKpisControl(ejecutar) {
  * Carga los KPIs filtrados por fechas, contratista, tipo de tarea y ubicación.
  */
 function LoadKpisControl(ejecutar) {
-    console.log("Entró a LoadKpisControl");
+    console.log("==================================================");
+    console.log("🚀 [INICIO] LoadKpisControl");
 
     var parametros = $("#FormQueryUnidades").serialize();
 
@@ -251,6 +252,12 @@ function LoadKpisControl(ejecutar) {
         parametros += '&ejecutar=1';
     }
 
+    console.log("📦 Parámetros enviados a KpisControlProduccion.php:");
+    console.log("   -> ID Área:", selectArea, "| Nombre Área:", nombreArea);
+    console.log("   -> ID División:", selectDivision, "| Nombre División:", nombreDivision);
+    console.log("   -> ID Cope:", selectCope, "| Nombre Cope:", nombreCope);
+    console.log("   -> Query completo:", parametros);
+
     $("#LoadKpisControl").fadeIn('slow');
 
     return $.ajax({
@@ -258,10 +265,17 @@ function LoadKpisControl(ejecutar) {
         url: 'modal/KpisControlProduccion.php',
         data: parametros,
         beforeSend: function() {
+            console.log("⏳ Enviando petición AJAX a KpisControlProduccion.php...");
             $("#LoadKpisControl").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
         },
         success: function(data) {
+            console.log("✅ Respuesta recibida de KpisControlProduccion.php");
             $("#LoadKpisControl").html(data);
+            console.log("🏁 [FIN] LoadKpisControl completado.");
+            console.log("==================================================");
+        },
+        error: function(xhr, status, error) {
+            console.error("❌ Error en LoadKpisControl:", error);
         }
     });
 }
@@ -270,10 +284,15 @@ function LoadKpisControl(ejecutar) {
  * Carga División y COPES dependientes del Área y después refresca los KPIs.
  */
 function CargarDependenciasArea() {
+    console.log("--------------------------------------------------");
+    console.log("⚙️ [INICIO] CargarDependenciasArea");
+
     var selectArea = $('#selectArea').val();
+    console.log("   -> Área seleccionada ID:", selectArea);
 
     // Limpiar si no hay Área
     if (!selectArea) {
+        console.log("⚠️ No hay área seleccionada. Limpiando División y Cope...");
         $('#selectDivision').html('<option value=""></option>').prop('disabled', true).val('').trigger('change.select2');
         $('#selectCope').html('<option value=""></option>').prop('disabled', true).val('').trigger('change.select2');
         LoadKpisControl();
@@ -281,6 +300,7 @@ function CargarDependenciasArea() {
     }
 
     // Petición de División y Copes en paralelo
+    console.log("⏳ Solicitando División y Copes para Área ID:", selectArea);
     var reqDivision = $.ajax({
         type: 'POST',
         url: 'modal/selectores.php',
@@ -300,12 +320,17 @@ function CargarDependenciasArea() {
         var dataDiv = resDiv[0];
         var dataCopes = resCopes[0];
 
+        console.log("📥 Datos recibidos:");
+        console.log("   -> División:", dataDiv);
+        console.log("   -> Copes:", dataCopes);
+
         // Llenar División
         if (dataDiv && dataDiv.idDivision) {
             var optionDiv = new Option(dataDiv.Division, dataDiv.idDivision, true, true);
             $(optionDiv).attr('data-nombre', dataDiv.Division);
             $('#selectDivision').html(optionDiv).prop('disabled', false).trigger('change.select2');
         } else {
+            console.warn("⚠️ No se encontró división para esta área.");
             $('#selectDivision').html('<option value="">No hay división</option>').prop('disabled', true).trigger('change.select2');
         }
 
@@ -317,11 +342,14 @@ function CargarDependenciasArea() {
             });
             $('#selectCope').html(options).prop('disabled', false).trigger('change.select2');
         } else {
+            console.warn("⚠️ No se encontraron copes para esta área.");
             $('#selectCope').html('<option value="">No hay copes</option>').prop('disabled', true).trigger('change.select2');
         }
 
-        // Cargar los KPIs cuando todo esté listo
+        console.log("🔄 Actualización de selectores terminada. Llamando a LoadKpisControl...");
         LoadKpisControl();
+    }).fail(function(err) {
+        console.error("❌ Error al cargar dependencias del Área:", err);
     });
 }
 
@@ -329,6 +357,7 @@ function CargarDependenciasArea() {
  * Resetea los selectores de Área, División y Cope a su estado inicial.
  */
 function LimpiarSelectoresUbicacion() {
+    console.log("🧹 [LIMPIEZA] LimpiarSelectoresUbicacion ejecutado.");
     $('#selectArea').val('').trigger('change.select2');
     $('#selectDivision').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
     $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
