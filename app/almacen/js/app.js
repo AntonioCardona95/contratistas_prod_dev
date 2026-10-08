@@ -293,7 +293,7 @@ function CargarDependenciasArea() {
         }
     });
 
-    // Promesa para cargar Copes
+    // Promesa para cargar Copes sin autoseleccionar
     var reqCopes = $.ajax({
         type: 'POST',
         url: 'modal/selectores.php',
