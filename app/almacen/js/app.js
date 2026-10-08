@@ -73,7 +73,7 @@ function LoadKPIS(){
 }
 
 function LoadKpisControl(ejecutar) {
-    console.group("🚀 [LoadKpisControl] Inicio de ejecución");
+    console.log("Entró a LoadKpisControl");
 
     // 1. Convertimos los datos del formulario de fechas a un String/Objeto
     var parametros = $("#FormQueryUnidades").serialize() || '';
@@ -124,22 +124,6 @@ function LoadKpisControl(ejecutar) {
         parametros += (parametros ? '&' : '') + 'ejecutar=1';
     }
 
-    // IMPRESIÓN DE VALORES INDIVIDUALES EN CONSOLA
-    console.log("📊 Valores capturados:");
-    console.table({
-        "Contratista": selectContratista || "(Vacío)",
-        "Tipo Tarea": TipoTarea || "(Vacío)",
-        "Área": selectArea || "(Vacío)",
-        "División": selectDivision || "(Vacío)",
-        "Cope": selectCope || "(Vacío)",
-        "Fecha Inicio": fechascard1 || "(Vacío)",
-        "Fecha Fin": fechascard2 || "(Vacío)",
-        "Bandera Ejecutar": ejecutar ? "Sí (1)" : "No"
-    });
-
-    console.log("🔗 Cadena de parámetros enviada al servidor:", parametros);
-    console.groupEnd();
-
     $("#LoadKpisControl").fadeIn('slow');
 
     // 9. Llamada principal para refrescar KPIs
@@ -148,19 +132,10 @@ function LoadKpisControl(ejecutar) {
         url: 'modal/KpisControlProduccion.php',
         data: parametros,
         beforeSend: function(objeto) {
-            console.log("⏳ [LoadKpisControl] Enviando petición a 'modal/KpisControlProduccion.php'...");
             $("#LoadKpisControl").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
         },
         success: function(data) {
-            console.log("✅ [LoadKpisControl] Petición exitosa. Respuesta recibida del servidor.");
             $("#LoadKpisControl").html(data);
-        },
-        error: function(xhr, status, error) {
-            console.error("❌ [LoadKpisControl] Error en la petición AJAX:");
-            console.error("Estado HTTP:", xhr.status);
-            console.error("Texto de estado:", status);
-            console.error("Detalle del error:", error);
-            console.error("Respuesta del servidor (HTML/Error):", xhr.responseText);
         }
     });
 }
