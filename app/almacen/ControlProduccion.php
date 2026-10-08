@@ -236,43 +236,39 @@
     
 <!-- UN SOLO BLOQUE DE SCRIPT UNIFICADO -->
 <script>
-$(document).ready(function(){
-    // 1. Inicializar Select2
-    $('.select2-busqueda').select2({
-        theme: 'bootstrap4',
-        allowClear: true,
-        width: '100%'
-    });
+    $(document).ready(function(){
+        // 1. Inicializar Select2
+        $('.select2-busqueda').select2({
+            theme: 'bootstrap4',
+            allowClear: true,
+            width: '100%'
+        });
 
-    // 2. Cambio en Fechas
-    $('#fechascard1, #fechascard2').off('change').on('change', function() {
-        console.log("📅 Evento [CHANGE] en Fechas");
+        // 2. Cambio en Fechas
+        $('#fechascard1, #fechascard2').off('change').on('change', function() {
+            LoadKpisControl();
+        });
+
+        // 3. Cambio en Contratista
+        $('#selectContratista').off('change').on('change', function() {
+            LimpiarSelectoresUbicacion();
+            LoadKpisControl();
+        });
+
+        // 4. Cambio en Área
+        $('#selectArea').off('change').on('change', function() {
+            CargarDependenciasArea();
+            LoadKpisControl();
+        });
+
+        // 5. Cambio en División, Cope o Tipo de Tarea
+        $('#selectDivision, #selectCope, #TipoTarea').off('change').on('change', function() {
+            LoadKpisControl();
+        });
+
+        // 6. Carga inicial
         LoadKpisControl();
     });
-
-    // 3. Cambio en Contratista
-    $('#selectContratista').off('change').on('change', function() {
-        console.log("👤 Evento [CHANGE] en Contratista");
-        LimpiarSelectoresUbicacion();
-        LoadKpisControl();
-    });
-
-    // 4. Cambio en Área
-    $('#selectArea').off('change').on('change', function() {
-        console.log("🏢 Evento [CHANGE] en Área");
-        CargarDependenciasArea();
-    });
-
-    // 5. Cambio en División, Cope o Tipo de Tarea (Solo por acción directa del usuario)
-    $('#selectDivision, #selectCope, #TipoTarea').off('select2:select select2:clear').on('select2:select select2:clear', function(e) {
-        console.log("🎯 Selección manual del usuario en:", e.target.id);
-        LoadKpisControl();
-    });
-
-    // 6. Carga inicial
-    console.log("🟢 Carga inicial de la página");
-    LoadKpisControl();
-});
 </script>
 
 
