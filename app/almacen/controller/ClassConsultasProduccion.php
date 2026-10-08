@@ -142,7 +142,7 @@ public function obtenerCopesPorArea($idArea) {
 
 /**
  * Cuenta el total de producción en seg_ns_prod_eval.
- * Permite filtrar por fechas, contratista, área, división y cope.
+ * Permite filtrar por fechas, contratista, área (por nombre), división y cope.
  */
 public function CountProduccionPorFechas(
     $fechaInicio = null, 
@@ -151,7 +151,7 @@ public function CountProduccionPorFechas(
     $fechascard2 = null, 
     $idContratista = null,
     $tipoTarea = null,
-    $idArea = null,
+    $nombreArea = null, // <-- Recibe el nombre del área
     $idDivision = null,
     $idCope = null
 ) {
@@ -206,10 +206,10 @@ public function CountProduccionPorFechas(
         }
     }
 
-    // Filtro opcional por Área
-    if (!empty($idArea)) {
-        $where[] = "NOM_AREA = :idArea";
-        $params[':idArea'] = $idArea;
+    // Filtro opcional por Área (usando el nombre recibido)
+    if (!empty($nombreArea)) {
+        $where[] = "NOM_AREA = :nombreArea";
+        $params[':nombreArea'] = $nombreArea;
     }
 
     // Filtro opcional por División
