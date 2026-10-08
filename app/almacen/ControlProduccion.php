@@ -244,16 +244,32 @@
     <!-- Select2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.js"></script>
 
-
 <script>
     $(document).ready(function(){
-        // Inicializar todos los select2 con su propio data-placeholder
+        // 1. Inicializar Select2
         $('.select2-busqueda').select2({
             theme: 'bootstrap4',
             allowClear: true,
             width: '100%'
         });
 
+        // 2. Listener para cuando el usuario cambia el Área manualmente
+        $('#selectArea').on('change', function(e) {
+            // e.originalEvent garantiza que el cambio fue por un clic real del usuario
+            if (e.originalEvent || e.isTrigger === undefined) {
+                CargarDependenciasArea();
+                LoadKpisControl();
+            }
+        });
+
+        // 3. Listener para cuando el usuario cambia División, Cope, Contratista o Tarea manualmente
+        $('#selectDivision, #selectCope, #selectContratista, #TipoTarea').on('change', function(e) {
+            if (e.originalEvent) {
+                LoadKpisControl();
+            }
+        });
+
+        // 4. Carga inicial al abrir la página
         LoadKpisControl();
     });
 </script>
