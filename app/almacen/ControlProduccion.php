@@ -163,15 +163,15 @@
     </select>
 </div>
 
-            <!-- DIVISIÓN -->
-            <div class="col-md-3 col-lg-3">
-                <label for="selectDivision" class="font-weight-bold text-primary mb-1">
-                    <i class="fas fa-sitemap mr-1"></i> Seleccionar División:
-                </label>
-                <select class="form-control select2-busqueda" id="selectDivision" name="selectDivision" data-placeholder="-- Seleccionar División --" onchange="LoadKpisControl();" disabled>
-                    <option value=""></option>
-                </select>
-            </div>
+           <!-- DIVISIÓN -->
+<div class="col-md-3 col-lg-3">
+    <label for="selectDivision" class="font-weight-bold text-primary mb-1">
+        <i class="fas fa-sitemap mr-1"></i> Seleccionar División:
+    </label>
+    <select class="form-control select2-busqueda" id="selectDivision" name="selectDivision" data-placeholder="-- Seleccionar División --" onchange="LoadKpisControl();" disabled>
+        <option value=""></option>
+    </select>
+</div>
 
             <!-- COPE -->
             <div class="col-md-3 col-lg-3">
