@@ -142,15 +142,24 @@ function LoadKpisControl(ejecutar) {
 
 // 1. Al cambiar ÁREA: Carga División y resetea Cope
 function CargarDependenciasArea() {
-
-    console.log('entro a cargad Dependencias Area');
     var selectArea = $('#selectArea').val();
-    console.log('Valor de selectArea:', selectArea);
-    
+
     // Si no hay área seleccionada, reseteamos y deshabilitamos
     if (!selectArea) {
-        $('#selectDivision').html('<option value=""></option>').prop('disabled', true).val('').trigger('change.select2');
-        $('#selectCope').html('<option value=""></option>').prop('disabled', true).val('').trigger('change.select2');
+        $('#selectDivision')
+            .html('<option value=""></option>')
+            .attr('disabled', 'disabled')
+            .prop('disabled', true)
+            .val('')
+            .trigger('change.select2');
+
+        $('#selectCope')
+            .html('<option value=""></option>')
+            .attr('disabled', 'disabled')
+            .prop('disabled', true)
+            .val('')
+            .trigger('change.select2');
+
         LoadKpisControl();
         return;
     }
@@ -170,34 +179,66 @@ function CargarDependenciasArea() {
 
             if (Array.isArray(data) && data.length > 0) {
                 $.each(data, function(index, item) {
-                    var idDiv = item.idDivision || item.id;
-                    var nombreDiv = item.Division || item.nombre || item.division;
+                    var idDiv = item.idDivision || item.id || item.id_division;
+                    var nombreDiv = item.Division || item.nombre || item.division || item.area;
                     options += '<option value="' + idDiv + '">' + nombreDiv + '</option>';
                 });
-                $('#selectDivision').html(options).prop('disabled', false);
-            } else if (data && (data.idDivision || data.id)) {
-                var idDiv = data.idDivision || data.id;
-                var nombreDiv = data.Division || data.nombre || data.division;
-                options += '<option value="' + idDiv + '">' + nombreDiv + '</option>';
-                $('#selectDivision').html(options).prop('disabled', false);
+
+                $('#selectDivision')
+                    .html(options)
+                    .removeAttr('disabled')
+                    .prop('disabled', false)
+                    .trigger('change.select2');
+
+            } else if (data && typeof data === 'object' && !Array.isArray(data)) {
+                var idDiv = data.idDivision || data.id || data.id_division;
+                var nombreDiv = data.Division || data.nombre || data.division || data.area;
+
+                if (idDiv) {
+                    options += '<option value="' + idDiv + '">' + nombreDiv + '</option>';
+                    $('#selectDivision')
+                        .html(options)
+                        .removeAttr('disabled')
+                        .prop('disabled', false)
+                        .trigger('change.select2');
+                } else {
+                    $('#selectDivision')
+                        .html('<option value="">No hay divisiones</option>')
+                        .attr('disabled', 'disabled')
+                        .prop('disabled', true)
+                        .trigger('change.select2');
+                }
             } else {
-                $('#selectDivision').html('<option value="">No hay división para esta área</option>').prop('disabled', true);
+                $('#selectDivision')
+                    .html('<option value="">No hay divisiones para esta área</option>')
+                    .attr('disabled', 'disabled')
+                    .prop('disabled', true)
+                    .trigger('change.select2');
             }
 
-            // Reseteamos Cope limpia sin disparar eventos extra
-            $('#selectCope').html('<option value=""></option>').prop('disabled', true);
+            // Reseteamos Cope limpia y deshabilitada
+            $('#selectCope')
+                .html('<option value=""></option>')
+                .attr('disabled', 'disabled')
+                .prop('disabled', true)
+                .val('')
+                .trigger('change.select2');
 
-            // Refrescamos visualmente los select2
-            $('#selectDivision').trigger('change.select2');
-            $('#selectCope').trigger('change.select2');
-
-            // Cargamos los KPIs filtrados
             LoadKpisControl();
         },
-        error: function(xhr, status, error) {
-            console.error("Error al obtener divisiones:", error);
-            $('#selectDivision').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
-            $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
+        error: function() {
+            $('#selectDivision')
+                .html('<option value=""></option>')
+                .attr('disabled', 'disabled')
+                .prop('disabled', true)
+                .trigger('change.select2');
+
+            $('#selectCope')
+                .html('<option value=""></option>')
+                .attr('disabled', 'disabled')
+                .prop('disabled', true)
+                .trigger('change.select2');
+
             LoadKpisControl();
         }
     });
@@ -205,12 +246,16 @@ function CargarDependenciasArea() {
 
 // 2. Al cambiar DIVISIÓN: Carga los Copes de la División seleccionada
 function CargarCopesPorDivision() {
-
-    console.log('entro a CargarCopesPorDivision');
     var selectDivision = $('#selectDivision').val();
 
     if (!selectDivision) {
-        $('#selectCope').html('<option value=""></option>').prop('disabled', true).val('').trigger('change.select2');
+        $('#selectCope')
+            .html('<option value=""></option>')
+            .attr('disabled', 'disabled')
+            .prop('disabled', true)
+            .val('')
+            .trigger('change.select2');
+
         LoadKpisControl();
         return;
     }
@@ -224,22 +269,37 @@ function CargarCopesPorDivision() {
             $('#selectCope').prop('disabled', true);
         },
         success: function(data) {
-            if (data && data.length > 0) {
+            if (Array.isArray(data) && data.length > 0) {
                 var options = '<option value=""></option>';
                 $.each(data, function(index, item) {
-                    options += '<option value="' + item.id + '">' + (item.COPE || item.cope || item.nombre) + '</option>';
+                    var idCope = item.id || item.idCope || item.id_cope;
+                    var nombreCope = item.COPE || item.cope || item.nombre;
+                    options += '<option value="' + idCope + '">' + nombreCope + '</option>';
                 });
-                $('#selectCope').html(options).prop('disabled', false);
+
+                $('#selectCope')
+                    .html(options)
+                    .removeAttr('disabled')
+                    .prop('disabled', false)
+                    .trigger('change.select2');
+
             } else {
-                $('#selectCope').html('<option value="">No hay copes en esta división</option>').prop('disabled', true);
+                $('#selectCope')
+                    .html('<option value="">No hay copes en esta división</option>')
+                    .attr('disabled', 'disabled')
+                    .prop('disabled', true)
+                    .trigger('change.select2');
             }
 
-            $('#selectCope').trigger('change.select2');
             LoadKpisControl();
         },
-        error: function(xhr, status, error) {
-            console.error("Error al obtener copes:", error);
-            $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
+        error: function() {
+            $('#selectCope')
+                .html('<option value=""></option>')
+                .attr('disabled', 'disabled')
+                .prop('disabled', true)
+                .trigger('change.select2');
+
             LoadKpisControl();
         }
     });
