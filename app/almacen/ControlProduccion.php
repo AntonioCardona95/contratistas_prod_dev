@@ -235,36 +235,41 @@
     
 <script>
     $(document).ready(function() {
-        // Inicialización de Select2
+        // 1. Inicialización de Select2
         $('.select2-busqueda').select2({
             theme: 'bootstrap4',
             allowClear: true,
             width: '100%'
         });
 
-        // Contratista
-        $('#selectContratista').on('change select2:select', function() {
+        // 2. Evento para ÁREA (Llama a CargarDependenciasArea)
+        $('#selectArea').on('change', function(e) {
+            // Solo si el cambio fue realizado por la interacción del usuario
+            if (e.originalEvent || e.isTrigger) {
+                CargarDependenciasArea();
+            }
+        });
+
+        // 3. Evento para DIVISIÓN (Llama a CargarCopesPorDivision)
+        $('#selectDivision').on('change', function(e) {
+            if (e.originalEvent || e.isTrigger) {
+                CargarCopesPorDivision();
+            }
+        });
+
+        // 4. Evento para COPE
+        $('#selectCope').on('change', function() {
+            LoadKpisControl();
+        });
+
+        // 5. Evento para CONTRATISTA
+        $('#selectContratista').on('change', function() {
             LimpiarSelectoresUbicacion();
             LoadKpisControl();
         });
 
-        // Tipo Tarea
-        $('#TipoTarea').on('change select2:select', function() {
-            LoadKpisControl();
-        });
-
-        // Área -> Carga Divisiones
-        $('#selectArea').on('change select2:select', function() {
-            CargarDependenciasArea();
-        });
-
-        // División -> Carga Copes
-        $('#selectDivision').on('change select2:select', function() {
-            CargarCopesPorDivision();
-        });
-
-        // Cope
-        $('#selectCope').on('change select2:select', function() {
+        // 6. Evento para TIPO DE TAREA
+        $('#TipoTarea').on('change', function() {
             LoadKpisControl();
         });
 
