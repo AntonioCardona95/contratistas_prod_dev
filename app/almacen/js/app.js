@@ -253,31 +253,29 @@ function LoadKpisControl(ejecutar) {
 // FUNCIÓN CORREGIDA
 function CargarDependenciasArea() {
     var selectArea = $('#selectArea').val();
-    
-    // Limpiar y resetear División y Cope si no hay Área
+
     if (!selectArea) {
         $('#selectDivision').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
         $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
-        LoadKpisControl();
         return;
     }
 
-    // Promesas para esperar a que ambas peticiones (División y Copes) terminen antes de refrescar KPIs
-    var reqDivision = $.ajax({
+    $.ajax({
         type: 'POST',
         url: 'modal/selectores.php',
         data: { action: 'getDivisionByArea', idArea: selectArea },
         dataType: 'json',
         success: function(data) {
             if (data && data.idDivision) {
-                // Se usa .val() sin disparar trigger('change') para evitar recargas dobles
-                $('#selectDivision').html('<option value="'+data.idDivision+'" data-nombre="'+data.Division+'" selected>'+data.Division+'</option>');
-                $('#selectDivision').prop('disabled', false).trigger('change.select2');
+                // AQUÍ LE AGREGAMOS EL data-nombre PARA QUE LEA EL NOMBRE DE LA DIVISIÓN
+                var option = '<option value="' + data.idDivision + '" data-nombre="' + data.Division + '" selected>' + data.Division + '</option>';
+                $('#selectDivision').html(option).prop('disabled', false).trigger('change.select2');
             } else {
                 $('#selectDivision').html('<option value="">No hay división para esta área</option>').prop('disabled', true).trigger('change.select2');
             }
         }
     });
+
 
     var reqCopes = $.ajax({
         type: 'POST',
