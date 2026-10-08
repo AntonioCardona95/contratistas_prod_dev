@@ -1,14 +1,10 @@
 <?php
 
-/**
- * Clase encargada de la gestión de Producción, Consultas y Estado de Navegación
- */
-
 require_once($_SERVER['DOCUMENT_ROOT'] . "/cnx/cnx.php");
 
 class ClassConsultasProduccion extends Conexion
 {
-    protected function runQuery($sql, $params = array(), $conexionTipo = 'default')
+    protected function runQuery($sql, $params = array(), $conexionTipo = 'default', $limit = 1000, $offset = 0)
     {
         switch ($conexionTipo) {
             case 'analisis':
@@ -30,7 +26,10 @@ class ClassConsultasProduccion extends Conexion
         }
 
         try {
+            // Agregamos paginación automática
+            $sql .= " LIMIT :limit OFFSET :offset";
             $stmt = $conexion->prepare($sql);
+
             foreach ($params as $key => $val) {
                 if (is_int($key)) {
                     $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
@@ -39,13 +38,23 @@ class ClassConsultasProduccion extends Conexion
                     $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
                 }
             }
+
+            $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+
             $stmt->execute();
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $rows = [];
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $rows[] = $row;
+            }
+
             if (method_exists($stmt, 'closeCursor')) {
                 $stmt->closeCursor();
             }
             return $rows;
         } catch (PDOException $e) {
+            error_log("Error en runQuery: " . $e->getMessage());
             return array();
         }
     }
@@ -84,9 +93,11 @@ class ClassConsultasProduccion extends Conexion
             $stmt->execute();
             return (int)$conexion->lastInsertId();
         } catch (PDOException $e) {
+            error_log("Error en runExecute: " . $e->getMessage());
             return 0;
         }
     }
+
 
 
     /**
