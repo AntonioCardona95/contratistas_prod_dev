@@ -91,9 +91,15 @@ function LoadKpisControl(ejecutar) {
     }
 
     // 4. Área
+    // Área
     var selectArea = $('#selectArea').val();
+    var nombreArea = $('#selectArea option:selected').data('nombre');
+
     if (selectArea) {
         parametros += '&selectArea=' + encodeURIComponent(selectArea);
+    }
+    if (nombreArea) {
+        parametros += '&nombreArea=' + encodeURIComponent(nombreArea);
     }
 
     // 5. División
