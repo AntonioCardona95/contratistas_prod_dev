@@ -24,7 +24,7 @@ $Fecha2 = $_POST['Fecha2'] ?? '';
 $Area        = $_POST['selectArea'] ?? '';
 $Division    = $_POST['selectDivision'] ?? '';
 $Cope        = $_POST['selectCope'] ?? '';
-$TipoTarea = $_POST['TipoTarea'] ?? '';
+$TipoTarea   = $_POST['TipoTarea'] ?? '';
 
 // FECHAS INDEPENDIENTES DE LAS CARDS
 $fechascard1 = $_POST['fechascard1'] ?? '';
@@ -103,10 +103,10 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
 $TotalProduccionFechas = 0;
 
 $qrProduccionFechas = $consultas->CountProduccionPorFechas(
-    null,                        // $fechaInicio (vacío para usar las de la card)
-    null,                        // $fechaFin (vacío para usar las de la card)
-    $fechascard1,                // Fecha inicial elegida en la card
-    $fechascard2,                // Fecha final elegida en la card
+    $Fecha1,                     // Rango global por defecto
+    $Fecha2, 
+    $fechascard1,                // Rango preferente de la card
+    $fechascard2, 
     $idContratistaSeleccionado,  // Contratista seleccionado
     $TipoTarea,
     $Area,
@@ -193,7 +193,6 @@ if (is_array($qrProduccionTotal)) {
     $TotalProduccion = (int)$qrProduccionTotal;
 }
 
-
 // CONSULTA DE DATOS BASE DE TODAS LAS DIVISIONES (PARA LA GRÁFICA)
 $chart_divisiones_raw = $consultas->CountOntAlmacenPorDivision(
     $Fecha1, 
@@ -214,7 +213,6 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
         $chart_div_sin_almacen[] = (int)$row['SIN_ALMACEN'];
     }
 }
-
 ?>
 
 <link rel="stylesheet" href="css/kpisdashboard.css">
