@@ -1285,8 +1285,7 @@ public function ObtenerDetalleOrdenesPorArea($idContratista)
                 /* TOTAL SIN ALMACÉN: Si ambas series están fuera de almacén (0) */
                 SUM(CASE WHEN (p.Existe_Serie_Prod_Almacen = 0 AND p.Existe_Serie_Eci_Almacen = 0) THEN 1 ELSE 0 END) AS TotalSinAlmacen
 
-            -- FROM seg_produccion_diaria p
-            FROM   seg_ns_prod_eval p
+            FROM seg_produccion_diaria p
             WHERE p.idContratista = :idContratista
             GROUP BY p.NOM_AREA, p.NOM_DIVISION, p.NOM_CT
             ORDER BY p.NOM_AREA ASC, p.NOM_CT ASC";
