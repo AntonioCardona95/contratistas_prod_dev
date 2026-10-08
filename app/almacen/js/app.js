@@ -323,15 +323,26 @@ function CargarCopesPorDivision() {
     });
 }
 
-// 3. Resetea los selectores de Ubicación
+
+// 3. Resetea los selectores de Ubicación de forma segura
 function LimpiarSelectoresUbicacion() {
     console.log('Limpiando selectores de ubicación');
+    
+    // Cambiamos el valor sin disparar eventos en cascada
     $('#selectArea').val('').trigger('change.select2');
-    $('#selectDivision').html('<option value=""></option>').prop('disabled', true).val('').trigger('change.select2');
-    $('#selectCope').html('<option value=""></option>').prop('disabled', true).val('').trigger('change.select2');
+    
+    $('#selectDivision')
+        .html('<option value=""></option>')
+        .prop('disabled', true)
+        .val('');
+    $('#selectDivision').trigger('change.select2');
+
+    $('#selectCope')
+        .html('<option value=""></option>')
+        .prop('disabled', true)
+        .val('');
+    $('#selectCope').trigger('change.select2');
 }
-
-
 
 /*function LoadKpisControl(){
     var parametros = $("#FormQueryUnidades").serialize();
