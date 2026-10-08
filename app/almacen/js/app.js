@@ -204,6 +204,8 @@ function CargarDependenciasArea() {
 
 // 2. Al cambiar DIVISIÓN: Carga los Copes de la División seleccionada
 function CargarCopesPorDivision() {
+
+    console.log('entro a CargarCopesPorDivision');
     var selectDivision = $('#selectDivision').val();
 
     if (!selectDivision) {
