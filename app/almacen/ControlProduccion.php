@@ -105,7 +105,7 @@
                 <label for="fechascard1" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-calendar-alt mr-1"></i> Fecha Inicial:
                 </label>
-                <input type="date" class="form-control" id="fechascard1" name="fechascard1">
+                <input type="date" class="form-control" id="fechascard1" name="fechascard1" onchange="LoadKpisControl();">
             </div>
 
             <!-- FECHA FINAL -->
@@ -113,7 +113,7 @@
                 <label for="fechascard2" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-calendar-alt mr-1"></i> Fecha Final:
                 </label>
-                <input type="date" class="form-control" id="fechascard2" name="fechascard2">
+                <input type="date" class="form-control" id="fechascard2" name="fechascard2" onchange="LoadKpisControl();">
             </div>
 
             <!-- CONTRATISTA -->
@@ -121,7 +121,7 @@
                 <label for="selectContratista" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-user-tie mr-1"></i> Seleccionar Contratista:
                 </label>
-                <select class="form-control select2-busqueda" id="selectContratista" name="selectContratista" data-placeholder="-- Seleccionar Contratista --">
+                <select class="form-control select2-busqueda" id="selectContratista" name="selectContratista" data-placeholder="-- Seleccionar Contratista --" onchange="LimpiarSelectoresUbicacion(); LoadKpisControl();">
                     <option value=""></option>
                     <?php foreach ($listaContratistas as $row): ?>
                         <option value="<?= htmlspecialchars($row['idContratistas']) ?>">
@@ -131,30 +131,30 @@
                 </select>
             </div>
 
-            <!-- TIPO DE TAREA -->
-            <div class="col-md-3 col-lg-3">
-                <label for="TipoTarea" class="font-weight-bold text-primary mb-1">
-                    <i class="fas fa-tasks mr-1"></i> Seleccione Tipo de tarea:
-                </label>
-                <select name="TipoTarea" id="TipoTarea" class="form-control select2-busqueda" data-placeholder="-- Seleccionar Tipo de Tarea --">
-                    <option value=""></option>
-                    <option value="QUEJAS">QUEJAS</option>
-                    <option value="ALTAS">ALTAS</option>
-                    <option value="MIGRACIONES">MIGRACIONES</option>
-                    <option value="A4">A4</option>
-                    <option value="CAMBIOS DE DOMICILIO">CAMBIOS DE DOMICILIO</option>
-                </select>
-            </div>
+          <!-- Option Select de Tipo de Tarea -->
+<div class="col-md-3 col-lg-3">
+    <label for="TipoTarea" class="font-weight-bold text-primary mb-1">
+        <i class="fas fa-tasks mr-1"></i> Seleccione Tipo de tarea:
+    </label>
+    <select name="TipoTarea" id="TipoTarea" class="form-control select2-busqueda" onchange="LoadKpisControl();">
+        <option value="">-- Seleccionar Tipo de Tarea --</option>
+        <option value="QUEJAS">QUEJAS</option>
+        <option value="ALTAS">ALTAS</option>
+        <option value="MIGRACIONES">MIGRACIONES</option>
+        <option value="A4">A4</option>
+        <option value="CAMBIOS DE DOMICILIO">CAMBIOS DE DOMICILIO</option>
+    </select>
+</div>
 
             <!-- ÁREA -->
             <div class="col-md-3 col-lg-3">
                 <label for="selectArea" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-building mr-1"></i> Seleccionar Área:
                 </label>
-                <select class="form-control select2-busqueda" id="selectArea" name="selectArea" data-placeholder="-- Seleccionar Área --">
+                <select class="form-control select2-busqueda" id="selectArea" name="selectArea" data-placeholder="-- Seleccionar Área --" onchange="CargarDependenciasArea(); LoadKpisControl();">
                     <option value=""></option>
                     <?php foreach ($listaAreas as $row): ?>
-                        <option value="<?= htmlspecialchars($row['idAreas']) ?>" data-nombre="<?= htmlspecialchars($row['area']) ?>">
+                        <option value="<?= htmlspecialchars($row['idAreas']) ?>">
                             <?= htmlspecialchars($row['area']) ?>
                         </option>
                     <?php endforeach; ?>
@@ -166,7 +166,7 @@
                 <label for="selectDivision" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-sitemap mr-1"></i> Seleccionar División:
                 </label>
-                <select class="form-control select2-busqueda" id="selectDivision" name="selectDivision" data-placeholder="-- Seleccionar División --" disabled>
+                <select class="form-control select2-busqueda" id="selectDivision" name="selectDivision" data-placeholder="-- Seleccionar División --" onchange="LoadKpisControl();" disabled>
                     <option value=""></option>
                 </select>
             </div>
@@ -176,7 +176,7 @@
                 <label for="selectCope" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-network-wired mr-1"></i> Seleccionar Cope:
                 </label>
-                <select class="form-control select2-busqueda" id="selectCope" name="selectCope" data-placeholder="-- Seleccionar Cope --" disabled>
+                <select class="form-control select2-busqueda" id="selectCope" name="selectCope" data-placeholder="-- Seleccionar Cope --" onchange="LoadKpisControl();" disabled>
                     <option value=""></option>
                 </select>
             </div>
@@ -185,95 +185,75 @@
     </div>
 </div>
 
-<!-- CONTENEDOR DINÁMICO QUE CARGA LOS KPI Y GRÁFICAS -->
-<div id="LoadKpisControl"></div>
+                    
+                    <!-- CONTENEDOR DINÁMICO QUE CARGA LOS KPI Y GRÁFICAS -->
+                    <div id="LoadKpisControl">
 
-<!-- FIN DEL CONTENIDO -->
-</div>
+                    </div>
 
-<!-- FIN DEL CONTENIDO PRINCIPAL -->
-</div>
+                </div>
+                <!-- FIN DEL CONTENIDO -->
 
-<!-- PIE DE PÁGINA -->
-<?php include_once(__DIR__ . '/../components/FooterContratistas.php'); ?>
-
-<!-- FIN DEL PIE -->
-</div>
-
-<!-- FIN DEL CONTENEDOR DEL CONTENIDO -->
-</div>
-
-<!-- FIN DEL CONTENEDOR PRINCIPAL -->
-<a class="scroll-to-top rounded" href="#page-top">
-    <i class="fas fa-angle-up"></i>
-</a>
-
-<!-- MODAL DE CIERRE DE SESION -->
-<?php include_once(__DIR__ . '/../components/ModalCierreSesion.php'); ?>
-
-<div class="modal fade" id="modalKpiDetalle" tabindex="-1" role="dialog" aria-labelledby="modalKpiDetalleTitulo" aria-hidden="true">
-    <div class="modal-dialog modal-xl" role="document">
-        <div class="modal-content">
-            <div class="modal-header modal-header-gradient text-white">
-                <h5 class="modal-title" id="modalKpiDetalleTitulo">Detalle</h5>
-                <button type="button" class="btn btn-light" data-dismiss="modal" aria-label="Cerrar">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
-            <div class="modal-body" id="modalKpiDetalleContenido"></div>
+            <!-- FIN DEL CONTENIDO PRINCIPAL -->
+
+            <!-- PIE DE PÁGINA -->
+            <?php include_once(__DIR__ . '/../components/FooterContratistas.php'); ?>
+            <!-- FIN DEL PIE -->
+
+        </div>
+        <!-- FIN DEL CONTENEDOR DEL CONTENIDO -->
+
+    </div>
+    <!-- FIN DEL CONTENEDOR PRINCIPAL -->
+
+    <!-- BOTÓN PARA VOLVER AL INICIO -->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+    
+    <!-- MODAL DE CIERRE DE SESION -->
+    <?php include_once(__DIR__ . '/../components/ModalCierreSesion.php'); ?>
+
+    <div class="modal fade" id="modalKpiDetalle" tabindex="-1" role="dialog" aria-labelledby="modalKpiDetalleTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header modal-header-gradient text-white">
+                    <h5 class="modal-title" id="modalKpiDetalleTitulo">Detalle</h5>
+                    <button type="button" class="btn btn-light" data-dismiss="modal" aria-label="Cerrar">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="modalKpiDetalleContenido">
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-<?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
+    <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
+    <!-- CARGAR CHART.JS -->
+    
+    <script>
+        $(document).ready(function(){
+            LoadKpisControl();
+        });
 
-<!-- UN SOLO BLOQUE DE SCRIPT UNIFICADO -->
-<!-- UN SOLO BLOQUE DE SCRIPT UNIFICADO Y CORREGIDO -->
+       
+    </script>
+
+    <!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.js"></script>
+
+
 <script>
     $(document).ready(function(){
-        // 1. Inicializar Select2
+        // Inicializar todos los select2 con su propio data-placeholder
         $('.select2-busqueda').select2({
             theme: 'bootstrap4',
             allowClear: true,
             width: '100%'
         });
 
-        // 2. Cambio en Fechas
-        $('#fechascard1, #fechascard2').off('change').on('change', function() {
-            LoadKpisControl();
-        });
-
-        // 3. Cambio en Contratista
-        $('#selectContratista').off('change').on('change', function() {
-            LoadKpisControl();
-        });
-
-        // 4. Cambio en Área
-        $('#selectArea').off('change').on('change', function() {
-            CargarDependenciasArea();
-        });
-
-        // 5. Cambio en División, Cope o Tipo de Tarea
-        $('#selectDivision, #selectCope, #TipoTarea').off('change').on('change', function() {
-            LoadKpisControl();
-        });
-
-        // 6. Carga inicial
         LoadKpisControl();
     });
 </script>
-
-
-
-
-
-
-
-
-
-
-
-</body>
-</html>
-
-
