@@ -105,7 +105,7 @@
                 <label for="fechascard1" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-calendar-alt mr-1"></i> Fecha Inicial:
                 </label>
-                <input type="date" class="form-control" id="fechascard1" name="fechascard1" onchange="LoadKpisControl();">
+                <input type="date" class="form-control" id="fechascard1" name="fechascard1">
             </div>
 
             <!-- FECHA FINAL -->
@@ -113,7 +113,7 @@
                 <label for="fechascard2" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-calendar-alt mr-1"></i> Fecha Final:
                 </label>
-                <input type="date" class="form-control" id="fechascard2" name="fechascard2" onchange="LoadKpisControl();">
+                <input type="date" class="form-control" id="fechascard2" name="fechascard2">
             </div>
 
             <!-- CONTRATISTA -->
@@ -121,7 +121,7 @@
                 <label for="selectContratista" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-user-tie mr-1"></i> Seleccionar Contratista:
                 </label>
-                <select class="form-control select2-busqueda" id="selectContratista" name="selectContratista" data-placeholder="-- Seleccionar Contratista --" onchange="LimpiarSelectoresUbicacion(); LoadKpisControl();">
+                <select class="form-control select2-busqueda" id="selectContratista" name="selectContratista" data-placeholder="-- Seleccionar Contratista --">
                     <option value=""></option>
                     <?php foreach ($listaContratistas as $row): ?>
                         <option value="<?= htmlspecialchars($row['idContratistas']) ?>">
@@ -131,23 +131,22 @@
                 </select>
             </div>
 
-          <!-- Option Select de Tipo de Tarea -->
-<div class="col-md-3 col-lg-3">
-    <label for="TipoTarea" class="font-weight-bold text-primary mb-1">
-        <i class="fas fa-tasks mr-1"></i> Seleccione Tipo de tarea:
-    </label>
-    <select name="TipoTarea" id="TipoTarea" class="form-control select2-busqueda" onchange="LoadKpisControl();">
-        <option value="">-- Seleccionar Tipo de Tarea --</option>
-        <option value="QUEJAS">QUEJAS</option>
-        <option value="ALTAS">ALTAS</option>
-        <option value="MIGRACIONES">MIGRACIONES</option>
-        <option value="A4">A4</option>
-        <option value="CAMBIOS DE DOMICILIO">CAMBIOS DE DOMICILIO</option>
-    </select>
-</div>
+            <!-- TIPO DE TAREA -->
+            <div class="col-md-3 col-lg-3">
+                <label for="TipoTarea" class="font-weight-bold text-primary mb-1">
+                    <i class="fas fa-tasks mr-1"></i> Seleccione Tipo de tarea:
+                </label>
+                <select name="TipoTarea" id="TipoTarea" class="form-control select2-busqueda" data-placeholder="-- Seleccionar Tipo de Tarea --">
+                    <option value=""></option>
+                    <option value="QUEJAS">QUEJAS</option>
+                    <option value="ALTAS">ALTAS</option>
+                    <option value="MIGRACIONES">MIGRACIONES</option>
+                    <option value="A4">A4</option>
+                    <option value="CAMBIOS DE DOMICILIO">CAMBIOS DE DOMICILIO</option>
+                </select>
+            </div>
 
-           
-         <!-- ÁREA -->
+            <!-- ÁREA -->
             <div class="col-md-3 col-lg-3">
                 <label for="selectArea" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-building mr-1"></i> Seleccionar Área:
