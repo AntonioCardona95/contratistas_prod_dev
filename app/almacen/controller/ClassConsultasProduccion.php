@@ -130,21 +130,44 @@ public function obtenerTodasAreas()
 }
 
 
-public function obtenerDivisionPorArea($idArea) {
+/**
+ * Obtiene la división asociada a un área específica
+ */
+public function obtenerDivisionPorArea($idArea)
+{
+    $idArea = (int)$idArea;
+
     $sql = "SELECT d.idDivision, d.Division
             FROM divisiones d
             INNER JOIN areas a ON a.FK_Division = d.idDivision
             WHERE a.idAreas = ?";
+
     $result = $this->runQuery($sql, [$idArea], 'erpprint');
-    return $result ? $result[0] : null; // cada área tiene una sola división
+
+    if ($result && isset($result[0])) {
+        return [
+            'idDivision' => $result[0]['idDivision'],
+            'Division'   => $result[0]['Division']
+        ];
+    }
+
+    return null;
 }
 
-public function obtenerCopesPorArea($idArea) {
-    $sql = "SELECT id, COPE
-            FROM copes
-            WHERE FK_Area = ?
-            ORDER BY COPE ASC";
-    return $this->runQuery($sql, [$idArea], 'erpprint');
+/**
+ * Obtiene todos los COPEs pertenecientes a las áreas de una división
+ */
+public function obtenerCopesPorDivision($idDivision)
+{
+    $idDivision = (int)$idDivision;
+
+    $sql = "SELECT DISTINCT c.id, c.COPE
+            FROM copes c
+            INNER JOIN areas a ON c.FK_Area = a.idAreas
+            WHERE a.FK_Division = ?
+            ORDER BY c.COPE ASC";
+
+    return $this->runQuery($sql, [$idDivision], 'erpprint');
 }
 
 
