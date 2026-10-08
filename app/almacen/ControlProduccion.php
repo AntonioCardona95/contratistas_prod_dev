@@ -233,26 +233,26 @@
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
     <!-- CARGAR CHART.JS -->
     
-    <script>
-        $(document).ready(function(){
-            LoadKpisControl();
-        });
-
-       
-    </script>
-
-
-
-
-<script>
-    $(document).ready(function(){
-        // Inicializar todos los select2 con su propio data-placeholder
+   <script>
+    $(document).ready(function() {
+        // 1. Inicializar Select2
         $('.select2-busqueda').select2({
             theme: 'bootstrap4',
             allowClear: true,
             width: '100%'
         });
 
+        // 2. Escuchar cambios en ÁREA para cargar Divisiones
+        $('#selectArea').on('change select2:select', function() {
+            CargarDependenciasArea();
+        });
+
+        // 3. Escuchar cambios en DIVISIÓN para cargar Copes
+        $('#selectDivision').on('change select2:select', function() {
+            CargarCopesPorDivision();
+        });
+
+        // 4. Carga inicial de KPIs
         LoadKpisControl();
     });
 </script>
