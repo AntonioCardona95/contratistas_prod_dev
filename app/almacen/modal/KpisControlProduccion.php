@@ -22,9 +22,13 @@ $Fecha1 = $_POST['Fecha1'] ?? '';
 $Fecha2 = $_POST['Fecha2'] ?? '';
 
 $Area        = $_POST['selectArea'] ?? '';
+$nombreArea = $_POST['nombreArea'] ?? '';
 echo '<pre>';
 var_dump($Area);
+var_dump($nombreArea);
 echo '</pre>';
+
+
 
 
 $Division    = $_POST['selectDivision'] ?? '';
