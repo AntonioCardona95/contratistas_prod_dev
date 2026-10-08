@@ -253,31 +253,42 @@ function LoadKpisControl(ejecutar) {
 // FUNCIÓN CORREGIDA
 function CargarDependenciasArea() {
     var selectArea = $('#selectArea').val();
-    
-    // Limpiar y resetear División y Cope si no hay Área
+
     if (!selectArea) {
-        $('#selectDivision').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
-        $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
-        LoadKpisControl();
+        $('#selectDivision').html('<option value="">-- Seleccionar División --</option>').prop('disabled', true).trigger('change.select2');
+        $('#selectCope').html('<option value="">-- Seleccionar Cope --</option>').prop('disabled', true).trigger('change.select2');
         return;
     }
 
-    // Promesas para esperar a que ambas peticiones (División y Copes) terminen antes de refrescar KPIs
-    var reqDivision = $.ajax({
+    $.ajax({
         type: 'POST',
         url: 'modal/selectores.php',
         data: { action: 'getDivisionByArea', idArea: selectArea },
         dataType: 'json',
         success: function(data) {
-            if (data && data.idDivision) {
-                // Se usa .val() sin disparar trigger('change') para evitar recargas dobles
-                $('#selectDivision').html('<option value="'+data.idDivision+'" data-nombre="'+data.Division+'" selected>'+data.Division+'</option>');
-                $('#selectDivision').prop('disabled', false).trigger('change.select2');
+            if (data && data.length > 0) {
+                // 1. Iniciamos el select con la opción neutra vacía
+                var options = '<option value="">-- Seleccionar División --</option>';
+
+                // 2. Si data es un array de divisiones asociadas al área
+                $.each(data, function(index, item) {
+                    options += '<option value="' + item.idDivision + '" data-nombre="' + item.Division + '">' + item.Division + '</option>';
+                });
+
+                // 3. Cargamos las opciones SIN la propiedad 'selected'
+                $('#selectDivision').html(options).prop('disabled', false).val('').trigger('change.select2');
+            } else if (data && data.idDivision) {
+                // Si tu PHP te devuelve un solo objeto en lugar de un array
+                var options = '<option value="">-- Seleccionar División --</option>';
+                options += '<option value="' + data.idDivision + '" data-nombre="' + data.Division + '">' + data.Division + '</option>';
+                
+                $('#selectDivision').html(options).prop('disabled', false).val('').trigger('change.select2');
             } else {
-                $('#selectDivision').html('<option value="">No hay división para esta área</option>').prop('disabled', true).trigger('change.select2');
+                $('#selectDivision').html('<option value="">-- Sin divisiones --</option>').prop('disabled', true).trigger('change.select2');
             }
         }
     });
+
 
     var reqCopes = $.ajax({
         type: 'POST',
