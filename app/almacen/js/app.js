@@ -90,10 +90,16 @@ function LoadKpisControl(ejecutar) {
         parametros += '&TipoTarea=' + encodeURIComponent(TipoTarea);
     }
 
-    // 4. Área
+    // 4. Área (Obtenemos ID y Nombre del Option seleccionado)
     var selectArea = $('#selectArea').val();
+    var nombreArea = $('#selectArea option:selected').data('nombre') || $('#selectArea option:selected').text();
+    nombreArea = $.trim(nombreArea);
+
     if (selectArea) {
         parametros += '&selectArea=' + encodeURIComponent(selectArea);
+    }
+    if (nombreArea && selectArea) {
+        parametros += '&nombreArea=' + encodeURIComponent(nombreArea);
     }
 
     // 5. División
