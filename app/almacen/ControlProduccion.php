@@ -263,9 +263,9 @@ $(document).ready(function(){
         CargarDependenciasArea();
     });
 
-    // 5. Cambio en División, Cope o Tipo de Tarea
-    $('#selectDivision, #selectCope, #TipoTarea').off('change').on('change', function(e) {
-        console.log("🎯 Evento [CHANGE] en ID:", e.target.id);
+    // 5. Cambio en División, Cope o Tipo de Tarea (Solo por acción directa del usuario)
+    $('#selectDivision, #selectCope, #TipoTarea').off('select2:select select2:clear').on('select2:select select2:clear', function(e) {
+        console.log("🎯 Selección manual del usuario en:", e.target.id);
         LoadKpisControl();
     });
 
