@@ -73,9 +73,7 @@ function LoadKPIS(){
 }
 
 function LoadKpisControl(ejecutar) {
-    console.log('================================');
-    console.log('🚀 Entró a LoadKpisControl');
-    console.trace('QUIÉN LLAMÓ A LoadKpisControl');
+    
     console.log("Entró a LoadKpisControl");
 
     // 1. Convertimos los datos del formulario de fechas a un String/Objeto
