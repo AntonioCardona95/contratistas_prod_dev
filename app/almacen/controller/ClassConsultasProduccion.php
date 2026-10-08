@@ -165,9 +165,9 @@ public function CountProduccionPorFechas(
     $idDivision = null,
     $idCope = null
 ) {
-    // Asignar fechas de la card si existen
-    $fIni = !empty($fechascard1) ? trim($fechascard1) : trim($fechaInicio);
-    $fFin = !empty($fechascard2) ? trim($fechascard2) : trim($fechaFin);
+    // Asignar fechas de la card si existen (evitando pasar null a trim)
+    $fIni = !empty($fechascard1) ? trim($fechascard1 ?? '') : trim($fechaInicio ?? '');
+    $fFin = !empty($fechascard2) ? trim($fechascard2 ?? '') : trim($fechaFin ?? '');
 
     $where = array();
     $params = array();
@@ -202,13 +202,13 @@ public function CountProduccionPorFechas(
             $params[':idContratista'] = (int)$idContratista;
         } else {
             $where[] = "Contratista = :idContratista";
-            $params[':idContratista'] = trim($idContratista);
+            $params[':idContratista'] = trim($idContratista ?? '');
         }
     }
 
     // Filtro por Tipo de Tarea
     if (!empty($tipoTarea)) {
-        switch (strtoupper(trim($tipoTarea))) {
+        switch (strtoupper(trim($tipoTarea ?? ''))) {
             case 'ALTAS':
                 $where[] = "(Tipo_de_Tarea LIKE 'A%' AND Tipo_de_Tarea NOT LIKE 'A4%')";
                 break;
@@ -238,6 +238,7 @@ public function CountProduccionPorFechas(
         $params[':idArea'] = $idArea;
     }
 
+    // Corregido también por seguridad en caso de recibir null
     if (!empty($idDivision)) {
         $where[] = "NOM_DIVISION = :idDivision";
         $params[':idDivision'] = $idDivision;
