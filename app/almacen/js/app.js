@@ -142,7 +142,9 @@ function LoadKpisControl(ejecutar) {
 
 // 1. Al cambiar ÁREA: Carga División y resetea Cope
 function CargarDependenciasArea() {
+    console.log('Entró a CargarDependenciasArea');
     var selectArea = $('#selectArea').val();
+    console.log('Valor de selectArea:', selectArea);
 
     // Si no hay área seleccionada, reseteamos y deshabilitamos
     if (!selectArea) {
@@ -175,6 +177,8 @@ function CargarDependenciasArea() {
             $('#selectCope').prop('disabled', true);
         },
         success: function(data) {
+            console.log("Respuesta de modal/selectores.php (Divisiones):", data);
+
             var options = '<option value=""></option>';
 
             if (Array.isArray(data) && data.length > 0) {
@@ -184,6 +188,7 @@ function CargarDependenciasArea() {
                     options += '<option value="' + idDiv + '">' + nombreDiv + '</option>';
                 });
 
+                // Inyectamos opciones, removemos atributo HTML disabled y actualizamos Select2
                 $('#selectDivision')
                     .html(options)
                     .removeAttr('disabled')
@@ -202,6 +207,7 @@ function CargarDependenciasArea() {
                         .prop('disabled', false)
                         .trigger('change.select2');
                 } else {
+                    console.warn("Sin divisiones para el área:", selectArea);
                     $('#selectDivision')
                         .html('<option value="">No hay divisiones</option>')
                         .attr('disabled', 'disabled')
@@ -209,6 +215,7 @@ function CargarDependenciasArea() {
                         .trigger('change.select2');
                 }
             } else {
+                console.warn("Respuesta vacía o formato desconocido:", data);
                 $('#selectDivision')
                     .html('<option value="">No hay divisiones para esta área</option>')
                     .attr('disabled', 'disabled')
@@ -224,9 +231,12 @@ function CargarDependenciasArea() {
                 .val('')
                 .trigger('change.select2');
 
+            // Refrescamos KPIs filtrados
             LoadKpisControl();
         },
-        error: function() {
+        error: function(xhr, status, error) {
+            console.error("Error al obtener divisiones:", error);
+            console.error("Respuesta cruda del servidor:", xhr.responseText);
             $('#selectDivision')
                 .html('<option value=""></option>')
                 .attr('disabled', 'disabled')
@@ -246,7 +256,9 @@ function CargarDependenciasArea() {
 
 // 2. Al cambiar DIVISIÓN: Carga los Copes de la División seleccionada
 function CargarCopesPorDivision() {
+    console.log('Entró a CargarCopesPorDivision');
     var selectDivision = $('#selectDivision').val();
+    console.log('Valor de selectDivision:', selectDivision);
 
     if (!selectDivision) {
         $('#selectCope')
@@ -269,6 +281,8 @@ function CargarCopesPorDivision() {
             $('#selectCope').prop('disabled', true);
         },
         success: function(data) {
+            console.log("Respuesta de modal/selectores.php (Copes):", data);
+
             if (Array.isArray(data) && data.length > 0) {
                 var options = '<option value=""></option>';
                 $.each(data, function(index, item) {
@@ -277,6 +291,7 @@ function CargarCopesPorDivision() {
                     options += '<option value="' + idCope + '">' + nombreCope + '</option>';
                 });
 
+                // Inyectamos opciones, removemos el atributo disabled y refrescamos Select2
                 $('#selectCope')
                     .html(options)
                     .removeAttr('disabled')
@@ -284,6 +299,7 @@ function CargarCopesPorDivision() {
                     .trigger('change.select2');
 
             } else {
+                console.warn("Sin copes para la división:", selectDivision);
                 $('#selectCope')
                     .html('<option value="">No hay copes en esta división</option>')
                     .attr('disabled', 'disabled')
@@ -293,7 +309,9 @@ function CargarCopesPorDivision() {
 
             LoadKpisControl();
         },
-        error: function() {
+        error: function(xhr, status, error) {
+            console.error("Error al obtener copes:", error);
+            console.error("Respuesta cruda del servidor:", xhr.responseText);
             $('#selectCope')
                 .html('<option value=""></option>')
                 .attr('disabled', 'disabled')
