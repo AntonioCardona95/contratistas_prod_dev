@@ -164,18 +164,17 @@ function LoadKpisControl(ejecutar) {
     });
 }
 
-// NUEVA FUNCIÓN: Solo recarga División y Cope cuando el usuario CAMBIA de Área
 function CargarDependenciasArea() {
     var selectArea = $('#selectArea').val();
     
-    // Limpiar y resetear División y Cope si no hay Área
+    // Si no hay área seleccionada, limpiamos División y Cope silenciosamente
     if (!selectArea) {
         $('#selectDivision').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
         $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
         return;
     }
 
-    // Cargar División por Área
+    // 1. Cargar División por Área
     $.ajax({
         type: 'POST',
         url: 'modal/selectores.php',
@@ -183,15 +182,18 @@ function CargarDependenciasArea() {
         dataType: 'json',
         success: function(data) {
             if (data && data.idDivision) {
-                $('#selectDivision').html('<option value="'+data.idDivision+'" data-nombre="'+data.Division+'">'+data.Division+'</option>');
-                $('#selectDivision').prop('disabled', false).trigger('change.select2');
+                var optionDiv = new Option(data.Division, data.idDivision, true, true);
+                $(optionDiv).attr('data-nombre', data.Division);
+                
+                // Asignamos la opción y actualizamos la interfaz visual de Select2
+                $('#selectDivision').html(optionDiv).prop('disabled', false).trigger('change.select2');
             } else {
                 $('#selectDivision').html('<option value="">No hay división para esta área</option>').prop('disabled', true).trigger('change.select2');
             }
         }
     });
 
-    // Cargar Copes por Área
+    // 2. Cargar Copes por Área
     $.ajax({
         type: 'POST',
         url: 'modal/selectores.php',
