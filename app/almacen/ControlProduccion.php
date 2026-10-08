@@ -234,44 +234,52 @@
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
     <!-- CARGAR CHART.JS -->
     
-    <script>
-        $(document).ready(function(){
-            LoadKpisControl();
-        });
-
-       
-    </script>
-
-
-
+<!-- UN SOLO BLOQUE DE SCRIPT UNIFICADO -->
 <script>
     $(document).ready(function(){
-        // 1. Inicializar Select2 en todos los elementos indicados
+        // 1. Inicializar Select2 en los selectores
         $('.select2-busqueda').select2({
             theme: 'bootstrap4',
             allowClear: true,
             width: '100%'
         });
 
-        // 2. Control al cambiar Área (Se ejecuta CargarDependenciasArea y se refrescan KPIs)
-        $('#selectArea').off('change').on('change', function(e) {
-            if (e.originalEvent) { // Detecta interacción directa del usuario
+        // 2. Eventos al cambiar fechas
+        $('#fechascard1, #fechascard2').on('change', function() {
+            LoadKpisControl();
+        });
+
+        // 3. Evento al cambiar Contratista (Limpia la ubicación)
+        $('#selectContratista').on('select2:select select2:clear', function(e) {
+            if (e.originalEvent) {
+                LimpiarSelectoresUbicacion();
+                LoadKpisControl();
+            }
+        });
+
+        // 4. Control al cambiar Área (Carga dependencias y refresca KPIs una sola vez)
+        $('#selectArea').on('select2:select select2:clear', function(e) {
+            if (e.originalEvent) {
                 CargarDependenciasArea();
                 LoadKpisControl();
             }
         });
 
-        // 3. Control al cambiar División, Cope, Contratista o Tarea
-        $('#selectDivision, #selectCope, #selectContratista, #TipoTarea').off('change').on('change', function(e) {
-            if (e.originalEvent) { // Bloquea ejecuciones automáticas/en segundo plano
+        // 5. Control al cambiar División, Cope o Tipo de Tarea
+        $('#selectDivision, #selectCope, #TipoTarea').on('select2:select select2:clear', function(e) {
+            if (e.originalEvent) {
                 LoadKpisControl();
             }
         });
 
-        // 4. Carga inicial de KPIs
+        // 6. Carga inicial de la página
         LoadKpisControl();
     });
 </script>
+
+
+
+
 
 
 
