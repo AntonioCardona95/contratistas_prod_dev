@@ -121,10 +121,18 @@ function LoadKpisControl(ejecutar) {
         nombreDivision = '';
     }
 
-    // 6. Cope
+    // 6. Cope (Obtenemos ID y Nombre del Option seleccionado)
     var selectCope = $('#selectCope').val();
-    if (selectCope) {
+    var nombreCope = $('#selectCope option:selected').data('nombre') || $('#selectCope option:selected').text();
+    nombreCope = $.trim(nombreCope);
+
+    if (selectCope && selectCope !== '' && nombreCope !== '-- Seleccione un cope --' && nombreCope !== 'No hay copes en esta área') {
         parametros += '&selectCope=' + encodeURIComponent(selectCope);
+        if (nombreCope) {
+            parametros += '&nombreCope=' + encodeURIComponent(nombreCope);
+        }
+    } else {
+        nombreCope = '';
     }
 
     // 7. Fechas
