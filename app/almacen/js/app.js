@@ -103,20 +103,22 @@ function LoadKpisControl(ejecutar) {
     if (selectArea) {
         parametros += '&selectArea=' + encodeURIComponent(selectArea);
     }
-    if (nombreArea && selectArea) {
+    if (nombreArea && selectArea && nombreArea !== '-- Seleccione un área --') {
         parametros += '&nombreArea=' + encodeURIComponent(nombreArea);
     }
 
-    // 5. División (Obtenemos ID y Nombre del Option seleccionado)
+    // 5. División (Solo se envía si hay un valor seleccionado real)
     var selectDivision = $('#selectDivision').val();
     var nombreDivision = $('#selectDivision option:selected').data('nombre') || $('#selectDivision option:selected').text();
     nombreDivision = $.trim(nombreDivision);
 
-    if (selectDivision) {
+    if (selectDivision && selectDivision !== '' && nombreDivision !== '-- Seleccione una división --' && nombreDivision !== 'No hay división para esta área') {
         parametros += '&selectDivision=' + encodeURIComponent(selectDivision);
-    }
-    if (nombreDivision && selectDivision) {
-        parametros += '&nombreDivision=' + encodeURIComponent(nombreDivision);
+        if (nombreDivision) {
+            parametros += '&nombreDivision=' + encodeURIComponent(nombreDivision);
+        }
+    } else {
+        nombreDivision = '';
     }
 
     // 6. Cope
@@ -146,6 +148,7 @@ function LoadKpisControl(ejecutar) {
         selectArea: selectArea,
         nombreArea: nombreArea,
         selectDivision: selectDivision,
+        nombreDivision: nombreDivision,
         selectCope: selectCope,
         selectContratista: selectContratista,
         TipoTarea: TipoTarea,
