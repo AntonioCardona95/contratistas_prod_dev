@@ -253,43 +253,35 @@ function LoadKpisControl(ejecutar) {
 // FUNCIÓN CORREGIDA
 function CargarDependenciasArea() {
     var selectArea = $('#selectArea').val();
-
+    
+    // Limpiar y resetear División y Cope si no hay Área
     if (!selectArea) {
-        $('#selectDivision').html('<option value="">-- Seleccionar División --</option>').prop('disabled', true).trigger('change.select2');
-        $('#selectCope').html('<option value="">-- Seleccionar Cope --</option>').prop('disabled', true).trigger('change.select2');
+        $('#selectDivision').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
+        $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
+        LoadKpisControl();
         return;
     }
 
-    $.ajax({
+    // Promesa para cargar División sin autoseleccionar
+    var reqDivision = $.ajax({
         type: 'POST',
         url: 'modal/selectores.php',
         data: { action: 'getDivisionByArea', idArea: selectArea },
         dataType: 'json',
         success: function(data) {
-            if (data && data.length > 0) {
-                // 1. Iniciamos el select con la opción neutra vacía
-                var options = '<option value="">-- Seleccionar División --</option>';
-
-                // 2. Si data es un array de divisiones asociadas al área
-                $.each(data, function(index, item) {
-                    options += '<option value="' + item.idDivision + '" data-nombre="' + item.Division + '">' + item.Division + '</option>';
-                });
-
-                // 3. Cargamos las opciones SIN la propiedad 'selected'
-                $('#selectDivision').html(options).prop('disabled', false).val('').trigger('change.select2');
-            } else if (data && data.idDivision) {
-                // Si tu PHP te devuelve un solo objeto en lugar de un array
-                var options = '<option value="">-- Seleccionar División --</option>';
-                options += '<option value="' + data.idDivision + '" data-nombre="' + data.Division + '">' + data.Division + '</option>';
+            if (data && data.idDivision) {
+                // Se coloca como opción placeholder por defecto y NO lleva 'selected'
+                var options = '<option value="">-- Seleccione una división --</option>';
+                options += '<option value="'+data.idDivision+'" data-nombre="'+data.Division+'">'+data.Division+'</option>';
                 
                 $('#selectDivision').html(options).prop('disabled', false).val('').trigger('change.select2');
             } else {
-                $('#selectDivision').html('<option value="">-- Sin divisiones --</option>').prop('disabled', true).trigger('change.select2');
+                $('#selectDivision').html('<option value="">No hay división para esta área</option>').prop('disabled', true).trigger('change.select2');
             }
         }
     });
 
-
+    // Promesa para cargar Copes
     var reqCopes = $.ajax({
         type: 'POST',
         url: 'modal/selectores.php',
@@ -301,7 +293,7 @@ function CargarDependenciasArea() {
                 $.each(data, function(index, item) {
                     options += '<option value="'+item.id+'" data-nombre="'+item.COPE+'">'+item.COPE+'</option>';
                 });
-                $('#selectCope').html(options).prop('disabled', false).trigger('change.select2');
+                $('#selectCope').html(options).prop('disabled', false).val('').trigger('change.select2');
             } else {
                 $('#selectCope').html('<option value="">No hay copes en esta área</option>').prop('disabled', true).trigger('change.select2');
             }
@@ -312,28 +304,7 @@ function CargarDependenciasArea() {
     $.when(reqDivision, reqCopes).always(function() {
         LoadKpisControl();
     });
-
-
-    // Cargar Copes por Área
-    $.ajax({
-        type: 'POST',
-        url: 'modal/selectores.php',
-        data: { action: 'getCopesByArea', idArea: selectArea },
-        dataType: 'json',
-        success: function(data) {
-            if (data && data.length > 0) {
-                var options = '<option value="">-- Seleccione un cope --</option>';
-                $.each(data, function(index, item) {
-                    options += '<option value="'+item.id+'">'+item.COPE+'</option>';
-                });
-                $('#selectCope').html(options).prop('disabled', false).trigger('change.select2');
-            } else {
-                $('#selectCope').html('<option value="">No hay copes en esta área</option>').prop('disabled', true).trigger('change.select2');
-            }
-        }
-    });
 }
-
 
 // Resetea los selectores de Área, División y Cope a su estado inicial
 function LimpiarSelectoresUbicacion() {
