@@ -170,22 +170,21 @@ function LoadKpisControl(ejecutar) {
 function LoadKpisControl(ejecutar) {
     console.log("Entró a LoadKpisControl");
 
-    // 1. Convertimos los datos del formulario de fechas a String/Objeto
     var parametros = $("#FormQueryUnidades").serialize();
 
-    // 2. Contratista
+    // Contratista
     var selectContratista = $('#selectContratista').val();
     if (selectContratista) {
         parametros += '&selectContratista=' + encodeURIComponent(selectContratista);
     }
 
-    // 3. Tipo de Tarea
+    // Tipo de Tarea
     var TipoTarea = $('#TipoTarea').val();
     if (TipoTarea) {
         parametros += '&TipoTarea=' + encodeURIComponent(TipoTarea);
     }
 
-    // 4. Área (Con trim estricto para eliminar espacios y saltos de línea)
+    // Área
     var selectArea = $('#selectArea').val();
     var nombreArea = $('#selectArea option:selected').data('nombre') || $('#selectArea option:selected').text();
     if (nombreArea) {
@@ -202,7 +201,7 @@ function LoadKpisControl(ejecutar) {
         parametros += '&nombreArea=' + encodeURIComponent(nombreArea);
     }
 
-    // 5. División
+    // División
     var selectDivision = $('#selectDivision').val();
     var nombreDivision = $('#selectDivision option:selected').data('nombre') || $('#selectDivision option:selected').text();
     if (nombreDivision) {
@@ -219,7 +218,7 @@ function LoadKpisControl(ejecutar) {
         parametros += '&nombreDivision=' + encodeURIComponent(nombreDivision);
     }
 
-    // 6. Cope
+    // Cope
     var selectCope = $('#selectCope').val();
     var nombreCope = $('#selectCope option:selected').data('nombre') || $('#selectCope option:selected').text();
     if (nombreCope) {
@@ -236,7 +235,7 @@ function LoadKpisControl(ejecutar) {
         parametros += '&nombreCope=' + encodeURIComponent(nombreCope);
     }
 
-    // 7. Fechas
+    // Fechas
     var fechascard1 = $('#fechascard1').val();
     var fechascard2 = $('#fechascard2').val();
 
@@ -247,19 +246,18 @@ function LoadKpisControl(ejecutar) {
         parametros += '&fechascard2=' + encodeURIComponent(fechascard2);
     }
 
-    // 8. Bandera ejecutar
+    // Bandera ejecutar
     if (ejecutar) {
         parametros += '&ejecutar=1';
     }
 
     $("#LoadKpisControl").fadeIn('slow');
 
-    // 9. Llamada principal para refrescar KPIs
     return $.ajax({
         type: 'POST',
         url: 'modal/KpisControlProduccion.php',
         data: parametros,
-        beforeSend: function(objeto) {
+        beforeSend: function() {
             $("#LoadKpisControl").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
         },
         success: function(data) {
@@ -269,72 +267,61 @@ function LoadKpisControl(ejecutar) {
 }
 
 /**
- * Carga División y COPES dependientes del Área sin volver a ejecutar LoadKpisControl en bucle.
+ * Carga División y COPES dependientes del Área y después refresca los KPIs.
  */
 function CargarDependenciasArea() {
     var selectArea = $('#selectArea').val();
-    
-    // Limpiar y resetear División y Cope si no hay Área
+
+    // Limpiar si no hay Área
     if (!selectArea) {
-        $('#selectDivision').html('<option value=""></option>').prop('disabled', true);
-        $('#selectCope').html('<option value=""></option>').prop('disabled', true);
-        if ($('#selectDivision').hasClass("select2-hidden-accessible")) {
-            $('#selectDivision').val('').trigger('change.select2');
-            $('#selectCope').val('').trigger('change.select2');
-        }
+        $('#selectDivision').html('<option value=""></option>').prop('disabled', true).val('').trigger('change.select2');
+        $('#selectCope').html('<option value=""></option>').prop('disabled', true).val('').trigger('change.select2');
+        LoadKpisControl();
         return;
     }
 
-    // 1. Cargar División por Área
-    $.ajax({
+    // Petición de División y Copes en paralelo
+    var reqDivision = $.ajax({
         type: 'POST',
         url: 'modal/selectores.php',
         data: { action: 'getDivisionByArea', idArea: selectArea },
-        dataType: 'json',
-        success: function(data) {
-            if (data && data.idDivision) {
-                var optionDiv = new Option(data.Division, data.idDivision, true, true);
-                $(optionDiv).attr('data-nombre', data.Division);
-                
-                // Rellenar selector
-                $('#selectDivision').html(optionDiv).prop('disabled', false);
-                
-                // Actualizar visualmente Select2 sin re-disparar el evento change global
-                if ($('#selectDivision').hasClass("select2-hidden-accessible")) {
-                    $('#selectDivision').trigger('change.select2');
-                }
-            } else {
-                $('#selectDivision').html('<option value="">No hay división para esta área</option>').prop('disabled', true);
-                if ($('#selectDivision').hasClass("select2-hidden-accessible")) {
-                    $('#selectDivision').trigger('change.select2');
-                }
-            }
-        }
+        dataType: 'json'
     });
 
-    // 2. Cargar Copes por Área
-    $.ajax({
+    var reqCopes = $.ajax({
         type: 'POST',
         url: 'modal/selectores.php',
         data: { action: 'getCopesByArea', idArea: selectArea },
-        dataType: 'json',
-        success: function(data) {
-            if (data && data.length > 0) {
-                var options = '<option value="">-- Seleccione un cope --</option>';
-                $.each(data, function(index, item) {
-                    options += '<option value="'+item.id+'" data-nombre="'+item.COPE+'">'+item.COPE+'</option>';
-                });
-                $('#selectCope').html(options).prop('disabled', false);
-                if ($('#selectCope').hasClass("select2-hidden-accessible")) {
-                    $('#selectCope').trigger('change.select2');
-                }
-            } else {
-                $('#selectCope').html('<option value="">No hay copes en esta área</option>').prop('disabled', true);
-                if ($('#selectCope').hasClass("select2-hidden-accessible")) {
-                    $('#selectCope').trigger('change.select2');
-                }
-            }
+        dataType: 'json'
+    });
+
+    // Esperar a que ambas peticiones terminen antes de llamar a LoadKpisControl
+    $.when(reqDivision, reqCopes).done(function(resDiv, resCopes) {
+        var dataDiv = resDiv[0];
+        var dataCopes = resCopes[0];
+
+        // Llenar División
+        if (dataDiv && dataDiv.idDivision) {
+            var optionDiv = new Option(dataDiv.Division, dataDiv.idDivision, true, true);
+            $(optionDiv).attr('data-nombre', dataDiv.Division);
+            $('#selectDivision').html(optionDiv).prop('disabled', false).trigger('change.select2');
+        } else {
+            $('#selectDivision').html('<option value="">No hay división</option>').prop('disabled', true).trigger('change.select2');
         }
+
+        // Llenar Copes
+        if (dataCopes && dataCopes.length > 0) {
+            var options = '<option value="">-- Seleccione un cope --</option>';
+            $.each(dataCopes, function(index, item) {
+                options += '<option value="'+item.id+'" data-nombre="'+item.COPE+'">'+item.COPE+'</option>';
+            });
+            $('#selectCope').html(options).prop('disabled', false).trigger('change.select2');
+        } else {
+            $('#selectCope').html('<option value="">No hay copes</option>').prop('disabled', true).trigger('change.select2');
+        }
+
+        // Cargar los KPIs cuando todo esté listo
+        LoadKpisControl();
     });
 }
 
@@ -342,15 +329,9 @@ function CargarDependenciasArea() {
  * Resetea los selectores de Área, División y Cope a su estado inicial.
  */
 function LimpiarSelectoresUbicacion() {
-    $('#selectArea').val('');
-    $('#selectDivision').html('<option value=""></option>').prop('disabled', true);
-    $('#selectCope').html('<option value=""></option>').prop('disabled', true);
-
-    if ($('#selectArea').hasClass("select2-hidden-accessible")) {
-        $('#selectArea').trigger('change.select2');
-        $('#selectDivision').trigger('change.select2');
-        $('#selectCope').trigger('change.select2');
-    }
+    $('#selectArea').val('').trigger('change.select2');
+    $('#selectDivision').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
+    $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
 }
 
 
