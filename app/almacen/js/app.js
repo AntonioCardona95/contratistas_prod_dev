@@ -107,10 +107,16 @@ function LoadKpisControl(ejecutar) {
         parametros += '&nombreArea=' + encodeURIComponent(nombreArea);
     }
 
-    // 5. División
+    // 5. División (Obtenemos ID y Nombre del Option seleccionado)
     var selectDivision = $('#selectDivision').val();
+    var nombreDivision = $('#selectDivision option:selected').data('nombre') || $('#selectDivision option:selected').text();
+    nombreDivision = $.trim(nombreDivision);
+
     if (selectDivision) {
         parametros += '&selectDivision=' + encodeURIComponent(selectDivision);
+    }
+    if (nombreDivision && selectDivision) {
+        parametros += '&nombreDivision=' + encodeURIComponent(nombreDivision);
     }
 
     // 6. Cope
