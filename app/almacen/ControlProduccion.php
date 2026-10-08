@@ -121,7 +121,7 @@
                 <label for="selectContratista" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-user-tie mr-1"></i> Seleccionar Contratista:
                 </label>
-                <select class="form-control select2-busqueda" id="selectContratista" name="selectContratista" data-placeholder="-- Seleccionar Contratista --" onchange="LimpiarSelectoresUbicacion(); LoadKpisControl();">
+                <select class="form-control select2-busqueda" id="selectContratista" name="selectContratista" data-placeholder="-- Seleccionar Contratista --">
                     <option value=""></option>
                     <?php foreach ($listaContratistas as $row): ?>
                         <option value="<?= htmlspecialchars($row['idContratistas']) ?>">
@@ -131,34 +131,34 @@
                 </select>
             </div>
 
-          <!-- Option Select de Tipo de Tarea -->
-<div class="col-md-3 col-lg-3">
-    <label for="TipoTarea" class="font-weight-bold text-primary mb-1">
-        <i class="fas fa-tasks mr-1"></i> Seleccione Tipo de tarea:
-    </label>
-    <select name="TipoTarea" id="TipoTarea" class="form-control select2-busqueda" onchange="LoadKpisControl();">
-        <option value="">-- Seleccionar Tipo de Tareas --</option>
-        <option value="QUEJAS">QUEJAS</option>
-        <option value="ALTAS">ALTAS</option>
-        <option value="MIGRACIONES">MIGRACIONES</option>
-        <option value="A4">A4</option>
-        <option value="CAMBIOS DE DOMICILIO">CAMBIOS DE DOMICILIO</option>
-    </select>
-</div>
+            <!-- TIPO DE TAREA -->
+            <div class="col-md-3 col-lg-3">
+                <label for="TipoTarea" class="font-weight-bold text-primary mb-1">
+                    <i class="fas fa-tasks mr-1"></i> Seleccione Tipo de tarea:
+                </label>
+                <select name="TipoTarea" id="TipoTarea" class="form-control select2-busqueda" data-placeholder="-- Seleccionar Tipo de Tareas --">
+                    <option value=""></option>
+                    <option value="QUEJAS">QUEJAS</option>
+                    <option value="ALTAS">ALTAS</option>
+                    <option value="MIGRACIONES">MIGRACIONES</option>
+                    <option value="A4">A4</option>
+                    <option value="CAMBIOS DE DOMICILIO">CAMBIOS DE DOMICILIO</option>
+                </select>
+            </div>
 
             <!-- ÁREA -->
             <div class="col-md-3 col-lg-3">
                 <label for="selectArea" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-building mr-1"></i> Seleccionar Área:
                 </label>
-                <select class="form-control select2-busqueda" id="selectArea" name="selectArea" data-placeholder="-- Seleccionar Área --" onchange="CargarDependenciasArea();">
-    <option value=""></option>
-    <?php foreach ($listaAreas as $row): ?>
-        <option value="<?= htmlspecialchars($row['idAreas']) ?>">
-            <?= htmlspecialchars($row['area']) ?>
-        </option>
-    <?php endforeach; ?>
-</select>
+                <select class="form-control select2-busqueda" id="selectArea" name="selectArea" data-placeholder="-- Seleccionar Área --">
+                    <option value=""></option>
+                    <?php foreach ($listaAreas as $row): ?>
+                        <option value="<?= htmlspecialchars($row['idAreas']) ?>">
+                            <?= htmlspecialchars($row['area']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
             </div>
 
             <!-- DIVISIÓN -->
@@ -166,9 +166,9 @@
                 <label for="selectDivision" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-sitemap mr-1"></i> Seleccionar División:
                 </label>
-                <select class="form-control select2-busqueda" id="selectDivision" name="selectDivision" data-placeholder="-- Seleccionar División --" onchange="CargarCopesPorDivision();" disabled>
-    <option value=""></option>
-</select>
+                <select class="form-control select2-busqueda" id="selectDivision" name="selectDivision" data-placeholder="-- Seleccionar División --" disabled>
+                    <option value=""></option>
+                </select>
             </div>
 
             <!-- COPE -->
@@ -176,7 +176,7 @@
                 <label for="selectCope" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-network-wired mr-1"></i> Seleccionar Cope:
                 </label>
-                <select class="form-control select2-busqueda" id="selectCope" name="selectCope" data-placeholder="-- Seleccionar Cope --" onchange="LoadKpisControl();" disabled>
+                <select class="form-control select2-busqueda" id="selectCope" name="selectCope" data-placeholder="-- Seleccionar Cope --" disabled>
                     <option value=""></option>
                 </select>
             </div>
@@ -233,26 +233,42 @@
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
     <!-- CARGAR CHART.JS -->
     
-   <script>
+<script>
     $(document).ready(function() {
-        // 1. Inicializar Select2
+        // Inicialización de Select2
         $('.select2-busqueda').select2({
             theme: 'bootstrap4',
             allowClear: true,
             width: '100%'
         });
 
-        // 2. Escuchar cambios en ÁREA para cargar Divisiones
+        // Contratista
+        $('#selectContratista').on('change select2:select', function() {
+            LimpiarSelectoresUbicacion();
+            LoadKpisControl();
+        });
+
+        // Tipo Tarea
+        $('#TipoTarea').on('change select2:select', function() {
+            LoadKpisControl();
+        });
+
+        // Área -> Carga Divisiones
         $('#selectArea').on('change select2:select', function() {
             CargarDependenciasArea();
         });
 
-        // 3. Escuchar cambios en DIVISIÓN para cargar Copes
+        // División -> Carga Copes
         $('#selectDivision').on('change select2:select', function() {
             CargarCopesPorDivision();
         });
 
-        // 4. Carga inicial de KPIs
+        // Cope
+        $('#selectCope').on('change select2:select', function() {
+            LoadKpisControl();
+        });
+
+        // Carga inicial
         LoadKpisControl();
     });
 </script>
