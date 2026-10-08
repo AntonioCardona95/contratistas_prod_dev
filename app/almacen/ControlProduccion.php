@@ -148,11 +148,12 @@
 
             <!-- ÁREA -->
             <!-- ÁREA -->
+<!-- ÁREA (Cambiar en el HTML) -->
 <div class="col-md-3 col-lg-3">
     <label for="selectArea" class="font-weight-bold text-primary mb-1">
         <i class="fas fa-building mr-1"></i> Seleccionar Área:
     </label>
-    <select class="form-control select2-busqueda" id="selectArea" name="selectArea" data-placeholder="-- Seleccionar Área --" onchange="CargarDependenciasArea(); LoadKpisControl();">
+    <select class="form-control select2-busqueda" id="selectArea" name="selectArea" data-placeholder="-- Seleccionar Área --" onchange="CargarDependenciasArea();">
         <option value=""></option>
         <?php foreach ($listaAreas as $row): ?>
             <option value="<?= htmlspecialchars($row['idAreas']) ?>" data-nombre="<?= htmlspecialchars($row['area']) ?>">
