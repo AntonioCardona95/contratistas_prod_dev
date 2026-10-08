@@ -101,13 +101,12 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
 
 // PRODUCCION POR FECHAS SELECCIONADAS
 $TotalProduccionFechas = 0;
-
 $qrProduccionFechas = $consultas->CountProduccionPorFechas(
-    null,                        // $fechaInicio (vacío para usar las de la card)
-    null,                        // $fechaFin (vacío para usar las de la card)
-    $fechascard1,                // Fecha inicial elegida en la card
-    $fechascard2,                // Fecha final elegida en la card
-    $idContratistaSeleccionado,  // Contratista seleccionado
+    $Fecha1, 
+    $Fecha2, 
+    $fechascard1, 
+    $fechascard2, 
+    $idContratistaSeleccionado,
     $TipoTarea,
     $Area,
     $Division,
@@ -134,7 +133,6 @@ $qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen(
     $fechascard1, 
     $fechascard2, 
     $idContratistaSeleccionado,
-    $TipoTarea,
     $Area,
     $Division,
     $Cope
@@ -160,7 +158,6 @@ $qrOntConAlmacen = $consultas->CountOntConEntradaAlmacen(
     $fechascard1, 
     $fechascard2, 
     $idContratistaSeleccionado,
-    $TipoTarea,
     $Area,
     $Division,
     $Cope
