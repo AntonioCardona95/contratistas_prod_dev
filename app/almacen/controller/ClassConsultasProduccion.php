@@ -155,52 +155,52 @@ public function CountProduccionPorFechas(
     $idDivision = null,
     $idCope = null
 ) {
-    // Determinar qué rango de fechas usar (prioridad a las fechas de la card si existen)
+    // Determinar qué rango de fechas usar
     $fIni = !empty($fechascard1) ? $fechascard1 : $fechaInicio;
     $fFin = !empty($fechascard2) ? $fechascard2 : $fechaFin;
 
     $where = array();
     $params = array();
 
-    // Filtro de rango de fechas
+    // Filtro de rango de fechas (solo si realmente se enviaron fechas)
     if (!empty($fIni) && !empty($fFin)) {
         $where[] = "FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
         $params[':fechaInicio'] = $fIni;
         $params[':fechaFin']    = $fFin;
     }
 
-    // Filtro opcional por contratista
+    // Filtro opcional por contratista (evaluando ID o Nombre según lo que envíe el select)
     if (!empty($idContratista)) {
-        $where[] = "ID_CONTRATISTA = :idContratista";
-        $params[':idContratista'] = $idContratista;
+        if (is_numeric($idContratista)) {
+            $where[] = "idContratista = :idContratista";
+            $params[':idContratista'] = (int)$idContratista;
+        } else {
+            $where[] = "Contratista = :idContratista";
+            $params[':idContratista'] = $idContratista;
+        }
     }
 
     // Filtro opcional por Tipo de Tarea
     if (!empty($tipoTarea)) {
         switch (strtoupper(trim($tipoTarea))) {
             case 'ALTAS':
-                // Inician con 'A' pero NO son 'A4'
                 $where[] = "(Tipo_de_Tarea LIKE 'A%' AND Tipo_de_Tarea NOT LIKE 'A4%')";
                 break;
 
             case 'A4':
-                // Exactamente inician con 'A4'
                 $where[] = "Tipo_de_Tarea LIKE 'A4%'";
                 break;
 
             case 'MIGRACIONES':
             case 'MIGRACION':
-                // Inician con 'FC', 'TI', 'TS' o 'TV'
                 $where[] = "(Tipo_de_Tarea LIKE 'FC%' OR Tipo_de_Tarea LIKE 'TI%' OR Tipo_de_Tarea LIKE 'TS%' OR Tipo_de_Tarea LIKE 'TV%')";
                 break;
 
             case 'CAMBIOS DE DOMICILIO':
-                // Inician con 'D'
                 $where[] = "Tipo_de_Tarea LIKE 'D%'";
                 break;
 
             case 'QUEJAS':
-                // Inician con 'Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597' o 'F841'
                 $where[] = "(Tipo_de_Tarea LIKE 'Q%' OR Tipo_de_Tarea LIKE 'R%' OR Tipo_de_Tarea LIKE 'C%' OR Tipo_de_Tarea LIKE 'EB%' OR Tipo_de_Tarea LIKE 'EI%' OR Tipo_de_Tarea LIKE 'EU%' OR Tipo_de_Tarea LIKE 'GD%' OR Tipo_de_Tarea LIKE 'MG%' OR Tipo_de_Tarea LIKE 'F597%' OR Tipo_de_Tarea LIKE 'F841%')";
                 break;
         }
@@ -208,19 +208,19 @@ public function CountProduccionPorFechas(
 
     // Filtro opcional por Área
     if (!empty($idArea)) {
-        $where[] = "ID_AREA = :idArea";
+        $where[] = "NOM_AREA = :idArea";
         $params[':idArea'] = $idArea;
     }
 
     // Filtro opcional por División
     if (!empty($idDivision)) {
-        $where[] = "ID_DIVISION = :idDivision";
+        $where[] = "NOM_DIVISION = :idDivision";
         $params[':idDivision'] = $idDivision;
     }
 
     // Filtro opcional por Cope
     if (!empty($idCope)) {
-        $where[] = "ID_COPE = :idCope";
+        $where[] = "NOM_CT = :idCope";
         $params[':idCope'] = $idCope;
     }
 
@@ -233,7 +233,6 @@ public function CountProduccionPorFechas(
 
     return $this->runQuery($sql, $params, 'analisis');
 }
-
 
     /**
      * Cuenta el total acumulado histórico de producción
