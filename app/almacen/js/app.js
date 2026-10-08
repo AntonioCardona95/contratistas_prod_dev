@@ -170,22 +170,26 @@ function LoadKpisControl(ejecutar) {
 function LoadKpisControl(ejecutar) {
     console.log("Entró a LoadKpisControl");
 
+    // Guardar los valores seleccionados actualmente
+    var valContratista = $('#selectContratista').val();
+    var valArea = $('#selectArea').val();
+    var valDivision = $('#selectDivision').val();
+    var valCope = $('#selectCope').val();
+    var valTipoTarea = $('#TipoTarea').val();
+
     var parametros = $("#FormQueryUnidades").serialize();
 
     // Contratista
-    var selectContratista = $('#selectContratista').val();
-    if (selectContratista) {
-        parametros += '&selectContratista=' + encodeURIComponent(selectContratista);
+    if (valContratista) {
+        parametros += '&selectContratista=' + encodeURIComponent(valContratista);
     }
 
     // Tipo de Tarea
-    var TipoTarea = $('#TipoTarea').val();
-    if (TipoTarea) {
-        parametros += '&TipoTarea=' + encodeURIComponent(TipoTarea);
+    if (valTipoTarea) {
+        parametros += '&TipoTarea=' + encodeURIComponent(valTipoTarea);
     }
 
     // Área
-    var selectArea = $('#selectArea').val();
     var nombreArea = $('#selectArea option:selected').data('nombre') || $('#selectArea option:selected').text();
     if (nombreArea) {
         nombreArea = $.trim(nombreArea);
@@ -194,15 +198,14 @@ function LoadKpisControl(ejecutar) {
         nombreArea = '';
     }
 
-    if (selectArea) {
-        parametros += '&selectArea=' + encodeURIComponent(selectArea);
+    if (valArea) {
+        parametros += '&selectArea=' + encodeURIComponent(valArea);
     }
     if (nombreArea) {
         parametros += '&nombreArea=' + encodeURIComponent(nombreArea);
     }
 
     // División
-    var selectDivision = $('#selectDivision').val();
     var nombreDivision = $('#selectDivision option:selected').data('nombre') || $('#selectDivision option:selected').text();
     if (nombreDivision) {
         nombreDivision = $.trim(nombreDivision);
@@ -211,15 +214,14 @@ function LoadKpisControl(ejecutar) {
         nombreDivision = '';
     }
 
-    if (selectDivision) {
-        parametros += '&selectDivision=' + encodeURIComponent(selectDivision);
+    if (valDivision) {
+        parametros += '&selectDivision=' + encodeURIComponent(valDivision);
     }
     if (nombreDivision) {
         parametros += '&nombreDivision=' + encodeURIComponent(nombreDivision);
     }
 
     // Cope
-    var selectCope = $('#selectCope').val();
     var nombreCope = $('#selectCope option:selected').data('nombre') || $('#selectCope option:selected').text();
     if (nombreCope) {
         nombreCope = $.trim(nombreCope);
@@ -228,8 +230,8 @@ function LoadKpisControl(ejecutar) {
         nombreCope = '';
     }
 
-    if (selectCope) {
-        parametros += '&selectCope=' + encodeURIComponent(selectCope);
+    if (valCope) {
+        parametros += '&selectCope=' + encodeURIComponent(valCope);
     }
     if (nombreCope) {
         parametros += '&nombreCope=' + encodeURIComponent(nombreCope);
@@ -262,6 +264,14 @@ function LoadKpisControl(ejecutar) {
         },
         success: function(data) {
             $("#LoadKpisControl").html(data);
+
+            // Restaurar de forma silenciosa el valor seleccionado en Select2 para que no se borre del cuadro
+            if (valContratista && $('#selectContratista').val() !== valContratista) {
+                $('#selectContratista').val(valContratista).trigger('change.select2');
+            }
+            if (valArea && $('#selectArea').val() !== valArea) {
+                $('#selectArea').val(valArea).trigger('change.select2');
+            }
         }
     });
 }
