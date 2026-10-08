@@ -84,52 +84,28 @@ function LoadKpisControl(ejecutar) {
         parametros += '&selectContratista=' + encodeURIComponent(selectContratista);
     }
 
-    // 3. Tipo de Tarea
+    // 3. Tipo de Tarea (NUEVO)
     var TipoTarea = $('#TipoTarea').val();
     if (TipoTarea) {
         parametros += '&TipoTarea=' + encodeURIComponent(TipoTarea);
     }
 
-    // 4. Área (Soporta data-nombre o texto visible de la opción)
+    // 4. Área
     var selectArea = $('#selectArea').val();
-    var nombreArea = $('#selectArea option:selected').data('nombre') || $('#selectArea option:selected').text().trim();
-    if (nombreArea === '-- Seleccionar Área --' || nombreArea === '-- Seleccione un área --') {
-        nombreArea = '';
-    }
-
     if (selectArea) {
         parametros += '&selectArea=' + encodeURIComponent(selectArea);
     }
-    if (nombreArea) {
-        parametros += '&nombreArea=' + encodeURIComponent(nombreArea);
-    }
 
-    // 5. División (Agregado envío de id y nombre)
+    // 5. División
     var selectDivision = $('#selectDivision').val();
-    var nombreDivision = $('#selectDivision option:selected').data('nombre') || $('#selectDivision option:selected').text().trim();
-    if (nombreDivision === '-- Seleccionar División --' || nombreDivision === '-- Seleccione una división --') {
-        nombreDivision = '';
-    }
-
     if (selectDivision) {
         parametros += '&selectDivision=' + encodeURIComponent(selectDivision);
     }
-    if (nombreDivision) {
-        parametros += '&nombreDivision=' + encodeURIComponent(nombreDivision);
-    }
 
-    // 6. Cope (Agregado envío de id y nombre)
+    // 6. Cope
     var selectCope = $('#selectCope').val();
-    var nombreCope = $('#selectCope option:selected').data('nombre') || $('#selectCope option:selected').text().trim();
-    if (nombreCope === '-- Seleccionar Cope --' || nombreCope === '-- Seleccione un cope --') {
-        nombreCope = '';
-    }
-
     if (selectCope) {
         parametros += '&selectCope=' + encodeURIComponent(selectCope);
-    }
-    if (nombreCope) {
-        parametros += '&nombreCope=' + encodeURIComponent(nombreCope);
     }
 
     // 7. Fechas
@@ -164,196 +140,71 @@ function LoadKpisControl(ejecutar) {
     });
 }
 
-/**
- * Carga los KPIs filtrados por fechas, contratista, tipo de tarea y ubicación.
- */
-function LoadKpisControl(ejecutar) {
-    console.log("Entró a LoadKpisControl");
-
-    // Guardar los valores seleccionados actualmente
-    var valContratista = $('#selectContratista').val();
-    var valArea = $('#selectArea').val();
-    var valDivision = $('#selectDivision').val();
-    var valCope = $('#selectCope').val();
-    var valTipoTarea = $('#TipoTarea').val();
-
-    var parametros = $("#FormQueryUnidades").serialize();
-
-    // Contratista
-    if (valContratista) {
-        parametros += '&selectContratista=' + encodeURIComponent(valContratista);
-    }
-
-    // Tipo de Tarea
-    if (valTipoTarea) {
-        parametros += '&TipoTarea=' + encodeURIComponent(valTipoTarea);
-    }
-
-    // Área
-    var nombreArea = $('#selectArea option:selected').data('nombre') || $('#selectArea option:selected').text();
-    if (nombreArea) {
-        nombreArea = $.trim(nombreArea);
-    }
-    if (nombreArea === '-- Seleccionar Área --' || nombreArea === '-- Seleccione un área --') {
-        nombreArea = '';
-    }
-
-    if (valArea) {
-        parametros += '&selectArea=' + encodeURIComponent(valArea);
-    }
-    if (nombreArea) {
-        parametros += '&nombreArea=' + encodeURIComponent(nombreArea);
-    }
-
-    // División
-    var nombreDivision = $('#selectDivision option:selected').data('nombre') || $('#selectDivision option:selected').text();
-    if (nombreDivision) {
-        nombreDivision = $.trim(nombreDivision);
-    }
-    if (nombreDivision === '-- Seleccionar División --' || nombreDivision === '-- Seleccione una división --') {
-        nombreDivision = '';
-    }
-
-    if (valDivision) {
-        parametros += '&selectDivision=' + encodeURIComponent(valDivision);
-    }
-    if (nombreDivision) {
-        parametros += '&nombreDivision=' + encodeURIComponent(nombreDivision);
-    }
-
-    // Cope
-    var nombreCope = $('#selectCope option:selected').data('nombre') || $('#selectCope option:selected').text();
-    if (nombreCope) {
-        nombreCope = $.trim(nombreCope);
-    }
-    if (nombreCope === '-- Seleccionar Cope --' || nombreCope === '-- Seleccione un cope --') {
-        nombreCope = '';
-    }
-
-    if (valCope) {
-        parametros += '&selectCope=' + encodeURIComponent(valCope);
-    }
-    if (nombreCope) {
-        parametros += '&nombreCope=' + encodeURIComponent(nombreCope);
-    }
-
-    // Fechas
-    var fechascard1 = $('#fechascard1').val();
-    var fechascard2 = $('#fechascard2').val();
-
-    if (fechascard1) {
-        parametros += '&fechascard1=' + encodeURIComponent(fechascard1);
-    }
-    if (fechascard2) {
-        parametros += '&fechascard2=' + encodeURIComponent(fechascard2);
-    }
-
-    // Bandera ejecutar
-    if (ejecutar) {
-        parametros += '&ejecutar=1';
-    }
-
-    $("#LoadKpisControl").fadeIn('slow');
-
-    return $.ajax({
-        type: 'POST',
-        url: 'modal/KpisControlProduccion.php',
-        data: parametros,
-        beforeSend: function() {
-            $("#LoadKpisControl").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
-        },
-        success: function(data) {
-            $("#LoadKpisControl").html(data);
-
-            // Restaurar de forma silenciosa el valor seleccionado en Select2 para que no se borre del cuadro
-            if (valContratista && $('#selectContratista').val() !== valContratista) {
-                $('#selectContratista').val(valContratista).trigger('change.select2');
-            }
-            if (valArea && $('#selectArea').val() !== valArea) {
-                $('#selectArea').val(valArea).trigger('change.select2');
-            }
-        }
-    });
-}
-
-/**
- * Carga División y COPES dependientes del Área.
- */
+// NUEVA FUNCIÓN: Solo recarga División y Cope cuando el usuario CAMBIA de Área
 function CargarDependenciasArea() {
     var selectArea = $('#selectArea').val();
-
-    // Limpiar si no hay Área seleccionada
+    
+    // Limpiar y resetear División y Cope si no hay Área
     if (!selectArea) {
-        $('#selectDivision').html('<option value=""></option>').val('').prop('disabled', true).trigger('change.select2');
-        $('#selectCope').html('<option value=""></option>').val('').prop('disabled', true).trigger('change.select2');
-        LoadKpisControl();
+        $('#selectDivision').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
+        $('#selectCope').html('<option value=""></option>').prop('disabled', true).trigger('change.select2');
         return;
     }
 
-    // Petición de División y Copes en paralelo
-    var reqDivision = $.ajax({
+    // Cargar División por Área
+    $.ajax({
         type: 'POST',
         url: 'modal/selectores.php',
         data: { action: 'getDivisionByArea', idArea: selectArea },
-        dataType: 'json'
+        dataType: 'json',
+        success: function(data) {
+            if (data && data.idDivision) {
+                $('#selectDivision').html('<option value="'+data.idDivision+'">'+data.Division+'</option>');
+                $('#selectDivision').prop('disabled', false).trigger('change.select2');
+            } else {
+                $('#selectDivision').html('<option value="">No hay división para esta área</option>').prop('disabled', true).trigger('change.select2');
+            }
+        }
     });
 
-    var reqCopes = $.ajax({
+    // Cargar Copes por Área
+    $.ajax({
         type: 'POST',
         url: 'modal/selectores.php',
         data: { action: 'getCopesByArea', idArea: selectArea },
-        dataType: 'json'
-    });
-
-    $.when(reqDivision, reqCopes).done(function(resDiv, resCopes) {
-        var dataDiv = resDiv[0];
-        var dataCopes = resCopes[0];
-
-        // 1. LLENAR DIVISIÓN (Soporta arreglo o objeto único sin auto-seleccionar)
-        var optionsDiv = '<option value=""></option>';
-        
-        if (Array.isArray(dataDiv) && dataDiv.length > 0) {
-            $.each(dataDiv, function(index, item) {
-                optionsDiv += '<option value="' + item.idDivision + '" data-nombre="' + item.Division + '">' + item.Division + '</option>';
-            });
-            $('#selectDivision').html(optionsDiv).prop('disabled', false).val('').trigger('change.select2');
-        } else if (dataDiv && dataDiv.idDivision) {
-            // Si el backend regresa solo un objeto
-            optionsDiv += '<option value="' + dataDiv.idDivision + '" data-nombre="' + dataDiv.Division + '">' + dataDiv.Division + '</option>';
-            // IMPORTANTE: Se deja deseleccionado (val('')) para que el usuario elija y NO aparezca NORESTE por default
-            $('#selectDivision').html(optionsDiv).prop('disabled', false).val('').trigger('change.select2');
-        } else {
-            $('#selectDivision').html('<option value="">No hay división</option>').prop('disabled', true).val('').trigger('change.select2');
+        dataType: 'json',
+        success: function(data) {
+            if (data && data.length > 0) {
+                var options = '<option value="">-- Seleccione un cope --</option>';
+                $.each(data, function(index, item) {
+                    options += '<option value="'+item.id+'">'+item.COPE+'</option>';
+                });
+                $('#selectCope').html(options).prop('disabled', false).trigger('change.select2');
+            } else {
+                $('#selectCope').html('<option value="">No hay copes en esta área</option>').prop('disabled', true).trigger('change.select2');
+            }
         }
-
-        // 2. LLENAR COPES
-        if (dataCopes && dataCopes.length > 0) {
-            var optionsCopes = '<option value=""></option>';
-            $.each(dataCopes, function(index, item) {
-                optionsCopes += '<option value="' + item.id + '" data-nombre="' + item.COPE + '">' + item.COPE + '</option>';
-            });
-            $('#selectCope').html(optionsCopes).prop('disabled', false).val('').trigger('change.select2');
-        } else {
-            $('#selectCope').html('<option value="">No hay copes</option>').prop('disabled', true).val('').trigger('change.select2');
-        }
-
-        // Refrescar KPIs una sola vez al terminar de llenar ambos selects
-        LoadKpisControl();
     });
 }
 
-/**
- * Resetea los selectores de Área, División y Cope a su estado inicial.
- */
-/**
- * Resetea únicamente División y Cope sin disparar eventos en cadena que borren Contratista o Área.
- */
+
+// Resetea los selectores de Área, División y Cope a su estado inicial
 function LimpiarSelectoresUbicacion() {
-    $('#selectDivision').html('<option value=""></option>').val('').prop('disabled', true).trigger('change.select2');
-    $('#selectCope').html('<option value=""></option>').val('').prop('disabled', true).trigger('change.select2');
+    // 1. Resetear Área a su valor por defecto (vacío)
+    $('#selectArea').val('').trigger('change.select2');
+
+    // 2. Limpiar y deshabilitar División
+    $('#selectDivision')
+        .html('<option value=""></option>')
+        .prop('disabled', true)
+        .trigger('change.select2');
+
+    // 3. Limpiar y deshabilitar Cope
+    $('#selectCope')
+        .html('<option value=""></option>')
+        .prop('disabled', true)
+        .trigger('change.select2');
 }
-
-
 
 /*function LoadKpisControl(){
     var parametros = $("#FormQueryUnidades").serialize();
