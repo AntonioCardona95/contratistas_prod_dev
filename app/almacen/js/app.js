@@ -267,14 +267,14 @@ function CargarDependenciasArea() {
         dataType: 'json',
         success: function(data) {
             if (data && data.idDivision) {
-                // AQUÍ LE AGREGAMOS EL data-nombre PARA QUE LEA EL NOMBRE DE LA DIVISIÓN
                 var option = '<option value="' + data.idDivision + '" data-nombre="' + data.Division + '" selected>' + data.Division + '</option>';
+                
+                // USAR change.select2 PARA NO DISPARAR EL onchange="LoadKpisControl();"
                 $('#selectDivision').html(option).prop('disabled', false).trigger('change.select2');
-            } else {
-                $('#selectDivision').html('<option value="">No hay división para esta área</option>').prop('disabled', true).trigger('change.select2');
             }
         }
     });
+}
 
 
     var reqCopes = $.ajax({
