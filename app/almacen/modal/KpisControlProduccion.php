@@ -17,37 +17,26 @@ require_once(__DIR__ . '/../../config/ContratistaContexto.php');
 $Contratista = $_SESSION['Contratista'] ?? null;
 $idContratistas = obtenerIdContratistaContexto();
 
-// RECIBIMOS PARAMETROS
-$Fecha1 = $_POST['Fecha1'] ?? '';
-$Fecha2 = $_POST['Fecha2'] ?? '';
-
-$Area        = $_POST['selectArea'] ?? '';
-$Division    = $_POST['selectDivision'] ?? '';
-$Cope        = $_POST['selectCope'] ?? '';
-$TipoTarea = $_POST['TipoTarea'] ?? '';
+// RECIBIMOS PARAMETROS (Limpios/null si no están seleccionados)
+$Area      = !empty($_POST['selectArea']) ? trim($_POST['selectArea']) : null;
+$Division  = !empty($_POST['selectDivision']) ? trim($_POST['selectDivision']) : null;
+$Cope      = !empty($_POST['selectCope']) ? trim($_POST['selectCope']) : null;
+$TipoTarea = !empty($_POST['TipoTarea']) ? trim($_POST['TipoTarea']) : null;
+$idContratistaSeleccionado = !empty($_POST['selectContratista']) ? trim($_POST['selectContratista']) : null;
 
 // FECHAS INDEPENDIENTES DE LAS CARDS
-$fechascard1 = $_POST['fechascard1'] ?? '';
-$fechascard2 = $_POST['fechascard2'] ?? '';
+$fechascard1 = !empty($_POST['fechascard1']) ? $_POST['fechascard1'] . " 00:00:00" : null;
+$fechascard2 = !empty($_POST['fechascard2']) ? $_POST['fechascard2'] . " 23:59:59" : null;
 
-if (!empty($fechascard1)) {
-    $fechascard1 = $fechascard1 . " 00:00:00";
-}
-if (!empty($fechascard2)) {
-    $fechascard2 = $fechascard2 . " 23:59:59";
-}
-
-$mes_anterior = date('Y-m-d', strtotime('-3 month'));
-
-if (!empty($Fecha1) && !empty($Fecha2)) {
+// FECHAS PRINCIPALES DEL FORMULARIO
+// Si el usuario envió un rango de fechas, lo formateamos. Si no, quedan en null para no forzar filtro de fecha.
+if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
     $Fecha1 = $_POST['Fecha1'] . " 00:00:00";
     $Fecha2 = $_POST['Fecha2'] . " 23:59:59";
 } else {
-    $Fecha1 = $mes_anterior . " 00:00:00";
-    $Fecha2 = date('Y-m-d') . " 23:59:59";
+    $Fecha1 = null;
+    $Fecha2 = null;
 }
-
-$idContratistaSeleccionado = $_POST['selectContratista'] ?? null;
 
 // INSTANCIAS DE LAS CLASES
 $index = new Index();
@@ -61,7 +50,7 @@ if (!empty($idContratistaSeleccionado)) {
 
 // PROCESAMIENTO Y ACTUALIZACIÓN SI SE ENVIARON FECHAS POR POST
 $TotalSinNavegacion = 0;
-if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
+if (!empty($Fecha1) && !empty($Fecha2)) {
     // Conteo de 'Sin Navegación' en el rango de fechas
     $TotalSinNavegacion = (int)$consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
 
@@ -189,7 +178,6 @@ if (is_array($qrProduccionTotal)) {
 } else {
     $TotalProduccion = (int)$qrProduccionTotal;
 }
-
 
 // CONSULTA DE DATOS BASE DE TODAS LAS DIVISIONES (PARA LA GRÁFICA)
 $chart_divisiones_raw = $consultas->CountOntAlmacenPorDivision(
