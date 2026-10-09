@@ -73,13 +73,6 @@ function LoadKPIS(){
 }
 
 function LoadKpisControl(ejecutar) {
-    // Identificador único para distinguir cada llamada en la consola
-    var idLlamada = Math.floor(Math.random() * 1000);
-    
-    console.group("🚀 [LoadKpisControl #" + idLlamada + "] Inicio de ejecución");
-    console.log("--> Parámetro 'ejecutar':", ejecutar);
-    console.trace("--> Traza de llamada (¿Quién llamó a esta función?):");
-
     // 1. Convertimos los datos del formulario de fechas a un String/Objeto
     var parametros = $("#FormQueryUnidades").serialize();
 
@@ -151,20 +144,6 @@ function LoadKpisControl(ejecutar) {
         parametros += '&ejecutar=1';
     }
 
-    // Imprimir en consola los datos extraídos antes de enviar
-    console.log("--> Datos recolectados:", {
-        selectArea: selectArea,
-        nombreArea: nombreArea,
-        selectDivision: selectDivision,
-        nombreDivision: nombreDivision,
-        selectCope: selectCope,
-        nombreCope: nombreCope,
-        selectContratista: selectContratista,
-        TipoTarea: TipoTarea,
-        fechas: [fechascard1, fechascard2]
-    });
-    console.log("--> Query String enviada:", parametros);
-
     $("#LoadKpisControl").fadeIn('slow');
 
     // 9. Llamada principal para refrescar KPIs
@@ -173,17 +152,13 @@ function LoadKpisControl(ejecutar) {
         url: 'modal/KpisControlProduccion.php',
         data: parametros,
         beforeSend: function(objeto) {
-            console.log("⏳ [LoadKpisControl #" + idLlamada + "] Enviando petición a modal/KpisControlProduccion.php...");
             $("#LoadKpisControl").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
         },
         success: function(data) {
-            console.log("✅ [LoadKpisControl #" + idLlamada + "] Respuesta recibida con éxito de KpisControlProduccion.php");
             $("#LoadKpisControl").html(data);
-            console.groupEnd();
         },
         error: function(xhr, status, error) {
-            console.error("❌ [LoadKpisControl #" + idLlamada + "] Error en la petición AJAX:", status, error);
-            console.groupEnd();
+            // Manejo silencioso o notificación en UI si lo requieres
         }
     });
 }
