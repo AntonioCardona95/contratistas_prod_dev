@@ -1,7 +1,7 @@
 <?php
 require_once(__DIR__ . "/../controller/ClassConsultasProduccion.php");
 
-// Recibir los parámetros mediante POST
+// Recibir parámetros mediante POST
 $fechaInicio   = $_POST['fecha_inicio'] ?? '';
 $fechaFin      = $_POST['fecha_fin'] ?? '';
 $idContratista = !empty($_POST['contratista']) ? $_POST['contratista'] : null;
@@ -12,15 +12,22 @@ $cope          = !empty($_POST['cope']) ? $_POST['cope'] : null;
 
 // Instanciar la clase y consultar datos
 $modal = new ClassConsultasProduccion();
-$filas = $modal->ExportarFechas($fechaInicio, $fechaFin, $idContratista, $tipoTarea, $area, $division, $cope);
+$filas = $modal->ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista, $tipoTarea, $area, $division, $cope);
 
-$nombreArchivo = "Reporte_Liquidadas_" . date('Ymd_His') . ".xls";
+// Extensión .csv para eliminar la advertencia de Excel
+$nombreArchivo = "Reporte_Liquidadas_" . date('Ymd_His') . ".csv";
 
-// Encabezados para forzar la descarga de Excel nativo
-header("Content-Type: application/vnd.ms-excel; charset=UTF-16LE");
+// Encabezados HTTP para archivo CSV
+header("Content-Type: text/csv; charset=utf-8");
 header("Content-Disposition: attachment; filename={$nombreArchivo}");
 header("Pragma: no-cache");
 header("Expires: 0");
+
+// Abrir la salida php://output para escribir el CSV
+$output = fopen('php://output', 'w');
+
+// BOM UTF-8 para que Excel detecte correctamente acentos y la Ñ
+fprintf($output, "\xEF\xBB\xBF");
 
 // Encabezados de la tabla
 $headers = [
@@ -33,9 +40,10 @@ $headers = [
     'Contratista Asignado', 'Técnico Asignado', 'ONT Coordiapp'
 ];
 
-// Salida en formato UTF-16LE para que Excel lo abra directamente sin avisos de advertencia
-$output = implode("\t", $headers) . "\r\n";
+// Escribir los encabezados en el CSV
+fputcsv($output, $headers);
 
+// Escribir los datos
 if (!empty($filas)) {
     foreach ($filas as $row) {
         $linea = [
@@ -69,17 +77,11 @@ if (!empty($filas)) {
             $row['Ont_Coordiapp'] ?? ''
         ];
         
-        // Limpiar saltos de línea dentro de los campos
-        $lineaLimpia = array_map(function($campo) {
-            return str_replace(["\r", "\n", "\t"], ' ', $campo);
-        }, $linea);
-
-        $output .= implode("\t", $lineaLimpia) . "\r\n";
+        fputcsv($output, $linea);
     }
 } else {
-    $output .= "No se encontraron registros con los filtros seleccionados.\r\n";
+    fputcsv($output, ['No se encontraron registros con los filtros seleccionados.']);
 }
 
-// Convertir codificación a UTF-16LE para compatibilidad transparente con Excel
-echo mb_convert_encoding($output, 'UTF-16LE', 'UTF-8');
+fclose($output);
 exit;
