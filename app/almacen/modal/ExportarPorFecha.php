@@ -1,29 +1,29 @@
 <?php
 require_once(__DIR__ . "/../controller/ClassConsultasProduccion.php");
 
-// Recibir los parámetros enviados por GET
-$fechaInicio   = $_GET['fecha_inicio'] ?? '';
-$fechaFin      = $_GET['fecha_fin'] ?? '';
-$idContratista = !empty($_GET['contratista']) ? $_GET['contratista'] : null;
-$tipoTarea     = !empty($_GET['tipo_tarea']) ? $_GET['tipo_tarea'] : null;
-$area          = !empty($_GET['area']) ? $_GET['area'] : null;
-$division      = !empty($_GET['division']) ? $_GET['division'] : null;
-$cope          = !empty($_GET['cope']) ? $_GET['cope'] : null;
+// Recibir parámetros mediante POST
+$fechaInicio   = $_POST['fecha_inicio'] ?? '';
+$fechaFin      = $_POST['fecha_fin'] ?? '';
+$idContratista = !empty($_POST['contratista']) ? $_POST['contratista'] : null;
+$tipoTarea     = !empty($_POST['tipo_tarea']) ? $_POST['tipo_tarea'] : null;
+$area          = !empty($_POST['area']) ? $_POST['area'] : null;
+$division      = !empty($_POST['division']) ? $_POST['division'] : null;
+$cope          = !empty($_POST['cope']) ? $_POST['cope'] : null;
 
-// Instanciar clase de consulta
+// Instanciar la clase y realizar la consulta
 $modal = new ClassConsultasProduccion();
 $filas = $modal->ExportarFechas($fechaInicio, $fechaFin, $idContratista, $tipoTarea, $area, $division, $cope);
 
-// Nombre dinámico para la descarga
+// Nombre del archivo que se sugiere en la respuesta
 $nombreArchivo = "Reporte_Liquidadas_" . date('Ymd_His') . ".xls";
 
-// Configuración de encabezados para descarga directa
+// Encabezados HTTP
 header("Content-Type: application/vnd.ms-excel; charset=utf-8");
 header("Content-Disposition: attachment; filename={$nombreArchivo}");
 header("Pragma: no-cache");
 header("Expires: 0");
 
-// BOM para asegurar UTF-8 en Excel
+// BOM para UTF-8 (mantiene caracteres especiales como acentos y Ñ)
 echo "\xEF\xBB\xBF";
 ?>
 <table border="1">
@@ -51,7 +51,7 @@ echo "\xEF\xBB\xBF";
             <th>Tiene Señalamiento</th>
             <th>Tipo Señalamiento</th>
             <th>Detalle Señalamiento</th>
-            <th>Estatus Navegacion</th>
+            <th>Estatus Navegación</th>
             <th>Flag Navega</th>
             <th>Fecha Último Evento</th>
             <th>Contratista Asignado</th>
