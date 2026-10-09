@@ -150,7 +150,7 @@ if (is_array($qrProduccionFechas)) {
     $TotalProduccionFechas = (int)$qrProduccionFechas;
 }
 
-// TOTAL ONT SIN ENTRADA A ALMACÉN (GENERAL)
+// TOTAL ONT SIN ENTRADA A ALMACÉN
 $TotalOntSinAlmacen = 0;
 $qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen(
     $Fecha1, 
@@ -158,9 +158,9 @@ $qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen(
     $fechascard1, 
     $fechascard2, 
     $idContratistaSeleccionado,
-    $Area,
-    $Division,
-    $Cope
+    $nombreArea,
+    $nombreDivision,
+    $nombreCope
 );
 
 if (is_array($qrOntSinAlmacen)) {
@@ -175,7 +175,7 @@ if (is_array($qrOntSinAlmacen)) {
     $TotalOntSinAlmacen = (int)$qrOntSinAlmacen;
 }
 
-// TOTAL ONT CON ENTRADA A ALMACÉN (GENERAL)
+// TOTAL ONT CON ENTRADA A ALMACÉN
 $TotalOntConAlmacen = 0;
 $qrOntConAlmacen = $consultas->CountOntConEntradaAlmacen(
     $Fecha1, 
@@ -183,9 +183,9 @@ $qrOntConAlmacen = $consultas->CountOntConEntradaAlmacen(
     $fechascard1, 
     $fechascard2, 
     $idContratistaSeleccionado,
-    $Area,
-    $Division,
-    $Cope
+    $nombreArea,
+    $nombreDivision,
+    $nombreCope
 );
 
 if (is_array($qrOntConAlmacen)) {
