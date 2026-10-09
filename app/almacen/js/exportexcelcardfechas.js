@@ -6,8 +6,8 @@ $(document).ready(function() {
         // Capturar filtros
         const fechaInicio   = $('#fechascard1').val() || $('#fecha_inicial').val() || $('#Fecha1').val() || '';
         const fechaFin      = $('#fechascard2').val() || $('#fecha_final').val() || $('#Fecha2').val() || '';
-        console.log('fechaInicio:', fechaInicio);
-        console.log('fechaFin:', fechaFin);
+        // console.log('fechaInicio:', fechaInicio);
+        // console.log('fechaFin:', fechaFin);
         const idContratista = $('#selectContratista').val() || $('#select_contratista').val() || '';
         const tipoTarea     = $('#TipoTarea').val() || $('#select_tipo_tarea').val() || '';
         const area          = $('#selectArea').val() || $('#select_area').val() || '';

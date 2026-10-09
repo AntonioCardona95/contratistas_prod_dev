@@ -4,6 +4,14 @@ require_once(__DIR__ . "/../controller/ClassConsultasProduccion.php");
 // Recibir parámetros mediante POST
 $fechaInicio   = $_POST['fecha_inicio'] ?? '';
 $fechaFin      = $_POST['fecha_fin'] ?? '';
+
+// Mostrar en pantalla
+echo "<pre>";
+echo "fecha_inicio: " . $fechaInicio . "\n";
+echo "fecha_fin: " . $fechaFin . "\n";
+echo "</pre>";
+
+
 $idContratista = !empty($_POST['contratista']) ? $_POST['contratista'] : null;
 $tipoTarea     = !empty($_POST['tipo_tarea']) ? $_POST['tipo_tarea'] : null;
 $area          = !empty($_POST['area']) ? $_POST['area'] : null;
