@@ -12,7 +12,7 @@ $cope          = !empty($_GET['cope']) ? $_GET['cope'] : null;
 
 // Instanciar clase de consulta
 $modal = new ClassConsultasProduccion();
-$filas = $modal->ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista, $tipoTarea, $area, $division, $cope);
+$filas = $modal->ExportarFechas($fechaInicio, $fechaFin, $idContratista, $tipoTarea, $area, $division, $cope);
 
 // Nombre dinámico para la descarga
 $nombreArchivo = "Reporte_Liquidadas_" . date('Ymd_His') . ".xls";
