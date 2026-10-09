@@ -1,12 +1,13 @@
 $(document).ready(function() {
-    console.log("--> JS exportexcelcardfechas.js cargado correctamente.");
+    console.log("--> [exportexcelcardfechas.js] Script cargado y listo.");
 
     $(document).on('click', '#btnExportarLiquidadas', function(e) {
         e.preventDefault();
 
-        console.log("=== INICIANDO EXPORTACIÓN A EXCEL (POST SEGURO) ===");
+        console.group("=== [EXPORTACIÓN A EXCEL INICIADA] ===");
+        console.log("--> Evento click detectado en #btnExportarLiquidadas");
 
-        // 1. Extraer fechas probando los IDs reales descubiertos en la traza (fechascard1, fechascard2)
+        // 1. Extraer los valores probando las IDs detectadas
         const fechaInicio   = $('#fechascard1').val() || $('#fecha_inicial').val() || $('#Fecha1').val() || '';
         const fechaFin      = $('#fechascard2').val() || $('#fecha_final').val() || $('#Fecha2').val() || '';
         const idContratista = $('#select_contratista').val() || $('#idContratistas').val() || '';
@@ -14,6 +15,24 @@ $(document).ready(function() {
         const area          = $('#select_area').val() || '';
         const division      = $('#select_division').val() || '';
         const cope          = $('#select_cope').val() || '';
+
+        // 2. Mostrar cada variable individualmente en la consola
+        console.group("--> [VALORES CAPTURADOS DEL DOM]");
+        console.log("Fecha Inicio (#fechascard1 / #Fecha1):", fechaInicio);
+        console.log("Fecha Fin (#fechascard2 / #Fecha2):", fechaFin);
+        console.log("Contratista:", idContratista);
+        console.log("Tipo Tarea:", tipoTarea);
+        console.log("Área:", area);
+        console.log("División:", division);
+        console.log("Cope:", cope);
+        console.groupEnd();
+
+        // Validar si las fechas tienen datos
+        if (!fechaInicio || !fechaFin) {
+            console.warn("⚠️ ALERTA: No se detectaron fechas seleccionadas o están vacías.");
+        } else {
+            console.log("✅ Rango de fechas detectado correctamente.");
+        }
 
         const datosFiltro = {
             fecha_inicio: fechaInicio,
@@ -25,20 +44,16 @@ $(document).ready(function() {
             cope:         cope
         };
 
-        console.log("Parámetros capturados para envío:", datosFiltro);
-
-        if (!fechaInicio || !fechaFin) {
-            console.warn("Atención: Rango de fechas no detectado o vacío.");
-        }
-
-        // 2. Feedback temporal en el botón
+        // 3. Feedback visual en el botón
         const $btn = $(this);
         const htmlOriginal = $btn.html();
         $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Generando...');
+        console.log("--> Estado del botón cambiado a 'Generando...'");
 
-        // 3. Crear iframe invisible para canalizar la descarga sin recargar la página ni usar blobs propensos a bloqueos HTTP
+        // 4. Crear iframe transparente en el DOM para canalizar la descarga POST sin bloqueo HTTP
         let $iframe = $('#iframeDescargaExcel');
         if ($iframe.length === 0) {
+            console.log("--> Creando iframe oculta '#iframeDescargaExcel'");
             $iframe = $('<iframe>', {
                 id: 'iframeDescargaExcel',
                 name: 'iframeDescargaExcel',
@@ -46,7 +61,8 @@ $(document).ready(function() {
             }).appendTo('body');
         }
 
-        // 4. Crear formulario dinámico POST dirigido al iframe
+        // 5. Construir y enviar el formulario dinámico
+        console.log("--> Generando formulario dinámico POST dirigido a modal/ExportarPorFecha.php");
         const $form = $('<form>', {
             action: 'modal/ExportarPorFecha.php',
             method: 'POST',
@@ -54,7 +70,6 @@ $(document).ready(function() {
             style: 'display:none;'
         });
 
-        // 5. Inyectar campos hidden
         $.each(datosFiltro, function(clave, valor) {
             $form.append($('<input>', {
                 type: 'hidden',
@@ -63,15 +78,16 @@ $(document).ready(function() {
             }));
         });
 
-        // 6. Enviar formulario y restaurar el botón
         $('body').append($form);
+        console.log("--> Formulario inyectado en el DOM. Enviando (submit)...");
         $form.submit();
         $form.remove();
 
-        // Restaurar botón tras un breve retraso
+        // 6. Restablecer el botón
         setTimeout(function() {
             $btn.prop('disabled', false).html(htmlOriginal);
-            console.log("--> Formulario enviado. Descarga iniciada en iframe oculto.");
+            console.log("--> Proceso finalizado exitosamente. Botón restaurado.");
+            console.groupEnd();
         }, 1500);
     });
 });
