@@ -1,6 +1,7 @@
 
 <?php
-if (session_status() === PHP_SESSION_NONE) {
+// Validar que la sesión no esté activa Y que los encabezados no se hayan enviado aún
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
     session_start();
 }
 
