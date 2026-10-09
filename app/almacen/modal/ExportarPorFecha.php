@@ -5,12 +5,12 @@ require_once(__DIR__ . "/../controller/ClassConsultasProduccion.php");
 $fechaInicio   = $_POST['fecha_inicio'] ?? '';
 $fechaFin      = $_POST['fecha_fin'] ?? '';
 
+// NOTA: No poner echos aquí antes de los header
 // Mostrar en pantalla
 echo "<pre>";
 echo "fecha_inicio: " . $fechaInicio . "\n";
 echo "fecha_fin: " . $fechaFin . "\n";
 echo "</pre>";
-
 
 $idContratista = !empty($_POST['contratista']) ? $_POST['contratista'] : null;
 $tipoTarea     = !empty($_POST['tipo_tarea']) ? $_POST['tipo_tarea'] : null;
@@ -22,10 +22,10 @@ $cope          = !empty($_POST['cope']) ? $_POST['cope'] : null;
 $modal = new ClassConsultasProduccion();
 $filas = $modal->ExportarFechas($fechaInicio, $fechaFin, $idContratista, $tipoTarea, $area, $division, $cope);
 
-// Extensión .csv para eliminar la advertencia de Excel
+// Extensión .csv para Excel
 $nombreArchivo = "Reporte_Liquidadas_" . date('Ymd_His') . ".csv";
 
-// Encabezados HTTP para archivo CSV
+// Encabezados HTTP para forzar la descarga de archivo CSV
 header("Content-Type: text/csv; charset=utf-8");
 header("Content-Disposition: attachment; filename={$nombreArchivo}");
 header("Pragma: no-cache");
@@ -34,7 +34,7 @@ header("Expires: 0");
 // Abrir la salida php://output para escribir el CSV
 $output = fopen('php://output', 'w');
 
-// BOM UTF-8 para que Excel detecte correctamente acentos y la Ñ
+// BOM UTF-8 para que Excel detecte acentos y la Ñ correctamente
 fprintf($output, "\xEF\xBB\xBF");
 
 // Encabezados de la tabla
