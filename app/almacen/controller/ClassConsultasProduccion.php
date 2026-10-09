@@ -138,13 +138,113 @@ public function obtenerCopesPorArea($idArea) {
 
 
 
+public function CountProduccionPorFechas(
+    $fechaInicio = null, 
+    $fechaFin = null, 
+    $fechascard1 = null, 
+    $fechascard2 = null, 
+    $idContratista = null,
+    $tipoTarea = null,
+    $nombreArea = null,      
+    $nombreDivision = null,  
+    $nombreCope = null       
+) {
+    $where = array();
+    $params = array();
+
+    // 1. EVALUACIÓN DE FECHAS TOTALMENTE INDEPENDIENTE
+    if (!empty(trim($fechascard1)) && !empty(trim($fechascard2))) {
+        // Opción A: Se usaron explícitamente los filtros de las CARDS
+        $where[] = "p.FECHA_LIQ >= :fechaInicio AND p.FECHA_LIQ <= :fechaFin";
+        $params[':fechaInicio'] = trim($fechascard1);
+        $params[':fechaFin']    = trim($fechascard2);
+    } 
+    elseif (!empty(trim($fechaInicio)) && !empty(trim($fechaFin))) {
+        // Opción B: No hay fechas de card, pero sí un rango de fechas GENERAL
+        $where[] = "p.FECHA_LIQ >= :fechaInicio AND p.FECHA_LIQ <= :fechaFin";
+        $params[':fechaInicio'] = trim($fechaInicio);
+        $params[':fechaFin']    = trim($fechaFin);
+    }
+    // Opción C: Si no hay fechas en ninguna de las dos, NO se agrega la condición FECHA_LIQ al WHERE
+
+    // 2. Filtro opcional por contratista
+    if (!empty($idContratista)) {
+        if (is_numeric($idContratista)) {
+            $where[] = "p.idContratista = :idContratista";
+            $params[':idContratista'] = (int)$idContratista;
+        } else {
+            $where[] = "TRIM(p.Contratista) = :idContratista";
+            $params[':idContratista'] = trim($idContratista);
+        }
+    }
+
+    // 3. Filtro opcional por Tipo de Tarea
+    if (!empty($tipoTarea)) {
+        switch (strtoupper(trim($tipoTarea))) {
+            case 'ALTAS':
+                $where[] = "(UPPER(TRIM(p.Tipo_de_Tarea)) LIKE 'A%' AND UPPER(TRIM(p.Tipo_de_Tarea)) != 'A4')";
+                break;
+
+            case 'A4':
+                $where[] = "UPPER(TRIM(p.Tipo_de_Tarea)) = 'A4'";
+                break;
+
+            case 'MIGRACIONES':
+            case 'MIGRACION':
+                $where[] = "UPPER(TRIM(p.Tipo_de_Tarea)) REGEXP '^(FC|TI|TS|TV)'";
+                break;
+
+            case 'CAMBIOS DE DOMICILIO':
+                $where[] = "UPPER(TRIM(p.Tipo_de_Tarea)) LIKE 'D%'";
+                break;
+
+            case 'QUEJAS':
+                $where[] = "UPPER(TRIM(p.Tipo_de_Tarea)) REGEXP '^(Q|R|C|EB|EI|EU|GD|MG|F597|F841)'";
+                break;
+        }
+    }
+
+    // 4. Filtro opcional por Área
+    if (!empty($nombreArea)) {
+        $where[] = "TRIM(p.NOM_AREA) = :nombreArea";
+        $params[':nombreArea'] = trim($nombreArea);
+    }
+
+    // 5. Filtro opcional por División
+    if (!empty($nombreDivision)) {
+        if (!is_numeric($nombreDivision)) {
+            $where[] = "TRIM(p.NOM_DIVISION) = :nombreDivision";
+            $params[':nombreDivision'] = trim($nombreDivision);
+        }
+    }
+
+    // 6. Filtro opcional por Cope
+    if (!empty($nombreCope)) {
+        if (is_numeric($nombreCope)) {
+            $where[] = "p.idCope = :nombreCope";
+            $params[':nombreCope'] = (int)$nombreCope;
+        } else {
+            $where[] = "TRIM(p.NOM_CT) = :nombreCope";
+            $params[':nombreCope'] = trim($nombreCope);
+        }
+    }
+
+    // 7. Construcción de la consulta SQL final
+    $sql = "SELECT COUNT(1) AS TOTAL FROM seg_produccion_diaria p";
+
+    if (count($where) > 0) {
+        $sql .= " WHERE " . implode(" AND ", $where);
+    }
+
+    return $this->runQuery($sql, $params, 'erpprint');
+}
 
 
 /**
  * Cuenta el total de producción en seg_ns_prod_eval.
  * Permite filtrar por fechas, contratista, área (por nombre), división (por nombre) y cope (por nombre o id).
  */
-public function CountProduccionPorFechas(
+/*public function CountProduccionPorFechas(
     $fechaInicio = null, 
     $fechaFin = null, 
     $fechascard1 = null, 
@@ -239,7 +339,7 @@ public function CountProduccionPorFechas(
     }
 
     return $this->runQuery($sql, $params, 'analisis');
-}
+}   */
     /**
      * Cuenta el total acumulado histórico de producción
      */
