@@ -67,10 +67,20 @@ $index = new Index();
 $consultas = new ClassConsultasProduccion();
 
 // CONSULTA DE DETALLE POR ÁREA DE LA TABLA seg_produccion_diaria
+// CONSULTA DE DETALLE POR ÁREA DE LA TABLA seg_produccion_diaria
 $detalleArea = [];
 if (!empty($idContratistaSeleccionado)) {
-    $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea($idContratistaSeleccionado);
+    // Embohasa avei umi fecha ne función-pe
+    $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea(
+        $idContratistaSeleccionado, 
+        $fechascard1, 
+        $fechascard2
+    );
 }
+/*$detalleArea = [];
+if (!empty($idContratistaSeleccionado)) {
+    $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea($idContratistaSeleccionado);
+} */
 
 // PROCESAMIENTO Y ACTUALIZACIÓN SI SE ENVIARON FECHAS POR POST
 $TotalSinNavegacion = 0;
