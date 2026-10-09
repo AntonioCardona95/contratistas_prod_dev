@@ -1,14 +1,11 @@
 $(document).ready(function() {
-    // Desvincular eventos anteriores para evitar registros duplicados
+    // Desvincular eventos previos para evitar ejecuciones duplicadas
     $(document).off('click', '#btnExportarLiquidadas').on('click', '#btnExportarLiquidadas', function(e) {
         e.preventDefault();
 
-        // 1. Capturar las referencias de los inputs y sus valores
-        const $inputFechaInicio = $('#fechascard1').length ? $('#fechascard1') : $('#fecha_inicial');
-        const $inputFechaFin    = $('#fechascard2').length ? $('#fechascard2') : $('#fecha_final');
-
-        const fechaInicio   = $inputFechaInicio.val() || '';
-        const fechaFin      = $inputFechaFin.val() || '';
+        // 1. Capturar los valores de cada filtro
+        const fechaInicio   = $('#fechascard1').val() || $('#fecha_inicial').val() || $('#Fecha1').val() || '';
+        const fechaFin      = $('#fechascard2').val() || $('#fecha_final').val() || $('#Fecha2').val() || '';
         const idContratista = $('#selectContratista').val() || $('#select_contratista').val() || '';
         const tipoTarea     = $('#TipoTarea').val() || $('#select_tipo_tarea').val() || '';
         const area          = $('#selectArea').val() || $('#select_area').val() || '';
@@ -25,12 +22,12 @@ $(document).ready(function() {
             cope:         cope
         };
 
-        // 2. Feedback visual en el botón
+        // 2. Estado visual temporal del botón
         const $btn = $(this);
         const htmlOriginal = $btn.html();
         $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Generando...');
 
-        // 3. Crear formulario dinámico POST en segundo plano
+        // 3. Crear formulario dinámico POST
         const $form = $('<form>', {
             action: 'modal/ExportarPorFecha.php',
             method: 'POST',
@@ -45,22 +42,29 @@ $(document).ready(function() {
             }));
         });
 
-        // 4. Inyectar y enviar
+        // 4. Inyectar en DOM y submit
         $('body').append($form);
         $form.submit();
         $form.remove();
 
-        // 5. Limpiar los campos de fechas y restaurar el botón
+        // 5. Limpieza general de filtros (excepto Tipo de Tarea)
         setTimeout(function() {
-            // Blanquear los inputs de fecha en pantalla
+            // Blanquear entradas de fecha
             $('#fechascard1, #fechascard2, #fecha_inicial, #fecha_final').val('');
 
-            // Restablecer el estado original del botón
+            // Restablecer selectores de Contratista, Área, División y Cope (compatibilidad con select2 y select nativo)
+            const $selectsALimpiar = $('#selectContratista, #select_contratista, #selectArea, #select_area, #selectDivision, #select_division, #selectCope, #select_cope');
+            
+            $selectsALimpiar.val('');
+            if ($.fn.select2) {
+                $selectsALimpiar.trigger('change');
+            }
+
+            // Restaurar el botón de exportación
             $btn.prop('disabled', false).html(htmlOriginal);
         }, 1000);
     });
 });
-
 /*$(document).ready(function() {
     // .off('click') evita que el evento se duplique al recargar la vista AJAX
     $(document).off('click', '#btnExportarLiquidadas').on('click', '#btnExportarLiquidadas', function(e) {
