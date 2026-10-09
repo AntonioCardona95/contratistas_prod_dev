@@ -1402,13 +1402,15 @@ public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = '', 
     }
 }
 
-
-
 /**
  * Consulta la producción diaria aplicando todos los filtros dinámicos
  */
 public function ExportarFechas($fechaInicio, $fechaFin, $idContratista = null, $tipoTarea = null, $area = null, $division = null, $cope = null)
 {
+    // Ajustar rango de fechas para incluir todo el día de cierre
+    $fechaInicioSql = $fechaInicio . " 00:00:00";
+    $fechaFinSql    = $fechaFin . " 23:59:59";
+
     $sql = "SELECT 
                 p.Expediente,
                 p.Folio_Pisa,
@@ -1432,9 +1434,6 @@ public function ExportarFechas($fechaInicio, $fechaFin, $idContratista = null, $
                 p.Tiene_Senalamiento,
                 s.Tipo_Senalamiento,
                 s.Detalle AS Detalle_Senalamiento,
-                n.Estatus_Navegacion,
-                n.Flag_Navega,
-                n.FECHA_ULTIMO_EVENTO,
                 CONCAT_WS(' ', c_asig.Contratista, c_asig.apellido_paterno, c_asig.apellido_materno) AS Contratista_Asignado,
                 CONCAT_WS(' ', t.Nombre_T, t.Apellidos_T) AS Tecnico_Asignado,
                 tic.Ont AS Ont_Coordiapp
@@ -1443,10 +1442,6 @@ public function ExportarFechas($fechaInicio, $fechaFin, $idContratista = null, $
                 ON p.Folio_Pisa = s.Folio_Pisa 
                AND p.TELEFONO = s.TELEFONO 
                AND p.FECHA_LIQ = s.FECHA_LIQ
-            LEFT JOIN seg_produccion_navegacion n 
-                ON p.Folio_Pisa = n.Folio_Pisa 
-               AND p.TELEFONO = n.TELEFONO 
-               AND p.FECHA_LIQ = n.FECHA_LIQ
             LEFT JOIN material_det_salida mds
                 ON p.Num__Serie = mds.Num_Serie_S
                AND (mds.Ubicacion_Material IS NULL OR mds.Ubicacion_Material != 'DEVOLUCION')
@@ -1464,8 +1459,8 @@ public function ExportarFechas($fechaInicio, $fechaFin, $idContratista = null, $
             WHERE p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
 
     $params = array(
-        ':fechaInicio' => $fechaInicio,
-        ':fechaFin'    => $fechaFin
+        ':fechaInicio' => $fechaInicioSql,
+        ':fechaFin'    => $fechaFinSql
     );
 
     if (!empty($idContratista) && $idContratista != 0) {
@@ -1512,10 +1507,13 @@ public function ExportarFechas($fechaInicio, $fechaFin, $idContratista = null, $
         }
     }
 
+    $sql .= " GROUP BY p.Folio_Pisa, p.TELEFONO, p.FECHA_LIQ";
     $sql .= " ORDER BY p.FECHA_LIQ DESC";
 
     return $this->runQuery($sql, $params, 'erpprint');
 }
+
+
 
 
 
