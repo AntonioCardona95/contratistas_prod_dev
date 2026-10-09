@@ -397,7 +397,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
         </div>
     </div>
 </div>
-
+<script src="js/exportexcelcardfechas.js?v=<?php echo time(); ?>"></script>
 <script>
 (function () {
   // Carga de Divisiones
