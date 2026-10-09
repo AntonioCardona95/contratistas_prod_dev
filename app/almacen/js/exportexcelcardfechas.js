@@ -23,6 +23,6 @@ $(document).ready(function() {
         });
 
         // Detonar la descarga direccionando al archivo en la carpeta modal/
-        window.location.href = 'modal/exportar_liquidadas.php?' + params.toString();
+        window.location.href = 'modal/ExportarPorFecha.php?' + params.toString();
     });
 });
