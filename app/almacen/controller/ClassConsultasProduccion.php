@@ -152,20 +152,14 @@ public function CountProduccionPorFechas(
     $where = array();
     $params = array();
 
-    // 1. EVALUACIÓN DE FECHAS TOTALMENTE INDEPENDIENTE
-    if (!empty(trim($fechascard1)) && !empty(trim($fechascard2))) {
-        // Opción A: Se usaron explícitamente los filtros de las CARDS
+    // 1. FILTRO DE FECHAS EXCLUSIVO DE LAS CARDS
+    // Solo se filtra si las fechas de card NO vienen vacías.
+    // Ignora completamente $fechaInicio y $fechaFin.
+    if (!empty($fechascard1) && !empty($fechascard2) && trim($fechascard1) !== '' && trim($fechascard2) !== '') {
         $where[] = "p.FECHA_LIQ >= :fechaInicio AND p.FECHA_LIQ <= :fechaFin";
         $params[':fechaInicio'] = trim($fechascard1);
         $params[':fechaFin']    = trim($fechascard2);
-    } 
-    elseif (!empty(trim($fechaInicio)) && !empty(trim($fechaFin))) {
-        // Opción B: No hay fechas de card, pero sí un rango de fechas GENERAL
-        $where[] = "p.FECHA_LIQ >= :fechaInicio AND p.FECHA_LIQ <= :fechaFin";
-        $params[':fechaInicio'] = trim($fechaInicio);
-        $params[':fechaFin']    = trim($fechaFin);
     }
-    // Opción C: Si no hay fechas en ninguna de las dos, NO se agrega la condición FECHA_LIQ al WHERE
 
     // 2. Filtro opcional por contratista
     if (!empty($idContratista)) {
@@ -235,10 +229,6 @@ public function CountProduccionPorFechas(
     if (count($where) > 0) {
         $sql .= " WHERE " . implode(" AND ", $where);
     }
-
-    // --- LÍNEAS DE DEPURACIÓN (Borrar después) ---
-echo "<pre>SQL EJECUTADO:\n" . $sql . "</pre>";
-echo "<pre>PARAMETROS:\n"; print_r($params); echo "</pre>";
 
     return $this->runQuery($sql, $params, 'erpprint');
 }
