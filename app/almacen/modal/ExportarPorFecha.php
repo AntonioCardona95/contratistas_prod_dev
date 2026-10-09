@@ -26,14 +26,15 @@ header("Expires: 0");
 $output = fopen('php://output', 'w');
 fprintf($output, "\xEF\xBB\xBF"); // UTF-8 BOM para acentos y Ñ
 
-// Encabezados del archivo CSV (sin los de navegación)
+// Encabezados del archivo CSV
 $headers = [
     'Expediente', 'Folio Pisa', 'Teléfono', 'Tipo de Tarea', 'Cope', 
     'Fecha Liquidación', 'Semana', 'Año', 'ID Contratista', 'Contratista', 
     'Técnico', 'División', 'Área', 'Num. Serie', 'Serie ECI', 
     'Existe Serie Prod Almacén', 'Existe Serie ECI Almacén', 'Distrito', 'Terminal', 
     'Tiene Señalamiento', 'Tipo Señalamiento', 'Detalle Señalamiento', 
-    'Contratista Asignado', 'Técnico Asignado', 'ONT Coordiapp'
+    'Contratista Asignado', 'Técnico Asignado', 'ONT Coordiapp',
+    'Folio Entrada', 'Folio Salida', 'Folio In Carso'
 ];
 
 fputcsv($output, $headers);
@@ -65,7 +66,10 @@ if (!empty($filas)) {
             $row['Detalle_Senalamiento'] ?? '',
             $row['Contratista_Asignado'] ?? '',
             $row['Tecnico_Asignado'] ?? '',
-            $row['Ont_Coordiapp'] ?? ''
+            $row['Ont_Coordiapp'] ?? '',
+            $row['Folio_Entrada'] ?? '',
+            $row['Folio_Salida'] ?? '',
+            $row['Folio_In_Carso'] ?? ''
         ];
         fputcsv($output, $linea);
     }
