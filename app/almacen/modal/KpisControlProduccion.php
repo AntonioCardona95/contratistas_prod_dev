@@ -256,22 +256,30 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
     </div>
 
     <!-- Card 1: Producción Por Fechas -->
+<!-- Card 1: Producción Por Fechas -->
 <div class="col-xl col-md-6 mb-4">
-    <div class="kpi-card kpi-card-dark position-relative" style="border-left: 4px solid #17a2b8;">
+    <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #17a2b8;">
         <div class="kpi-card-body">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div class="kpi-card-icon"><i class="fas fa-calendar-alt"></i></div>
-                <!-- Botón de Exportación a Excel -->
-                <button type="button" id="btnExportarLiquidadas" class="btn btn-sm btn-outline-success border-0" title="Exportar resultado a Excel">
+            <!-- Encabezado con distribución Flexbox entre esquinas -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <!-- Icono del calendario a la izquierda -->
+                <div class="kpi-card-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                
+                <!-- Botón de Exportar a Excel en la esquina derecha -->
+                <button type="button" id="btnExportarLiquidadas" class="btn btn-success btn-sm px-3 py-1 shadow-sm d-flex align-items-center gap-2" title="Exportar resultado a Excel">
                     <i class="fas fa-file-excel fa-lg"></i>
+                    <span class="fw-bold">Exportar Excel</span>
                 </button>
             </div>
+
+            <!-- Etiquetas y Valores de la Card -->
             <div class="kpi-card-label">Total de Liquidadas</div>
             <div class="kpi-card-number"><?php echo number_format($TotalProduccionFechas); ?></div>
         </div>
     </div>
 </div>
-
     <!-- Card 2: ONT Sin Entrada a Almacén -->
     <div class="col-xl col-md-6 mb-4">
         <a href="#" class="kpi-card-link">
