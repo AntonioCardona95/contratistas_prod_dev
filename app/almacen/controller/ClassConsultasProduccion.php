@@ -1403,7 +1403,7 @@ public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = '', 
 }
 
 /**
- * Consulta la producción diaria aplicando todos los filtros dinámicos
+ * Consulta la producción diaria aplicando todos los filtros dinámicos (Modo Depuración)
  */
 public function ExportarFechas($fechaInicio = null, $fechaFin = null, $idContratista = null, $tipoTarea = null, $area = null, $division = null, $cope = null)
 {
@@ -1465,7 +1465,6 @@ public function ExportarFechas($fechaInicio = null, $fechaFin = null, $idContrat
 
     $params = array();
 
-    // Filtro flexible por fechas (solo si vienen definidas)
     if (!empty($fechaInicio) && !empty($fechaFin)) {
         $sql .= " AND p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
         $params[':fechaInicio'] = $fechaInicio . " 00:00:00";
@@ -1492,7 +1491,7 @@ public function ExportarFechas($fechaInicio = null, $fechaFin = null, $idContrat
         $params[':cope'] = $cope;
     }
 
-    // Filtrado dinámico por Tipo de Tarea
+    // Filtrado por Tipo de Tarea
     if (!empty($tipoTarea)) {
         $mapaTareas = [
             'ALTAS'                => ['A'],
@@ -1519,9 +1518,16 @@ public function ExportarFechas($fechaInicio = null, $fechaFin = null, $idContrat
     $sql .= " GROUP BY p.Folio_Pisa, p.TELEFONO, p.FECHA_LIQ";
     $sql .= " ORDER BY p.FECHA_LIQ DESC";
 
+    // IMPRIMIR LA CONSULTA Y SUS PARÁMETROS EN PANTALLA
+    echo "<h3>2. Consulta SQL Construida:</h3>";
+    echo "<pre style='background:#f4f4f4; padding:10px; border:1px solid #ccc;'>" . htmlspecialchars($sql) . "</pre>";
+    echo "<b>Parámetros Bind (:params):</b>";
+    echo "<pre>";
+    print_r($params);
+    echo "</pre>";
+
     return $this->runQuery($sql, $params, 'erpprint');
 }
-
 
 
 
