@@ -1256,8 +1256,7 @@ public function CountOntAlmacenPorDivision($fechaInicio = null, $fechaFin = null
     // Se usa runQuery respetando el motor de base de datos de la clase
     return $this->runQuery($sql, $params, 'erpprint');
 } */
-
-public function ObtenerDetalleOrdenesPorArea($idContratista)
+public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = '', $fechaFin = '')
 {
     $sql = "SELECT 
                 p.NOM_AREA AS Area,
@@ -1279,18 +1278,26 @@ public function ObtenerDetalleOrdenesPorArea($idContratista)
                 /* A4: Exactamente 'A4' */
                 SUM(CASE WHEN UPPER(TRIM(p.Tipo_de_Tarea)) = 'A4' THEN 1 ELSE 0 END) AS A4,
                 
-                /* TOTAL CON ALMACÉN: Si al menos una de las dos series entró (1) */
+                /* TOTAL CON ALMACÉN */
                 SUM(CASE WHEN (p.Existe_Serie_Prod_Almacen = 1 OR p.Existe_Serie_Eci_Almacen = 1) THEN 1 ELSE 0 END) AS TotalConAlmacen,
                 
-                /* TOTAL SIN ALMACÉN: Si ambas series están fuera de almacén (0) */
+                /* TOTAL SIN ALMACÉN */
                 SUM(CASE WHEN (p.Existe_Serie_Prod_Almacen = 0 AND p.Existe_Serie_Eci_Almacen = 0) THEN 1 ELSE 0 END) AS TotalSinAlmacen
 
             FROM seg_produccion_diaria p
-            WHERE p.idContratista = :idContratista
-            GROUP BY p.NOM_AREA, p.NOM_DIVISION, p.NOM_CT
-            ORDER BY p.NOM_AREA ASC, p.NOM_CT ASC";
+            WHERE p.idContratista = :idContratista";
 
     $params = [':idContratista' => $idContratista];
+
+    // Oñembojuaju filtro FECHA_LIQ reheguára oiméramo oĩ las fechas
+    if (!empty($fechaInicio) && !empty($fechaFin)) {
+        $sql .= " AND p.FECHA_LIQ >= :fechaInicio AND p.FECHA_LIQ <= :fechaFin";
+        $params[':fechaInicio'] = $fechaInicio;
+        $params[':fechaFin'] = $fechaFin;
+    }
+
+    $sql .= " GROUP BY p.NOM_AREA, p.NOM_DIVISION, p.NOM_CT
+              ORDER BY p.NOM_AREA ASC, p.NOM_CT ASC";
 
     try {
         $resultado = $this->runQuery($sql, $params, 'erpprint');
@@ -1300,7 +1307,6 @@ public function ObtenerDetalleOrdenesPorArea($idContratista)
         return array();
     }
 }
-
 
 
 
