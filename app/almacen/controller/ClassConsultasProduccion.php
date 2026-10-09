@@ -1405,12 +1405,8 @@ public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = '', 
 /**
  * Consulta la producción diaria aplicando todos los filtros dinámicos
  */
-public function ExportarFechas($fechaInicio, $fechaFin, $idContratista = null, $tipoTarea = null, $area = null, $division = null, $cope = null)
+public function ExportarFechas($fechaInicio = null, $fechaFin = null, $idContratista = null, $tipoTarea = null, $area = null, $division = null, $cope = null)
 {
-    // Ajustar rango de fechas para incluir todo el día de cierre
-    $fechaInicioSql = $fechaInicio . " 00:00:00";
-    $fechaFinSql    = $fechaFin . " 23:59:59";
-
     $sql = "SELECT 
                 p.Expediente,
                 p.Folio_Pisa,
@@ -1460,15 +1456,21 @@ public function ExportarFechas($fechaInicio, $fechaFin, $idContratista = null, $
                AND tic.Estatus_Orden = 'COMPLETADA'
                AND tic.Step_Registro = 5
             LEFT JOIN materiales_det md
-                ON p.Num__Serie = md.Num_Serie
+                ON p.Num__Serie = md.Num_Serie 
+               AND p.Num__Serie != '' 
+               AND p.Num__Serie IS NOT NULL
             LEFT JOIN entradas_almacen_t eat
                 ON md.Folio_Entrada_Material_Det = eat.idEntradas_Almacen_T
-            WHERE p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+            WHERE 1=1";
 
-    $params = array(
-        ':fechaInicio' => $fechaInicioSql,
-        ':fechaFin'    => $fechaFinSql
-    );
+    $params = array();
+
+    // Filtro flexible por fechas (solo si vienen definidas)
+    if (!empty($fechaInicio) && !empty($fechaFin)) {
+        $sql .= " AND p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+        $params[':fechaInicio'] = $fechaInicio . " 00:00:00";
+        $params[':fechaFin']    = $fechaFin . " 23:59:59";
+    }
 
     if (!empty($idContratista) && $idContratista != 0) {
         $sql .= " AND p.idContratista = :idContratista";
