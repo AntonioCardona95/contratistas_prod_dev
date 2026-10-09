@@ -236,6 +236,10 @@ public function CountProduccionPorFechas(
         $sql .= " WHERE " . implode(" AND ", $where);
     }
 
+    // --- LÍNEAS DE DEPURACIÓN (Borrar después) ---
+echo "<pre>SQL EJECUTADO:\n" . $sql . "</pre>";
+echo "<pre>PARAMETROS:\n"; print_r($params); echo "</pre>";
+
     return $this->runQuery($sql, $params, 'erpprint');
 }
 
