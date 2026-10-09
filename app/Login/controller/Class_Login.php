@@ -22,10 +22,10 @@
         try {
             $rows = [];
             $conexion = $this->get_conexion();
-            echo "<pre>";
+           /* echo "<pre>";
 var_dump($conexion);
 echo "</pre>";
-exit;
+exit; */
             $sql = "SELECT * FROM contratistas WHERE User_Contratista = :User_Contratista";
             $statement = $conexion->prepare($sql);
             $statement->bindParam(":User_Contratista", $User_Contratista, PDO::PARAM_STR);
