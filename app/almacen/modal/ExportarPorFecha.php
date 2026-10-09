@@ -12,7 +12,7 @@ $cope          = !empty($_POST['cope']) ? $_POST['cope'] : null;
 
 // Instanciar la clase y consultar datos
 $modal = new ClassConsultasProduccion();
-$filas = $modal->ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista, $tipoTarea, $area, $division, $cope);
+$filas = $modal->ExportarFechas($fechaInicio, $fechaFin, $idContratista, $tipoTarea, $area, $division, $cope);
 
 $nombreArchivo = "Reporte_Liquidadas_" . date('Ymd_His') . ".xls";
 

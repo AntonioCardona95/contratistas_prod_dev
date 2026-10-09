@@ -34,7 +34,7 @@
     }
 
     // Se realiza la consulta pasando el TipoTarea
-    $filas = $modal->ExportarFechas($Fecha1, $Fecha2, $idContratistas, $TipoTarea);
+    $filas = $modal->ConsultarProduccionDiaria($Fecha1, $Fecha2, $idContratistas, $TipoTarea);
 ?>
 
 <style>
