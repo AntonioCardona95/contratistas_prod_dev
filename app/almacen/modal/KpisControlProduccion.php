@@ -1,6 +1,3 @@
-<style>
-
-</style>
 
 <?php
 if (session_status() === PHP_SESSION_NONE) {
@@ -242,6 +239,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
 ?>
 
 <link rel="stylesheet" href="css/kpisdashboard.css">
+<link rel="stylesheet" href="css/estiloscardexcel.css">
 
 <!-- Content Row KPI Cards -->
 <div class="row kpi-cards-row">

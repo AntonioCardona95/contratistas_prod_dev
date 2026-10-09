@@ -101,7 +101,7 @@ if (is_array($qrProduccionTotal) && !empty($qrProduccionTotal)) {
 ?>
 
 <link rel="stylesheet" href="css/kpis-produccion.css">
-<link rel="stylesheet" href="css/estiloscardexcel.css">
+
 
 <div class="row kpi-cards-row">
     <div class="col-kpi-5 mb-4">
