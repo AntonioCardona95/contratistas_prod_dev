@@ -1151,8 +1151,7 @@ public function VisualizarTablaFechas($fechaInicio, $fechaFin)
 
 
   /**
- * Cuenta el total de equipos/ONT que NO han ingresado a almacén.
- * Permite filtrar por fechas principales, fechas de card y/o contratista.
+ * Cuenta el total de ONT / equipos que NO han ingresado a almacén.
  */
 public function CountOntSinEntradaAlmacen(
     $fechaInicio = null, 
@@ -1160,11 +1159,10 @@ public function CountOntSinEntradaAlmacen(
     $fechascard1 = null, 
     $fechascard2 = null, 
     $idContratista = null,
-    $idArea = null,
-    $idDivision = null,
-    $idCope = null
+    $nombreArea = null,
+    $nombreDivision = null,
+    $nombreCope = null
 ) {
-    // Determinar qué rango de fechas usar (prioridad a las fechas de la card si existen)
     $fIni = !empty($fechascard1) ? $fechascard1 : $fechaInicio;
     $fFin = !empty($fechascard2) ? $fechascard2 : $fechaFin;
 
@@ -1174,49 +1172,43 @@ public function CountOntSinEntradaAlmacen(
     );
     $params = array();
 
-    // Filtro de rango de fechas (si existe alguno)
     if (!empty($fIni) && !empty($fFin)) {
         $where[] = "FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
         $params[':fechaInicio'] = $fIni;
         $params[':fechaFin']    = $fFin;
     }
 
-    // Filtro opcional por contratista
-    if (!empty($idContratista)) {
+    if (!empty($idContratista) && $idContratista != 0) {
         $where[] = "idContratista = :idContratista";
         $params[':idContratista'] = $idContratista;
     }
 
-    // Filtro opcional por Área
-    if (!empty($idArea)) {
-        $where[] = "idAreas = :idArea";
-        $params[':idArea'] = $idArea;
+    // Filtro por Área (Nombre textual)
+    if (!empty($nombreArea)) {
+        $where[] = "NOM_AREA = :nombreArea";
+        $params[':nombreArea'] = $nombreArea;
     }
 
-    // Filtro opcional por División
-    if (!empty($idDivision)) {
-        $where[] = "idDivisiones = :idDivision";
-        $params[':idDivision'] = $idDivision;
+    // Filtro por División (Nombre textual)
+    if (!empty($nombreDivision)) {
+        $where[] = "NOM_DIVISION = :nombreDivision";
+        $params[':nombreDivision'] = $nombreDivision;
     }
 
-    // Filtro opcional por Cope
-    if (!empty($idCope)) {
-        $where[] = "idCopes = :idCope";
-        $params[':idCope'] = $idCope;
+    // Filtro por Cope (Nombre textual)
+    if (!empty($nombreCope)) {
+        $where[] = "NOM_CT = :nombreCope";
+        $params[':nombreCope'] = $nombreCope;
     }
 
-    // Construir la consulta SQL
     $sql = "SELECT COUNT(1) AS TOTAL 
             FROM seg_produccion_diaria 
             WHERE " . implode(" AND ", $where);
 
     return $this->runQuery($sql, $params, 'erpprint');
 }
-
-
 /**
  * Cuenta el total de ONT / equipos que SÍ ingresaron a almacén.
- * Permite filtrar por fechas principales, fechas de card, contratista, área, división y cope.
  */
 public function CountOntConEntradaAlmacen(
     $fechaInicio = null, 
@@ -1224,58 +1216,54 @@ public function CountOntConEntradaAlmacen(
     $fechascard1 = null, 
     $fechascard2 = null, 
     $idContratista = null,
-    $idArea = null,
-    $idDivision = null,
-    $idCope = null
+    $nombreArea = null,
+    $nombreDivision = null,
+    $nombreCope = null
 ) {
-    // Determinar qué rango de fechas usar (prioridad a las fechas de la card si existen)
     $fIni = !empty($fechascard1) ? $fechascard1 : $fechaInicio;
     $fFin = !empty($fechascard2) ? $fechascard2 : $fechaFin;
 
     $where = array(
-        "Existe_Serie_Prod_Almacen = 1",
-        "Existe_Serie_Eci_Almacen = 1"
+        "(Existe_Serie_Prod_Almacen = 1 OR Existe_Serie_Eci_Almacen = 1)"
     );
     $params = array();
 
-    // Filtro opcional por rango de fechas
     if (!empty($fIni) && !empty($fFin)) {
         $where[] = "FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
         $params[':fechaInicio'] = $fIni;
         $params[':fechaFin']    = $fFin;
     }
 
-    // Filtro opcional por contratista
-    if (!empty($idContratista)) {
+    if (!empty($idContratista) && $idContratista != 0) {
         $where[] = "idContratista = :idContratista";
         $params[':idContratista'] = $idContratista;
     }
 
-    // Filtro opcional por Área
-    if (!empty($idArea)) {
-        $where[] = "idAreas = :idArea";
-        $params[':idArea'] = $idArea;
+    // Filtro por Área (Nombre textual)
+    if (!empty($nombreArea)) {
+        $where[] = "NOM_AREA = :nombreArea";
+        $params[':nombreArea'] = $nombreArea;
     }
 
-    // Filtro opcional por División
-    if (!empty($idDivision)) {
-        $where[] = "idDivisiones = :idDivision";
-        $params[':idDivision'] = $idDivision;
+    // Filtro por División (Nombre textual)
+    if (!empty($nombreDivision)) {
+        $where[] = "NOM_DIVISION = :nombreDivision";
+        $params[':nombreDivision'] = $nombreDivision;
     }
 
-    // Filtro opcional por Cope
-    if (!empty($idCope)) {
-        $where[] = "idCopes = :idCope";
-        $params[':idCope'] = $idCope;
+    // Filtro por Cope (Nombre textual)
+    if (!empty($nombreCope)) {
+        $where[] = "NOM_CT = :nombreCope";
+        $params[':nombreCope'] = $nombreCope;
     }
 
-    // Construir la consulta SQL
     $sql = "SELECT COUNT(1) AS TOTAL 
             FROM seg_produccion_diaria 
             WHERE " . implode(" AND ", $where);
 
     return $this->runQuery($sql, $params, 'erpprint');
 }
+
 /**
  * Obtiene el conteo de ONT con y sin entrada a almacén para TODAS las divisiones.
  * Permite filtrar por fechas principales, fechas de card y/o contratista.
