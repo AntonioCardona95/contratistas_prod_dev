@@ -26,12 +26,12 @@ $Area        = $_POST['selectArea'] ?? '';
 $nombreArea = $_POST['nombreArea'] ?? '';
 $nombreDivision = $_POST['nombreDivision'] ?? '';
 $nombreCope     = $_POST['nombreCope'] ?? '';
-echo '<pre>';
+/*echo '<pre>';
 var_dump($Area);
 var_dump($nombreArea);
 var_dump($nombreDivision);
 var_dump($nombreCope);
-echo '</pre>';
+echo '</pre>'; */
 
 
 
