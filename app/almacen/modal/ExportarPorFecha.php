@@ -1,32 +1,29 @@
 <?php
-// Incluir el controlador
 require_once(__DIR__ . "/../controller/ClassConsultasProduccion.php");
 
-// Recibir los parámetros desde el enlace JS
-$fechaInicio   = !empty($_GET['fecha_inicio']) ? $_GET['fecha_inicio'] : date('Y-m-d');
-$fechaFin      = !empty($_GET['fecha_fin']) ? $_GET['fecha_fin'] : date('Y-m-d');
+// Recibir los parámetros enviados por GET
+$fechaInicio   = $_GET['fecha_inicio'] ?? '';
+$fechaFin      = $_GET['fecha_fin'] ?? '';
 $idContratista = !empty($_GET['contratista']) ? $_GET['contratista'] : null;
 $tipoTarea     = !empty($_GET['tipo_tarea']) ? $_GET['tipo_tarea'] : null;
 $area          = !empty($_GET['area']) ? $_GET['area'] : null;
 $division      = !empty($_GET['division']) ? $_GET['division'] : null;
 $cope          = !empty($_GET['cope']) ? $_GET['cope'] : null;
 
-// Instanciar clase de consultas
+// Instanciar clase de consulta
 $modal = new ClassConsultasProduccion();
-
-// Consultar los datos con los filtros aplicados
-$filas = $modal->ExportarFechas($fechaInicio, $fechaFin, $idContratista, $tipoTarea, $area, $division, $cope);
+$filas = $modal->ConsultarProduccionDiaria($fechaInicio, $fechaFin, $idContratista, $tipoTarea, $area, $division, $cope);
 
 // Nombre dinámico para la descarga
 $nombreArchivo = "Reporte_Liquidadas_" . date('Ymd_His') . ".xls";
 
-// Configuración de encabezados HTTP para forzar la descarga en Excel
+// Configuración de encabezados para descarga directa
 header("Content-Type: application/vnd.ms-excel; charset=utf-8");
 header("Content-Disposition: attachment; filename={$nombreArchivo}");
 header("Pragma: no-cache");
 header("Expires: 0");
 
-// BOM para mantener codificación UTF-8 correcta (acentos, Ñ, etc.)
+// BOM para asegurar UTF-8 en Excel
 echo "\xEF\xBB\xBF";
 ?>
 <table border="1">
@@ -54,7 +51,7 @@ echo "\xEF\xBB\xBF";
             <th>Tiene Señalamiento</th>
             <th>Tipo Señalamiento</th>
             <th>Detalle Señalamiento</th>
-            <th>Estatus Navegación</th>
+            <th>Estatus Navegacion</th>
             <th>Flag Navega</th>
             <th>Fecha Último Evento</th>
             <th>Contratista Asignado</th>
