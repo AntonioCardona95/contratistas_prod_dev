@@ -1,40 +1,5 @@
 <style>
-/* Asegura que la card sea el contenedor de referencia */
-.kpi-card.position-relative {
-    position: relative !important;
-}
 
-/* Botón de Excel estilo píldora/cuadro compacto en la esquina superior derecha */
-.btn-excel-top-right {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background-color: #107c41; /* Verde oficial de Excel */
-    color: #ffffff;
-    border: none;
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    z-index: 5;
-}
-
-.btn-excel-top-right:hover {
-    background-color: #0b5c30;
-    color: #ffffff;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.btn-excel-top-right i {
-    font-size: 1rem;
-}
 </style>
 
 <?php
