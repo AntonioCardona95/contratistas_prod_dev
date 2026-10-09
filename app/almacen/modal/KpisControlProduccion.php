@@ -1,3 +1,19 @@
+<style>
+    /* Estilo complementario para separar el icono y el texto en el botón */
+#btnExportarLiquidadas i {
+    margin-right: 5px;
+}
+#btnExportarLiquidadas {
+    font-size: 0.85rem;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+}
+#btnExportarLiquidadas:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+}
+</style>
+
 <?php
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
