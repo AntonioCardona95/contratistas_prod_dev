@@ -1403,72 +1403,123 @@ public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = '', 
 }
 
 /**
- * Diagnóstico paso a paso para identificar qué JOIN o WHERE está anulando los resultados
+ * Consulta la producción diaria aplicando todos los filtros dinámicos
  */
-public function ExportarFechas($fechaInicio = null, $fechaFin = null,$idContratista = null, $tipoTarea = null,$area = null, $division = null,$cope = null)
+public function ExportarFechas($fechaInicio = null, $fechaFin = null, $idContratista = null, $tipoTarea = null, $area = null, $division = null, $cope = null)
 {
-    $fInicio = $fechaInicio ? $fechaInicio . " 00:00:00" : null;
-    $fFin    = $fechaFin ? $fechaFin . " 23:59:59" : null;
+    $sql = "SELECT 
+                p.Expediente,
+                p.Folio_Pisa,
+                p.TELEFONO,
+                p.Tipo_de_Tarea,
+                p.NOM_CT,
+                p.FECHA_LIQ,
+                p.Semana,
+                p.Anio,
+                p.idContratista,
+                p.Contratista,
+                p.Tecnico,
+                p.NOM_DIVISION,
+                p.NOM_AREA,
+                p.Num__Serie,
+                p.Serie_Eci,
+                p.Existe_Serie_Prod_Almacen,
+                p.Existe_Serie_Eci_Almacen,
+                p.DISTRITO,
+                p.TERMINAL,
+                p.Tiene_Senalamiento,
+                s.Tipo_Senalamiento,
+                s.Detalle AS Detalle_Senalamiento,
+                CONCAT_WS(' ', c_asig.Contratista, c_asig.apellido_paterno, c_asig.apellido_materno) AS Contratista_Asignado,
+                CONCAT_WS(' ', t.Nombre_T, t.Apellidos_T) AS Tecnico_Asignado,
+                tic.Ont AS Ont_Coordiapp,
+                md.Folio_Entrada_Material_Det AS Folio_Entrada,
+                mds.Folio_Salida_Material_Det_S AS Folio_Salida,
+                eat.IN_Diario_T AS Folio_In_Carso
+            FROM seg_produccion_diaria p
+            LEFT JOIN seg_produccion_senalamiento s 
+                ON p.Folio_Pisa = s.Folio_Pisa 
+               AND p.TELEFONO = s.TELEFONO 
+               AND p.FECHA_LIQ = s.FECHA_LIQ
+            LEFT JOIN material_det_salida mds
+                ON p.Num__Serie = mds.Num_Serie_S
+               AND (mds.Ubicacion_Material IS NULL OR mds.Ubicacion_Material != 'DEVOLUCION')
+            LEFT JOIN contratistas c_asig
+                ON mds.FK_Contratista_Salida = c_asig.idContratistas
+            LEFT JOIN salidas_contratistas sc
+                ON p.Num__Serie = sc.Num_Serie_Salida_Det
+            LEFT JOIN tecnicos t
+                ON sc.FK_Tecnico_Salida_Det = t.idTecnico
+            LEFT JOIN tecnico_instalaciones_coordiapp tic
+                ON p.Folio_Pisa = tic.Folio_Pisa
+               AND p.TELEFONO = tic.Telefono
+               AND tic.Estatus_Orden = 'COMPLETADA'
+               AND tic.Step_Registro = 5
+            LEFT JOIN materiales_det md
+                ON p.Num__Serie = md.Num_Serie 
+               AND p.Num__Serie != '' 
+               AND p.Num__Serie IS NOT NULL
+            LEFT JOIN entradas_almacen_t eat
+                ON md.Folio_Entrada_Material_Det = eat.idEntradas_T
+            WHERE 1=1";
 
-    echo "<h3>📊 DIAGNÓSTICO PASO A PASO EN BASE DE DATOS</h3>";
+    $params = array();
 
-    // Pruebas paso a paso
-    $pruebas = [
-        "1. Conteo total en seg_produccion_diaria (Sin Filtros)" => 
-            "SELECT COUNT(*) AS total FROM seg_produccion_diaria",
+    if (!empty($fechaInicio) && !empty($fechaFin)) {
+        $sql .= " AND p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+        $params[':fechaInicio'] = $fechaInicio . " 00:00:00";
+        $params[':fechaFin']    = $fechaFin . " 23:59:59";
+    }
 
-        "2. Conteo con WHERE por DATE(FECHA_LIQ)" => 
-            "SELECT COUNT(*) AS total FROM seg_produccion_diaria WHERE DATE(FECHA_LIQ) BETWEEN '{$fechaInicio}' AND '{$fechaFin}'",
+    if (!empty($idContratista) && $idContratista != 0) {
+        $sql .= " AND p.idContratista = :idContratista";
+        $params[':idContratista'] = $idContratista;
+    }
 
-        "3. Conteo con WHERE p.FECHA_LIQ BETWEEN string" => 
-            "SELECT COUNT(*) AS total FROM seg_produccion_diaria WHERE FECHA_LIQ BETWEEN '{$fInicio}' AND '{$fFin}'",
+    if (!empty($area)) {
+        $sql .= " AND p.NOM_AREA = :area";
+        $params[':area'] = $area;
+    }
 
-        "4. Con + LEFT JOIN seg_produccion_senalamiento" => 
-            "SELECT COUNT(*) AS total FROM seg_produccion_diaria p 
-             LEFT JOIN seg_produccion_senalamiento s ON p.Folio_Pisa = s.Folio_Pisa AND p.TELEFONO = s.TELEFONO AND p.FECHA_LIQ = s.FECHA_LIQ
-             WHERE p.FECHA_LIQ BETWEEN '{$fInicio}' AND '{$fFin}'",
+    if (!empty($division)) {
+        $sql .= " AND p.NOM_DIVISION = :division";
+        $params[':division'] = $division;
+    }
 
-        "5. Con + LEFT JOIN material_det_salida mds" => 
-            "SELECT COUNT(*) AS total FROM seg_produccion_diaria p 
-             LEFT JOIN material_det_salida mds ON p.Num__Serie = mds.Num_Serie_S AND (mds.Ubicacion_Material IS NULL OR mds.Ubicacion_Material != 'DEVOLUCION')
-             WHERE p.FECHA_LIQ BETWEEN '{$fInicio}' AND '{$fFin}'",
+    if (!empty($cope)) {
+        $sql .= " AND p.NOM_CT = :cope";
+        $params[':cope'] = $cope;
+    }
 
-        "6. Con + LEFT JOIN materiales_det md" => 
-            "SELECT COUNT(*) AS total FROM seg_produccion_diaria p 
-             LEFT JOIN materiales_det md ON p.Num__Serie = md.Num_Serie AND p.Num__Serie != '' AND p.Num__Serie IS NOT NULL
-             WHERE p.FECHA_LIQ BETWEEN '{$fInicio}' AND '{$fFin}'",
+    // Filtrado por Tipo de Tarea
+    if (!empty($tipoTarea)) {
+        $mapaTareas = [
+            'ALTAS'                => ['A'],
+            'CAMBIOS DE DOMICILIO' => ['D'],
+            'MIGRACION'            => ['FC', 'TI', 'TS', 'TV'],
+            'A4'                   => ['A4'],
+            'QUEJAS'               => ['Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597', 'F841']
+        ];
 
-        "7. Con + LEFT JOIN entradas_almacen_t eat" => 
-            "SELECT COUNT(*) AS total FROM seg_produccion_diaria p 
-             LEFT JOIN materiales_det md ON p.Num__Serie = md.Num_Serie AND p.Num__Serie != '' AND p.Num__Serie IS NOT NULL
-             LEFT JOIN entradas_almacen_t eat ON md.Folio_Entrada_Material_Det = eat.idEntradas_Almacen_T
-             WHERE p.FECHA_LIQ BETWEEN '{$fInicio}' AND '{$fFin}'"
-    ];
+        if (isset($mapaTareas[$tipoTarea])) {
+            $prefijos = $mapaTareas[$tipoTarea];
+            $condicionesLike = [];
 
-    echo "<table border='1' cellpadding='8' style='border-collapse:collapse; background:#fff; width:100%;'>";
-    echo "<tr style='background:#f2f2f2;'><th>Paso de prueba</th><th>Total Registros Encontrados</th></tr>";
+            foreach ($prefijos as $index => $prefijo) {
+                $paramName = ":prefijo_" . $index;
+                $condicionesLike[] = "p.Tipo_de_Tarea LIKE " . $paramName;
+                $params[$paramName] = $prefijo . '%';
+            }
 
-    foreach ($pruebas as $label =>$sqlTest) {
-        try {
-            $res =$this->runQuery($sqlTest, [], 'erpprint');$cant = isset($res[0]['total']) ?$res[0]['total'] : (isset($res[0]['TOTAL']) ?$res[0]['TOTAL'] : 'Error/Vacio');
-            $color = ($cant == 0) ? 'red' : 'green';
-            echo "<tr><td>{$label}</td><td style='color:{$color}; font-weight:bold;'>{$cant}</td></tr>";
-        } catch (Exception $ex) {
-            echo "<tr><td>{$label}</td><td style='color:red;'>Error SQL: " . $ex->getMessage() . "</td></tr>";
+            $sql .= " AND (" . implode(" OR ", $condicionesLike) . ")";
         }
     }
-    echo "</table>";
 
-    // Muestra de formatos de fecha reales en la tabla seg_produccion_diaria
-    echo "<h3>📅 Muestra de 5 fechas reales en `seg_produccion_diaria`:</h3>";
-    $sampleFechas =$this->runQuery("SELECT FECHA_LIQ FROM seg_produccion_diaria WHERE FECHA_LIQ IS NOT NULL AND FECHA_LIQ != '' LIMIT 5", [], 'erpprint');
-    echo "<pre>";
-    print_r($sampleFechas);
-    echo "</pre>";
+    $sql .= " GROUP BY p.Folio_Pisa, p.TELEFONO, p.FECHA_LIQ";
+    $sql .= " ORDER BY p.FECHA_LIQ DESC";
 
-    die(); // Detener ejecución para ver la tabla comparativa
+    return $this->runQuery($sql, $params, 'erpprint');
 }
-
 
 
 
