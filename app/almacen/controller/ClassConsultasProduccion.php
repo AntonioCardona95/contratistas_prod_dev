@@ -1436,7 +1436,10 @@ public function ExportarFechas($fechaInicio, $fechaFin, $idContratista = null, $
                 s.Detalle AS Detalle_Senalamiento,
                 CONCAT_WS(' ', c_asig.Contratista, c_asig.apellido_paterno, c_asig.apellido_materno) AS Contratista_Asignado,
                 CONCAT_WS(' ', t.Nombre_T, t.Apellidos_T) AS Tecnico_Asignado,
-                tic.Ont AS Ont_Coordiapp
+                tic.Ont AS Ont_Coordiapp,
+                md.Folio_Entrada_Material_Det AS Folio_Entrada,
+                mds.Folio_Salida_Material_Det_S AS Folio_Salida,
+                eat.IN_Diario_T AS Folio_In_Carso
             FROM seg_produccion_diaria p
             LEFT JOIN seg_produccion_senalamiento s 
                 ON p.Folio_Pisa = s.Folio_Pisa 
@@ -1456,6 +1459,10 @@ public function ExportarFechas($fechaInicio, $fechaFin, $idContratista = null, $
                AND p.TELEFONO = tic.Telefono
                AND tic.Estatus_Orden = 'COMPLETADA'
                AND tic.Step_Registro = 5
+            LEFT JOIN materiales_det md
+                ON p.Num__Serie = md.Num_Serie
+            LEFT JOIN entradas_almacen_t eat
+                ON md.Folio_Entrada_Material_Det = eat.idEntradas_Almacen_T
             WHERE p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
 
     $params = array(
