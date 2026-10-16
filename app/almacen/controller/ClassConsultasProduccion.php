@@ -507,10 +507,16 @@ public function CountProduccionPorFechas(
             $mapContratistasRescatados = [];
             if (!empty($expedientesFaltantes)) {
                 $placeholders = implode(',', array_fill(0, count($expedientesFaltantes), '?'));
-                $sqlTec = "SELECT t.NExpediente, c.idContratistas, c.Contratista 
+                /*$sqlTec = "SELECT t.NExpediente, c.idContratistas, c.Contratista 
                            FROM tecnicos t 
                            INNER JOIN contratistas c ON t.FK_Contratista_Tecnico = c.idContratistas 
-                           WHERE t.NExpediente IN ($placeholders)";
+                           WHERE t.NExpediente IN ($placeholders)"; */
+
+                $sqlTec = "SELECT t.NExpediente, c.idContratistas, c.Contratista 
+           FROM tecnicos t 
+           INNER JOIN contratistas c ON t.FK_Contratista_Tecnico = c.idContratistas 
+           WHERE t.NExpediente IN ($placeholders) 
+             AND t.Estatus_Tecnico = 'ACTIVO'";
                 
                 $stmtTec = $conexion->prepare($sqlTec);
                 $stmtTec->execute(array_values($expedientesFaltantes));
