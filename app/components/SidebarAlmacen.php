@@ -76,15 +76,15 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
 		</a>
 	</li>
 
-	<li class="nav-item <?php echo $paginaActual === 'aceptarMaterial.php' ? 'active' : ''; ?>">
-		<a class="nav-link" href="aceptarMaterial.php">
+	<li class="nav-item <?php echo $paginaActual === 'AceptarMaterial.php' ? 'active' : ''; ?>">
+		<a class="nav-link" href="AceptarMaterial.php">
 			<i class="fa-solid fa-feather-pointed"></i>
 			<span>ACEPTAR MATERIAL</span>
 		</a>
 	</li>
 
-	<li class="nav-item <?php echo $paginaActual === 'materialRechazado.php' ? 'active' : ''; ?>">
-		<a class="nav-link" href="materialRechazado.php">
+	<li class="nav-item <?php echo $paginaActual === 'MaterialRechazado.php' ? 'active' : ''; ?>">
+		<a class="nav-link" href="MaterialRechazado.php">
 			<i class="fa-solid fa-school-circle-xmark"></i>
 			<span>MATERIAL RECHAZADO</span>
 		</a>
@@ -97,8 +97,8 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
 		</a>
 	</li>
 
-	<li class="nav-item <?php echo $paginaActual === 'tecnicos.php' ? 'active' : ''; ?>">
-		<a class="nav-link" href="tecnicos.php">
+	<li class="nav-item <?php echo $paginaActual === 'Tecnicos.php' ? 'active' : ''; ?>">
+		<a class="nav-link" href="Tecnicos.php">
 			<i class="fa-solid fa-user"></i>
 			<span>TÉCNICOS</span>
 		</a>

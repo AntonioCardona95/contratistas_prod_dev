@@ -288,7 +288,7 @@
                     </button>
                 </div>
                 <!-- filepath: c:\Users\Axel Garcia OPS\Desktop\HTDOCS\contratistas_dash\nueva_salida.php -->
-                <form action="modal/GuardarSalida.php" method="post" id="FormNuevaSalida" enctype="multipart/form-data" name="formulario">
+                <form action="modal/Salidas_GuardarNuevaSalida.php" method="post" id="FormNuevaSalida" enctype="multipart/form-data" name="formulario">
                     <div class="modal-body">
                         <div class="card-form-shell">
 
@@ -401,6 +401,7 @@
 
     <!-- SCRIPTS DE CONTRATISTAS -->
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
+    <script src="js/salidas.js"></script>
     <script src="js/app-2.js"></script>
 
     <script>
@@ -629,42 +630,8 @@
                 });
             });
         });
-
-
-        // EVENTO PARA ABRIR EL MODAL DE DETALLE DE SALIDA
-        $(document).on('click', '.btn-detalle-salida', function () {
-            const folio = $(this).data('folio');
-
-            $('#modalSalidaDetalleContenido').html(
-                '<div class="text-center py-4">' +
-                '<i class="fas fa-spinner fa-spin fa-2x"></i>' +
-                '</div>'
-            );
-
-            $('#modalSalidaDetalle').modal('show');
-
-            $.ajax({
-                url: 'modal/Salidas_Detalles.php',
-                type: 'POST',
-                data: { folio: folio },
-                success: function (contenido) {
-                    $('#modalSalidaDetalleContenido').html(contenido);
-                    $('#modalSalidaDetalleTitulo').text('Detalle de salida: Folio ' + folio);
-                },
-                error: function () {
-                    $('#modalSalidaDetalleContenido').html(
-                        '<div class="alert alert-danger mb-0">' +
-                        'No fue posible cargar el detalle.' +
-                        '</div>'
-                    );
-                }
-            });
-
-        });
-
     </script>
 
 </body>
 
 </html>
-
