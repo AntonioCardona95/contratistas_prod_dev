@@ -132,6 +132,7 @@
 
     <!-- SCRIPTS DE CONTRATISTAS -->
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
+    <script src="js/entradas.js"></script>
 
     <script>
         

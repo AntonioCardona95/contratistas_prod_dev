@@ -43,19 +43,6 @@ function LoadCopes(){
     });
 }
 
-function LoadSalidas(){
-    var parametros = $("#FormQueryUnidades").serialize();
-    $("#LoadSalidas").fadeIn('slow');
-    $.ajax({
-        type:'POST',
-        url:'modal/Salidas_Tabla.php',
-        data: parametros,
-        success:function(data){
-            $("#LoadSalidas").html(data);
-        }
-    });
-}
-
 function LoadKPIS(){
     var parametros = $("#FormQueryUnidades").serialize();
     $("#LoadKPIS").fadeIn('slow');

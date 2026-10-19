@@ -244,7 +244,7 @@ $tecnicosTraspaso = $idContratistaTraspaso > 0
     </div>
 
     <?php include_once __DIR__ . '/../components/ScriptContratistas.php'; ?>
-    <script src="js/app-traspasos.js"></script>
+    <script src="js/traspasos.js"></script>
     <script>
         $(document).ready(function () {
             LoadTraspasos();
@@ -334,7 +334,7 @@ $tecnicosTraspaso = $idContratistaTraspaso > 0
                 });
 
                 $('#traspasoMensaje').html('<div class="alert alert-info">Procesando traspaso...</div>');
-                $.post('modal/GuardarTraspaso.php', datos, null, 'json')
+                $.post('modal/Traspasos_GuardarNuevoTraspaso.php', datos, null, 'json')
                     .done(function (respuesta) {
                         if (!respuesta.ok) {
                             $('#traspasoMensaje').html('<div class="alert alert-danger">' + respuesta.mensaje + '</div>');
