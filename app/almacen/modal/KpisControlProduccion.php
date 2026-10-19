@@ -1,5 +1,7 @@
+
 <?php
-if (session_status() === PHP_SESSION_NONE) {
+// Validar que la sesión no esté activa Y que los encabezados no se hayan enviado aún
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
     session_start();
 }
 
@@ -22,6 +24,19 @@ $Fecha1 = $_POST['Fecha1'] ?? '';
 $Fecha2 = $_POST['Fecha2'] ?? '';
 
 $Area        = $_POST['selectArea'] ?? '';
+$nombreArea = $_POST['nombreArea'] ?? '';
+$nombreDivision = $_POST['nombreDivision'] ?? '';
+$nombreCope     = $_POST['nombreCope'] ?? '';
+/*echo '<pre>';
+var_dump($Area);
+var_dump($nombreArea);
+var_dump($nombreDivision);
+var_dump($nombreCope);
+echo '</pre>'; */
+
+
+
+
 $Division    = $_POST['selectDivision'] ?? '';
 $Cope        = $_POST['selectCope'] ?? '';
 $TipoTarea = $_POST['TipoTarea'] ?? '';
@@ -54,10 +69,20 @@ $index = new Index();
 $consultas = new ClassConsultasProduccion();
 
 // CONSULTA DE DETALLE POR ÁREA DE LA TABLA seg_produccion_diaria
+// CONSULTA DE DETALLE POR ÁREA DE LA TABLA seg_produccion_diaria
 $detalleArea = [];
 if (!empty($idContratistaSeleccionado)) {
-    $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea($idContratistaSeleccionado);
+    // Embohasa avei umi fecha ne función-pe
+    $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea(
+        $idContratistaSeleccionado, 
+        $fechascard1, 
+        $fechascard2
+    );
 }
+/*$detalleArea = [];
+if (!empty($idContratistaSeleccionado)) {
+    $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea($idContratistaSeleccionado);
+} */
 
 // PROCESAMIENTO Y ACTUALIZACIÓN SI SE ENVIARON FECHAS POR POST
 $TotalSinNavegacion = 0;
@@ -101,17 +126,16 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
 
 // PRODUCCION POR FECHAS SELECCIONADAS
 $TotalProduccionFechas = 0;
-
 $qrProduccionFechas = $consultas->CountProduccionPorFechas(
-    null,                        // $fechaInicio (vacío para usar las de la card)
-    null,                        // $fechaFin (vacío para usar las de la card)
-    $fechascard1,                // Fecha inicial elegida en la card
-    $fechascard2,                // Fecha final elegida en la card
-    $idContratistaSeleccionado,  // Contratista seleccionado
+    $Fecha1, 
+    $Fecha2, 
+    $fechascard1, 
+    $fechascard2, 
+    $idContratistaSeleccionado,
     $TipoTarea,
-    $Area,
-    $Division,
-    $Cope
+    $nombreArea,
+    $nombreDivision,
+    $nombreCope
 );
 
 if (is_array($qrProduccionFechas)) {
@@ -126,7 +150,7 @@ if (is_array($qrProduccionFechas)) {
     $TotalProduccionFechas = (int)$qrProduccionFechas;
 }
 
-// TOTAL ONT SIN ENTRADA A ALMACÉN (GENERAL)
+// TOTAL ONT SIN ENTRADA A ALMACÉN
 $TotalOntSinAlmacen = 0;
 $qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen(
     $Fecha1, 
@@ -134,10 +158,9 @@ $qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen(
     $fechascard1, 
     $fechascard2, 
     $idContratistaSeleccionado,
-    $TipoTarea,
-    $Area,
-    $Division,
-    $Cope
+    $nombreArea,
+    $nombreDivision,
+    $nombreCope
 );
 
 if (is_array($qrOntSinAlmacen)) {
@@ -152,7 +175,7 @@ if (is_array($qrOntSinAlmacen)) {
     $TotalOntSinAlmacen = (int)$qrOntSinAlmacen;
 }
 
-// TOTAL ONT CON ENTRADA A ALMACÉN (GENERAL)
+// TOTAL ONT CON ENTRADA A ALMACÉN
 $TotalOntConAlmacen = 0;
 $qrOntConAlmacen = $consultas->CountOntConEntradaAlmacen(
     $Fecha1, 
@@ -160,10 +183,9 @@ $qrOntConAlmacen = $consultas->CountOntConEntradaAlmacen(
     $fechascard1, 
     $fechascard2, 
     $idContratistaSeleccionado,
-    $TipoTarea,
-    $Area,
-    $Division,
-    $Cope
+    $nombreArea,
+    $nombreDivision,
+    $nombreCope
 );
 
 if (is_array($qrOntConAlmacen)) {
@@ -218,6 +240,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
 ?>
 
 <link rel="stylesheet" href="css/kpisdashboard.css">
+<link rel="stylesheet" href="css/estiloscardexcel.css">
 
 <!-- Content Row KPI Cards -->
 <div class="row kpi-cards-row">
@@ -235,19 +258,31 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
         </a>
     </div>
 
-    <!-- Card 1: Producción Por Fechas -->
-    <div class="col-xl col-md-6 mb-4">
-        <a href="#" class="kpi-card-link">
-            <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #17a2b8;">
-                <div class="kpi-card-body">
-                    <div class="kpi-card-icon"><i class="fas fa-calendar-alt"></i></div>
-                    <div class="kpi-card-label">Producción por Fechas</div>
-                    <div class="kpi-card-number"><?php echo number_format($TotalProduccionFechas); ?></div>
-                </div>
-            </div>
-        </a>
-    </div>
+<!-- Card 1: Producción Por Fechas -->
+<!-- Card 1: Producción Por Fechas -->
+<div class="col-xl col-md-6 mb-4">
+    <div class="kpi-card kpi-card-dark position-relative" style="border-left: 4px solid #17a2b8;">
+        <!-- Botón de Excel en la esquina superior derecha -->
+        <button type="button" 
+                id="btnExportarLiquidadas" 
+                class="btn-excel-top-right" 
+                title="Exportar resultado a Excel">
+            <i class="fas fa-file-excel"></i>
+            <span>Excel</span>
+        </button>
 
+        <div class="kpi-card-body">
+            <!-- Icono del calendario arriba a la izquierda -->
+            <div class="kpi-card-icon mb-3">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+
+            <!-- Etiquetas y Valores de la Card -->
+            <div class="kpi-card-label">TOTAL DE LIQUIDADAS</div>
+            <div class="kpi-card-number"><?php echo number_format($TotalProduccionFechas); ?></div>
+        </div>
+    </div>
+</div>
     <!-- Card 2: ONT Sin Entrada a Almacén -->
     <div class="col-xl col-md-6 mb-4">
         <a href="#" class="kpi-card-link">
@@ -363,7 +398,7 @@ if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
         </div>
     </div>
 </div>
-
+<script src="js/exportexcelcardfechas.js?v=<?php echo time(); ?>"></script>
 <script>
 (function () {
   // Carga de Divisiones
