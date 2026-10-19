@@ -547,11 +547,31 @@ public function CountProduccionPorFechas(
                                 DISTRITO, TERMINAL, Fecha_Insercion, Tiene_Senalamiento
                             ) VALUES ";
 
-            $sqlDiariaDuplicate = " ON DUPLICATE KEY UPDATE
+           /* $sqlDiariaDuplicate = " ON DUPLICATE KEY UPDATE
                                     Serie_Eci = VALUES(Serie_Eci),
                                     Existe_Serie_Prod_Almacen = VALUES(Existe_Serie_Prod_Almacen),
                                     Existe_Serie_Eci_Almacen = VALUES(Existe_Serie_Eci_Almacen),
-                                    Tiene_Senalamiento = VALUES(Tiene_Senalamiento)";
+                                    Tiene_Senalamiento = VALUES(Tiene_Senalamiento)"; */
+                $sqlDiariaDuplicate = " ON DUPLICATE KEY UPDATE
+                        Tipo_de_Tarea = VALUES(Tipo_de_Tarea),
+                        NOM_CT = VALUES(NOM_CT),
+                        FECHA_LIQD = VALUES(FECHA_LIQD),
+                        Semana = VALUES(Semana),
+                        Sem = VALUES(Sem),
+                        Anio = VALUES(Anio),
+                        idContratista = VALUES(idContratista),
+                        Contratista = VALUES(Contratista),
+                        Tecnico = VALUES(Tecnico),
+                        NOM_DIVISION = VALUES(NOM_DIVISION),
+                        NOM_AREA = VALUES(NOM_AREA),
+                        Num__Serie = VALUES(Num__Serie),
+                        Serie_Eci = VALUES(Serie_Eci),
+                        Existe_Serie_Prod_Almacen = VALUES(Existe_Serie_Prod_Almacen),
+                        Existe_Serie_Eci_Almacen = VALUES(Existe_Serie_Eci_Almacen),
+                        DISTRITO = VALUES(DISTRITO),
+                        TERMINAL = VALUES(TERMINAL),
+                        Tiene_Senalamiento = VALUES(Tiene_Senalamiento),
+                        Fecha_Insercion = NOW()";
 
             $chunks = array_chunk($registros, $batchSize);
 
