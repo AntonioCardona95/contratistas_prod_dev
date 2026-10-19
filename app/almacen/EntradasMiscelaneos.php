@@ -41,6 +41,7 @@
 
     <!-- Custom styles for this page -->
     <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
+    <link href="css/entradas.css" rel="stylesheet">
  
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     
@@ -48,7 +49,7 @@
 
 </head>
 
-<body id="page-top">
+<body id="page-top" class="entradas-tabla-page">
 
     <!-- Page Wrapper -->
     <div id="wrapper">

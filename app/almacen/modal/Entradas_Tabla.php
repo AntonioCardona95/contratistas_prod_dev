@@ -28,137 +28,17 @@
     }
 ?>
 
-<style>
-
-    /* ── BUSCADOR MOVIL ── */
-    #entradas-mobile-search {
-        display: none;
-    }
-
-    #entradas-table-wrapper {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    #entradas_wrapper .dt-scroll-head th,
-    #entradas_wrapper .dt-scroll-foot th,
-    #entradas_wrapper .dt-scroll-body td,
-    #entradas thead th,
-    #entradas tfoot th,
-    #entradas tbody td {
-        text-align: center !important;
-        vertical-align: middle !important;
-    }
-
-    #entradas-cards-container {
-        display: none;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        margin-top: 20px;
-    }
-
-    .entrada-card {
-        background: #fff;
-        border-radius: 14px;
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(0, 0, 0, 0.04);
-        overflow: hidden;
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-
-    .entrada-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
-    }
-
-    .entrada-card-header {
-        padding: 18px 18px 0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-    }
-
-    .entrada-card-body {
-        padding: 0 18px 18px;
-    }
-
-    .entrada-field {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 0;
-        border-bottom: 1px solid #f1f3f5;
-        gap: 10px;
-    }
-
-    .entrada-field:last-child {
-        border-bottom: none;
-    }
-
-    .entrada-field span {
-        color: #6c757d;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        flex: 1;
-    }
-
-    .entrada-field strong {
-        color: #1f2937;
-        font-size: 0.95rem;
-        font-weight: 600;
-        text-align: right;
-        min-width: 120px;
-    }
-
-    @media (max-width: 768px) {
-        #entradas-table-wrapper {
-            display: none;
-        }
-
-        #entradas-cards-container {
-            display: grid;
-            grid-template-columns: 1fr;
-        }
-
-        #entradas-mobile-search {
-            display: block;
-            margin-bottom: 14px;
-        }
-
-        .modal-title {
-            font-size: 15px !important;
-        }
-
-        h2 {
-            font-size: 15px !important;
-        }
-
-        .dt-buttons {
-            margin-bottom: 15px;
-        }
-
-        /* ACOMODAR EL TITULO CON EL SELECT DEL ADMIN */
-        .card-header{
-            flex-direction: column;
-            gap: 5px;
-        }
-    }
-
-</style>
-
-<div id="entradas-loading" style="text-align: center; padding: 20px;">
+<div id="entradas-loading">
     <div class="spinner-border text-primary" role="status">
         <span class="sr-only">Cargando...</span>
     </div>
     <p>Cargando datos, por favor espere...</p>
 </div>
 
-<div id="contenedor-tabla-entradas" style="opacity: 0; transition: opacity 0.3s ease;">
+<div id="contenedor-tabla-entradas">
     <div id="entradas-buttons-container"></div>
     <div id="entradas-table-wrapper">
-        <table class="table table-bordered display nowrap" style="width:100%" id="entradas">
+        <table class="table table-bordered display nowrap entradas-data-table" id="entradas">
             <thead>
                 <tr>
                     <th>Folio Entrada</th>
@@ -225,6 +105,34 @@
 </div>
 
 <script>
+
+    // BOTON DE DETALLE DE ENTRADA
+    $(document).on('click', '.btn-detalle-entrada', function () {
+
+            const folio = $(this).data('folio');
+            $('#modalEntradaDetalleContenido').html(
+                '<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>'
+            );
+            $('#modalEntradaDetalle').modal('show');
+
+            $.ajax({
+                url: 'modal/Entradas_Detalles.php',
+                type: 'GET',
+                data: { folio: folio },
+                success: function (contenido) {
+                    $('#modalEntradaDetalleContenido').html(contenido);
+                    $('#modalEntradaDetalleTitulo').text('Detalle de entrada: Folio ' + folio);
+                },
+                error: function () {
+                    $('#modalEntradaDetalleContenido').html(
+                        '<div class="alert alert-danger mb-0">No fue posible cargar el detalle.</div>'
+                    );
+                }
+            });
+    });
+
+
+    // INICIALIZAR DATATABLES Y RENDERIZAR TARJETAS
 	$(document).ready(function () {
         let table = new DataTable('#entradas', {
             responsive: true,
@@ -236,7 +144,7 @@
             scrollX: true,
             initComplete: function(settings, json) {
                 $('#entradas-loading').hide();
-                $('#contenedor-tabla-entradas').css('opacity', '1');
+                $('#contenedor-tabla-entradas').addClass('is-loaded');
             }
         });
 

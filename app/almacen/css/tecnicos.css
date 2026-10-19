@@ -1,245 +1,401 @@
-/* ESTILOS PERSONALIZADOS PARA DASHBOARD DE TÉCNICOS */
-
+/* COLORES COMPARTIDOS POR LOS ELEMENTOS DE LA TARJETA DE TÉCNICOS. */
 :root {
-    --primary-color: #007BFF;
-    --success-color: #28A745;
-    --warning-color: #FFC107;
-    --info-color: #17A2B8;
-    --border-radius: 12px;
-    --transition: all 0.3s ease;
+    --tecnico-navy: #061d32;
+    --tecnico-blue: #0b4774;
+    --tecnico-accent: #10a9e6;
+    --tecnico-text: #10233d;
+    --tecnico-muted: #8a9bb4;
 }
 
-/* SECCIÓN HÉROE CON GRADIENTE */
-.prod-hero {
-    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 45%, #0f766e 100%);
-    color: #fff;
-    border-radius: 12px;
-    padding: 1rem 1.75rem;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
-    margin: 15px 0;
-}
-
-.prod-hero h1 {
-    margin: 0;
-}
-
-/* ESTILOS PARA DATATABLES */
-.dt-search {
-    margin-bottom: 0px;
-    margin-top: 0px;
-    width: 100%;
-}
-
-.dt-search input {
-    width: 100% !important;
-    max-width: 500px !important;
-    padding: 10px 15px !important;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 14px !important;
-}
-
-.dt-search input:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
-}
-
+/* CONTENEDOR Y BOTONES DE PAGINACIÓN GENERADOS POR DATATABLES 2. */
 .dt-paging {
-    margin-top: 0px;
     display: flex;
     justify-content: flex-end;
+    margin-top: 10px;
 }
 
-.dt-paging .dt-pager {
-    display: flex;
-    gap: 5px;
-}
-
-.dt-paging .dt-pager button {
+.dt-paging .dt-paging-button {
     padding: 6px 10px;
-    border: 1px solid #ddd;
-    background: white;
-    border-radius: 4px;
+    border: 1px solid #d9e1eb;
+    border-radius: 6px;
+    background: #fff;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.dt-paging .dt-pager button:hover:not(.disabled) {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
+.dt-paging .dt-paging-button:hover:not(.disabled):not(.current) {
+    border-color: var(--tecnico-blue);
+    background: var(--tecnico-blue);
+    color: #fff;
 }
 
-.dt-paging .dt-pager button.disabled {
+.dt-paging .dt-paging-button.current {
+    border-color: var(--tecnico-blue);
+    background: var(--tecnico-blue);
+    color: #fff;
+}
+
+.dt-paging .dt-paging-button.disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
+/* TEXTO QUE INDICA EL RANGO DE REGISTROS MOSTRADO POR DATATABLES. */
 .dt-info {
-    padding-top: 0.75rem;
-    color: #495057;
+    margin: 0;
+    padding-top: 0.4rem;
+    color: #64748b;
     font-size: 14px;
 }
 
-/* GRID DINÁMICO DE TARJETAS */
-#tecnicos-grid-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 25px;
-    margin-bottom: 20px;
-    margin-top: 20px;
-}
-
-@media (max-width: 1200px) {
-    #tecnicos-grid-container {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
-    }
-}
-
-@media (max-width: 768px) {
-    #tecnicos-grid-container {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-}
-
-/* TARJETAS DE TÉCNICOS */
-.tecnico-card {
-    background: white;
-    border-radius: var(--border-radius);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    transition: var(--transition);
-    border-top: 4px solid var(--primary-color);
-}
-
-.tecnico-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-    border-top-color: var(--success-color);
-}
-
-.tecnico-card-body {
-    padding: 25px;
-}
-
-/* ENCABEZADO DE LA TARJETA (NOMBRE) */
-.tecnico-nombre {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #2c3e50;
-    margin-bottom: 18px;
+/* CONTENEDOR DEL BOTÓN DE EXPORTACIÓN QUE GENERA DATATABLES BUTTONS. */
+.dt-buttons {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: flex-start;
 }
 
-.tecnico-nombre::before {
-    content: '\f007';
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    color: var(--primary-color);
-    margin-right: 5px;
+/* APARIENCIA DEL BOTÓN EXCEL DENTRO DE LA BARRA DE BOTONES. */
+.dt-buttons .btn {
+    padding: 0.55rem 1rem;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
 }
 
-/* ÍTEMS DE INFORMACIÓN EN LA TARJETA */
+/* COLORES DEL BOTÓN EXCEL Y SU ESTADO HOVER. */
+.dt-buttons .btn-success {
+    border: none;
+    background: linear-gradient(135deg, #1abf73, #2cae5a);
+}
+
+.dt-buttons .btn-success:hover {
+    background: linear-gradient(135deg, #15995f, #1f8e4e);
+}
+
+/* BUSCADOR COMPACTO PARA TELÉFONOS; EN ESCRITORIO SE USA EL DE DATATABLES. */
+#tecnicos-mobile-search {
+    display: none;
+}
+
+/* GRID RESPONSIVE QUE CONTIENE LAS TARJETAS DE LA PÁGINA ACTUAL. */
+#tecnicos-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 360px));
+    justify-content: center;
+    gap: 24px;
+}
+
+/* TARJETA INDIVIDUAL DEL TÉCNICO Y ELEVACIÓN AL PASAR EL CURSOR. */
+.tecnico-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 28px;
+    box-shadow: 0 16px 35px rgba(15, 35, 59, 0.12);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+/* EFECTO HOVER DE LA TARJETA. */
+.tecnico-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 42px rgba(15, 35, 59, 0.17);
+}
+
+/* FRANJA SUPERIOR AZUL DE LA TARJETA. */
+.tecnico-card-cover {
+    height: 108px;
+    background: linear-gradient(115deg, var(--tecnico-navy), var(--tecnico-blue));
+}
+
+/* INDICADOR DE ESTADO ACTIVO SITUADO SOBRE LA FRANJA SUPERIOR. */
+.tecnico-status {
+    position: absolute;
+    top: 16px;
+    right: 23px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 13px;
+    border: 1px solid rgba(20, 220, 165, 0.36);
+    border-radius: 20px;
+    background: rgba(13, 121, 112, 0.28);
+    color: #19d8a4;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+}
+
+/* PUNTO LUMINOSO QUE ACOMPAÑA EL ESTADO DEL TÉCNICO. */
+.tecnico-status::before {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #19d8a4;
+    box-shadow: 0 0 9px rgba(25, 216, 164, 0.75);
+    content: "";
+}
+
+/* AVATAR SUPERPUESTO ENTRE LA CABECERA Y EL CUERPO DE LA TARJETA. */
+.tecnico-avatar {
+    position: absolute;
+    top: 56px;
+    left: 24px;
+    display: grid;
+    width: 96px;
+    height: 96px;
+    place-items: center;
+    border: 5px solid #fff;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #33b8ed, #078fcf);
+    box-shadow: 0 7px 16px rgba(15, 35, 59, 0.18);
+    color: #fff;
+    font-size: 2.3rem;
+}
+
+/* CUERPO DE LA TARJETA; DEJA ESPACIO PARA EL AVATAR SUPERPUESTO. */
+.tecnico-card-body {
+    padding: 58px 24px 10px;
+}
+
+/* NOMBRE DEL TÉCNICO. */
+.tecnico-nombre {
+    margin: 0 0 7px;
+    color: var(--tecnico-text);
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+/* ETIQUETA DEL NÚMERO DE EXPEDIENTE DEBAJO DEL NOMBRE. */
+.tecnico-expediente {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    max-width: 100%;
+    padding: 5px 9px;
+    border: 1px solid #dfe7f1;
+    border-radius: 6px;
+    background: #f3f6fa;
+    color: #61748f;
+    font-size: 0.72rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+/* ICONO DE IDENTIFICACIÓN EN LA ETIQUETA DE EXPEDIENTE. */
+.tecnico-expediente i {
+    color: #8ca1bd;
+}
+
+/* SEPARADOR ENTRE LA IDENTIFICACIÓN Y LOS DATOS DE CONTACTO. */
+.tecnico-card-divider {
+    height: 1px;
+    margin: 10px 0 5px;
+    border: 0;
+    background: #edf1f6;
+}
+
+/* FILA DE INFORMACIÓN PARA TELÉFONO O CENTRO DE TRABAJO. */
 .tecnico-info-item {
     display: flex;
     align-items: center;
-    margin-bottom: 14px;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    transition: var(--transition);
+    gap: 14px;
+    min-height: 62px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border: 1px solid #edf1f6;
+    border-radius: 17px;
+    background: #f8fafc;
 }
 
-.tecnico-info-item:hover {
-    background-color: #e9ecef;
-}
-
-.tecnico-info-item:last-child {
-    margin-bottom: 0;
-}
-
-.tecnico-info-label {
-    font-weight: 600;
-    color: #495057;
-    min-width: 110px;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.tecnico-info-value {
-    color: #2c3e50;
-    font-weight: 500;
-    flex: 1;
-    margin-left: 10px;
+/* RECUADRO DEL ICONO EN CADA FILA DE INFORMACIÓN. */
+.tecnico-info-icon {
+    display: grid;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    border: 1px solid #dfe7f1;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(15, 35, 59, 0.05);
+    color: #078fcf;
     font-size: 0.95rem;
 }
 
-/* ICONOS Y ESTILOS PARA CADA CAMPO */
-.info-expediente {
-    border-left: 3px solid var(--info-color);
-    padding-left: 12px;
+/* CONTENEDOR DE ETIQUETA Y VALOR DENTRO DE CADA FILA. */
+.tecnico-info-copy {
+    min-width: 0;
 }
 
-.info-expediente .tecnico-info-label::before {
-    content: '\f15b';
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    margin-right: 8px;
-    color: var(--info-color);
+/* ETIQUETA SECUNDARIA, COMO “TELÉFONO” O “CENTRO DE TRABAJO”. */
+.tecnico-info-label {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--tecnico-muted);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
 }
 
-.info-telefono {
-    border-left: 3px solid var(--success-color);
-    padding-left: 12px;
+/* VALOR DEL DATO DEL TÉCNICO. */
+.tecnico-info-value {
+    display: block;
+    color: var(--tecnico-text);
+    font-size: 0.83rem;
+    font-weight: 700;
+    overflow-wrap: anywhere;
 }
 
-.info-telefono .tecnico-info-label::before {
-    content: '\f095';
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    margin-right: 8px;
-    color: var(--success-color);
+/* BLOQUE OSCURO CON LA CANTIDAD PROVISIONAL DE FIBRA DISPONIBLE. */
+.tecnico-inventario {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 12px 13px;
+    border-radius: 16px;
+    background: var(--tecnico-navy);
+    box-shadow: 0 8px 16px rgba(15, 35, 59, 0.14);
+    color: #fff;
 }
 
-.info-cope {
-    border-left: 3px solid var(--warning-color);
-    padding-left: 12px;
+/* ICONO DEL INVENTARIO EN UN RECUADRO. */
+.tecnico-inventario-icon {
+    display: grid;
+    flex: 0 0 40px;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--tecnico-accent);
 }
 
-.info-cope .tecnico-info-label::before {
-    content: '\f1ad';
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    margin-right: 8px;
-    color: var(--warning-color);
+/* TEXTOS DESCRIPTIVOS DEL INVENTARIO. */
+.tecnico-inventario-copy {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
 }
 
-/* BADGE MOSTRANDO TOTAL DE TÉCNICOS */
-.badge-total {
-    background: linear-gradient(135deg, var(--primary-color), var(--info-color));
-    color: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+/* NOMBRE DEL DATO DE INVENTARIO. */
+.tecnico-inventario-label {
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 800;
 }
 
-/* ALERTA CUANDO NO HAY TÉCNICOS */
-.alert-empty {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
-    color: white;
-    border-radius: var(--border-radius);
-    padding: 30px;
+/* ACLARACIÓN DEL USO DEL VALOR PROVISIONAL. */
+.tecnico-inventario-description {
+    color: #9ab1c8;
+    font-size: 0.62rem;
+}
+
+/* CANTIDAD ACTUALMENTE FIJADA EN CERO METROS. */
+.tecnico-inventario-cantidad {
+    flex: 0 0 auto;
+    padding: 8px 12px;
+    border-radius: 12px;
+    background: var(--tecnico-accent);
+    color: #fff;
+    font-size: 0.88rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+/* PIE DE LA TARJETA CON LA LEYENDA DE IDENTIFICACIÓN. */
+.tecnico-card-footer {
+    padding: 17px 15px;
+    background: #f7f9fc;
+    color: var(--tecnico-muted);
+    font-size: 0.63rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
     text-align: center;
-    font-size: 1.1rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    text-transform: uppercase;
 }
 
+/* ESTADO VACÍO QUE SE MUESTRA SI NO HAY TÉCNICOS PARA EL CONTRATISTA. */
+.alert-empty {
+    padding: 30px;
+    border: 0;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #0b4774, #10a9e6);
+    box-shadow: 0 4px 15px rgba(15, 35, 59, 0.1);
+    color: #fff;
+    font-size: 1.1rem;
+    text-align: center;
+}
+
+/* EL GRID PASA A UNA COLUMNA EN PANTALLAS PEQUEÑAS. */
+@media (max-width: 768px) {
+    /* APILA Y CENTRA EL TÍTULO Y EL SELECTOR DE CONTRATISTA. */
+    .tecnicos-page .card-header {
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        text-align: center;
+    }
+
+    .tecnicos-page .card-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .tecnicos-page .selector-contratista-wrap {
+        width: 100%;
+        max-width: 300px;
+        margin: 10px 0 0 !important;
+    }
+
+    /* USA LA BARRA MÓVIL DE BÚSQUEDA DEBAJO DEL BOTÓN DE EXCEL. */
+    #tecnicos-buttons-container {
+        margin-bottom: 15px !important;
+    }
+
+    #tecnicos-buttons-container .dt-buttons {
+        justify-content: flex-start;
+    }
+
+    #tecnicos-table-wrapper .dt-search,
+    #tecnicos-table-wrapper .dt-length {
+        display: none;
+    }
+
+    #tecnicos-mobile-search {
+        display: block;
+        margin-bottom: 14px;
+    }
+
+    #tecnicos-grid-container {
+        grid-template-columns: minmax(0, 360px);
+        gap: 16px;
+    }
+}
+
+/* REDUCE MÁRGENES Y REDONDEO EN TELÉFONOS ESTRECHOS. */
+@media (max-width: 420px) {
+    .tecnico-card {
+        border-radius: 22px;
+    }
+
+    .tecnico-card-body {
+        padding-right: 18px;
+        padding-left: 18px;
+    }
+
+    .tecnico-avatar {
+        left: 18px;
+    }
+
+    .tecnico-status {
+        right: 16px;
+    }
+}

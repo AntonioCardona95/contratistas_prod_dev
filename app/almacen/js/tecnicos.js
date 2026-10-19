@@ -1,28 +1,19 @@
-﻿let tecnicosLoadInProgress = false;
-
-function LoadTecnicos() {
-    if (tecnicosLoadInProgress) {
-        return;
-    }
-
-    tecnicosLoadInProgress = true;
-
+﻿
+function LoadTecnicos(){
+    var parametros = $('#FormQueryUnidades').serialize();
+    $('#LoadEntradas').fadeIn('slow');
     $.ajax({
-        url: 'modal/TablaTecnicos.php',
-        type: 'GET',
-        success: function (html) {
-            $('#LoadTecnicos').html(html);
+        type: 'POST',
+        url: 'modal/Tecnicos_Tabla.php',
+        data: parametros,
+        beforeSend: function () {
+            $('#LoadTecnicos').html('<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div></div>');
         },
-        error: function (xhr, status) {
-            console.error('Error al cargar técnicos:', status, xhr);
-            $('#LoadTecnicos').html('<div class="alert alert-danger">No se pudo cargar la vista de técnicos.</div>');
+        success: function (data) {
+            $('#LoadTecnicos').html(data);
         },
-        complete: function () {
-            tecnicosLoadInProgress = false;
+        error: function () {
+            $('#LoadTecnicos').html('<div class="alert alert-danger">No fue posible cargar la información.</div>');
         }
     });
 }
-
-$(document).ready(function () {
-    LoadTecnicos();
-});

@@ -38,19 +38,14 @@
     <!-- ESTILOS PARA TABLAS Y RESPONSIVIDAD -->
     <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
     <link href="../css/responsive_custom.css" rel="stylesheet">
+    <link href="css/entradas.css" rel="stylesheet">
 
     <!-- ESTILO PERSONALIZADO PARA EL MENU ACTIVO DE LA SIDEBAR -->
     <link rel="stylesheet" href="css/sidebar-active.css">
 
-    <style>
-        .modal-header-gradient {
-            background: linear-gradient(90deg, #0f172a 0%, #003d99 100%) !important;
-        }
-    </style>
-
 </head>
 
-<body id="page-top">
+<body id="page-top" class="entradas-page entradas-tabla-page">
 
     <!-- CONTENEDOR DE LA PAGINA -->
     <div id="wrapper">
@@ -140,34 +135,8 @@
             LoadEntradas();
         });
 
-
-        $(document).on('click', '.btn-detalle-entrada', function () {
-
-            const folio = $(this).data('folio');
-            $('#modalEntradaDetalleContenido').html(
-                '<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>'
-            );
-            $('#modalEntradaDetalle').modal('show');
-
-            $.ajax({
-                url: 'modal/Entradas_Detalles.php',
-                type: 'POST',
-                data: { folio: folio },
-                success: function (contenido) {
-                    $('#modalEntradaDetalleContenido').html(contenido);
-                    $('#modalEntradaDetalleTitulo').text('Detalle de entrada: Folio ' + folio);
-                },
-                error: function () {
-                    $('#modalEntradaDetalleContenido').html(
-                        '<div class="alert alert-danger mb-0">No fue posible cargar el detalle.</div>'
-                    );
-                }
-            });
-        });
-
     </script>
 
 </body>
 
 </html>
-
