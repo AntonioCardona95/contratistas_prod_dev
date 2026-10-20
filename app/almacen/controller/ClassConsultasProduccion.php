@@ -505,8 +505,9 @@ public function CountProduccionPorFechas(
             if (!empty($expedientesUnicos)) {
                 $placeholders = implode(',', array_fill(0, count($expedientesUnicos), '?'));
                 
-                // Filtramos estrictamente por Estatus_Tecnico = 'ACTIVO' para evitar duplicidades históricas
-                $sqlTec = "SELECT t.NExpediente, c.idContratistas, c.Contratista 
+                // Unimos Nombre, Apellido Paterno y Apellido Materno de la tabla contratistas
+                $sqlTec = "SELECT t.NExpediente, c.idContratistas, 
+                           TRIM(CONCAT_WS(' ', c.Contratista, c.apellido_paterno, c.apellido_materno)) AS ContratistaCompleto 
                            FROM tecnicos t 
                            INNER JOIN contratistas c ON t.FK_Contratista_Tecnico = c.idContratistas 
                            WHERE t.NExpediente IN ($placeholders) 
@@ -519,7 +520,7 @@ public function CountProduccionPorFechas(
                 foreach ($resultadosTec as $rowTec) {
                     $mapTecnicosInfo[$rowTec['NExpediente']] = [
                         'idContratista' => $rowTec['idContratistas'],
-                        'Contratista'   => $rowTec['Contratista']
+                        'Contratista'   => $rowTec['ContratistaCompleto']
                     ];
                 }
             }
@@ -594,11 +595,11 @@ public function CountProduccionPorFechas(
                         $nombreOficial = trim($infoOficial['Contratista']);
 
                         if (empty($idContratistaInput) || empty($contratistaInput)) {
-                            // Si venía vacío, asignamos el oficial directo
+                            // Si venía vacío, asignamos el oficial directo con nombre completo
                             $idContratistaFinal = $idOficial;
-                            $contratistaFinal   = $infoOficial['Contratista'];
+                            $contratistaFinal   = $nombreOficial;
                         } else {
-                            // Comparamos si coincide el ID y el nombre (normalizando espacios/mayúsculas)
+                            // Comparamos si coincide el ID y el nombre completo (normalizando espacios/mayúsculas)
                             $coincideId = ((int)$idContratistaInput === (int)$idOficial);
                             
                             $nombreRegNorm = preg_replace('/\s+/', ' ', mb_strtoupper($contratistaInput));
@@ -610,7 +611,7 @@ public function CountProduccionPorFechas(
                                 $contrAnterior      = $reg['Contratista'];
                                 
                                 $idContratistaFinal = $idOficial;
-                                $contratistaFinal   = $infoOficial['Contratista'];
+                                $contratistaFinal   = $nombreOficial;
                             }
                         }
                     }
