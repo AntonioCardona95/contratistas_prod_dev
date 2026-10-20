@@ -479,52 +479,45 @@ public function CountProduccionPorFechas(
         return array_column($rows, 'Num_Serie');
     }
 
-    /**
+   /**
      * Procesa e inserta/actualiza producción, señalamientos y estados de navegación.
      * Mantiene la producción sin duplicar registros y actualiza dinámicamente el estatus de navegación.
      */
     public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
     {
-        
         if (empty($registros)) return true;
 
         $conexion = $this->conexion(); // Conexión 'erpprint' (Base ERP)
 
         try {
             // -------------------------------------------------------------
-            // 0. RESCATE DE CONTRATISTAS FALTANTES POR EXPEDIENTE
+            // 0. RESCATE Y VALIDACIÓN DE CONTRATISTAS ACTIVOS POR EXPEDIENTE
             // -------------------------------------------------------------
-            $expedientesFaltantes = [];
+            $expedientesUnicos = [];
             foreach ($registros as $reg) {
-                $idContr = $reg['idContratista'] ?? null;
-                $contr   = trim($reg['Contratista'] ?? '');
-                $exp     = $reg['Expediente'] ?? null;
-
-                if ((empty($idContr) || empty($contr)) && !empty($exp)) {
-                    $expedientesFaltantes[$exp] = $exp;
+                $exp = $reg['Expediente'] ?? null;
+                if (!empty($exp)) {
+                    $expedientesUnicos[$exp] = $exp;
                 }
             }
 
-            $mapContratistasRescatados = [];
-            if (!empty($expedientesFaltantes)) {
-                $placeholders = implode(',', array_fill(0, count($expedientesFaltantes), '?'));
-                /*$sqlTec = "SELECT t.NExpediente, c.idContratistas, c.Contratista 
+            $mapTecnicosInfo = [];
+            if (!empty($expedientesUnicos)) {
+                $placeholders = implode(',', array_fill(0, count($expedientesUnicos), '?'));
+                
+                // Filtramos estrictamente por Estatus_Tecnico = 'ACTIVO' para evitar duplicidades históricas
+                $sqlTec = "SELECT t.NExpediente, c.idContratistas, c.Contratista 
                            FROM tecnicos t 
                            INNER JOIN contratistas c ON t.FK_Contratista_Tecnico = c.idContratistas 
-                           WHERE t.NExpediente IN ($placeholders)"; */
-
-                $sqlTec = "SELECT t.NExpediente, c.idContratistas, c.Contratista 
-           FROM tecnicos t 
-           INNER JOIN contratistas c ON t.FK_Contratista_Tecnico = c.idContratistas 
-           WHERE t.NExpediente IN ($placeholders) 
-             AND t.Estatus_Tecnico = 'ACTIVO'";
+                           WHERE t.NExpediente IN ($placeholders) 
+                             AND t.Estatus_Tecnico = 'ACTIVO'";
                 
                 $stmtTec = $conexion->prepare($sqlTec);
-                $stmtTec->execute(array_values($expedientesFaltantes));
+                $stmtTec->execute(array_values($expedientesUnicos));
                 $resultadosTec = $stmtTec->fetchAll(PDO::FETCH_ASSOC);
 
                 foreach ($resultadosTec as $rowTec) {
-                    $mapContratistasRescatados[$rowTec['NExpediente']] = [
+                    $mapTecnicosInfo[$rowTec['NExpediente']] = [
                         'idContratista' => $rowTec['idContratistas'],
                         'Contratista'   => $rowTec['Contratista']
                     ];
@@ -543,17 +536,13 @@ public function CountProduccionPorFechas(
             $sqlDiariaBase = "INSERT INTO seg_produccion_diaria (
                                 Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
                                 FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
-                                idContratista, Contratista, Tecnico, NOM_DIVISION, NOM_AREA,
+                                idContratista, Contratista, idContratista_anterior, Contratista_anterior, 
+                                Tecnico, NOM_DIVISION, NOM_AREA,
                                 Num__Serie, Serie_Eci, Existe_Serie_Prod_Almacen, Existe_Serie_Eci_Almacen,
                                 DISTRITO, TERMINAL, Fecha_Insercion, Tiene_Senalamiento
                             ) VALUES ";
 
-           /* $sqlDiariaDuplicate = " ON DUPLICATE KEY UPDATE
-                                    Serie_Eci = VALUES(Serie_Eci),
-                                    Existe_Serie_Prod_Almacen = VALUES(Existe_Serie_Prod_Almacen),
-                                    Existe_Serie_Eci_Almacen = VALUES(Existe_Serie_Eci_Almacen),
-                                    Tiene_Senalamiento = VALUES(Tiene_Senalamiento)"; */
-                $sqlDiariaDuplicate = " ON DUPLICATE KEY UPDATE
+            $sqlDiariaDuplicate = " ON DUPLICATE KEY UPDATE
                         Tipo_de_Tarea = VALUES(Tipo_de_Tarea),
                         NOM_CT = VALUES(NOM_CT),
                         FECHA_LIQD = VALUES(FECHA_LIQD),
@@ -562,6 +551,8 @@ public function CountProduccionPorFechas(
                         Anio = VALUES(Anio),
                         idContratista = VALUES(idContratista),
                         Contratista = VALUES(Contratista),
+                        idContratista_anterior = VALUES(idContratista_anterior),
+                        Contratista_anterior = VALUES(Contratista_anterior),
                         Tecnico = VALUES(Tecnico),
                         NOM_DIVISION = VALUES(NOM_DIVISION),
                         NOM_AREA = VALUES(NOM_AREA),
@@ -585,17 +576,42 @@ public function CountProduccionPorFechas(
                     $folioPisa  = trim($reg['Folio_Pisa'] ?? '');
                     $fechaLiq   = $reg['FECHA_LIQ'] ?? '';
                     $expediente = $reg['Expediente'] ?? null;
-
                     $serieProd  = trim($reg['Num__Serie'] ?? '');
                     
-                    // Rescatar contratista si viene vacío o null usando el mapa por expediente
-                    $idContratista = $reg['idContratista'] ?? null;
-                    $contratista   = $reg['Contratista'] ?? null;
+                    // Datos iniciales que vienen en el registro
+                    $idContratistaInput = $reg['idContratista'] ?? null;
+                    $contratistaInput   = trim($reg['Contratista'] ?? '');
 
-                    if ((empty($idContratista) || empty(trim($contratista))) && !empty($expediente)) {
-                        if (isset($mapContratistasRescatados[$expediente])) {
-                            $idContratista = $mapContratistasRescatados[$expediente]['idContratista'];
-                            $contratista   = $mapContratistasRescatados[$expediente]['Contratista'];
+                    $idContratistaFinal = $idContratistaInput;
+                    $contratistaFinal   = $reg['Contratista'] ?? null;
+                    $idContrAnterior    = null;
+                    $contrAnterior      = null;
+
+                    // Validación y cruce con el contratista ACTIVO oficial por Expediente
+                    if (!empty($expediente) && isset($mapTecnicosInfo[$expediente])) {
+                        $infoOficial = $mapTecnicosInfo[$expediente];
+                        $idOficial = $infoOficial['idContratista'];
+                        $nombreOficial = trim($infoOficial['Contratista']);
+
+                        if (empty($idContratistaInput) || empty($contratistaInput)) {
+                            // Si venía vacío, asignamos el oficial directo
+                            $idContratistaFinal = $idOficial;
+                            $contratistaFinal   = $infoOficial['Contratista'];
+                        } else {
+                            // Comparamos si coincide el ID y el nombre (normalizando espacios/mayúsculas)
+                            $coincideId = ((int)$idContratistaInput === (int)$idOficial);
+                            
+                            $nombreRegNorm = preg_replace('/\s+/', ' ', mb_strtoupper($contratistaInput));
+                            $nombreOfiNorm = preg_replace('/\s+/', ' ', mb_strtoupper($nombreOficial));
+
+                            if (!$coincideId || $nombreRegNorm !== $nombreOfiNorm) {
+                                // No coinciden: respaldamos el original en las columnas "_anterior" e insertamos el oficial
+                                $idContrAnterior    = $idContratistaInput;
+                                $contrAnterior      = $reg['Contratista'];
+                                
+                                $idContratistaFinal = $idOficial;
+                                $contratistaFinal   = $infoOficial['Contratista'];
+                            }
                         }
                     }
 
@@ -702,13 +718,15 @@ public function CountProduccionPorFechas(
                     $tieneFallos = $hayDiscrepanciaSeries || !$prodEsValida || !$existeProdEnAlmacen || ($eciEsValida && !$existeEciEnAlmacen) || ($flagNavega === 0);
                     $tieneSenalamiento = $tieneFallos ? 1 : 0;
 
-                    $values[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
+                    // 24 placeholders totales para la consulta
+                    $values[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
 
                     array_push(
                         $params,
                         $expediente, $folioPisa, $tel, $reg['Tipo_de_Tarea'], $reg['NOM_CT'],
                         $fechaLiq, $reg['FECHA_LIQD'], $reg['Semana'], $reg['Sem'], $reg['Anio'],
-                        $idContratista, $contratista, $reg['Tecnico'], $reg['NOM_DIVISION'], $reg['NOM_AREA'],
+                        $idContratistaFinal, $contratistaFinal, $idContrAnterior, $contrAnterior, 
+                        $reg['Tecnico'], $reg['NOM_DIVISION'], $reg['NOM_AREA'],
                         $serieProd, $serieEci, $existeProdEnAlmacen ? 1 : 0, $existeEciEnAlmacen ? 1 : 0,
                         $reg['DISTRITO'], $reg['TERMINAL'], $tieneSenalamiento
                     );
@@ -812,7 +830,6 @@ public function CountProduccionPorFechas(
             return false;
         }
     }
-
 
     // CODIGO ANTERIOR //
 
