@@ -25,123 +25,12 @@ $modal = new Salidas();
 $salidas_det = $modal->SalidasDet($Folio) ?? [];
 ?>
 
-<style>
-    .dataTables_wrapper .dt-buttons .btn {
-        margin-right: .25rem;
-    }
-
-    #salidas-det-table-wrapper {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    #salidas-det-cards-container {
-        display: none;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        margin-top: 20px;
-    }
-
-    .salidas-det-card {
-        background: #fff;
-        border-radius: 14px;
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(0, 0, 0, 0.04);
-        overflow: hidden;
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-
-    .salidas-det-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
-    }
-
-    .salidas-det-card-header {
-        background: linear-gradient(90deg, #0f172a 0%, #1a6630 100%);
-        color: #fff;
-        padding: 14px 18px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .salidas-det-card-header .badge-folio {
-        background: rgba(255,255,255,0.15);
-        border-radius: 8px;
-        padding: 4px 10px;
-        font-size: .8rem;
-        font-weight: 700;
-        letter-spacing: .5px;
-    }
-
-    .salidas-det-card-body {
-        padding: 0 18px 18px;
-    }
-
-    .salidas-det-field {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        padding: 10px 0;
-        border-bottom: 1px solid #f1f3f5;
-        gap: 10px;
-    }
-
-    .salidas-det-field:last-child {
-        border-bottom: none;
-    }
-
-    .salidas-det-field span {
-        color: #6c757d;
-        font-size: .82rem;
-        text-transform: uppercase;
-        letter-spacing: .3px;
-        flex: 1;
-        white-space: nowrap;
-    }
-
-    .salidas-det-field strong {
-        color: #1f2937;
-        font-size: .92rem;
-        font-weight: 600;
-        text-align: right;
-        min-width: 100px;
-        word-break: break-word;
-    }
-
-    @media (max-width: 1200px) {
-        #salidas-det-cards-container {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (max-width: 768px) {
-        #salidas-det-table-wrapper {
-            display: none;
-        }
-
-        #salidas-det-cards-container {
-            display: grid;
-            grid-template-columns: 1fr;
-        }
-
-        .salidas-det-field {
-            flex-direction: column;
-        }
-
-        .salidas-det-field strong {
-            text-align: left;
-            width: 100%;
-        }
-    }
-</style>
-
 <div class="salidas-detalle-contenido">
     <!-- BOTON DE EXCEL -->
     <div id="salidas-det-buttons-container" class="mb-3"></div>
 
     <div id="salidas-det-table-wrapper">
-        <table class="table table-bordered display nowrap" style="width:100%" id="salidasDetalleTabla">
+        <table class="table table-bordered display nowrap salidas-data-table" id="salidasDetalleTabla">
             <thead>
                 <tr>
                     <th>Tecnico</th>
@@ -181,7 +70,7 @@ $salidas_det = $modal->SalidasDet($Folio) ?? [];
             '<div class="salidas-det-card">' +
                 '<div class="salidas-det-card-header">' +
                     '<i class="fas fa-tools"></i>' +
-                    '<span class="font-weight-bold" style="flex:1">' + (salida.Producto || '') + '</span>' +
+                    '<span class="font-weight-bold salidas-det-card-product">' + (salida.Producto || '') + '</span>' +
                     '<span class="badge-folio">#' + (indice + 1) + '</span>' +
                 '</div>' +
                 '<div class="salidas-det-card-body">' +

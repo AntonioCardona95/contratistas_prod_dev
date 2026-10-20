@@ -213,7 +213,7 @@ try {
                 color: white;
                 font-weight: bold;
                 padding: 8px 10px;
-                border: 1px solid #0056b3;
+                border: 1px solid #e0e0e0;
                 text-align: left;
                 text-transform: uppercase;
                 font-size: 9pt;
@@ -298,7 +298,7 @@ try {
     <div class="header-block">
         <div class="title-box">
             '. $logo_html .'
-            <h4>VALE DE SALIDA: ' . $folioSalidaTexto . '</h4>
+            <h4>VALE DE ENTRADA CONTRATISTA: ' . $folioSalidaTexto . '</h4>
         </div>
         <div class="date-box">
             <span class="date-label">Fecha:</span>

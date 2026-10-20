@@ -1,0 +1,485 @@
+/* ESTILOS COMPARTIDOS POR SALIDAS_TABLA.PHP Y SALIDAS_DETALLES.PHP */
+
+/* TABLAS PRINCIPALES Y DE DETALLE OCUPAN EL ANCHO DISPONIBLE. */
+.salidas-data-table {
+    width: 100%;
+}
+
+/* SEPARACIÓN UNIFORME ENTRE BOTONES DE EXPORTACIÓN DE DATATABLES. */
+.dataTables_wrapper .dt-buttons .btn {
+    margin-right: 0.25rem;
+}
+
+
+/* ESTILOS EXCLUSIVOS DE SALIDAS_DETALLES.PHP */
+
+/* CONTENEDOR DE LA TABLA DEL DETALLE. */
+.salidas-detalle-contenido #salidas-det-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* GRID DE TARJETAS PARA EL DETALLE EN PANTALLAS MÓVILES. */
+.salidas-detalle-contenido #salidas-det-cards-container {
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* TARJETA INDIVIDUAL DEL DETALLE DE UNA SALIDA. */
+.salidas-detalle-contenido .salidas-det-card {
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* ELEVACIÓN DE LA TARJETA DE DETALLE AL PASAR EL CURSOR. */
+.salidas-detalle-contenido .salidas-det-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* ENCABEZADO VERDE DE LA TARJETA DEL DETALLE. */
+.salidas-detalle-contenido .salidas-det-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 18px;
+    background: linear-gradient(90deg, #0f172a 0%, #1a6630 100%);
+    color: #fff;
+}
+
+/* NOMBRE DEL MATERIAL EN EL ENCABEZADO DE LA TARJETA. */
+.salidas-detalle-contenido .salidas-det-card-product {
+    flex: 1;
+}
+
+/* ÍNDICE DEL ARTÍCULO MOSTRADO EN LA TARJETA. */
+.salidas-detalle-contenido .salidas-det-card-header .badge-folio {
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* CUERPO CON LOS DATOS DEL ARTÍCULO. */
+.salidas-detalle-contenido .salidas-det-card-body {
+    padding: 0 18px 18px;
+}
+
+/* FILA DE ETIQUETA Y VALOR DEL DETALLE. */
+.salidas-detalle-contenido .salidas-det-field {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+/* QUITA EL BORDE INFERIOR DE LA ÚLTIMA FILA. */
+.salidas-detalle-contenido .salidas-det-field:last-child {
+    border-bottom: none;
+}
+
+/* ETIQUETA DEL DATO EN LA TARJETA DE DETALLE. */
+.salidas-detalle-contenido .salidas-det-field span {
+    flex: 1;
+    color: #6c757d;
+    font-size: 0.82rem;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* VALOR DEL DATO EN LA TARJETA DE DETALLE. */
+.salidas-detalle-contenido .salidas-det-field strong {
+    min-width: 100px;
+    color: #1f2937;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.modal-header{
+    align-items: center !important;
+}
+
+/* PRESENTA DOS COLUMNAS PARA TARJETAS EN PANTALLAS MEDIANAS. */
+@media (max-width: 1200px) {
+    .salidas-detalle-contenido #salidas-det-cards-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* REEMPLAZA LA TABLA POR TARJETAS EN PANTALLAS MÓVILES. */
+@media (max-width: 768px) {
+    .salidas-detalle-contenido #salidas-det-table-wrapper {
+        display: none;
+    }
+
+    .salidas-detalle-contenido #salidas-det-cards-container {
+        grid-template-columns: 1fr;
+        display: grid;
+    }
+
+    .salidas-detalle-contenido .salidas-det-field {
+        flex-direction: column;
+    }
+
+    .salidas-detalle-contenido .salidas-det-field strong {
+        width: 100%;
+        text-align: left;
+    }
+}
+
+
+/* ESTILOS EXCLUSIVOS DE SALIDAS_TABLA.PHP */
+
+/* INDICADOR DE CARGA DE LA TABLA. */
+#salidas-loading {
+    padding: 20px;
+    text-align: center;
+}
+
+/* OCULTA LA TABLA HASTA COMPLETAR SU INICIALIZACIÓN. */
+#contenedor-tabla-salidas {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* MUESTRA LA TABLA AL TERMINAR SU INICIALIZACIÓN. */
+#contenedor-tabla-salidas.is-loaded {
+    opacity: 1;
+}
+
+/* ENVUELVE LA TABLA PARA PERMITIR DESPLAZAMIENTO HORIZONTAL. */
+#salidas-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* CENTRA CELDAS Y ENCABEZADOS DE LA TABLA DE SALIDAS. */
+#salidas_wrapper .dt-scroll-head th,
+#salidas_wrapper .dt-scroll-foot th,
+#salidas_wrapper .dt-scroll-body td,
+#salidas thead th,
+#salidas tfoot th,
+#salidas tbody td {
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+/* BUSCADOR MÓVIL, OCULTO EN ESCRITORIO. */
+#salidas-mobile-search {
+    display: none;
+}
+
+/* GRID DE TARJETAS PARA MOSTRAR SALIDAS EN MÓVIL. */
+#salidas-cards-container {
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 20px;
+}
+
+/* TARJETA DE UNA SALIDA. */
+.salida-card {
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* ELEVACIÓN DE LA TARJETA AL PASAR EL CURSOR. */
+.salida-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* CABECERA CON FOLIO, CONTRATISTA Y ACCIONES. */
+.salida-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 18px 18px 0;
+}
+
+/* CUERPO CON LOS DATOS DE LA SALIDA. */
+.salida-card-body {
+    padding: 0 18px 18px;
+}
+
+/* FILA DE ETIQUETA Y VALOR EN LA TARJETA. */
+.salida-field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+/* QUITA EL BORDE INFERIOR DE LA ÚLTIMA FILA. */
+.salida-field:last-child {
+    border-bottom: none;
+}
+
+/* ETIQUETA DEL DATO DE SALIDA. */
+.salida-field span {
+    flex: 1;
+    color: #6c757d;
+    font-size: 0.85rem;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+/* VALOR DEL DATO DE SALIDA. */
+.salida-field strong {
+    min-width: 120px;
+    color: #1f2937;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: right;
+}
+
+/* DISTRIBUCIÓN MÓVIL DE LA TABLA, TARJETAS Y ACCIONES. */
+@media (max-width: 768px) {
+    #salidas-table-wrapper {
+        display: none;
+    }
+
+    #salidas-cards-container {
+        grid-template-columns: 1fr;
+        display: grid;
+    }
+
+    #salidas-mobile-search {
+        display: block;
+        margin-bottom: 14px;
+    }
+
+    /* BOTON DE EXCEL*/
+    .dt-buttons {
+        margin-bottom: 15px;
+    }
+
+    /* EL CONTENEDOR DEL TITULO Y EL SELECT  */
+    .card-header {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    /*TITULO DE LA PÁGINA DE SALIDAS, AJUSTADO PARA MÓVILES*/
+    h2 {
+        font-size: 15px !important;
+    }
+
+    /* SALIDAS_DETALLES*/
+
+    .modal-header {
+        padding: 0.5rem 1rem !important;
+    }
+
+    /*TITULO DEL MODAL DE DETALLE DE SALIDA, AJUSTADO PARA MÓVILES*/
+    .modal-header h5 {
+        font-size: 1rem !important;
+    }
+
+    /* BOTON DE CERRAR DEL MODAL DE DETALLE DE SALIDA, AJUSTADO PARA MÓVILES*/
+    .btn-light {
+        padding: 0.2rem 0.7rem !important;
+    }
+}
+
+
+/* ESTILOS EXCLUSIVOS DE SALIDAS.PHP */
+
+/* GRADIENTE DE LA CABECERA DE LOS MODALES DE SALIDAS. */
+.salidas-page .modal-header-gradient {
+    background: linear-gradient(90deg, #0f172a 0%, #003d99 100%) !important;
+}
+
+/* CONTENEDOR DEL FORMULARIO DE NUEVA SALIDA. */
+#modalNuevaSalida .card-form-shell {
+    padding: 1.25rem 1.25rem 1rem;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 18px;
+    background: #f3f5f8;
+    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+}
+
+/* ETIQUETAS DE LOS CAMPOS DEL FORMULARIO. */
+#modalNuevaSalida label {
+    display: block;
+    margin-bottom: 0.45rem;
+    color: #374151;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+/* CAMPOS DE TEXTO, SELECTORES Y TEXTAREA DEL FORMULARIO. */
+#modalNuevaSalida input[type="text"],
+#modalNuevaSalida input[type="date"],
+#modalNuevaSalida select,
+#modalNuevaSalida textarea,
+#modalNuevaSalida .form-control {
+    min-height: 30px;
+    padding: 0 0.9rem;
+    border: 1px solid #dfe3ea;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.82);
+    color: #2f3743;
+    font-size: 1rem;
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.02);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* PERMITE REDIMENSIONAR EL ÁREA DE DESCRIPCIÓN VERTICALMENTE. */
+#modalNuevaSalida textarea.form-control {
+    min-height: 75px;
+    resize: vertical;
+}
+
+/* ESTILO DE LOS BOTONES PARA AGREGAR Y PROCESAR SERIES. */
+#modalNuevaSalida .btn-primary,
+#modalNuevaSalida #addRow {
+    min-height: 42px;
+    padding: 5px 15px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* BOTÓN PARA AGREGAR UNA SERIE. */
+#modalNuevaSalida #addRow {
+    background: linear-gradient(180deg, #1a315c 0%, #163767 100%);
+    box-shadow: 0 8px 18px rgba(22, 55, 103, 0.18);
+    color: #fff;
+}
+
+/* BOTÓN QUE ENVÍA EL FORMULARIO. */
+#modalNuevaSalida button[type="submit"] {
+    background: linear-gradient(180deg, #22b56a 0%, #1d9f5d 100%);
+}
+
+/* REALCE DE LOS BOTONES AL PASAR EL CURSOR. */
+#modalNuevaSalida .btn-primary:hover,
+#modalNuevaSalida button[type="submit"]:hover,
+#modalNuevaSalida #addRow:hover {
+    transform: translateY(-1px);
+}
+
+/* TABLA DE SERIES SELECCIONADAS. */
+#modalNuevaSalida #selectedSeriesTable {
+    min-width: 100% !important;
+    width: 100% !important;
+    margin-bottom: 0;
+    overflow: hidden;
+    border: 1px solid #dfe3ea;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.72);
+    table-layout: fixed;
+}
+
+/* ENCABEZADOS DE LA TABLA DE SERIES. */
+#modalNuevaSalida #selectedSeriesTable thead th {
+    padding: 0.6rem 0.5rem;
+    border-bottom: 1px solid #dfe3ea;
+    background: #e7ebf0;
+    color: #364152;
+    font-size: 0.95rem;
+    font-weight: 700;
+    white-space: normal !important;
+}
+
+/* CELDAS DE LA TABLA DE SERIES. */
+#modalNuevaSalida #selectedSeriesTable tbody td {
+    padding: 0.5rem 0.4rem;
+    border-top: 1px solid #eef2f7;
+    background: rgba(255, 255, 255, 0.45);
+    vertical-align: middle;
+    white-space: normal !important;
+}
+
+/* COLUMNA DE ACCIONES PARA ELIMINAR UNA SERIE. */
+#modalNuevaSalida #selectedSeriesTable th:last-child,
+#modalNuevaSalida #selectedSeriesTable td:last-child {
+    width: 75px !important;
+    min-width: 75px !important;
+    max-width: 75px !important;
+    padding-right: 0.25rem !important;
+    padding-left: 0.25rem !important;
+    text-align: center;
+}
+
+/* FIJA EL ANCHO DE LA CELDA CON EL BOTÓN PARA ELIMINAR UNA SERIE. */
+#modalNuevaSalida .columna-accion-serie {
+    width: 80px;
+}
+
+/* INPUT CON EL NÚMERO DE SERIE SELECCIONADO. */
+#modalNuevaSalida #selectedSeries input[name="numeros_series[]"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 38px;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #dfe3ea;
+    border-radius: 10px;
+    background: #fff;
+    color: #2f3743;
+    font-size: 0.92rem;
+}
+
+/* BOTÓN PARA QUITAR UNA SERIE DE LA LISTA. */
+#modalNuevaSalida .removeRow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+    padding: 0;
+    border: none;
+    border-radius: 10px;
+    background: #e74c3c;
+    color: #fff;
+}
+
+/* REDUCE PADDING DEL FORMULARIO EN PANTALLAS PEQUEÑAS. */
+@media (max-width: 768px) {
+    #modalNuevaSalida .card-form-shell {
+        padding: 0.85rem 0.75rem;
+    }
+
+    #modalNuevaSalida .modal-body {
+        padding: 0.75rem;
+    }
+}
+
+/* RESALTA LOS CAMPOS QUE FALLAN LA VALIDACIÓN. */
+#modalNuevaSalida .campo-obligatorio-error,
+#modalNuevaSalida .select2-container.campo-obligatorio-error .select2-selection {
+    border-color: #e74a3b !important;
+    box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.16) !important;
+}
+
+/* RESALTA EL GRUPO DE SERIES CUANDO NO HAY UNA SERIE SELECCIONADA. */
+#modalNuevaSalida #grupoSeriesSeleccionadas.campo-obligatorio-error {
+    padding: 0.8rem;
+    border: 1px solid #e74a3b;
+    border-radius: 12px;
+    background: #fff4f3;
+}

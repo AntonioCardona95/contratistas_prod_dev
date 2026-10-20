@@ -104,7 +104,7 @@
 
 /* FRANJA SUPERIOR AZUL DE LA TARJETA. */
 .tecnico-card-cover {
-    height: 108px;
+    height: 100px;
     background: linear-gradient(115deg, var(--tecnico-navy), var(--tecnico-blue));
 }
 
@@ -139,11 +139,11 @@
 /* AVATAR SUPERPUESTO ENTRE LA CABECERA Y EL CUERPO DE LA TARJETA. */
 .tecnico-avatar {
     position: absolute;
-    top: 56px;
+    top: 50px;
     left: 24px;
     display: grid;
-    width: 96px;
-    height: 96px;
+    width: 90px;
+    height: 90px;
     place-items: center;
     border: 5px solid #fff;
     border-radius: 50%;
@@ -155,7 +155,7 @@
 
 /* CUERPO DE LA TARJETA; DEJA ESPACIO PARA EL AVATAR SUPERPUESTO. */
 .tecnico-card-body {
-    padding: 58px 24px 10px;
+    padding: 50px 24px 10px;
 }
 
 /* NOMBRE DEL TÉCNICO. */
@@ -313,7 +313,7 @@
 
 /* PIE DE LA TARJETA CON LA LEYENDA DE IDENTIFICACIÓN. */
 .tecnico-card-footer {
-    padding: 17px 15px;
+    padding: 12px 15px;
     background: #f7f9fc;
     color: var(--tecnico-muted);
     font-size: 0.63rem;
@@ -337,16 +337,20 @@
 
 /* EL GRID PASA A UNA COLUMNA EN PANTALLAS PEQUEÑAS. */
 @media (max-width: 768px) {
-    /* APILA Y CENTRA EL TÍTULO Y EL SELECTOR DE CONTRATISTA. */
-    .tecnicos-page .card-header {
-        flex-direction: column;
-        justify-content: center;
-        gap: 5px;
-        text-align: center;
+    /* BOTON DE EXCEL*/
+    .dt-buttons {
+        margin-bottom: 15px;
     }
 
-    .tecnicos-page .card-header h2 {
-        font-size: 1.1rem;
+    /* EL CONTENEDOR DEL TITULO Y EL SELECT  */
+    .card-header {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    /*TITULO DE LA PÁGINA DE TECNICOS, AJUSTADO PARA MÓVILES*/
+    h2 {
+        font-size: 15px !important;
     }
 
     .tecnicos-page .selector-contratista-wrap {
@@ -355,10 +359,6 @@
         margin: 10px 0 0 !important;
     }
 
-    /* USA LA BARRA MÓVIL DE BÚSQUEDA DEBAJO DEL BOTÓN DE EXCEL. */
-    #tecnicos-buttons-container {
-        margin-bottom: 15px !important;
-    }
 
     #tecnicos-buttons-container .dt-buttons {
         justify-content: flex-start;
@@ -378,24 +378,27 @@
         grid-template-columns: minmax(0, 360px);
         gap: 16px;
     }
-}
 
-/* REDUCE MÁRGENES Y REDONDEO EN TELÉFONOS ESTRECHOS. */
-@media (max-width: 420px) {
-    .tecnico-card {
-        border-radius: 22px;
+    /* AJUSTES DE LA TARJETA DE TÉCNICO PARA MÓVILES. */
+    .tecnico-card-cover {
+        height: 80px;
     }
-
+    .tecnico-avatar{
+        width: 80px;
+        height: 80px;
+        top: 35px;
+    }
     .tecnico-card-body {
         padding-right: 18px;
         padding-left: 18px;
+        padding-top: 45px;
     }
-
-    .tecnico-avatar {
-        left: 18px;
+    .tecnico-nombre {
+        font-size: 1rem;
     }
-
-    .tecnico-status {
-        right: 16px;
+    .tecnico-card-footer {
+        padding: 10px 15px;
     }
 }
+
+

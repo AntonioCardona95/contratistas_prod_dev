@@ -27,50 +27,16 @@
         $filas = $modal->Traspasos($idContratistas,$Fecha1,$Fecha2);
     }
 ?>
-<style>
-    .comentario-btn {
-        position: relative;
-    }
-
-    .acciones-traspaso .btn + .btn {
-        margin-left: .25rem;
-    }
-
-    .tiene-comentario::after {
-        content: '';
-        position: absolute;
-        top: -2px;
-        right: -2px;
-        width: 10px;
-        height: 10px;
-        background-color: red;
-        border-radius: 50%;
-        border: 1px solid white;
-    }
-
-    /* CENTRADO DE DATOS */
-    #traspasos_wrapper .dt-scroll-head th,
-    #traspasos_wrapper .dt-scroll-foot th,
-    #traspasos_wrapper .dt-scroll-body td,
-    #traspasos thead th,
-    #traspasos tfoot th,
-    #traspasos tbody td {
-        text-align: center !important;
-        vertical-align: middle !important;
-    }
-
-</style>
-
-<div id="traspasos-loading" style="text-align: center; padding: 20px;">
+<div id="traspasos-loading">
     <div class="spinner-border text-primary" role="status">
         <span class="sr-only">Cargando...</span>
     </div>
     <p>Cargando datos, por favor espere...</p>
 </div>
 
-<div id="contenedor-tabla-traspasos" style="opacity: 0; transition: opacity 0.3s ease;">
+<div id="contenedor-tabla-traspasos">
 
-    <table class="table table-bordered display nowrap" style="width:100%" id="traspasos">			
+    <table class="table table-bordered display nowrap traspasos-data-table" id="traspasos">
         <thead>
             <tr>
                 <th>Folio Traspaso</th> 
@@ -159,7 +125,7 @@
 			scrollX: true,
             initComplete: function(settings, json) {
                 $('#traspasos-loading').hide();
-                $('#contenedor-tabla-traspasos').css('opacity', '1');
+                $('#contenedor-tabla-traspasos').addClass('is-loaded');
             }
         });
     

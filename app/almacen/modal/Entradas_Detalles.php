@@ -125,9 +125,6 @@ $series = $modal->ObtenerSeriesEntrada($Folio) ?? [];
                 '<div class="entradas-det-card-body">' +
                     crearCampo('Producto', material.Producto) +
                     crearCampo('Modelo', material.Modelo) +
-                    crearCampo('Tecnologia', material.Tecnologia) +
-                    crearCampo('Presentacion', material.Presentacion) +
-                    crearCampo('UM', material.UM) +
                     crearCampo('Total Piezas', material.Total_Piezas) +
                     crearCampo('Total Metros', material.Total_Metros) +
                 '</div>' +

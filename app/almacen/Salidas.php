@@ -41,6 +41,7 @@
     <!-- ESTILOS PARA TABLAS Y RESPONSIVIDAD -->
     <link href="https://cdn.datatables.net/v/dt/dt-2.2.2/datatables.min.css" rel="stylesheet" integrity="sha384-2vMryTPZxTZDZ3GnMBDVQV8OtmoutdrfJxnDTg0bVam9mZhi7Zr3J1+lkVFRr71f" crossorigin="anonymous">
     <link href="../css/responsive_custom.css" rel="stylesheet">
+    <link href="css/salidas.css" rel="stylesheet">
 
     <!-- Select2 -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
@@ -48,181 +49,9 @@
     <!-- ESTILO PERSONALIZADO PARA EL MENU ACTIVO DE LA SIDEBAR -->
     <link rel="stylesheet" href="css/sidebar-active.css">
 
-    <style>
-        /* ESTILOS GENERALES DEL FORMULARIO Y DE LA CABECERA. */
-        .selected-option {
-            background-color: #d4edda !important;
-            color: #155724 !important;
-        }
-        .modal-header-gradient {
-            background: linear-gradient(90deg, #0f172a 0%, #003d99 100%) !important;
-        }
-
-        /* DA FORMA A LA TARJETA Y A LOS CAMPOS DEL FORMULARIO. */
-        .card-form-shell {
-            background: #f3f5f8;
-            border: 1px solid rgba(148, 163, 184, 0.22);
-            border-radius: 18px;
-            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
-            padding: 1.25rem 1.25rem 1rem 1.25rem;
-        }
-
-        #modalNuevaSalida label {
-            display: block;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 0.45rem;
-            font-size: 1.05rem;
-        }
-
-        #modalNuevaSalida input[type="text"],
-        #modalNuevaSalida input[type="date"],
-        #modalNuevaSalida select,
-        #modalNuevaSalida textarea,
-        #modalNuevaSalida .form-control {
-            border: 1px solid #dfe3ea;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.82);
-            min-height: 30px;
-            padding: 0rem 0.9rem;
-            font-size: 1rem;
-            color: #2f3743;
-            box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.02);
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        /* TEXTAREA DE DESCRIPCION */
-        #modalNuevaSalida textarea.form-control {
-            min-height: 75px;
-            resize: vertical;
-        }
-
-        /* PERSONALIZA LOS BOTONES DE AGREGAR Y PROCESAR LA SALIDA. */
-        #modalNuevaSalida .btn-primary,
-        #modalNuevaSalida #addRow {
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            min-height: 42px;
-            padding: 5px 15px;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-
-        #modalNuevaSalida #addRow {
-            background: linear-gradient(180deg, #1a315c 0%, #163767 100%);
-            box-shadow: 0 8px 18px rgba(22, 55, 103, 0.18);
-            color: #fff;
-        }
-
-        /* BOTON DE PROCESAR SALIDA */
-        #modalNuevaSalida button[type="submit"] {
-            background: linear-gradient(180deg, #22b56a 0%, #1d9f5d 100%);
-        }
-
-        #modalNuevaSalida .btn-primary:hover,
-        #modalNuevaSalida button[type="submit"]:hover,
-        #modalNuevaSalida #addRow:hover {
-            transform: translateY(-1px);
-        }
-
-        /* DA FORMATO Y RESPONSIVIDAD A LA TABLA DE SERIES SELECCIONADAS. */
-        #modalNuevaSalida #selectedSeriesTable {
-            min-width: 100% !important;
-            width: 100% !important;
-            table-layout: fixed;
-            border-radius: 12px;
-            overflow: hidden;
-            background: rgba(255, 255, 255, 0.72);
-            border: 1px solid #dfe3ea;
-            margin-bottom: 0;
-        }
-
-        /* TITULO DE LA COLUMNA */
-        #modalNuevaSalida #selectedSeriesTable thead th {
-            background: #e7ebf0;
-            color: #364152;
-            font-weight: 700;
-            border-bottom: 1px solid #dfe3ea;
-            white-space: normal !important;
-            padding: 0.6rem 0.5rem;
-            font-size: 0.95rem;
-        }
-
-        /* REGISTROS DE LA TABLA */
-        #modalNuevaSalida #selectedSeriesTable tbody td {
-            vertical-align: middle;
-            border-top: 1px solid #eef2f7;
-            background: rgba(255,255,255,0.45);
-            white-space: normal !important;
-            padding: 0.5rem 0.4rem;
-        }
-
-        /* ANCHO DE LA COLUMNA DE ACCIÓN */
-        #modalNuevaSalida #selectedSeriesTable th:last-child,
-        #modalNuevaSalida #selectedSeriesTable td:last-child {
-            width: 75px !important;
-            min-width: 75px !important;
-            max-width: 75px !important;
-            text-align: center;
-            padding-left: 0.25rem !important;
-            padding-right: 0.25rem !important;
-        }
-
-        #modalNuevaSalida #selectedSeries input[name="numeros_series[]"] {
-            background: #fff;
-            border: 1px solid #dfe3ea;
-            border-radius: 10px;
-            min-height: 38px;
-            padding: 0.4rem 0.6rem;
-            font-size: 0.92rem;
-            color: #2f3743;
-            width: 100% !important;
-            min-width: 0 !important;
-        }
-
-        #modalNuevaSalida .removeRow {
-            border-radius: 10px;
-            width: 38px;
-            height: 38px;
-            min-width: 38px;
-            min-height: 38px;
-            background: #e74c3c;
-            border: none;
-            color: #fff;
-            padding: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* AJUSTES PARA PANTALLAS PEQUEÑAS / MÓVILES */
-        @media (max-width: 768px) {
-            #modalNuevaSalida .card-form-shell {
-                padding: 0.85rem 0.75rem;
-            }
-            #modalNuevaSalida .modal-body {
-                padding: 0.75rem;
-            }
-        }
-
-        /* RESALTA LOS CAMPOS Y EL BLOQUE DE SERIES CON ERRORES DE VALIDACIÓN. */
-        #modalNuevaSalida .campo-obligatorio-error,
-        #modalNuevaSalida .select2-container.campo-obligatorio-error .select2-selection {
-            border-color: #e74a3b !important;
-            box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.16) !important;
-        }
-
-        #modalNuevaSalida #grupoSeriesSeleccionadas.campo-obligatorio-error {
-            border: 1px solid #e74a3b;
-            border-radius: 12px;
-            padding: 0.8rem;
-            background: #fff4f3;
-        }
-    </style>
-
 </head>
 
-<body id="page-top">
+<body id="page-top" class="salidas-page">
 
     <!-- CONTENEDOR PRINCIPAL DE LA PÁGINA -->
     <div id="wrapper">
@@ -467,7 +296,7 @@
                             <td>
                                 <input type="text" class="form-control" name="numeros_series[]" value="${opcion}" readonly>
                             </td>
-                            <td class="text-center" style="width: 80px;">
+                            <td class="text-center columna-accion-serie">
                                 <button type="button" class="btn btn-danger btn-sm removeRow" aria-label="Eliminar serie">
                                     <i class="fas fa-trash"></i>
                                 </button>

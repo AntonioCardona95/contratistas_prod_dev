@@ -90,7 +90,7 @@
     display: flex;
     justify-content: space-between;
     gap: 8px;
-    padding: 6px 0;
+    padding: 5px 0;
     font-size: 0.9rem;
 }
 
@@ -149,6 +149,10 @@
 /* ESPACIO ENTRE LAS PESTAÑAS Y EL CONTENIDO SELECCIONADO. */
 .entrada-detalle-contenido .tab-content {
     margin-top: 15px;
+}
+
+.modal-header{
+    align-items: center !important;
 }
 
 /* AJUSTA EL ANCHO MÍNIMO DE LAS TARJETAS DE DETALLE EN TABLETAS. */
@@ -335,18 +339,36 @@
         margin-bottom: 14px;
     }
 
-    #entradas-buttons-container .dt-buttons {
+    /* BOTON DE EXCEL*/
+    .dt-buttons {
         margin-bottom: 15px;
     }
 
-    .entradas-tabla-page .modal-title,
-    .entradas-tabla-page h2 {
+    /* EL CONTENEDOR DEL TITULO Y EL SELECT  */
+    .card-header {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    /*TITULO DE LA PÁGINA DE ENTRADAS, AJUSTADO PARA MÓVILES*/
+    h2 {
         font-size: 15px !important;
     }
 
-    .entradas-tabla-page .card-header {
-        flex-direction: column;
-        gap: 5px;
+    /* ENTRADAS_DETALLES*/
+
+    .modal-header {
+        padding: 0.5rem 1rem !important;
+    }
+
+    /*TITULO DEL MODAL DE DETALLE DE ENTRADA, AJUSTADO PARA MÓVILES*/
+    .modal-header h5 {
+        font-size: 1rem !important;
+    }
+
+    /* BOTON DE CERRAR DEL MODAL DE DETALLE DE ENTRADA, AJUSTADO PARA MÓVILES*/
+    .btn-light {
+        padding: 0.2rem 0.7rem !important;
     }
 }
 

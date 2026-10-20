@@ -376,32 +376,3 @@ function LoadReporte() {
 $(document).ready(function() {
     LoadReporte();
 });
-
-
-
-
-function LoadPendientes(){
-    var parametros = $("#FormQueryUnidades").serialize();
-    $("#LoadPendientes").fadeIn('slow');
-    $.ajax({
-        type:'POST',
-        url:'modal/TablaPendientes.php',
-        data: parametros,
-        success:function(data){
-            $("#LoadPendientes").html(data);
-        }
-    });
-}
-
-function LoadRechazados(){
-    var parametros = $("#FormQueryUnidades").serialize();
-    $("#LoadRechazados").fadeIn('slow');
-    $.ajax({
-        type:'POST',
-        url:'modal/TablaRechazados.php',
-        data: parametros,
-        success:function(data){
-            $("#LoadRechazados").html(data);
-        }
-    });
-}

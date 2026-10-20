@@ -28,129 +28,17 @@
     }
 ?>
 
-<style>
-    /* ── BUSCADOR MOVIL ── */
-    #salidas-mobile-search {
-        display: none;
-    }
-    
-    #salidas-table-wrapper {
-        width: 100%;
-        overflow-x: auto;
-    }
-
-    #salidas_wrapper .dt-scroll-head th,
-    #salidas_wrapper .dt-scroll-foot th,
-    #salidas_wrapper .dt-scroll-body td,
-    #salidas thead th,
-    #salidas tfoot th,
-    #salidas tbody td {
-        text-align: center !important;
-        vertical-align: middle !important;
-    }
-
-    #salidas-cards-container {
-        display: none;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-        margin-top: 20px;
-    }
-
-    .salida-card {
-        background: #fff;
-        border-radius: 14px;
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-        border: 1px solid rgba(0, 0, 0, 0.04);
-        overflow: hidden;
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-
-    .salida-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
-    }
-
-    .salida-card-header {
-        padding: 18px 18px 0;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-    }
-
-    .salida-card-body {
-        padding: 0 18px 18px;
-    }
-
-    .salida-field {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 0;
-        border-bottom: 1px solid #f1f3f5;
-        gap: 10px;
-    }
-
-    .salida-field:last-child {
-        border-bottom: none;
-    }
-
-    .salida-field span {
-        color: #6c757d;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        flex: 1;
-    }
-
-    .salida-field strong {
-        color: #1f2937;
-        font-size: 0.95rem;
-        font-weight: 600;
-        text-align: right;
-        min-width: 120px;
-    }
-
-    @media (max-width: 768px) {
-        #salidas-table-wrapper {
-            display: none;
-        }
-
-        #salidas-cards-container {
-            display: grid;
-            grid-template-columns: 1fr;
-        }
-
-        #salidas-mobile-search {
-            display: block;
-            margin-bottom: 14px;
-        }
-
-        .modal-title {
-            font-size: 15px !important;
-        }
-
-        h2 {
-            font-size: 15px !important;
-        }
-
-        .dt-buttons {
-            margin-bottom: 15px;
-        }
-    }
-</style>
-
-<div id="salidas-loading" style="text-align: center; padding: 20px;">
+<div id="salidas-loading">
     <div class="spinner-border text-primary" role="status">
         <span class="sr-only">Cargando...</span>
     </div>
     <p>Cargando datos, por favor espere...</p>
 </div>
 
-<div id="contenedor-tabla-salidas" style="opacity: 0; transition: opacity 0.3s ease;">
+<div id="contenedor-tabla-salidas">
     <div id="salidas-buttons-container"></div>
     <div id="salidas-table-wrapper">
-        <table class="table table-bordered display nowrap" style="width:100%" id="salidas">
+        <table class="table table-bordered display nowrap salidas-data-table" id="salidas">
             <thead>
                 <tr>
                     <th>Folio Salida</th>
@@ -225,7 +113,7 @@
             scrollX: true,
             initComplete: function(settings, json) {
                 $('#salidas-loading').hide();
-                $('#contenedor-tabla-salidas').css('opacity', '1');
+                $('#contenedor-tabla-salidas').addClass('is-loaded');
             }
         });
 

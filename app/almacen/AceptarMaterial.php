@@ -107,32 +107,13 @@
 
     <!-- SCRIPTS GENERALES DEL PORTAL -->
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
-
-    <script>
+    <script src="js/materiales.js"></script>
+     <script>
+        
         $(document).ready(function(){
             LoadPendientes();
         });
 
-        function LoadPendientes(){
-            var parametros = $("#FormQueryUnidades").serialize();
-            var urlParams = new URLSearchParams(window.location.search);
-            var folioBuscar = urlParams.get('folio');
-            if (folioBuscar) {
-                var folioNumerico = folioBuscar.replace(/\D/g, '');
-                if (folioNumerico.length) {
-                    parametros += (parametros.length ? '&' : '') + 'folio=' + encodeURIComponent(folioNumerico);
-                }
-            }
-
-            $.ajax({
-                type: 'POST',
-                url: 'modal/TablaPendientes.php',
-                data: parametros,
-                success: function(data){
-                    $("#LoadPendientes").html(data);
-                }
-            });
-        }
     </script>
 
 </body>

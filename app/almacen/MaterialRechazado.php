@@ -103,11 +103,13 @@
 
     <!-- SCRIPTS GENERALES DEL PORTAL -->
     <?php include_once(__DIR__ . '/../components/ScriptContratistas.php'); ?>
-
+    <script src="js/materiales.js"></script>
     <script>
+        
         $(document).ready(function(){
             LoadRechazados();
         });
+
     </script>
 
 </body>

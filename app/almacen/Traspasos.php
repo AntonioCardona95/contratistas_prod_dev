@@ -36,75 +36,9 @@ $tecnicosTraspaso = $idContratistaTraspaso > 0
     <link href="../css/responsive_custom.css" rel="stylesheet">
     <link rel="stylesheet" href="css/sidebar-active.css">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-
-    <style>
-        .modal-header-gradient {
-            background: linear-gradient(90deg, #0f172a 0%, #003d99 100%) !important;
-        }
-
-        @media (max-width: 768px) {
-            .module-heading {
-                font-size: 1.1rem;
-                text-align: center;
-            }
-        }
-
-        #traspasoSeries {
-            min-height: 120px;
-        }
-
-        .card-form-shell {
-            background: #f3f5f8;
-            border: 1px solid rgba(148, 163, 184, 0.22);
-            border-radius: 18px;
-            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
-            padding: 1.25rem 1.25rem 1rem;
-        }
-
-        #formGuardarTraspaso label {
-            display: block;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: .45rem;
-        }
-
-        #formGuardarTraspaso .form-control,
-        #formGuardarTraspaso .select2-selection {
-            border: 1px solid #dfe3ea;
-            border-radius: 10px;
-            min-height: 38px;
-        }
-
-        #formGuardarTraspaso textarea.form-control {
-            min-height: 75px;
-            resize: vertical;
-        }
-
-        #formGuardarTraspaso .select2-container {
-            width: 100% !important;
-        }
-
-        #formGuardarTraspaso .select2-selection--single {
-            height: 38px;
-            padding: 4px 8px;
-        }
-
-        #formGuardarTraspaso .select2-selection__arrow {
-            height: 36px;
-        }
-
-        #formGuardarTraspaso #traspasoSeriesSeleccionadas {
-            background: rgba(255, 255, 255, .72);
-        }
-
-        @media (max-width: 768px) {
-            .card-form-shell {
-                padding: .85rem .75rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="css/traspasos.css">
 </head>
-<body id="page-top">
+<body id="page-top" class="traspasos-page">
     <div id="wrapper">
         <?php include_once __DIR__ . '/../components/SidebarAlmacen.php'; ?>
 
@@ -215,7 +149,7 @@ $tecnicosTraspaso = $idContratistaTraspaso > 0
                                         <thead>
                                             <tr>
                                                 <th>Número de serie</th>
-                                                <th class="text-center" style="width: 100px;">Acción</th>
+                                                <th class="text-center traspasos-action-column">Acción</th>
                                             </tr>
                                         </thead>
                                         <tbody id="traspasoSeriesSeleccionadas"></tbody>
