@@ -55,7 +55,7 @@
         /* FUNCION PARA OBTENER LAS SALIDAS DE UN CONTRATISTA */
         public function Salidas($idContratistas, $Fecha1, $Fecha2)
         {
-            $sql = "SELECT Cantidad_T, Fecha_T, Folio_Salida_T, CONCAT(Nombre_T, ' ', Apellidos_T) AS Tecnico,
+            $sql = "SELECT FK_Contratista_T AS idContratista, Cantidad_T, Fecha_T, Folio_Salida_T, CONCAT(Nombre_T, ' ', Apellidos_T) AS Tecnico,
             CONCAT(Contratista, ' ', apellido_paterno, ' ', apellido_materno) AS Contratista FROM `salidas_contratista_t`
             INNER JOIN tecnicos ON FK_Tecnico_T = idTecnico
             INNER JOIN contratistas ON FK_Contratista_T = idContratistas
@@ -70,15 +70,18 @@
         }
 
         /* FUNCION PARA OBTENER EL DETALLE DE UNA SALIDA (SON PUROS NUMEROS DE SERIE NO HAY MISCELANEOS*/
-        public function SalidasDet($Folio_Salida_Det)
+        public function SalidasDet($Folio_Salida_Det, $FK_Contratista_Salida_Det)
         {
             $sql = "SELECT CONCAT(Nombre_T, ' ', Apellidos_T) AS Tecnico, Num_Serie_Salida_Det, Producto, Descripcion, 
             Tecnologia, Modelo FROM `salidas_contratistas` 
             INNER JOIN producto ON FK_Material_Salidas_Contratistas = idProducto 
             INNER JOIN tecnicos ON idTecnico = FK_Tecnico_Salida_Det 
-            WHERE Folio_Salida_Det = :Folio_Salida_Det";
+            WHERE Folio_Salida_Det = :Folio_Salida_Det AND FK_Contratista_Salida_Det = :FK_Contratista_Salida_Det";
 
-            return $this->runQuery($sql, [':Folio_Salida_Det' => $Folio_Salida_Det]);
+            return $this->runQuery($sql, [
+                ':Folio_Salida_Det' => $Folio_Salida_Det,
+                ':FK_Contratista_Salida_Det' => $FK_Contratista_Salida_Det
+            ]);
         }
 
         public function ObtenerEncabezadoSalidaPDF($Folio_Salida_T, $idContratistas)
@@ -93,7 +96,7 @@
                     INNER JOIN tecnicos AS t ON t.idTecnico = s.FK_Tecnico_T
                     INNER JOIN contratistas AS c ON c.idContratistas = s.FK_Contratista_T
                     WHERE s.Folio_Salida_T = :folio
-                        AND s.FK_Contratista_T = COALESCE(NULLIF(:idContratistas, 0), s.FK_Contratista_T)
+                        AND s.FK_Contratista_T = :idContratistas
                     LIMIT 1";
 
             return $this->runQuery($sql, array(
@@ -102,28 +105,29 @@
             ));
         }
 
-        public function ObtenerMaterialesSalidaPDF($Folio_Salida_T)
+        public function ObtenerMaterialesSalidaPDF($Folio_Salida_T, $idContratista)
         {
             $sql = "SELECT
                         p.Producto,
                         p.Modelo,
-                        p.Descripcion,
                         p.Tecnologia,
-                        p.Presentacion,
-                        p.UM,
                         COUNT(s.Num_Serie_Salida_Det) AS Cantidad
                     FROM salidas_contratistas AS s
                     INNER JOIN producto AS p ON p.idProducto = s.FK_Material_Salidas_Contratistas
                     WHERE s.Folio_Salida_Det = :folio
-                    GROUP BY p.idProducto, p.Producto, p.Modelo, p.Descripcion, p.Tecnologia, p.Presentacion, p.UM
+                        AND s.FK_Contratista_Salida_Det = :idContratista
+                    GROUP BY p.idProducto, p.Producto, p.Modelo, p.Tecnologia
                     ORDER BY p.Producto, p.Modelo";
 
-            return $this->runQuery($sql, array('folio' => (int)$Folio_Salida_T));
+            return $this->runQuery($sql, array(
+                'folio' => (int)$Folio_Salida_T,
+                'idContratista' => (int)$idContratista
+            ));
         }
 
-        public function ObtenerSeriesSalidaPDF($Folio_Salida_T)
+        public function ObtenerSeriesSalidaPDF($Folio_Salida_T, $idContratista)
         {
-            return $this->SalidasDet($Folio_Salida_T);
+            return $this->SalidasDet($Folio_Salida_T, $idContratista);
         }
 
         // OBTENER EL FOLIO PROVISIONAL

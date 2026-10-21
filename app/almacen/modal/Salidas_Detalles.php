@@ -6,14 +6,12 @@ error_reporting(E_ALL);
 
 session_start();
 require_once(__DIR__ . '/../controller/ClassSalidas.php');
+require_once(__DIR__ . '/../../config/ContratistaContexto.php');
 
-if (empty($_SESSION['idContratistas'])) {
-    http_response_code(401);
-    echo '<div class="alert alert-warning mb-0">Sesion no valida.</div>';
-    exit;
-}
+requerirSesionAlmacen();
 
 $Folio = filter_input(INPUT_POST, 'folio', FILTER_VALIDATE_INT);
+$idContratista = obtenerIdContratistaContexto();
 
 if (!$Folio) {
     http_response_code(400);
@@ -21,8 +19,18 @@ if (!$Folio) {
     exit;
 }
 
+if (esAdministradorContratista() && $idContratista === 0) {
+    $idContratista = filter_input(INPUT_POST, 'contratista', FILTER_VALIDATE_INT);
+}
+
+if (!$idContratista || $idContratista < 1) {
+    http_response_code(400);
+    echo '<div class="alert alert-warning mb-0">El contratista de la salida no es valido.</div>';
+    exit;
+}
+
 $modal = new Salidas();
-$salidas_det = $modal->SalidasDet($Folio) ?? [];
+$salidas_det = $modal->SalidasDet($Folio, $idContratista) ?? [];
 ?>
 
 <div class="salidas-detalle-contenido">
@@ -75,8 +83,6 @@ $salidas_det = $modal->SalidasDet($Folio) ?? [];
                 '</div>' +
                 '<div class="salidas-det-card-body">' +
                     '<div class="salidas-det-field"><span>Tecnico</span><strong>' + (salida.Tecnico || '') + '</strong></div>' +
-                    '<div class="salidas-det-field"><span>Detalle</span><strong>' + (salida.Descripcion || '') + '</strong></div>' +
-                    '<div class="salidas-det-field"><span>Tecnologia</span><strong>' + (salida.Tecnologia || '') + '</strong></div>' +
                     '<div class="salidas-det-field"><span>SKU</span><strong>' + (salida.Modelo || '') + '</strong></div>' +
                     '<div class="salidas-det-field"><span>Numero de Serie</span><strong>' + (salida.Num_Serie_Salida_Det || '') + '</strong></div>' +
                 '</div>' +

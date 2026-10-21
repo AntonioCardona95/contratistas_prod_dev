@@ -17,7 +17,7 @@
     });
 }
 
-function LoadDetalles(folio) {
+function LoadDetalles(folio, contratistaId) {
     $('#modalSalidaDetalleContenido').html(
         '<div class="text-center py-4"><i class="fas fa-spinner fa-spin fa-2x"></i></div>'
     );
@@ -26,7 +26,7 @@ function LoadDetalles(folio) {
     $.ajax({
         url: 'modal/Salidas_Detalles.php',
         type: 'POST',
-        data: { folio: folio },
+        data: { folio: folio, contratista: contratistaId },
         success: function (contenido) {
             $('#modalSalidaDetalleContenido').html(contenido);
             $('#modalSalidaDetalleTitulo').text('Detalle de salida: Folio ' + folio);
@@ -40,5 +40,5 @@ function LoadDetalles(folio) {
 }
 
 $(document).on('click', '.btn-detalle-salida', function () {
-    LoadDetalles($(this).data('folio'));
+    LoadDetalles($(this).data('folio'), $(this).data('contratista-id'));
 });

@@ -62,6 +62,7 @@
             <tbody>
                 <?php if (!empty($filas)): foreach ($filas as $row): ?>
                     <tr data-folio="<?= htmlspecialchars($row['Folio_Salida_T'], ENT_QUOTES, 'UTF-8') ?>"
+                        data-contratista-id="<?= htmlspecialchars((string)$row['idContratista'], ENT_QUOTES, 'UTF-8') ?>"
                         data-contratista="<?= htmlspecialchars(strtoupper($row['Contratista'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
                         data-tecnico="<?= htmlspecialchars(strtoupper($row['Tecnico'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
                         data-cantidad="<?= htmlspecialchars($row['Cantidad_T'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
@@ -73,12 +74,13 @@
                         <td><?= $row['Fecha_T'] ?></td>
                         <td>
                             <!-- BOTON DE PDF -->
-                            <a class="btn btn-danger btn-sm" href="modal/Salidas_PDF.php?id=<?= rawurlencode((string)$row['Folio_Salida_T']) ?>" target="_blank" rel="noopener noreferrer" title="Ver PDF" aria-label="Ver comprobante PDF">
+                            <a class="btn btn-danger btn-sm" href="modal/Salidas_PDF.php?id=<?= rawurlencode((string)$row['Folio_Salida_T']) ?>&amp;contratista=<?= rawurlencode((string)$row['idContratista']) ?>" target="_blank" rel="noopener noreferrer" title="Ver PDF" aria-label="Ver comprobante PDF">
                                 <i class="fas fa-file-pdf" aria-hidden="true"></i>
                             </a>
                             <!-- BOTON DE DETALLE DE SALIDA -->
                             <button type="button" class="btn btn-dark btn-sm btn-detalle-salida"
                                 data-folio="<?= htmlspecialchars($row['Folio_Salida_T'], ENT_QUOTES, 'UTF-8') ?>"
+                                data-contratista-id="<?= htmlspecialchars((string)$row['idContratista'], ENT_QUOTES, 'UTF-8') ?>"
                                 title="Ver detalle" aria-label="Ver detalle">
                                 <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
                             </button>
@@ -144,6 +146,7 @@
             rows.each(function(node) {
                 const row = $(node);
                 const folio       = row.data('folio');
+                const contratistaId = row.data('contratista-id');
                 const contratista = row.data('contratista');
                 const tecnico     = row.data('tecnico');
                 const cantidad    = row.data('cantidad');
@@ -154,14 +157,13 @@
                         <div class="salida-card-header">
                             <div>
                                 <div class="font-weight-bold">${folio}</div>
-                                <div class="text-muted small">${contratista}</div>
                             </div>
                             <div class="btn-group" role="group" aria-label="Acciones de salida">
-                                <a class="btn btn-danger btn-sm" href="modal/Salidas_PDF.php?id=${encodeURIComponent(folio)}" target="_blank" rel="noopener noreferrer" title="Ver PDF" aria-label="Ver comprobante PDF">
+                                <a class="btn btn-danger btn-sm" href="modal/Salidas_PDF.php?id=${encodeURIComponent(folio)}&contratista=${encodeURIComponent(contratistaId)}" target="_blank" rel="noopener noreferrer" title="Ver PDF" aria-label="Ver comprobante PDF">
                                     <i class="fas fa-file-pdf" aria-hidden="true"></i>
                                 </a>
                                 <button type="button" class="btn btn-dark btn-sm btn-detalle-salida"
-                                    data-folio="${folio}" title="Ver detalle" aria-label="Ver detalle">
+                                    data-folio="${folio}" data-contratista-id="${contratistaId}" title="Ver detalle" aria-label="Ver detalle">
                                     <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
                                 </button>
                             </div>
