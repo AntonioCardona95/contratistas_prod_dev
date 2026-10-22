@@ -488,3 +488,227 @@
     border-radius: 12px;
     background: #fff4f3;
 }
+
+/* SELECTOR DE DOS PANELES PARA SERIES DISPONIBLES Y SELECCIONADAS. */
+#modalNuevaSalida .series-transfer-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 48px minmax(0, 1fr);
+    align-items: center;
+    gap: 12px;
+}
+
+#modalNuevaSalida .series-panel {
+    display: flex;
+    height: 348px;
+    min-width: 0;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #dce5f0;
+    border-radius: 12px;
+    background: #fff;
+}
+
+#modalNuevaSalida .series-panel-header {
+    display: flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 12px;
+    border-bottom: 1px solid #dce5f0;
+    background: #f3f6f9;
+}
+
+#modalNuevaSalida .series-panel-header h6 {
+    margin: 0;
+    color: #394b63;
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+
+#modalNuevaSalida .series-panel-header h6 .fa-boxes {
+    color: #7187a4;
+}
+
+#modalNuevaSalida .series-panel-header h6 .fa-check-circle {
+    color: #15966f;
+}
+
+#modalNuevaSalida .series-count {
+    min-width: 24px;
+    padding: 3px 6px;
+    border: 1px solid #dce5f0;
+    border-radius: 6px;
+    background: #fff;
+    color: #43556d;
+    font-size: 0.75rem;
+    text-align: center;
+}
+
+#modalNuevaSalida .series-count-selected {
+    border-color: #a7f3d0;
+    background: #d1fae5;
+    color: #047857;
+}
+
+#modalNuevaSalida .series-filter {
+    display: flex;
+    min-height: 38px;
+    align-items: center;
+    gap: 8px;
+    margin: 8px;
+    padding: 0 10px;
+    border: 1px solid #dce5f0;
+    border-radius: 8px;
+    background: #fff;
+    color: #91a0b5;
+}
+
+#modalNuevaSalida .series-filter:focus-within {
+    border-color: #9bb0ca;
+    box-shadow: 0 0 0 2px rgba(92, 122, 160, 0.12);
+}
+
+#modalNuevaSalida .series-filter input[type="search"] {
+    width: 100%;
+    min-width: 0;
+    min-height: 34px;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #34445a;
+    font-size: 0.85rem;
+}
+
+#modalNuevaSalida .series-filter input[type="search"]::placeholder {
+    color: #91a0b5;
+}
+
+#modalNuevaSalida .series-list {
+    display: flex;
+    min-height: 0;
+    flex: 1;
+    flex-direction: column;
+    gap: 5px;
+    overflow-y: auto;
+    padding: 0 8px 8px;
+}
+
+#modalNuevaSalida .series-item {
+    display: flex;
+    min-height: 40px;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 4px;
+    padding: 0 5px 0 8px;
+    border: 1px solid #e5ebf3;
+    border-radius: 8px;
+    background: #fff;
+}
+
+#modalNuevaSalida .series-item-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    padding: 8px 0;
+    border: 0;
+    background: transparent;
+    color: #263b58;
+    font-family: monospace;
+    font-size: 0.82rem;
+    text-align: left;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+#modalNuevaSalida button.series-item-label {
+    cursor: pointer;
+}
+
+#modalNuevaSalida button.series-item-label.is-active {
+    color: #0f766e;
+    font-weight: 700;
+}
+
+#modalNuevaSalida .series-item-action {
+    display: inline-flex;
+    width: 28px;
+    height: 28px;
+    flex: 0 0 28px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #8799b2;
+    cursor: pointer;
+}
+
+#modalNuevaSalida .series-item-action:hover {
+    background: #edf2f8;
+    color: #405a7b;
+}
+
+#modalNuevaSalida .series-item-selected .series-item-action:hover {
+    background: #feecec;
+    color: #c44d4d;
+}
+
+#modalNuevaSalida .series-transfer-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#modalNuevaSalida .series-transfer-button {
+    display: inline-flex;
+    width: 44px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #cbd7e6;
+    border-radius: 8px;
+    background: #f3f6f9;
+    color: #536981;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+#modalNuevaSalida .series-transfer-button:hover {
+    border-color: #aebed2;
+    background: #e8eef5;
+}
+
+#modalNuevaSalida .series-empty {
+    margin: auto;
+    padding: 16px 8px;
+    color: #91a0b5;
+    font-size: 0.84rem;
+    text-align: center;
+}
+
+#modalNuevaSalida .series-options-source,
+#modalNuevaSalida .series-form-values {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    #modalNuevaSalida .series-transfer-layout {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
+    }
+
+    #modalNuevaSalida .series-panel {
+        height: 280px;
+    }
+
+    #modalNuevaSalida .series-transfer-actions {
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    #modalNuevaSalida .series-transfer-button {
+        width: 42px;
+    }
+}

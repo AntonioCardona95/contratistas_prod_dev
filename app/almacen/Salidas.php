@@ -149,41 +149,53 @@
                                 </select>
                             </div>
 
-                            <!-- Series -->
-                            <div class="form-group" id="grupoSeriesSeleccionadas">
-                                <label for="Num_Serie_T">Series Disponibles</label>
-                                <select id="Num_Serie_T" class="form-control" multiple>
-                                    <!-- Las series se cargarán dinámicamente -->
-                                </select>
-                            </div>
+                            <!-- Series disponibles y seleccionadas -->
+                            <div class="form-group series-transfer" id="grupoSeriesSeleccionadas">
+                                <div class="series-transfer-layout">
+                                    <section class="series-panel" aria-labelledby="seriesDisponiblesTitulo">
+                                        <header class="series-panel-header">
+                                            <h6 id="seriesDisponiblesTitulo"><i class="fas fa-boxes"></i> Series Disponibles</h6>
+                                            <span class="series-count" id="availableSeriesCount">0</span>
+                                        </header>
+                                        <label class="series-filter">
+                                            <i class="fas fa-search" aria-hidden="true"></i>
+                                            <input type="search" id="filterAvailableSeries" placeholder="Filtrar disponibles..." aria-label="Filtrar series disponibles">
+                                        </label>
+                                        <div class="series-list" id="availableSeriesList" role="listbox" aria-label="Series disponibles" aria-multiselectable="true"></div>
+                                    </section>
 
-                            <!-- Botón para agregar series -->
-                            <div class="form-group text-center">
-                                <button id="addRow" type="button" class="btn btn-primary">
-                                    <i class="fas fa-plus"></i> Agregar Serie
-                                </button>
-                            </div>
+                                    <div class="series-transfer-actions" aria-label="Mover series">
+                                        <button type="button" id="moveAllToSelected" class="series-transfer-button" aria-label="Mover todas las series disponibles a seleccionadas" title="Mover todas a seleccionadas">
+                                            <i class="fas fa-angle-double-right" aria-hidden="true"></i>
+                                        </button>
+                                        <button type="button" id="moveAllToAvailable" class="series-transfer-button" aria-label="Devolver todas las series seleccionadas a disponibles" title="Devolver todas a disponibles">
+                                            <i class="fas fa-angle-double-left" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
 
-                            <!-- Tabla de series seleccionadas -->
-                            <div class="form-group">
-                                <label>Series Seleccionadas</label>
-                                <table id="selectedSeriesTable" class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Número de Serie</th>
-                                            <th>Acción</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="selectedSeries">
-                                        <!-- Las series seleccionadas se agregarán aquí -->
-                                    </tbody>
+                                    <section class="series-panel" aria-labelledby="seriesSeleccionadasTitulo">
+                                        <header class="series-panel-header">
+                                            <h6 id="seriesSeleccionadasTitulo"><i class="fas fa-check-circle"></i> Series Seleccionadas</h6>
+                                            <span class="series-count series-count-selected" id="selectedSeriesCount">0</span>
+                                        </header>
+                                        <label class="series-filter">
+                                            <i class="fas fa-search" aria-hidden="true"></i>
+                                            <input type="search" id="filterSelectedSeries" placeholder="Filtrar seleccionadas..." aria-label="Filtrar series seleccionadas">
+                                        </label>
+                                        <div class="series-list" id="selectedSeriesList" role="listbox" aria-label="Series seleccionadas" aria-multiselectable="true"></div>
+                                    </section>
+                                </div>
+
+                                <select id="Num_Serie_T" class="series-options-source" multiple aria-hidden="true" tabindex="-1"></select>
+                                <table id="selectedSeriesTable" class="series-form-values" aria-hidden="true">
+                                    <tbody id="selectedSeries"></tbody>
                                 </table>
                             </div>
 
                             <!-- Descripción -->
                             <div class="form-group">
                                 <label for="Descripcion_Salida_Det">Descripción</label>
-                                <textarea name="Descripcion_Salida_Det" id="Descripcion_Salida_Det" class="form-control" placeholder="Descripción de la transferencia"></textarea>
+                                <textarea name="Descripcion_Salida_Det" id="Descripcion_Salida_Det" class="form-control" placeholder="Descripción de la salida"></textarea>
                             </div>
 
                         </div>
@@ -266,68 +278,129 @@
             $('#modalNuevaSalida').on('shown.bs.modal', function() {
                 inicializarSelect2($('#FK_Tecnico_Salida_Det'), 'Selecciona Tecnico');
                 inicializarSelect2($('#FK_Material_Salidas_Contratistas'), 'Selecciona Material');
-                inicializarSelect2($('#Num_Serie_T'), 'Selecciona series');
             });
 
             inicializarSelect2($('#FK_Tecnico_Salida_Det'), 'Selecciona Tecnico');
             inicializarSelect2($('#FK_Material_Salidas_Contratistas'), 'Selecciona Material');
-            inicializarSelect2($('#Num_Serie_T'), 'Selecciona series');
 
-            // No inicializar automáticamente el selectpicker para Num_Serie_T
-            // porque se reinicializa dinámicamente en LoadSeries()
-            
-            // Agregar series seleccionadas a la tabla
-            $("#addRow").click(function() {
-                let opcionesSeleccionadas = $("#Num_Serie_T").val();
-                let tbody = $("#selectedSeries");
+            function renderAvailableSeries() {
+                const $source = $('#Num_Serie_T');
+                const $list = $('#availableSeriesList').empty();
+                const filtro = $('#filterAvailableSeries').val().trim().toLocaleLowerCase();
+                const opciones = $source.find('option').filter(function() {
+                    return $(this).val() !== '';
+                });
 
-                if (opcionesSeleccionadas && opcionesSeleccionadas.length > 0) {
-                    // Obtener series ya existentes en la tabla para evitar duplicados
-                    let seriesExistentes = [];
-                    tbody.find('input[name="numeros_series[]"]').each(function() {
-                        seriesExistentes.push($(this).val());
-                    });
+                $('#availableSeriesCount').text(opciones.length);
+                opciones.each(function() {
+                    const serie = $(this).val();
+                    if (!serie.toLocaleLowerCase().includes(filtro)) {
+                        return;
+                    }
 
-                    opcionesSeleccionadas.forEach(function(opcion) {
-                        // Solo agregar si no existe ya en la tabla
-                        if (!seriesExistentes.includes(opcion)) {
-                            let nuevaFila = `
-                        <tr>
-                            <td>
-                                <input type="text" class="form-control" name="numeros_series[]" value="${opcion}" readonly>
-                            </td>
-                            <td class="text-center columna-accion-serie">
-                                <button type="button" class="btn btn-danger btn-sm removeRow" aria-label="Eliminar serie">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>`;
-                            tbody.append(nuevaFila);
-                        }
-                    });
+                    const $item = $('<div class="series-item">');
+                    const $selectButton = $('<button type="button" class="series-item-label">')
+                        .attr('role', 'option')
+                        .attr('aria-selected', 'false')
+                        .text(serie)
+                        .on('click', function() {
+                            const seleccionado = !$(this).hasClass('is-active');
+                            $(this).toggleClass('is-active', seleccionado)
+                                .attr('aria-selected', seleccionado ? 'true' : 'false');
+                        });
+                    const $addButton = $('<button type="button" class="series-item-action" aria-label="Agregar serie">')
+                        .attr('title', 'Agregar serie')
+                        .html('<i class="fas fa-plus" aria-hidden="true"></i>')
+                        .on('click', function() {
+                            moveSeriesToSelected([serie]);
+                        });
 
-                    // Eliminar las opciones seleccionadas del select múltiple
-                    $("#Num_Serie_T option:selected").each(function() {
-                        $(this).remove();
-                    });
-                    $('#Num_Serie_T').val(null).trigger('change');
-                    $('#grupoSeriesSeleccionadas').removeClass('campo-obligatorio-error');
-                } else {
-                    alert("No hay series seleccionadas.");
+                    $item.append($selectButton, $addButton).appendTo($list);
+                });
+
+                if (!$list.children().length) {
+                    $('<p class="series-empty">').text(opciones.length ? 'No hay coincidencias.' : 'No hay series disponibles.').appendTo($list);
                 }
+            }
+
+            function renderSelectedSeries() {
+                const $list = $('#selectedSeriesList').empty();
+                const filtro = $('#filterSelectedSeries').val().trim().toLocaleLowerCase();
+                const $inputs = $('#selectedSeries input[name="numeros_series[]"]');
+
+                $('#selectedSeriesCount').text($inputs.length);
+                $inputs.each(function() {
+                    const serie = $(this).val();
+                    if (!serie.toLocaleLowerCase().includes(filtro)) {
+                        return;
+                    }
+
+                    const $item = $('<div class="series-item series-item-selected">');
+                    $('<span class="series-item-label">').text(serie).appendTo($item);
+                    $('<button type="button" class="series-item-action" aria-label="Quitar serie">')
+                        .attr('title', 'Quitar serie')
+                        .html('<i class="fas fa-times" aria-hidden="true"></i>')
+                        .on('click', function() {
+                            moveSeriesToAvailable(serie);
+                        })
+                        .appendTo($item);
+                    $item.appendTo($list);
+                });
+
+                if (!$list.children().length) {
+                    $('<p class="series-empty">').text($inputs.length ? 'No hay coincidencias.' : 'No hay series seleccionadas.').appendTo($list);
+                }
+            }
+
+            function moveSeriesToSelected(series) {
+                const $tbody = $('#selectedSeries');
+                const existentes = new Set($tbody.find('input[name="numeros_series[]"]').map(function() {
+                    return $(this).val();
+                }).get());
+
+                series.forEach(function(serie) {
+                    if (existentes.has(serie)) {
+                        return;
+                    }
+
+                    const $input = $('<input type="hidden" name="numeros_series[]">').val(serie);
+                    $('<tr>').append($('<td>').append($input)).appendTo($tbody);
+                    $('#Num_Serie_T option').filter(function() {
+                        return $(this).val() === serie;
+                    }).remove();
+                });
+
+                $('#grupoSeriesSeleccionadas').removeClass('campo-obligatorio-error');
+                renderAvailableSeries();
+                renderSelectedSeries();
+            }
+
+            function moveSeriesToAvailable(serie) {
+                $('<option>').val(serie).text(serie).appendTo('#Num_Serie_T');
+                $('#selectedSeries input[name="numeros_series[]"]').filter(function() {
+                    return $(this).val() === serie;
+                }).closest('tr').remove();
+                renderAvailableSeries();
+                renderSelectedSeries();
+            }
+
+            $('#Num_Serie_T').on('change', renderAvailableSeries);
+            $('#filterAvailableSeries').on('input', renderAvailableSeries);
+            $('#filterSelectedSeries').on('input', renderSelectedSeries);
+            $('#moveAllToSelected').on('click', function() {
+                const series = $('#Num_Serie_T option').map(function() {
+                    return $(this).val();
+                }).get().filter(Boolean);
+                moveSeriesToSelected(series);
+            });
+            $('#moveAllToAvailable').on('click', function() {
+                $('#selectedSeries input[name="numeros_series[]"]').each(function() {
+                    moveSeriesToAvailable($(this).val());
+                });
             });
 
-            // Eliminar fila de la tabla y devolver la serie al select
-            $(document).on("click", ".removeRow", function() {
-                let serieValue = $(this).closest("tr").find('input[name="numeros_series[]"]').val();
-                
-                // Devolver la serie al select múltiple
-                $("#Num_Serie_T").append(`<option value="${serieValue}">${serieValue}</option>`);
-                $('#Num_Serie_T').trigger('change');
-                
-                // Eliminar la fila de la tabla
-                $(this).closest("tr").remove();
-            });
+            renderAvailableSeries();
+            renderSelectedSeries();
 
             function marcarCampoObligatorio($campo, mostrarError) {
                 $campo.toggleClass('campo-obligatorio-error', mostrarError)
