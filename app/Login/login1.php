@@ -69,6 +69,14 @@ function mostrarMensaje($mensaje) {
 
 // Validación de datos POST
 if (!empty($_POST['User_Contratista']) && !empty($_POST['Pass_Contratista'])) {
+     echo "ENTRO AL IF";
+     echo "User_Contratista: ";
+var_dump($_POST['User_Contratista'] ?? null);
+
+echo "<br>Pass_Contratista: ";
+var_dump($_POST['Pass_Contratista'] ?? null);
+
+    die();
     $User_Contratista = $_POST['User_Contratista'];
     $Pass_Contratista = $_POST['Pass_Contratista'];
 
