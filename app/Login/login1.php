@@ -76,20 +76,25 @@ if (!empty($_POST['User_Contratista']) && !empty($_POST['Pass_Contratista'])) {
     $rows = $modal->get_user($User_Contratista);
 
     if (!empty($rows)) {
-        // Se asume que solo hay un usuario por nombre
         $row = $rows[0];
-        // Comparación segura de contraseñas (idealmente usar hash)
-        if ($Pass_Contratista === $row['Pass_Contratista']) {
+        
+        //  trim ante espacios vacíos)
+        if (trim($Pass_Contratista) === trim($row['Pass_Contratista'])) {
             $_SESSION['User_Contratista'] = $row['User_Contratista'];
             $_SESSION['Contratista'] = $row['Contratista'];
             $_SESSION['idContratistas'] = $row['idContratistas'];
             $_SESSION['rol'] = $row['rol'] ?? 'CONTRATISTA';
             $_SESSION['contratistaSeleccionado'] = 0;
 
-            // 🚩 Nueva condición: si el usuario es USERP, redirige a indexp.php
-            if ($row['User_Contratista'] === 'USERP') {
+            
+            // Si el usuario es OPS01 o su rol es OPERATIVO, se va a ControlProduccion.php
+            if ($row['User_Contratista'] === 'OPS01' || $row['rol'] === 'OPERATIVO') {
+                header("Location: ../almacen/ControlProduccion.php");
+            } 
+            else if ($row['User_Contratista'] === 'USERP') {
                 header("Location: ../ordenes/indexp.php");
-            } else {
+            } 
+            else {
                 header("Location: ../ordenes/index.php");
             }
             exit;
