@@ -2,6 +2,9 @@
 require_once __DIR__ . '/../config/ContratistaContexto.php';
 requerirSesionAlmacen();
 $paginaActual = basename($_SERVER['PHP_SELF']);
+
+// Identificamos si el usuario actual es específicamente 'OPS01'
+$esUsuarioOps01 = (isset($_SESSION['User_Contratista']) && $_SESSION['User_Contratista'] === 'OPS01');
 ?>
 
 <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a 100%, #224abe 0%); background-size: cover;">
@@ -12,14 +15,15 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
 
 	<hr class="sidebar-divider my-0">
 
+	<?php if (!$esUsuarioOps01): ?>
 	<li class="nav-item <?php echo $paginaActual === 'index.php' ? 'active' : ''; ?>">
 		<a class="nav-link" href="index.php">
 			<i class="fas fa-fw fa-tachometer-alt"></i>
 			<span>Dashboard</span>
 		</a>
 	</li>
-
 	<hr class="sidebar-divider">
+	<?php endif; ?>
 
 	<div class="sidebar-heading">ACCION</div>
 
@@ -33,84 +37,93 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
 			<div class="bg-white py-2 collapse-inner rounded">
 				<h6 class="collapse-header">MODULOS</h6>
 				<a class="collapse-item" href="index.php"><i class="fa-solid fa-box-open"></i> ALMACEN</a>
+				<?php if (!$esUsuarioOps01): ?>
 				<a class="collapse-item" href="../ordenes/index.php"><i class="fa-solid fa-school-circle-check"></i> OPERACIONES</a>
+				<?php endif; ?>
 			</div>
 		</div>
 	</li>
 
-	<?php if (esAdministradorContratista()): ?>
-	<li class="nav-item <?php echo $paginaActual === 'Navegacion.php' ? 'active' : ''; ?>">
-		<a class="nav-link" href="Navegacion.php">
-			<i class="fa-brands fa-tailwind-css"></i>
-			<span>NAVEGACION</span>
-		</a>
-	</li>
-	<?php endif; ?>
-
-	
-	<?php if (esAdministradorContratista()): ?>
-	<li class="nav-item <?php echo $paginaActual === 'Produccion.php' ? 'active' : ''; ?>">
-		<a class="nav-link" href="Produccion.php">
-			<i class="fa-brands fa-tailwind-css"></i>
-			<span>PRODUCCIÓN</span>
-		</a>
-	</li>
-	<?php endif; ?>
-
+	<?php if ($esUsuarioOps01): ?>
+		<!-- Única pestaña visible para el usuario OPS01 -->
+		<li class="nav-item <?php echo $paginaActual === 'ControlProduccion.php' ? 'active' : ''; ?>">
+			<a class="nav-link" href="ControlProduccion.php">
+				<i class="fas fa-fw fa-chart-line"></i>
+				<span>Control Producción</span>
+			</a>
+		</li>
+	<?php else: ?>
+		<!-- Pestañas normales para los demás usuarios -->
+		<?php if (esAdministradorContratista()): ?>
+		<li class="nav-item <?php echo $paginaActual === 'Navegacion.php' ? 'active' : ''; ?>">
+			<a class="nav-link" href="Navegacion.php">
+				<i class="fa-brands fa-tailwind-css"></i>
+				<span>NAVEGACION</span>
+			</a>
+		</li>
+		<?php endif; ?>
+		
+		<?php if (esAdministradorContratista()): ?>
+		<li class="nav-item <?php echo $paginaActual === 'Produccion.php' ? 'active' : ''; ?>">
+			<a class="nav-link" href="Produccion.php">
+				<i class="fa-brands fa-tailwind-css"></i>
+				<span>PRODUCCIÓN</span>
+			</a>
+		</li>
+		<?php endif; ?>
 
 		<?php if (esAdministradorContratista()): ?>
-	<li class="nav-item <?php echo $paginaActual === 'Reporte.php' ? 'active' : ''; ?>">
-		<a class="nav-link" href="Reporte.php">
-			<i class="fa-brands fa-tailwind-css"></i>
-			<span>REPORTE</span>
-		</a>
-	</li>
-	<?php endif; ?>
+		<li class="nav-item <?php echo $paginaActual === 'Reporte.php' ? 'active' : ''; ?>">
+			<a class="nav-link" href="Reporte.php">
+				<i class="fa-brands fa-tailwind-css"></i>
+				<span>REPORTE</span>
+			</a>
+		</li>
+		<?php endif; ?>
 
+		<li class="nav-item <?php echo $paginaActual === 'Entradas.php' ? 'active' : ''; ?>">
+			<a class="nav-link" href="Entradas.php">
+				<i class="fa-solid fa-clipboard-check"></i>
+				<span>MATERIAL RECIBIDO</span>
+			</a>
+		</li>
 
+		<li class="nav-item <?php echo $paginaActual === 'AceptarMaterial.php' ? 'active' : ''; ?>">
+			<a class="nav-link" href="AceptarMaterial.php">
+				<i class="fa-solid fa-feather-pointed"></i>
+				<span>ACEPTAR MATERIAL</span>
+			</a>
+		</li>
 
-	<li class="nav-item <?php echo $paginaActual === 'Entradas.php' ? 'active' : ''; ?>">
-		<a class="nav-link" href="Entradas.php">
-			<i class="fa-solid fa-clipboard-check"></i>
-			<span>MATERIAL RECIBIDO</span>
-		</a>
-	</li>
+		<li class="nav-item <?php echo $paginaActual === 'MaterialRechazado.php' ? 'active' : ''; ?>">
+			<a class="nav-link" href="MaterialRechazado.php">
+				<i class="fa-solid fa-school-circle-xmark"></i>
+				<span>MATERIAL RECHAZADO</span>
+			</a>
+		</li>
 
-	<li class="nav-item <?php echo $paginaActual === 'AceptarMaterial.php' ? 'active' : ''; ?>">
-		<a class="nav-link" href="AceptarMaterial.php">
-			<i class="fa-solid fa-feather-pointed"></i>
-			<span>ACEPTAR MATERIAL</span>
-		</a>
-	</li>
+		<li class="nav-item <?php echo $paginaActual === 'Salidas.php' ? 'active' : ''; ?>">
+			<a class="nav-link" href="Salidas.php">
+				<i class="fa-solid fa-square-plus"></i>
+				<span>ASIGNAR MATERIAL</span>
+			</a>
+		</li>
 
-	<li class="nav-item <?php echo $paginaActual === 'MaterialRechazado.php' ? 'active' : ''; ?>">
-		<a class="nav-link" href="MaterialRechazado.php">
-			<i class="fa-solid fa-school-circle-xmark"></i>
-			<span>MATERIAL RECHAZADO</span>
-		</a>
-	</li>
+		<li class="nav-item <?php echo $paginaActual === 'Tecnicos.php' ? 'active' : ''; ?>">
+			<a class="nav-link" href="Tecnicos.php">
+				<i class="fa-solid fa-user"></i>
+				<span>TÉCNICOS</span>
+			</a>
+		</li>
 
-	<li class="nav-item <?php echo $paginaActual === 'Salidas.php' ? 'active' : ''; ?>">
-		<a class="nav-link" href="Salidas.php">
-			<i class="fa-solid fa-square-plus"></i>
-			<span>ASIGNAR MATERIAL</span>
-		</a>
-	</li>
-
-	<li class="nav-item <?php echo $paginaActual === 'Tecnicos.php' ? 'active' : ''; ?>">
-		<a class="nav-link" href="Tecnicos.php">
-			<i class="fa-solid fa-user"></i>
-			<span>TÉCNICOS</span>
-		</a>
-	</li>
-
-	<?php if (esAdministradorContratista()): ?>
-	<li class="nav-item <?php echo $paginaActual === 'Traspasos.php' ? 'active' : ''; ?>">
-		<a class="nav-link" href="Traspasos.php">
-			<i class="fa-solid fa-right-left"></i>
-			<span>TRASPASOS</span>
-		</a>
-	</li>
+		<?php if (esAdministradorContratista()): ?>
+		<li class="nav-item <?php echo $paginaActual === 'Traspasos.php' ? 'active' : ''; ?>">
+			<a class="nav-link" href="Traspasos.php">
+				<i class="fa-solid fa-right-left"></i>
+				<span>TRASPASOS</span>
+			</a>
+		</li>
+		<?php endif; ?>
 	<?php endif; ?>
 
 	<hr class="sidebar-divider d-none d-md-block">
