@@ -5,11 +5,18 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
 
 // Identificamos si el usuario actual es específicamente 'OPS01'
 $esUsuarioOps01 = (isset($_SESSION['User_Contratista']) && $_SESSION['User_Contratista'] === 'OPS01');
+
+// 🚩 REGLA PRINCIPAL: Si OPS01 intenta entrar a index.php, lo redirigimos automáticamente a ControlProduccion.php
+if ($esUsuarioOps01 && $paginaActual === 'index.php') {
+    header("Location: ControlProduccion.php");
+    exit;
+}
 ?>
 
 <ul class="navbar-nav sidebar sidebar-dark accordion" id="accordionSidebar" style="background-color: #007BFF; background-image: linear-gradient(180deg, #0f172a 100%, #224abe 0%); background-size: cover;">
 
-	<a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.php">
+	<!-- Si es OPS01, el logo superior lo manda a ControlProduccion.php, de lo contrario a index.php -->
+	<a class="sidebar-brand d-flex align-items-center justify-content-center" href="<?php echo $esUsuarioOps01 ? 'ControlProduccion.php' : 'index.php'; ?>">
 		<div class="sidebar-brand-text mx-3">ALMACEN</div>
 	</a>
 
@@ -36,7 +43,8 @@ $esUsuarioOps01 = (isset($_SESSION['User_Contratista']) && $_SESSION['User_Contr
 		<div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
 			<div class="bg-white py-2 collapse-inner rounded">
 				<h6 class="collapse-header">MODULOS</h6>
-				<a class="collapse-item" href="index.php"><i class="fa-solid fa-box-open"></i> ALMACEN</a>
+				<!-- Si es OPS01, este botón del módulo también lo manda a su ControlProduccion -->
+				<a class="collapse-item" href="<?php echo $esUsuarioOps01 ? 'ControlProduccion.php' : 'index.php'; ?>"><i class="fa-solid fa-box-open"></i> ALMACEN</a>
 				<?php if (!$esUsuarioOps01): ?>
 				<a class="collapse-item" href="../ordenes/index.php"><i class="fa-solid fa-school-circle-check"></i> OPERACIONES</a>
 				<?php endif; ?>
