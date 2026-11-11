@@ -487,6 +487,10 @@ public function CountProduccionPorFechas(
     {
         if (empty($registros)) return true;
 
+        echo '<pre>';
+    print_r(array_slice($registros, 0, 10)); // primeros 10 registros
+    echo '</pre>';
+
         $conexion = $this->conexion(); // Conexión 'erpprint' (Base ERP)
 
         try {
