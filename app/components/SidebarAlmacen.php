@@ -6,7 +6,7 @@ $paginaActual = basename($_SERVER['PHP_SELF']);
 // Identificamos si el usuario actual es específicamente 'OPS01'
 $esUsuarioOps01 = (isset($_SESSION['User_Contratista']) && $_SESSION['User_Contratista'] === 'OPS01');
 
-// 🚩 REGLA PRINCIPAL: Si OPS01 intenta entrar a index.php, lo redirigimos automáticamente a ControlProduccion.php
+// REGLA PRINCIPAL: Si OPS01 intenta entrar a index.php, lo redirigimos automáticamente a ControlProduccion.php
 if ($esUsuarioOps01 && $paginaActual === 'index.php') {
     header("Location: ControlProduccion.php");
     exit;
