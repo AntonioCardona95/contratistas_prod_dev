@@ -490,6 +490,7 @@ public function CountProduccionPorFechas(
         echo '<pre>';
     print_r(array_slice($registros, 0, 10)); // primeros 10 registros
     echo '</pre>';
+    die('Fin de depuración');
 
         $conexion = $this->conexion(); // Conexión 'erpprint' (Base ERP)
 
