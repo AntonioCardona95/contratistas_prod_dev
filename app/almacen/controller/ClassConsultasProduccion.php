@@ -479,11 +479,7 @@ public function CountProduccionPorFechas(
         return array_column($rows, 'Num_Serie');
     }
 
-   /**
-     * Procesa e inserta/actualiza producción, señalamientos y estados de navegación.
-     * Mantiene la producción sin duplicar registros y actualiza dinámicamente el estatus de navegación.
-     */
-    public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
+  public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
 {
     if (empty($registros)) return true;
 
@@ -618,8 +614,9 @@ public function CountProduccionPorFechas(
                 $eciInfo   = $mapEciDetalle[$tel] ?? null;
                 $serieEci  = $eciInfo['M_SERIE'] ?? null;
 
-                $prodEsValida = !$this->esSerieInvalida($serieProd);
-                $eciEsValida  = $serieEci !== null && !$this->esSerieInvalida($serieEci);
+                $prodEsValida      = !$this->esSerieInvalida($serieProd);
+                $nsEnviadoEsValida = !$this->esSerieInvalida($nsEnviado); // Validación para NS_Enviado
+                $eciEsValida       = $serieEci !== null && !$this->esSerieInvalida($serieEci);
 
                 // Evaluaciones de almacén
                 $existeProdEnAlmacen = $prodEsValida && isset($mapExistentes[$serieProd]);
@@ -664,6 +661,8 @@ public function CountProduccionPorFechas(
 
                 // Evaluación de Señalamientos
                 $hayDiscrepanciaSeries = false;
+
+                // 1. Compara Producción (TAC) contra ECI
                 if ($prodEsValida && $eciEsValida && strtoupper($serieProd) !== strtoupper($serieEci)) {
                     $hayDiscrepanciaSeries = true;
 
@@ -673,6 +672,19 @@ public function CountProduccionPorFechas(
                         'FECHA_LIQ'         => $fechaLiq,
                         'Tipo_Senalamiento' => 'NUMEROS DE SERIE DIFERENTES PARA EL TELEFONO',
                         'Detalle'           => "Producción traía ($serieProd) y ECI traía ($serieEci)"
+                    ];
+                }
+
+                // 2. Compara NS_Enviado contra ECI (NUEVO)
+                if ($nsEnviadoEsValida && $eciEsValida && strtoupper($nsEnviado) !== strtoupper($serieEci)) {
+                    $hayDiscrepanciaSeries = true;
+
+                    $senalamientos[] = [
+                        'Folio_Pisa'        => $folioPisa,
+                        'TELEFONO'          => $tel,
+                        'FECHA_LIQ'         => $fechaLiq,
+                        'Tipo_Senalamiento' => 'NUMEROS DE SERIE DIFERENTES PARA EL TELEFONO',
+                        'Detalle'           => "NS Enviado traía ($nsEnviado) y ECI traía ($serieEci)"
                     ];
                 }
 
