@@ -479,7 +479,7 @@ public function CountProduccionPorFechas(
         return array_column($rows, 'Num_Serie');
     }
 
-public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
+    public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
 {
     if (empty($registros)) return true;
 
@@ -534,7 +534,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                             FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
                             idContratista, Contratista, idContratista_anterior, Contratista_anterior, 
                             Tecnico, NOM_DIVISION, NOM_AREA,
-                            Num__Serie, NS_Enviado, Serie_Eci, Existe_Serie_Prod_Almacen, Existe_Serie_Eci_Almacen,
+                            Num__Serie, NS_Enviado, Serie_Eci, Existe_Serie_Prod_Almacen, Existe_Serie_Eci_Almacen, Existe_Serie_Env,
                             DISTRITO, TERMINAL, Fecha_Insercion, Tiene_Senalamiento
                         ) VALUES ";
 
@@ -557,6 +557,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                 Serie_Eci = VALUES(Serie_Eci),
                 Existe_Serie_Prod_Almacen = VALUES(Existe_Serie_Prod_Almacen),
                 Existe_Serie_Eci_Almacen = VALUES(Existe_Serie_Eci_Almacen),
+                Existe_Serie_Env = VALUES(Existe_Serie_Env),
                 DISTRITO = VALUES(DISTRITO),
                 TERMINAL = VALUES(TERMINAL),
                 Tiene_Senalamiento = VALUES(Tiene_Senalamiento),
@@ -618,9 +619,10 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                 $nsEnviadoEsValida = !$this->esSerieInvalida($nsEnviado);
                 $eciEsValida       = $serieEci !== null && !$this->esSerieInvalida($serieEci);
 
-                // Evaluaciones de almacén
+                // Evaluaciones de almacén (TAC, ECI y NS_Enviado)[cite: 16]
                 $existeProdEnAlmacen = $prodEsValida && isset($mapExistentes[$serieProd]);
                 $existeEciEnAlmacen  = $eciEsValida && isset($mapExistentes[$serieEci]);
+                $existeEnvEnAlmacen  = $nsEnviadoEsValida && isset($mapExistentes[$nsEnviado]);
 
                 // Estatus de Navegación Actualizado
                 $didActivo = $eciInfo['DID_ACTIVO'] ?? null;
@@ -662,12 +664,10 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                 // Evaluación de Señalamientos
                 $hayDiscrepanciaSeries = false;
 
-                // Definimos los valores a imprimir de forma segura (evitando nulos)
-                $valProd    = $prodEsValida ? $serieProd : (!empty($serieProd) ? $serieProd : 'VACÍO');
-                $valEnviado = $nsEnviadoEsValida ? $nsEnviado : (!empty($nsEnviado) ? $nsEnviado : 'VACÍO');
-                $valEci     = $eciEsValida ? $serieEci : (!empty($serieEci) ? $serieEci : 'VACÍO');
+                $valProd    = $prodEsValida ? $serieProd : (!empty($serieProd) ? $serieProd : 'SIN DATO');
+                $valEnviado = $nsEnviadoEsValida ? $nsEnviado : (!empty($nsEnviado) ? $nsEnviado : 'SIN DATO');
+                $valEci     = $eciEsValida ? $serieEci : (!empty($serieEci) ? $serieEci : 'SIN DATO');
 
-                // Validamos si existe diferencia cruzada de forma segura contra nulos
                 $sProd = strtoupper(trim((string)$serieProd));
                 $sEnv  = strtoupper(trim((string)$nsEnviado));
                 $sEci  = strtoupper(trim((string)$serieEci));
@@ -716,6 +716,17 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                     ];
                 }
 
+                // NUEVA VALIDACIÓN: Si NS_Enviado es válida pero no está en almacén[cite: 16]
+                if ($nsEnviadoEsValida && !$existeEnvEnAlmacen) {
+                    $senalamientos[] = [
+                        'Folio_Pisa'        => $folioPisa,
+                        'TELEFONO'          => $tel,
+                        'FECHA_LIQ'         => $fechaLiq,
+                        'Tipo_Senalamiento' => 'NO ENCONTRADO EN ALMACEN',
+                        'Detalle'           => "El número de teléfono $tel tiene la serie " . $nsEnviado . " (Origen: ENVIADO COBRO) que no fue encontrada en almacén"
+                    ];
+                }
+
                 if ($flagNavega === 0) {
                     $senalamientos[] = [
                         'Folio_Pisa'        => $folioPisa,
@@ -726,11 +737,11 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                     ];
                 }
 
-                $tieneFallos = $hayDiscrepanciaSeries || !$prodEsValida || !$existeProdEnAlmacen || ($eciEsValida && !$existeEciEnAlmacen) || ($flagNavega === 0);
+                $tieneFallos = $hayDiscrepanciaSeries || !$prodEsValida || !$existeProdEnAlmacen || ($eciEsValida && !$existeEciEnAlmacen) || ($nsEnviadoEsValida && !$existeEnvEnAlmacen) || ($flagNavega === 0);
                 $tieneSenalamiento = $tieneFallos ? 1 : 0;
 
-                // 25 placeholders totales para la consulta (incluyendo NS_Enviado)
-                $values[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
+                // 26 placeholders totales para la consulta (incluyendo Existe_Serie_Env)
+                $values[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
 
                 array_push(
                     $params,
@@ -738,7 +749,8 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                     $fechaLiq, $reg['FECHA_LIQD'], $reg['Semana'], $reg['Sem'], $reg['Anio'],
                     $idContratistaFinal, $contratistaFinal, $idContrAnterior, $contrAnterior, 
                     $reg['Tecnico'], $reg['NOM_DIVISION'], $reg['NOM_AREA'],
-                    $serieProd, $nsEnviado, $serieEci, $existeProdEnAlmacen ? 1 : 0, $existeEciEnAlmacen ? 1 : 0,
+                    $serieProd, $nsEnviado, $serieEci, 
+                    $existeProdEnAlmacen ? 1 : 0, $existeEciEnAlmacen ? 1 : 0, $existeEnvEnAlmacen ? 1 : 0,
                     $reg['DISTRITO'], $reg['TERMINAL'], $tieneSenalamiento
                 );
             }
@@ -792,15 +804,23 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         }
 
         // -------------------------------------------------------------
-        // 3. LIMPIEZA Y REFRESH DE SEÑALAMIENTOS DE NAVEGACIÓN
+        // 3. LIMPIEZA Y REFRESH DE SEÑALAMIENTOS DE NAVEGACIÓN Y SERIES
         // -------------------------------------------------------------
         $foliosLote = array_unique(array_column($registros, 'Folio_Pisa'));
         if (!empty($foliosLote)) {
             $phFolios = implode(',', array_fill(0, count($foliosLote), '?'));
+            
+            // Limpiar navegación
             $stmtClean = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
                                            WHERE Folio_Pisa IN ($phFolios) 
                                              AND Tipo_Senalamiento = 'SIN NAVEGACION EN ESCI'");
             $stmtClean->execute(array_values($foliosLote));
+
+            // Limpiar series diferentes viejas
+            $stmtCleanSerie = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
+                                                 WHERE Folio_Pisa IN ($phFolios) 
+                                                   AND Tipo_Senalamiento IN ('NUMEROS DE SERIE DIFERENTES', 'NUMEROS DE SERIE DIFERENTES PARA EL TELEFONO')");
+            $stmtCleanSerie->execute(array_values($foliosLote));
         }
 
         if (!empty($senalamientos)) {
@@ -841,6 +861,8 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         return false;
     }
 }
+
+
     // CODIGO ANTERIOR //
 
     /**
