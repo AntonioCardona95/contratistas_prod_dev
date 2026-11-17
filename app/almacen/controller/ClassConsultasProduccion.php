@@ -479,7 +479,8 @@ public function CountProduccionPorFechas(
         return array_column($rows, 'Num_Serie');
     }
 
-public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
+
+    public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
 {
     if (empty($registros)) return true;
 
@@ -807,7 +808,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                 }
 
                 $stmtNav = $conexion->prepare($sqlNavBase . implode(',', $valuesNav) . $sqlNavDuplicate);
-                $stmtNav$stmtNav->execute($paramsNav);
+                $stmtNav->execute($paramsNav);
             }
         }
 
@@ -875,6 +876,8 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         return false;
     }
 }
+
+
 
     // CODIGO ANTERIOR //
 
