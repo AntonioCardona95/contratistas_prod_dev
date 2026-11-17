@@ -26,13 +26,13 @@ header("Expires: 0");
 $output = fopen('php://output', 'w');
 fprintf($output, "\xEF\xBB\xBF"); // UTF-8 BOM para soporte correcto de acentos y Ñ
 
-// Encabezados del archivo CSV
+// Encabezados del archivo CSV (Incluyendo Serie Enviada Cobro y su estatus de almacén en orden)
 $headers = [
     'Expediente', 'Folio Pisa', 'Teléfono', 'Tipo de Tarea', 'Cope', 
     'Fecha Liquidación', 'Semana', 'Año', 'ID Contratista', 'Contratista', 
-    'Técnico', 'División', 'Área', 'Num. Serie', 'Serie ECI', 
-    'Existe Serie Prod Almacén', 'Existe Serie ECI Almacén', 'Distrito', 'Terminal', 
-    'Tiene Señalamiento', 'Tipo Señalamiento', 'Detalle Señalamiento', 
+    'Técnico', 'División', 'Área', 'Num. Serie', 'Serie ECI', 'Serie Enviada Cobro',
+    'Existe Serie Prod Almacén', 'Existe Serie ECI Almacén', 'Existe Serie Enviada Cobro', 
+    'Distrito', 'Terminal', 'Tiene Señalamiento', 'Tipo Señalamiento', 'Detalle Señalamiento', 
     'Contratista Asignado', 'Técnico Asignado', 'ONT Coordiapp',
     'Folio Entrada', 'Folio Salida', 'Folio In Carso'
 ];
@@ -57,8 +57,10 @@ if (!empty($filas)) {
             $row['NOM_AREA'] ?? '',
             $row['Num__Serie'] ?? '',
             $row['Serie_Eci'] ?? '',
+            $row['Serie_Enviada_Cobro'] ?? '',
             $row['Existe_Serie_Prod_Almacen'] ?? '',
             $row['Existe_Serie_Eci_Almacen'] ?? '',
+            $row['Existe_Serie_Enviada_Cobro'] ?? '',
             $row['DISTRITO'] ?? '',
             $row['TERMINAL'] ?? '',
             $row['Tiene_Senalamiento'] ?? '',
