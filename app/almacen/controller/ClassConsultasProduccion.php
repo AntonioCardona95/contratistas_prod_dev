@@ -400,7 +400,7 @@ public function CountProduccionPorFechas(
                     Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
                     FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
                     idContratista, Contratista, Tecnico, NOM_DIVISION, NOM_AREA,
-                    Num__Serie, DISTRITO, TERMINAL
+                    Num__Serie, DISTRITO, TERMINAL,NS_Enviado
                 FROM seg_ns_prod_eval
                 WHERE FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
 
