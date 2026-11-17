@@ -662,15 +662,15 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                 // Evaluación de Señalamientos
                 $hayDiscrepanciaSeries = false;
 
-                // Definimos los valores a imprimir (si están vacíos o inválidos, ponemos 'VACÍO')
-                $valProd = $prodEsValida ? $serieProd : (!empty($serieProd) ? $serieProd : 'VACÍO');
+                // Definimos los valores a imprimir de forma segura (evitando nulos)
+                $valProd    = $prodEsValida ? $serieProd : (!empty($serieProd) ? $serieProd : 'VACÍO');
                 $valEnviado = $nsEnviadoEsValida ? $nsEnviado : (!empty($nsEnviado) ? $nsEnviado : 'VACÍO');
-                $valEci = $eciEsValida ? $serieEci : (!empty($serieEci) ? $serieEci : 'VACÍO');
+                $valEci     = $eciEsValida ? $serieEci : (!empty($serieEci) ? $serieEci : 'VACÍO');
 
-                // Validamos si existe diferencia cruzada entre Producción, ECI o NS Enviado
-                $sProd = strtoupper(trim($serieProd));
-                $sEnv  = strtoupper(trim($nsEnviado));
-                $sEci  = strtoupper(trim($serieEci));
+                // Validamos si existe diferencia cruzada de forma segura contra nulos
+                $sProd = strtoupper(trim((string)$serieProd));
+                $sEnv  = strtoupper(trim((string)$nsEnviado));
+                $sEci  = strtoupper(trim((string)$serieEci));
 
                 $difProdEci = ($prodEsValida && $eciEsValida && $sProd !== $sEci);
                 $difEnvEci  = ($nsEnviadoEsValida && $eciEsValida && $sEnv !== $sEci);
