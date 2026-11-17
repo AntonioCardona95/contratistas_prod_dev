@@ -479,7 +479,7 @@ public function CountProduccionPorFechas(
         return array_column($rows, 'Num_Serie');
     }
 
-  public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
+public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
 {
     if (empty($registros)) return true;
 
@@ -662,17 +662,21 @@ public function CountProduccionPorFechas(
                 // Evaluación de Señalamientos
                 $hayDiscrepanciaSeries = false;
 
-                // Verificamos si hay discrepancia entre Producción, NS Enviado o ECI
-                $valProd = $prodEsValida ? $serieProd : 'SIN DATO';
-                $valEnviado = $nsEnviadoEsValida ? $nsEnviado : 'SIN DATO';
-                $valEci = $eciEsValida ? $serieEci : 'SIN DATO';
+                // Definimos los valores a imprimir (si están vacíos o inválidos, ponemos 'VACÍO')
+                $valProd = $prodEsValida ? $serieProd : (!empty($serieProd) ? $serieProd : 'VACÍO');
+                $valEnviado = $nsEnviadoEsValida ? $nsEnviado : (!empty($nsEnviado) ? $nsEnviado : 'VACÍO');
+                $valEci = $eciEsValida ? $serieEci : (!empty($serieEci) ? $serieEci : 'VACÍO');
 
-                // Comparamos si al menos uno difiere de ECI o entre ellos
-                $esDiferenteProdEci = ($prodEsValida && $eciEsValida && strtoupper($serieProd) !== strtoupper($serieEci));
-                $esDiferenteEnvEci  = ($nsEnviadoEsValida && $eciEsValida && strtoupper($nsEnviado) !== strtoupper($serieEci));
-                $esDiferenteProdEnv = ($prodEsValida && $nsEnviadoEsValida && strtoupper($serieProd) !== strtoupper($nsEnviado));
+                // Validamos si existe diferencia cruzada entre Producción, ECI o NS Enviado
+                $sProd = strtoupper(trim($serieProd));
+                $sEnv  = strtoupper(trim($nsEnviado));
+                $sEci  = strtoupper(trim($serieEci));
 
-                if ($esDiferenteProdEci || $esDiferenteEnvEci || $esDiferenteProdEnv) {
+                $difProdEci = ($prodEsValida && $eciEsValida && $sProd !== $sEci);
+                $difEnvEci  = ($nsEnviadoEsValida && $eciEsValida && $sEnv !== $sEci);
+                $difProdEnv = ($prodEsValida && $nsEnviadoEsValida && $sProd !== $sEnv);
+
+                if ($difProdEci || $difEnvEci || $difProdEnv) {
                     $hayDiscrepanciaSeries = true;
 
                     $senalamientos[] = [
@@ -837,7 +841,6 @@ public function CountProduccionPorFechas(
         return false;
     }
 }
-
     // CODIGO ANTERIOR //
 
     /**
