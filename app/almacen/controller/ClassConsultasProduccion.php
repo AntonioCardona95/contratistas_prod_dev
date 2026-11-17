@@ -615,7 +615,7 @@ public function CountProduccionPorFechas(
                 $serieEci  = $eciInfo['M_SERIE'] ?? null;
 
                 $prodEsValida      = !$this->esSerieInvalida($serieProd);
-                $nsEnviadoEsValida = !$this->esSerieInvalida($nsEnviado); // Validación para NS_Enviado
+                $nsEnviadoEsValida = !$this->esSerieInvalida($nsEnviado);
                 $eciEsValida       = $serieEci !== null && !$this->esSerieInvalida($serieEci);
 
                 // Evaluaciones de almacén
@@ -662,29 +662,25 @@ public function CountProduccionPorFechas(
                 // Evaluación de Señalamientos
                 $hayDiscrepanciaSeries = false;
 
-                // 1. Compara Producción (TAC) contra ECI
-                if ($prodEsValida && $eciEsValida && strtoupper($serieProd) !== strtoupper($serieEci)) {
+                // Verificamos si hay discrepancia entre Producción, NS Enviado o ECI
+                $valProd = $prodEsValida ? $serieProd : 'SIN DATO';
+                $valEnviado = $nsEnviadoEsValida ? $nsEnviado : 'SIN DATO';
+                $valEci = $eciEsValida ? $serieEci : 'SIN DATO';
+
+                // Comparamos si al menos uno difiere de ECI o entre ellos
+                $esDiferenteProdEci = ($prodEsValida && $eciEsValida && strtoupper($serieProd) !== strtoupper($serieEci));
+                $esDiferenteEnvEci  = ($nsEnviadoEsValida && $eciEsValida && strtoupper($nsEnviado) !== strtoupper($serieEci));
+                $esDiferenteProdEnv = ($prodEsValida && $nsEnviadoEsValida && strtoupper($serieProd) !== strtoupper($nsEnviado));
+
+                if ($esDiferenteProdEci || $esDiferenteEnvEci || $esDiferenteProdEnv) {
                     $hayDiscrepanciaSeries = true;
 
                     $senalamientos[] = [
                         'Folio_Pisa'        => $folioPisa,
                         'TELEFONO'          => $tel,
                         'FECHA_LIQ'         => $fechaLiq,
-                        'Tipo_Senalamiento' => 'NUMEROS DE SERIE DIFERENTES PARA EL TELEFONO',
-                        'Detalle'           => "Producción traía ($serieProd) y ECI traía ($serieEci)"
-                    ];
-                }
-
-                // 2. Compara NS_Enviado contra ECI (NUEVO)
-                if ($nsEnviadoEsValida && $eciEsValida && strtoupper($nsEnviado) !== strtoupper($serieEci)) {
-                    $hayDiscrepanciaSeries = true;
-
-                    $senalamientos[] = [
-                        'Folio_Pisa'        => $folioPisa,
-                        'TELEFONO'          => $tel,
-                        'FECHA_LIQ'         => $fechaLiq,
-                        'Tipo_Senalamiento' => 'NUMEROS DE SERIE DIFERENTES PARA EL TELEFONO',
-                        'Detalle'           => "NS Enviado traía ($nsEnviado) y ECI traía ($serieEci)"
+                        'Tipo_Senalamiento' => 'NUMEROS DE SERIE DIFERENTES',
+                        'Detalle'           => "El número de teléfono $tel tiene un número de serie en Producción $valProd, En Esci $valEci, Y en NS Enviado Tiene $valEnviado"
                     ];
                 }
 
@@ -694,7 +690,7 @@ public function CountProduccionPorFechas(
                         'TELEFONO'          => $tel,
                         'FECHA_LIQ'         => $fechaLiq,
                         'Tipo_Senalamiento' => 'SERIE TAC INVALIDA O VACIA',
-                        'Detalle'           => "Producción registro serie sin obtener o vacia: '$serieProd'"
+                        'Detalle'           => "El número de teléfono $tel tiene una serie TAC inválida o vacía: '$serieProd'"
                     ];
                 } elseif (!$existeProdEnAlmacen) {
                     $senalamientos[] = [
@@ -702,7 +698,7 @@ public function CountProduccionPorFechas(
                         'TELEFONO'          => $tel,
                         'FECHA_LIQ'         => $fechaLiq,
                         'Tipo_Senalamiento' => 'NO ENCONTRADO EN ALMACEN',
-                        'Detalle'           => "Serie " . $serieProd . " (Origen: TAC) NO fue encontrada en almacen"
+                        'Detalle'           => "El número de teléfono $tel tiene la serie " . $serieProd . " (Origen: TAC) que no fue encontrada en almacén"
                     ];
                 }
 
@@ -712,7 +708,7 @@ public function CountProduccionPorFechas(
                         'TELEFONO'          => $tel,
                         'FECHA_LIQ'         => $fechaLiq,
                         'Tipo_Senalamiento' => 'NO ENCONTRADO EN ALMACEN',
-                        'Detalle'           => "Serie " . $serieEci . " (Origen: ECI) NO fue encontrada en almacen"
+                        'Detalle'           => "El número de teléfono $tel tiene la serie " . $serieEci . " (Origen: ECI) que no fue encontrada en almacén"
                     ];
                 }
 
@@ -722,7 +718,7 @@ public function CountProduccionPorFechas(
                         'TELEFONO'          => $tel,
                         'FECHA_LIQ'         => $fechaLiq,
                         'Tipo_Senalamiento' => 'SIN NAVEGACION EN ESCI',
-                        'Detalle'           => "Estatus: $estatusNav" . ($fEvento ? " | Última vez que navego: $fEvento" : "")
+                        'Detalle'           => "El número de teléfono $tel presenta estatus de navegación: $estatusNav" . ($fEvento ? " | Última vez que navegó: $fEvento" : "")
                     ];
                 }
 
