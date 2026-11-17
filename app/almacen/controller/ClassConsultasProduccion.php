@@ -1796,121 +1796,124 @@ public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = '', 
 /**
  * Consulta la producción diaria aplicando todos los filtros dinámicos
  */
-public function ExportarFechas($fechaInicio = null, $fechaFin = null, $idContratista = null, $tipoTarea = null, $area = null, $division = null, $cope = null)
-{
-    $sql = "SELECT 
-                p.Expediente,
-                p.Folio_Pisa,
-                p.TELEFONO,
-                p.Tipo_de_Tarea,
-                p.NOM_CT,
-                p.FECHA_LIQ,
-                p.Semana,
-                p.Anio,
-                p.idContratista,
-                p.Contratista,
-                p.Tecnico,
-                p.NOM_DIVISION,
-                p.NOM_AREA,
-                p.Num__Serie,
-                p.Serie_Eci,
-                p.Existe_Serie_Prod_Almacen,
-                p.Existe_Serie_Eci_Almacen,
-                p.DISTRITO,
-                p.TERMINAL,
-                p.Tiene_Senalamiento,
-                s.Tipo_Senalamiento,
-                s.Detalle AS Detalle_Senalamiento,
-                CONCAT_WS(' ', c_asig.Contratista, c_asig.apellido_paterno, c_asig.apellido_materno) AS Contratista_Asignado,
-                CONCAT_WS(' ', t.Nombre_T, t.Apellidos_T) AS Tecnico_Asignado,
-                tic.Ont AS Ont_Coordiapp,
-                md.Folio_Entrada_Material_Det AS Folio_Entrada,
-                mds.Folio_Salida_Material_Det_S AS Folio_Salida,
-                eat.IN_Diario_T AS Folio_In_Carso
-            FROM seg_produccion_diaria p
-            LEFT JOIN seg_produccion_senalamiento s 
-                ON p.Folio_Pisa = s.Folio_Pisa 
-               AND p.TELEFONO = s.TELEFONO 
-               AND p.FECHA_LIQ = s.FECHA_LIQ
-            LEFT JOIN material_det_salida mds
-                ON p.Num__Serie = mds.Num_Serie_S
-               AND (mds.Ubicacion_Material IS NULL OR mds.Ubicacion_Material != 'DEVOLUCION')
-            LEFT JOIN contratistas c_asig
-                ON mds.FK_Contratista_Salida = c_asig.idContratistas
-            LEFT JOIN salidas_contratistas sc
-                ON p.Num__Serie = sc.Num_Serie_Salida_Det
-            LEFT JOIN tecnicos t
-                ON sc.FK_Tecnico_Salida_Det = t.idTecnico
-            LEFT JOIN tecnico_instalaciones_coordiapp tic
-                ON p.Folio_Pisa = tic.Folio_Pisa
-               AND p.TELEFONO = tic.Telefono
-               AND tic.Estatus_Orden = 'COMPLETADA'
-               AND tic.Step_Registro = 5
-            LEFT JOIN materiales_det md
-                ON p.Num__Serie = md.Num_Serie 
-               AND p.Num__Serie != '' 
-               AND p.Num__Serie IS NOT NULL
-            LEFT JOIN entradas_almacen_t eat
-                ON md.Folio_Entrada_Material_Det = eat.idEntradas_T
-            WHERE 1=1";
 
-    $params = array();
+    public function ExportarFechas($fechaInicio = null, $fechaFin = null, $idContratista = null, $tipoTarea = null, $area = null, $division = null, $cope = null)
+    {
+        $sql = "SELECT 
+                    p.Expediente,
+                    p.Folio_Pisa,
+                    p.TELEFONO,
+                    p.Tipo_de_Tarea,
+                    p.NOM_CT,
+                    p.FECHA_LIQ,
+                    p.Semana,
+                    p.Anio,
+                    p.idContratista,
+                    p.Contratista,
+                    p.Tecnico,
+                    p.NOM_DIVISION,
+                    p.NOM_AREA,
+                    p.Num__Serie,
+                    p.Serie_Eci,
+                    p.NS_Enviado AS Serie_Enviada_Cobro,
+                    p.Existe_Serie_Prod_Almacen,
+                    p.Existe_Serie_Eci_Almacen,
+                    p.Existe_Serie_Env AS Existe_Serie_Enviada_Cobro,
+                    p.DISTRITO,
+                    p.TERMINAL,
+                    p.Tiene_Senalamiento,
+                    s.Tipo_Senalamiento,
+                    s.Detalle AS Detalle_Senalamiento,
+                    CONCAT_WS(' ', c_asig.Contratista, c_asig.apellido_paterno, c_asig.apellido_materno) AS Contratista_Asignado,
+                    CONCAT_WS(' ', t.Nombre_T, t.Apellidos_T) AS Tecnico_Asignado,
+                    tic.Ont AS Ont_Coordiapp,
+                    md.Folio_Entrada_Material_Det AS Folio_Entrada,
+                    mds.Folio_Salida_Material_Det_S AS Folio_Salida,
+                    eat.IN_Diario_T AS Folio_In_Carso
+                FROM seg_produccion_diaria p
+                LEFT JOIN seg_produccion_senalamiento s 
+                    ON p.Folio_Pisa = s.Folio_Pisa 
+                   AND p.TELEFONO = s.TELEFONO 
+                   AND p.FECHA_LIQ = s.FECHA_LIQ
+                LEFT JOIN material_det_salida mds
+                    ON p.Num__Serie = mds.Num_Serie_S
+                   AND (mds.Ubicacion_Material IS NULL OR mds.Ubicacion_Material != 'DEVOLUCION')
+                LEFT JOIN contratistas c_asig
+                    ON mds.FK_Contratista_Salida = c_asig.idContratistas
+                LEFT JOIN salidas_contratistas sc
+                    ON p.Num__Serie = sc.Num_Serie_Salida_Det
+                LEFT JOIN tecnicos t
+                    ON sc.FK_Tecnico_Salida_Det = t.idTecnico
+                LEFT JOIN tecnico_instalaciones_coordiapp tic
+                    ON p.Folio_Pisa = tic.Folio_Pisa
+                   AND p.TELEFONO = tic.Telefono
+                   AND tic.Estatus_Orden = 'COMPLETADA'
+                   AND tic.Step_Registro = 5
+                LEFT JOIN materiales_det md
+                    ON p.Num__Serie = md.Num_Serie 
+                   AND p.Num__Serie != '' 
+                   AND p.Num__Serie IS NOT NULL
+                LEFT JOIN entradas_almacen_t eat
+                    ON md.Folio_Entrada_Material_Det = eat.idEntradas_T
+                WHERE 1=1";
 
-    if (!empty($fechaInicio) && !empty($fechaFin)) {
-        $sql .= " AND p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
-        $params[':fechaInicio'] = $fechaInicio . " 00:00:00";
-        $params[':fechaFin']    = $fechaFin . " 23:59:59";
-    }
+        $params = array();
 
-    if (!empty($idContratista) && $idContratista != 0) {
-        $sql .= " AND p.idContratista = :idContratista";
-        $params[':idContratista'] = $idContratista;
-    }
-
-    if (!empty($area)) {
-        $sql .= " AND p.NOM_AREA = :area";
-        $params[':area'] = $area;
-    }
-
-    if (!empty($division)) {
-        $sql .= " AND p.NOM_DIVISION = :division";
-        $params[':division'] = $division;
-    }
-
-    if (!empty($cope)) {
-        $sql .= " AND p.NOM_CT = :cope";
-        $params[':cope'] = $cope;
-    }
-
-    // Filtrado por Tipo de Tarea
-    if (!empty($tipoTarea)) {
-        $mapaTareas = [
-            'ALTAS'                => ['A'],
-            'CAMBIOS DE DOMICILIO' => ['D'],
-            'MIGRACION'            => ['FC', 'TI', 'TS', 'TV'],
-            'A4'                   => ['A4'],
-            'QUEJAS'               => ['Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597', 'F841']
-        ];
-
-        if (isset($mapaTareas[$tipoTarea])) {
-            $prefijos = $mapaTareas[$tipoTarea];
-            $condicionesLike = [];
-
-            foreach ($prefijos as $index => $prefijo) {
-                $paramName = ":prefijo_" . $index;
-                $condicionesLike[] = "p.Tipo_de_Tarea LIKE " . $paramName;
-                $params[$paramName] = $prefijo . '%';
-            }
-
-            $sql .= " AND (" . implode(" OR ", $condicionesLike) . ")";
+        if (!empty($fechaInicio) && !empty($fechaFin)) {
+            $sql .= " AND p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
+            $params[':fechaInicio'] = $fechaInicio . " 00:00:00";
+            $params[':fechaFin']    = $fechaFin . " 23:59:59";
         }
+
+        if (!empty($idContratista) && $idContratista != 0) {
+            $sql .= " AND p.idContratista = :idContratista";
+            $params[':idContratista'] = $idContratista;
+        }
+
+        if (!empty($area)) {
+            $sql .= " AND p.NOM_AREA = :area";
+            $params[':area'] = $area;
+        }
+
+        if (!empty($division)) {
+            $sql .= " AND p.NOM_DIVISION = :division";
+            $params[':division'] = $division;
+        }
+
+        if (!empty($cope)) {
+            $sql .= " AND p.NOM_CT = :cope";
+            $params[':cope'] = $cope;
+        }
+
+        // Filtrado por Tipo de Tarea
+        if (!empty($tipoTarea)) {
+            $mapaTareas = [
+                'ALTAS'                => ['A'],
+                'CAMBIOS DE DOMICILIO' => ['D'],
+                'MIGRACION'            => ['FC', 'TI', 'TS', 'TV'],
+                'A4'                   => ['A4'],
+                'QUEJAS'               => ['Q', 'R', 'C', 'EB', 'EI', 'EU', 'GD', 'MG', 'F597', 'F841']
+            ];
+
+            if (isset($mapaTareas[$tipoTarea])) {
+                $prefijos = $mapaTareas[$tipoTarea];
+                $condicionesLike = [];
+
+                foreach ($prefijos as $index => $prefijo) {
+                    $paramName = ":prefijo_" . $index;
+                    $condicionesLike[] = "p.Tipo_de_Tarea LIKE " . $paramName;
+                    $params[$paramName] = $prefijo . '%';
+                }
+
+                $sql .= " AND (" . implode(" OR ", $condicionesLike) . ")";
+            }
+        }
+
+        $sql .= " GROUP BY p.Folio_Pisa, p.TELEFONO, p.FECHA_LIQ";
+        $sql .= " ORDER BY p.FECHA_LIQ DESC";
+
+        return $this->runQuery($sql, $params, 'erpprint');
     }
-
-    $sql .= " GROUP BY p.Folio_Pisa, p.TELEFONO, p.FECHA_LIQ";
-    $sql .= " ORDER BY p.FECHA_LIQ DESC";
-
-    return $this->runQuery($sql, $params, 'erpprint');
-}
 
 
 
