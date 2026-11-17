@@ -479,7 +479,7 @@ public function CountProduccionPorFechas(
         return array_column($rows, 'Num_Serie');
     }
 
-    public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
+public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
 {
     if (empty($registros)) return true;
 
@@ -487,7 +487,15 @@ public function CountProduccionPorFechas(
 
     try {
         // -------------------------------------------------------------
-        // 0. RESCATE Y VALIDACIÓN DE CONTRATISTAS ACTIVOS POR EXPEDIENTE
+        // 0. NORMALIZAR MAPA DE ALMACÉN A MAYÚSCULAS (Evita problemas de minúsculas)
+        // -------------------------------------------------------------
+        $mapExistentesNorm = [];
+        foreach ($mapExistentes as $k => $v) {
+            $mapExistentesNorm[strtoupper(trim((string)$k))] = $v;
+        }
+
+        // -------------------------------------------------------------
+        // 1. RESCATE Y VALIDACIÓN DE CONTRATISTAS ACTIVOS POR EXPEDIENTE
         // -------------------------------------------------------------
         $expedientesUnicos = [];
         foreach ($registros as $reg) {
@@ -527,7 +535,7 @@ public function CountProduccionPorFechas(
         $navegaciones  = [];
 
         // -------------------------------------------------------------
-        // 1. INSERCIÓN / ACTUALIZACIÓN EN PRODUCCIÓN DIARIA
+        // 2. INSERCIÓN / ACTUALIZACIÓN EN PRODUCCIÓN DIARIA
         // -------------------------------------------------------------
         $sqlDiariaBase = "INSERT INTO seg_produccion_diaria (
                             Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
@@ -619,10 +627,15 @@ public function CountProduccionPorFechas(
                 $nsEnviadoEsValida = !$this->esSerieInvalida($nsEnviado);
                 $eciEsValida       = $serieEci !== null && !$this->esSerieInvalida($serieEci);
 
-                // Evaluaciones de almacén (TAC, ECI y NS_Enviado)[cite: 16]
-                $existeProdEnAlmacen = $prodEsValida && isset($mapExistentes[$serieProd]);
-                $existeEciEnAlmacen  = $eciEsValida && isset($mapExistentes[$serieEci]);
-                $existeEnvEnAlmacen  = $nsEnviadoEsValida && isset($mapExistentes[$nsEnviado]);
+                // Normalizamos series a mayúsculas para las búsquedas y validaciones de almacén
+                $sProdNorm = strtoupper(trim((string)$serieProd));
+                $sEnvNorm  = strtoupper(trim((string)$nsEnviado));
+                $sEciNorm  = strtoupper(trim((string)$serieEci));
+
+                // Evaluaciones de almacén insensibles a mayúsculas/minúsculas
+                $existeProdEnAlmacen = $prodEsValida && isset($mapExistentesNorm[$sProdNorm]);
+                $existeEciEnAlmacen  = $eciEsValida && isset($mapExistentesNorm[$sEciNorm]);
+                $existeEnvEnAlmacen  = $nsEnviadoEsValida && isset($mapExistentesNorm[$sEnvNorm]);
 
                 // Estatus de Navegación Actualizado
                 $didActivo = $eciInfo['DID_ACTIVO'] ?? null;
@@ -668,13 +681,10 @@ public function CountProduccionPorFechas(
                 $valEnviado = $nsEnviadoEsValida ? $nsEnviado : (!empty($nsEnviado) ? $nsEnviado : 'SIN DATO');
                 $valEci     = $eciEsValida ? $serieEci : (!empty($serieEci) ? $serieEci : 'SIN DATO');
 
-                $sProd = strtoupper(trim((string)$serieProd));
-                $sEnv  = strtoupper(trim((string)$nsEnviado));
-                $sEci  = strtoupper(trim((string)$serieEci));
-
-                $difProdEci = ($prodEsValida && $eciEsValida && $sProd !== $sEci);
-                $difEnvEci  = ($nsEnviadoEsValida && $eciEsValida && $sEnv !== $sEci);
-                $difProdEnv = ($prodEsValida && $nsEnviadoEsValida && $sProd !== $sEnv);
+                // Comparamos usando las versiones normalizadas en mayúsculas
+                $difProdEci = ($prodEsValida && $eciEsValida && $sProdNorm !== $sEciNorm);
+                $difEnvEci  = ($nsEnviadoEsValida && $eciEsValida && $sEnvNorm !== $sEciNorm);
+                $difProdEnv = ($prodEsValida && $nsEnviadoEsValida && $sProdNorm !== $sEnvNorm);
 
                 if ($difProdEci || $difEnvEci || $difProdEnv) {
                     $hayDiscrepanciaSeries = true;
@@ -716,7 +726,6 @@ public function CountProduccionPorFechas(
                     ];
                 }
 
-                // NUEVA VALIDACIÓN: Si NS_Enviado es válida pero no está en almacén[cite: 16]
                 if ($nsEnviadoEsValida && !$existeEnvEnAlmacen) {
                     $senalamientos[] = [
                         'Folio_Pisa'        => $folioPisa,
@@ -740,7 +749,6 @@ public function CountProduccionPorFechas(
                 $tieneFallos = $hayDiscrepanciaSeries || !$prodEsValida || !$existeProdEnAlmacen || ($eciEsValida && !$existeEciEnAlmacen) || ($nsEnviadoEsValida && !$existeEnvEnAlmacen) || ($flagNavega === 0);
                 $tieneSenalamiento = $tieneFallos ? 1 : 0;
 
-                // 26 placeholders totales para la consulta (incluyendo Existe_Serie_Env)
                 $values[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
 
                 array_push(
@@ -760,7 +768,7 @@ public function CountProduccionPorFechas(
         }
 
         // -------------------------------------------------------------
-        // 2. ACTUALIZACIÓN DINÁMICA EN SEGUIMIENTO DE NAVEGACIÓN
+        // 3. ACTUALIZACIÓN DINÁMICA EN SEGUIMIENTO DE NAVEGACIÓN
         // -------------------------------------------------------------
         if (!empty($navegaciones)) {
             $chunksNav = array_chunk($navegaciones, $batchSize);
@@ -799,12 +807,12 @@ public function CountProduccionPorFechas(
                 }
 
                 $stmtNav = $conexion->prepare($sqlNavBase . implode(',', $valuesNav) . $sqlNavDuplicate);
-                $stmtNav->execute($paramsNav);
+                $stmtNav$stmtNav->execute($paramsNav);
             }
         }
 
         // -------------------------------------------------------------
-        // 3. LIMPIEZA Y REFRESH DE SEÑALAMIENTOS DE NAVEGACIÓN Y SERIES
+        // 4. LIMPIEZA Y REFRESH DE SEÑALAMIENTOS
         // -------------------------------------------------------------
         $foliosLote = array_unique(array_column($registros, 'Folio_Pisa'));
         if (!empty($foliosLote)) {
@@ -821,6 +829,12 @@ public function CountProduccionPorFechas(
                                                  WHERE Folio_Pisa IN ($phFolios) 
                                                    AND Tipo_Senalamiento IN ('NUMEROS DE SERIE DIFERENTES', 'NUMEROS DE SERIE DIFERENTES PARA EL TELEFONO')");
             $stmtCleanSerie->execute(array_values($foliosLote));
+
+            // Limpiar almacén viejo de este lote para recalcular correctamente
+            $stmtCleanAlm = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
+                                                WHERE Folio_Pisa IN ($phFolios) 
+                                                  AND Tipo_Senalamiento = 'NO ENCONTRADO EN ALMACEN'");
+            $stmtCleanAlm->execute(array_values($foliosLote));
         }
 
         if (!empty($senalamientos)) {
@@ -861,7 +875,6 @@ public function CountProduccionPorFechas(
         return false;
     }
 }
-
 
     // CODIGO ANTERIOR //
 
