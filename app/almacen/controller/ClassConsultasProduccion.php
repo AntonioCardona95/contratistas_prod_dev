@@ -973,7 +973,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
     }
 }
 
-    // CODIGO ANTERIOR //
+    // CODIGO ANTERIOR /////
 
     /**
      * Procesa e inserta/actualiza producción, señalamientos y estados de navegación.
