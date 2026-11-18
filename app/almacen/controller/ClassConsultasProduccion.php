@@ -782,32 +782,49 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                 }
 
                 // -------------------------------------------------------------
-                // VALIDACIÓN DE ONT DUPLICADA EN TAC (PRODUCCIÓN Y COBRO SEPARADOS)
+                // VALIDACIÓN INTELIGENTE DE ONT DUPLICADA EN TAC (PRODUCCIÓN / COBRO)
                 // -------------------------------------------------------------
                 $esProdDuplicadaTac = false;
-                if ($prodEsValida && isset($mapaOntsDuplicadasTac[$sProdNorm])) {
-                    $esProdDuplicadaTac = true;
-                    $datosDup = $mapaOntsDuplicadasTac[$sProdNorm];
-                    $senalamientos[] = [
-                        'Folio_Pisa'        => $folioPisa,
-                        'TELEFONO'          => $tel,
-                        'FECHA_LIQ'         => $fechaLiq,
-                        'Tipo_Senalamiento' => 'ONT PRODUCCION DUPLICADA',
-                        'Detalle'           => "El número de serie ONT de producción " . $serieProd . " está registrado con más de un teléfono diferente en qm_tac. Teléfonos: " . $datosDup['telefonos']
-                    ];
-                }
+                $esEnvDuplicadoTac  = false;
 
-                $esEnvDuplicadoTac = false;
-                if ($nsEnviadoEsValida && isset($mapaOntsDuplicadasTac[$sEnvNorm])) {
-                    $esEnvDuplicadoTac = true;
-                    $datosDup = $mapaOntsDuplicadasTac[$sEnvNorm];
-                    $senalamientos[] = [
-                        'Folio_Pisa'        => $folioPisa,
-                        'TELEFONO'          => $tel,
-                        'FECHA_LIQ'         => $fechaLiq,
-                        'Tipo_Senalamiento' => 'ONT DE COBRO DUPLICADA',
-                        'Detalle'           => "El número de serie ONT enviado a cobro " . $nsEnviado . " está registrado con más de un teléfono diferente en qm_tac. Teléfonos: " . $datosDup['telefonos']
-                    ];
+                if ($prodEsValida && $nsEnviadoEsValida && $sProdNorm === $sEnvNorm) {
+                    // Si producción y cobro son exactamente la misma serie, evaluamos una sola vez
+                    if (isset($mapaOntsDuplicadasTac[$sProdNorm])) {
+                        $esProdDuplicadaTac = true;
+                        $datosDup = $mapaOntsDuplicadasTac[$sProdNorm];
+                        $senalamientos[] = [
+                            'Folio_Pisa'        => $folioPisa,
+                            'TELEFONO'          => $tel,
+                            'FECHA_LIQ'         => $fechaLiq,
+                            'Tipo_Senalamiento' => 'ONT PRODUCCION DUPLICADA',
+                            'Detalle'           => "El número de serie ONT " . $serieProd . " (Producción y Cobro iguales) está registrado con más de un teléfono diferente en qm_tac. Teléfonos: " . $datosDup['telefonos']
+                        ];
+                    }
+                } else {
+                    // Si son diferentes o una no es válida, evaluamos cada una por separado
+                    if ($prodEsValida && isset($mapaOntsDuplicadasTac[$sProdNorm])) {
+                        $esProdDuplicadaTac = true;
+                        $datosDup = $mapaOntsDuplicadasTac[$sProdNorm];
+                        $senalamientos[] = [
+                            'Folio_Pisa'        => $folioPisa,
+                            'TELEFONO'          => $tel,
+                            'FECHA_LIQ'         => $fechaLiq,
+                            'Tipo_Senalamiento' => 'ONT PRODUCCION DUPLICADA',
+                            'Detalle'           => "El número de serie ONT de producción " . $serieProd . " está registrado con más de un teléfono diferente en qm_tac. Teléfonos: " . $datosDup['telefonos']
+                        ];
+                    }
+
+                    if ($nsEnviadoEsValida && isset($mapaOntsDuplicadasTac[$sEnvNorm])) {
+                        $esEnvDuplicadoTac = true;
+                        $datosDup = $mapaOntsDuplicadasTac[$sEnvNorm];
+                        $senalamientos[] = [
+                            'Folio_Pisa'        => $folioPisa,
+                            'TELEFONO'          => $tel,
+                            'FECHA_LIQ'         => $fechaLiq,
+                            'Tipo_Senalamiento' => 'ONT DE COBRO DUPLICADA',
+                            'Detalle'           => "El número de serie ONT enviado a cobro " . $nsEnviado . " está registrado con más de un teléfono diferente en qm_tac. Teléfonos: " . $datosDup['telefonos']
+                        ];
+                    }
                 }
 
                 if ($flagNavega === 0) {
@@ -914,7 +931,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
             $stmtCleanDup = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
                                                 WHERE Folio_Pisa IN ($phFolios) 
                                                   AND Tipo_Senalamiento IN ('ONT PRODUCCION DUPLICADA', 'ONT DE COBRO DUPLICADA', 'ONT DUPLICADA EN TAC')");
-            $stmtCleanDup->execute(array_values($foliosLoidos = array_values($foliosLote)));
+            $stmtCleanDup->execute(array_values($foliosLote));
         }
 
         if (!empty($senalamientos)) {
@@ -955,7 +972,6 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         return false;
     }
 }
-
 
     // CODIGO ANTERIOR //
 
