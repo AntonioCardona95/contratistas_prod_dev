@@ -500,6 +500,45 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         }
 
         // -------------------------------------------------------------
+        // 0.1. RECOLECTAR Y CONSULTAR SERIES DUPLICADAS EN TAC (qm_tac)
+        // -------------------------------------------------------------
+        $ontsBuscarUnicas = [];
+        foreach ($registros as $reg) {
+            $serieProd = strtoupper(trim($reg['Num__Serie'] ?? ''));
+            $nsEnviado = strtoupper(trim($reg['NS_Enviado'] ?? ''));
+
+            if (!empty($serieProd) && !$this->esSerieInvalida($serieProd)) {
+                $ontsBuscarUnicas[$serieProd] = $serieProd;
+            }
+            if (!empty($nsEnviado) && !$this->esSerieInvalida($nsEnviado)) {
+                $ontsBuscarUnicas[$nsEnviado] = $nsEnviado;
+            }
+        }
+
+        $mapaOntsDuplicadasTac = [];
+        if (!empty($ontsBuscarUnicas)) {
+            $placeholdersOnt = implode(',', array_fill(0, count($ontsBuscarUnicas), '?'));
+            
+            // Validando que esté en más de un teléfono diferente y con Calificador_Edo = 'COMPLETADA'
+            $sqlTacDup = "SELECT Num__Serie, GROUP_CONCAT(DISTINCT TELEFONO ORDER BY TELEFONO SEPARATOR ', ') AS telefonos_asociados
+                          FROM qm_tac 
+                          WHERE Num__Serie IN ($placeholdersOnt)
+                            AND Calificador_Edo = 'COMPLETADA'
+                          GROUP BY Num__Serie 
+                          HAVING COUNT(DISTINCT TELEFONO) > 1";
+            
+            // Usamos la conexión 'analisis' donde se encuentra qm_tac
+            $registrosTacDup = $this->runQuery($sqlTacDup, array_values($ontsBuscarUnicas), 'analisis');
+
+            foreach ($registrosTacDup as $dup) {
+                $mapaOntsDuplicadasTac[trim($dup['Num__Serie'])] = [
+                    'serie_tac' => trim($dup['Num__Serie']),
+                    'telefonos' => $dup['telefonos_asociados']
+                ];
+            }
+        }
+
+        // -------------------------------------------------------------
         // 1. RESCATE Y VALIDACIÓN DE CONTRATISTAS ACTIVOS POR EXPEDIENTE
         // -------------------------------------------------------------
         $expedientesUnicos = [];
@@ -741,6 +780,35 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                     ];
                 }
 
+                // -------------------------------------------------------------
+                // VALIDACIÓN DE ONT DUPLICADA EN TAC (PRODUCCIÓN Y COBRO SEPARADOS)
+                // -------------------------------------------------------------
+                $esProdDuplicadaTac = false;
+                if ($prodEsValida && isset($mapaOntsDuplicadasTac[$sProdNorm])) {
+                    $esProdDuplicadaTac = true;
+                    $datosDup = $mapaOntsDuplicadasTac[$sProdNorm];
+                    $senalamientos[] = [
+                        'Folio_Pisa'        => $folioPisa,
+                        'TELEFONO'          => $tel,
+                        'FECHA_LIQ'         => $fechaLiq,
+                        'Tipo_Senalamiento' => 'ONT PRODUCCION DUPLICADA',
+                        'Detalle'           => "El número de serie ONT de producción " . $serieProd . " está registrado con más de un teléfono diferente en qm_tac. Teléfonos: " . $datosDup['telefonos']
+                    ];
+                }
+
+                $esEnvDuplicadoTac = false;
+                if ($nsEnviadoEsValida && isset($mapaOntsDuplicadasTac[$sEnvNorm])) {
+                    $esEnvDuplicadoTac = true;
+                    $datosDup = $mapaOntsDuplicadasTac[$sEnvNorm];
+                    $senalamientos[] = [
+                        'Folio_Pisa'        => $folioPisa,
+                        'TELEFONO'          => $tel,
+                        'FECHA_LIQ'         => $fechaLiq,
+                        'Tipo_Senalamiento' => 'ONT DE COBRO DUPLICADA',
+                        'Detalle'           => "El número de serie ONT enviado a cobro " . $nsEnviado . " está registrado con más de un teléfono diferente en qm_tac. Teléfonos: " . $datosDup['telefonos']
+                    ];
+                }
+
                 if ($flagNavega === 0) {
                     $senalamientos[] = [
                         'Folio_Pisa'        => $folioPisa,
@@ -751,7 +819,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                     ];
                 }
 
-                $tieneFallos = $hayDiscrepanciaSeries || !$prodEsValida || !$existeProdEnAlmacen || ($eciEsValida && !$existeEciEnAlmacen) || ($nsEnviadoEsValida && !$existeEnvEnAlmacen) || ($flagNavega === 0);
+                $tieneFallos = $hayDiscrepanciaSeries || !$prodEsValida || !$existeProdEnAlmacen || ($eciEsValida && !$existeEciEnAlmacen) || ($nsEnviadoEsValida && !$existeEnvEnAlmacen) || ($flagNavega === 0) || $esProdDuplicadaTac || $esEnvDuplicadoTac;
                 $tieneSenalamiento = $tieneFallos ? 1 : 0;
 
                 $values[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
@@ -840,6 +908,12 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                                                 WHERE Folio_Pisa IN ($phFolios) 
                                                   AND Tipo_Senalamiento = 'NO ENCONTRADO EN ALMACEN'");
             $stmtCleanAlm->execute(array_values($foliosLote));
+
+            // Limpiar señalamientos de duplicidad viejos de este lote para recalcular
+            $stmtCleanDup = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
+                                                WHERE Folio_Pisa IN ($phFolios) 
+                                                  AND Tipo_Senalamiento IN ('ONT PRODUCCION DUPLICADA', 'ONT DE COBRO DUPLICADA', 'ONT DUPLICADA EN TAC')");
+            $stmtCleanDup->execute(array_values($foliosLoidos = array_values($foliosLote)));
         }
 
         if (!empty($senalamientos)) {
