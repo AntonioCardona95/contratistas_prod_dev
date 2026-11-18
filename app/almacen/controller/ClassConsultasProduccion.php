@@ -480,6 +480,7 @@ public function CountProduccionPorFechas(
     }
 
 
+
 public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
 {
     /*echo '<pre>';
@@ -954,7 +955,6 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         return false;
     }
 }
-
 
 
     // CODIGO ANTERIOR //
