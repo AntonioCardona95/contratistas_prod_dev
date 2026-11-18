@@ -480,7 +480,7 @@ public function CountProduccionPorFechas(
     }
 
 
-    public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
+public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
 {
     if (empty($registros)) return true;
 
