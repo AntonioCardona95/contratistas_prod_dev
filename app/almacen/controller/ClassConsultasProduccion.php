@@ -482,6 +482,10 @@ public function CountProduccionPorFechas(
 
 public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
 {
+    echo '<pre>';
+    print_r(array_slice($registros, -10));
+    echo '</pre>';
+    die('Fin de prueba');
     if (empty($registros)) return true;
 
     $conexion = $this->conexion(); // Conexión 'erpprint' (Base ERP)
