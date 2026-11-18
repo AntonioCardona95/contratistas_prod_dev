@@ -480,7 +480,7 @@ public function CountProduccionPorFechas(
     }
 
 
-   public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
+    public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
 {
     if (empty($registros)) return true;
 
@@ -526,34 +526,6 @@ public function CountProduccionPorFechas(
                     'idContratista' => $rowTec['idContratistas'],
                     'Contratista'   => $rowTec['ContratistaCompleto']
                 ];
-            }
-        }
-
-        // -------------------------------------------------------------
-        // 1.1. PRE-CONSULTA MASIVA DE DUPLICADOS EN TAC (Súper Rápido)
-        // -------------------------------------------------------------
-        $seriesBuscar = [];
-        foreach ($registros as $reg) {
-            $sProd = strtoupper(trim($reg['Num__Serie'] ?? ''));
-            $sEnv  = strtoupper(trim($reg['NS_Enviado'] ?? ''));
-
-            if (!empty($sProd) && !$this->esSerieInvalida($sProd)) $seriesBuscar[$sProd] = $sProd;
-            if (!empty($sEnv) && !$this->esSerieInvalida($sEnv)) $seriesBuscar[$sEnv] = $sEnv;
-        }
-
-        $mapaDuplicadasTac = [];
-        if (!empty($seriesBuscar)) {
-            $placeholdersTac = implode(',', array_fill(0, count($seriesBuscar), '?'));
-            $sqlTacDup = "SELECT Num__Serie, GROUP_CONCAT(DISTINCT TELEFONO ORDER BY TELEFONO SEPARATOR ', ') AS telefonos_asociados
-                          FROM qm_tac 
-                          WHERE Num__Serie IN ($placeholdersTac)
-                          GROUP BY Num__Serie 
-                          HAVING COUNT(DISTINCT TELEFONO) > 1";
-            
-            // Consultamos en la base de análisis de forma masiva en una sola consulta
-            $registrosTacDup = $this->runQuery($sqlTacDup, array_values($seriesBuscar), 'analisis');
-            foreach ($registrosTacDup as $dup) {
-                $mapaDuplicadasTac[strtoupper(trim($dup['Num__Serie']))] = $dup['telefonos_asociados'];
             }
         }
 
@@ -775,28 +747,7 @@ public function CountProduccionPorFechas(
                     ];
                 }
 
-                // --- NUEVAS VALIDACIONES DE ONT DUPLICADA EN TAC ---
-                if (!empty($sProdNorm) && isset($mapaDuplicadasTac[$sProdNorm])) {
-                    $senalamientos[] = [
-                        'Folio_Pisa'        => $folioPisa,
-                        'TELEFONO'          => $tel,
-                        'FECHA_LIQ'         => $fechaLiq,
-                        'Tipo_Senalamiento' => 'ONT PRODUCCION DUPLICADA EN TAC',
-                        'Detalle'           => "El número de serie de producción $serieProd está duplicado en tac en estos teléfonos " . $mapaDuplicadasTac[$sProdNorm]
-                    ];
-                }
-
-                if (!empty($sEnvNorm) && isset($mapaDuplicadasTac[$sEnvNorm])) {
-                    $senalamientos[] = [
-                        'Folio_Pisa'        => $folioPisa,
-                        'TELEFONO'          => $tel,
-                        'FECHA_LIQ'         => $fechaLiq,
-                        'Tipo_Senalamiento' => 'ONT ENVIADA COBRO DUPLICADA EN TAC',
-                        'Detalle'           => "El número de serie enviado a cobro $nsEnviado está duplicado en tac en estos teléfonos " . $mapaDuplicadasTac[$sEnvNorm]
-                    ];
-                }
-
-                $tieneFallos = $hayDiscrepanciaSeries || !$prodEsValida || !$existeProdEnAlmacen || ($eciEsValida && !$existeEciEnAlmacen) || ($nsEnviadoEsValida && !$existeEnvEnAlmacen) || ($flagNavega === 0) || (!empty($sProdNorm) && isset($mapaDuplicadasTac[$sProdNorm])) || (!empty($sEnvNorm) && isset($mapaDuplicadasTac[$sEnvNorm]));
+                $tieneFallos = $hayDiscrepanciaSeries || !$prodEsValida || !$existeProdEnAlmacen || ($eciEsValida && !$existeEciEnAlmacen) || ($nsEnviadoEsValida && !$existeEnvEnAlmacen) || ($flagNavega === 0);
                 $tieneSenalamiento = $tieneFallos ? 1 : 0;
 
                 $values[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
@@ -885,12 +836,6 @@ public function CountProduccionPorFechas(
                                                 WHERE Folio_Pisa IN ($phFolios) 
                                                   AND Tipo_Senalamiento = 'NO ENCONTRADO EN ALMACEN'");
             $stmtCleanAlm->execute(array_values($foliosLote));
-
-            // Limpiar señalamientos de TAC previos de este lote
-            $stmtCleanTac = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
-                                                WHERE Folio_Pisa IN ($phFolios) 
-                                                  AND Tipo_Senalamiento IN ('ONT PRODUCCION DUPLICADA EN TAC', 'ONT ENVIADA COBRO DUPLICADA EN TAC')");
-            $stmtCleanTac->execute(array_values($foliosLote));
         }
 
         if (!empty($senalamientos)) {
