@@ -480,20 +480,28 @@ public function CountProduccionPorFechas(
     }
 
 
-    public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
+public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
 {
-    if (empty($registros)) return true;
+    if (empty($registros)) {
+        echo "<br><b>[DEBUG]</b> El arreglo de registros está vacío.";
+        return true;
+    }
+
+    echo "<br><b>[DEBUG]</b> Iniciando procesamiento de " . count($registros) . " registros...";
+    flush();
 
     $conexion = $this->conexion(); // Conexión 'erpprint' (Base ERP)
 
     try {
         // -------------------------------------------------------------
-        // 0. NORMALIZAR MAPA DE ALMACÉN A MAYÚSCULAS (Evita problemas de minúsculas)
+        // 0. NORMALIZAR MAPA DE ALMACÉN A MAYÚSCULAS
         // -------------------------------------------------------------
         $mapExistentesNorm = [];
         foreach ($mapExistentes as $k => $v) {
             $mapExistentesNorm[strtoupper(trim((string)$k))] = $v;
         }
+        echo "<br><b>[DEBUG]</b> Mapa de almacén normalizado con " . count($mapExistentesNorm) . " elementos.";
+        flush();
 
         // -------------------------------------------------------------
         // 1. RESCATE Y VALIDACIÓN DE CONTRATISTAS ACTIVOS POR EXPEDIENTE
@@ -528,16 +536,59 @@ public function CountProduccionPorFechas(
                 ];
             }
         }
+        echo "<br><b>[DEBUG]</b> Técnicos/Contratistas cargados: " . count($mapTecnicosInfo);
+        flush();
+
+        // -------------------------------------------------------------
+        // 1.1. PRE-CONSULTA MASIVA DE DUPLICADOS EN TAC (Con Depuración)
+        // -------------------------------------------------------------
+        $mapaDuplicadasTac = [];
+        try {
+            $seriesBuscar = [];
+            foreach ($registros as $reg) {
+                $sProd = strtoupper(trim($reg['Num__Serie'] ?? ''));
+                $sEnv  = strtoupper(trim($reg['NS_Enviado'] ?? ''));
+
+                if (!empty($sProd) && !$this->esSerieInvalida($sProd)) $seriesBuscar[$sProd] = $sProd;
+                if (!empty($sEnv) && !$this->esSerieInvalida($sEnv)) $seriesBuscar[$sEnv] = $sEnv;
+            }
+
+            if (!empty($seriesBuscar)) {
+                echo "<br><b>[DEBUG]</b> Consultando duplicados en TAC para " . count($seriesBuscar) . " series únicas en base 'analisis'...";
+                flush();
+
+                $placeholdersTac = implode(',', array_fill(0, count($seriesBuscar), '?'));
+                $sqlTacDup = "SELECT Num__Serie, GROUP_CONCAT(DISTINCT TELEFONO ORDER BY TELEFONO SEPARATOR ', ') AS telefonos_asociados
+                              FROM qm_tac 
+                              WHERE Num__Serie IN ($placeholdersTac)
+                              GROUP BY Num__Serie 
+                              HAVING COUNT(DISTINCT TELEFONO) > 1";
+                
+                $registrosTacDup = $this->runQuery($sqlTacDup, array_values($seriesBuscar), 'analisis');
+                
+                if ($registrosTacDup === false) {
+                    echo "<br><b>[ERROR TAC]</b> La consulta runQuery a 'analisis' retornó FALSE o falló.";
+                } else {
+                    echo "<br><b>[DEBUG TAC]</b> Registros duplicados encontrados en TAC: " . count($registrosTacDup);
+                    foreach ($registrosTacDup as $dup) {
+                        $mapaDuplicadasTac[strtoupper(trim($dup['Num__Serie']))] = $dup['telefonos_asociados'];
+                    }
+                }
+                flush();
+            }
+        } catch (Exception $exTac) {
+            echo "<br><b>[EXCEPCIÓN TAC]</b> " . $exTac->getMessage();
+            flush();
+        }
 
         $conexion->beginTransaction();
+        echo "<br><b>[DEBUG]</b> Transacción iniciada correctamente.";
+        flush();
 
         $batchSize = 200;
         $senalamientos = [];
         $navegaciones  = [];
 
-        // -------------------------------------------------------------
-        // 2. INSERCIÓN / ACTUALIZACIÓN EN PRODUCCIÓN DIARIA
-        // -------------------------------------------------------------
         $sqlDiariaBase = "INSERT INTO seg_produccion_diaria (
                             Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
                             FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
@@ -573,6 +624,7 @@ public function CountProduccionPorFechas(
                 Fecha_Insercion = NOW()";
 
         $chunks = array_chunk($registros, $batchSize);
+        $chunkCount = 1;
 
         foreach ($chunks as $chunk) {
             $values = [];
@@ -586,7 +638,6 @@ public function CountProduccionPorFechas(
                 $serieProd  = trim($reg['Num__Serie'] ?? '');
                 $nsEnviado  = trim($reg['NS_Enviado'] ?? '');
                 
-                // Datos iniciales que vienen en el registro
                 $idContratistaInput = $reg['idContratista'] ?? null;
                 $contratistaInput   = trim($reg['Contratista'] ?? '');
 
@@ -595,7 +646,6 @@ public function CountProduccionPorFechas(
                 $idContrAnterior    = null;
                 $contrAnterior      = null;
 
-                // Validación y cruce con el contratista ACTIVO oficial por Expediente
                 if (!empty($expediente) && isset($mapTecnicosInfo[$expediente])) {
                     $infoOficial = $mapTecnicosInfo[$expediente];
                     $idOficial = $infoOficial['idContratista'];
@@ -606,21 +656,18 @@ public function CountProduccionPorFechas(
                         $contratistaFinal   = $nombreOficial;
                     } else {
                         $coincideId = ((int)$idContratistaInput === (int)$idOficial);
-                        
                         $nombreRegNorm = preg_replace('/\s+/', ' ', mb_strtoupper($contratistaInput));
                         $nombreOfiNorm = preg_replace('/\s+/', ' ', mb_strtoupper($nombreOficial));
 
                         if (!$coincideId || $nombreRegNorm !== $nombreOfiNorm) {
                             $idContrAnterior    = $idContratistaInput;
                             $contrAnterior      = $reg['Contratista'];
-                            
                             $idContratistaFinal = $idOficial;
                             $contratistaFinal   = $nombreOficial;
                         }
                     }
                 }
 
-                // Datos de ESCI para el teléfono
                 $eciInfo   = $mapEciDetalle[$tel] ?? null;
                 $serieEci  = $eciInfo['M_SERIE'] ?? null;
 
@@ -628,17 +675,14 @@ public function CountProduccionPorFechas(
                 $nsEnviadoEsValida = !$this->esSerieInvalida($nsEnviado);
                 $eciEsValida       = $serieEci !== null && !$this->esSerieInvalida($serieEci);
 
-                // Normalizamos series a mayúsculas para las búsquedas y validaciones de almacén
                 $sProdNorm = strtoupper(trim((string)$serieProd));
                 $sEnvNorm  = strtoupper(trim((string)$nsEnviado));
                 $sEciNorm  = strtoupper(trim((string)$serieEci));
 
-                // Evaluaciones de almacén insensibles a mayúsculas/minúsculas
                 $existeProdEnAlmacen = $prodEsValida && isset($mapExistentesNorm[$sProdNorm]);
                 $existeEciEnAlmacen  = $eciEsValida && isset($mapExistentesNorm[$sEciNorm]);
                 $existeEnvEnAlmacen  = $nsEnviadoEsValida && isset($mapExistentesNorm[$sEnvNorm]);
 
-                // Estatus de Navegación Actualizado
                 $didActivo = $eciInfo['DID_ACTIVO'] ?? null;
                 $fEvento   = $eciInfo['FECHA_ULTIMO_EVENTO'] ?? null;
                 $fConsulta = $eciInfo['F_CONSULTA'] ?? null;
@@ -662,7 +706,6 @@ public function CountProduccionPorFechas(
                     }
                 }
 
-                // Acumulamos datos para seg_produccion_navegacion
                 $navegaciones[] = [
                     'Folio_Pisa'          => $folioPisa,
                     'TELEFONO'            => $tel,
@@ -675,21 +718,17 @@ public function CountProduccionPorFechas(
                     'F_CONSULTA'          => $fConsulta
                 ];
 
-                // Evaluación de Señalamientos
                 $hayDiscrepanciaSeries = false;
-
                 $valProd    = $prodEsValida ? $serieProd : (!empty($serieProd) ? $serieProd : 'SIN DATO');
                 $valEnviado = $nsEnviadoEsValida ? $nsEnviado : (!empty($nsEnviado) ? $nsEnviado : 'SIN DATO');
                 $valEci     = $eciEsValida ? $serieEci : (!empty($serieEci) ? $serieEci : 'SIN DATO');
 
-                // Comparamos usando las versiones normalizadas en mayúsculas
                 $difProdEci = ($prodEsValida && $eciEsValida && $sProdNorm !== $sEciNorm);
                 $difEnvEci  = ($nsEnviadoEsValida && $eciEsValida && $sEnvNorm !== $sEciNorm);
                 $difProdEnv = ($prodEsValida && $nsEnviadoEsValida && $sProdNorm !== $sEnvNorm);
 
                 if ($difProdEci || $difEnvEci || $difProdEnv) {
                     $hayDiscrepanciaSeries = true;
-
                     $senalamientos[] = [
                         'Folio_Pisa'        => $folioPisa,
                         'TELEFONO'          => $tel,
@@ -747,7 +786,27 @@ public function CountProduccionPorFechas(
                     ];
                 }
 
-                $tieneFallos = $hayDiscrepanciaSeries || !$prodEsValida || !$existeProdEnAlmacen || ($eciEsValida && !$existeEciEnAlmacen) || ($nsEnviadoEsValida && !$existeEnvEnAlmacen) || ($flagNavega === 0);
+                if (!empty($sProdNorm) && isset($mapaDuplicadasTac[$sProdNorm])) {
+                    $senalamientos[] = [
+                        'Folio_Pisa'        => $folioPisa,
+                        'TELEFONO'          => $tel,
+                        'FECHA_LIQ'         => $fechaLiq,
+                        'Tipo_Senalamiento' => 'ONT PRODUCCION DUPLICADA EN TAC',
+                        'Detalle'           => "El número de serie de producción $serieProd está duplicado en tac en estos teléfonos " . $mapaDuplicadasTac[$sProdNorm]
+                    ];
+                }
+
+                if (!empty($sEnvNorm) && isset($mapaDuplicadasTac[$sEnvNorm])) {
+                    $senalamientos[] = [
+                        'Folio_Pisa'        => $folioPisa,
+                        'TELEFONO'          => $tel,
+                        'FECHA_LIQ'         => $fechaLiq,
+                        'Tipo_Senalamiento' => 'ONT ENVIADA COBRO DUPLICADA EN TAC',
+                        'Detalle'           => "El número de serie enviado a cobro $nsEnviado está duplicado en tac en estos teléfonos " . $mapaDuplicadasTac[$sEnvNorm]
+                    ];
+                }
+
+                $tieneFallos = $hayDiscrepanciaSeries || !$prodEsValida || !$existeProdEnAlmacen || ($eciEsValida && !$existeEciEnAlmacen) || ($nsEnviadoEsValida && !$existeEnvEnAlmacen) || ($flagNavega === 0) || (!empty($sProdNorm) && isset($mapaDuplicadasTac[$sProdNorm])) || (!empty($sEnvNorm) && isset($mapaDuplicadasTac[$sEnvNorm]));
                 $tieneSenalamiento = $tieneFallos ? 1 : 0;
 
                 $values[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)";
@@ -764,9 +823,16 @@ public function CountProduccionPorFechas(
                 );
             }
 
+            echo "<br><b>[DEBUG]</b> Ejecutando INSERT en 'seg_produccion_diaria' para el lote #{$chunkCount}...";
+            flush();
+
             $stmtDiaria = $conexion->prepare($sqlDiariaBase . implode(',', $values) . $sqlDiariaDuplicate);
             $stmtDiaria->execute($params);
+            $chunkCount++;
         }
+
+        echo "<br><b>[DEBUG]</b> Inserción diaria completada. Procesando navegación (" . count($navegaciones) . ")...";
+        flush();
 
         // -------------------------------------------------------------
         // 3. ACTUALIZACIÓN DINÁMICA EN SEGUIMIENTO DE NAVEGACIÓN
@@ -815,27 +881,32 @@ public function CountProduccionPorFechas(
         // -------------------------------------------------------------
         // 4. LIMPIEZA Y REFRESH DE SEÑALAMIENTOS
         // -------------------------------------------------------------
+        echo "<br><b>[DEBUG]</b> Limpiando e insertando señalamientos (" . count($senalamientos) . " total)...";
+        flush();
+
         $foliosLote = array_unique(array_column($registros, 'Folio_Pisa'));
         if (!empty($foliosLote)) {
             $phFolios = implode(',', array_fill(0, count($foliosLote), '?'));
             
-            // Limpiar navegación
             $stmtClean = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
                                            WHERE Folio_Pisa IN ($phFolios) 
                                              AND Tipo_Senalamiento = 'SIN NAVEGACION EN ESCI'");
             $stmtClean->execute(array_values($foliosLote));
 
-            // Limpiar series diferentes viejas
             $stmtCleanSerie = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
                                                  WHERE Folio_Pisa IN ($phFolios) 
                                                    AND Tipo_Senalamiento IN ('NUMEROS DE SERIE DIFERENTES', 'NUMEROS DE SERIE DIFERENTES PARA EL TELEFONO')");
             $stmtCleanSerie->execute(array_values($foliosLote));
 
-            // Limpiar almacén viejo de este lote para recalcular correctamente
             $stmtCleanAlm = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
                                                 WHERE Folio_Pisa IN ($phFolios) 
                                                   AND Tipo_Senalamiento = 'NO ENCONTRADO EN ALMACEN'");
             $stmtCleanAlm->execute(array_values($foliosLote));
+
+            $stmtCleanTac = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
+                                                WHERE Folio_Pisa IN ($phFolios) 
+                                                  AND Tipo_Senalamiento IN ('ONT PRODUCCION DUPLICADA EN TAC', 'ONT ENVIADA COBRO DUPLICADA EN TAC')");
+            $stmtCleanTac->execute(array_values($foliosLote));
         }
 
         if (!empty($senalamientos)) {
@@ -866,14 +937,15 @@ public function CountProduccionPorFechas(
         }
 
         $conexion->commit();
+        echo "<br><b>[ÉXITO]</b> Transacción completada y guardada en base de datos.";
         return true;
 
     } catch (Exception $e) {
         if ($conexion->inTransaction()) {
             $conexion->rollBack();
         }
-        error_log("Error en InsertBatchProduccionYSenalamiento: " . $e->getMessage());
-        return false;
+        echo "<br><b style='color:red;'>[ERROR CRÍTICO CAPTURADO]:</b> " . $e->getMessage() . "<br><b>Línea:</b> " . $e->getLine() . "<br><b>Archivo:</b> " . $e->getFile();
+        exit;
     }
 }
 
