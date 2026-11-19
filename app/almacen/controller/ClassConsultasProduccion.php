@@ -50,7 +50,7 @@ class ClassConsultasProduccion extends Conexion
         }
     }
 
-    protected function runExecute($sql, $params = array(), $conexionTipo = 'default')
+   protected function runExecute($sql, $params = array(), $conexionTipo = 'default')
     {
         switch ($conexionTipo) {
             case 'analisis':
@@ -480,13 +480,8 @@ public function CountProduccionPorFechas(
     }
 
 
-
 public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
 {
-    /*echo '<pre>';
-    print_r(array_slice($registros, -10));
-    echo '</pre>';
-    die('Fin de prueba'); */
     if (empty($registros)) return true;
 
     $conexion = $this->conexion(); // Conexión 'erpprint' (Base ERP)
@@ -497,13 +492,19 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         // -------------------------------------------------------------
         $mapExistentesNorm = [];
         foreach ($mapExistentes as $k => $v) {
-            $mapExistentesNorm[strtoupper(trim((string)$k))] = $v;
+            $keyNorm = strtoupper(trim((string)$k));
+            if ($keyNorm !== '') {
+                $mapExistentesNorm[$keyNorm] = 1;
+            }
         }
+        unset($mapExistentes);
 
         // -------------------------------------------------------------
         // 0.1. RECOLECTAR Y CONSULTAR SERIES DUPLICADAS EN TAC (qm_tac)
         // -------------------------------------------------------------
         $ontsBuscarUnicas = [];
+        $expedientesUnicos = [];
+
         foreach ($registros as $reg) {
             $serieProd = strtoupper(trim($reg['Num__Serie'] ?? ''));
             $nsEnviado = strtoupper(trim($reg['NS_Enviado'] ?? ''));
@@ -514,73 +515,84 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
             if (!empty($nsEnviado) && !$this->esSerieInvalida($nsEnviado)) {
                 $ontsBuscarUnicas[$nsEnviado] = $nsEnviado;
             }
+
+            $exp = $reg['Expediente'] ?? null;
+            if (!empty($exp)) {
+                $expedientesUnicos[(string)$exp] = $exp;
+            }
         }
 
         $mapaOntsDuplicadasTac = [];
         if (!empty($ontsBuscarUnicas)) {
-            $placeholdersOnt = implode(',', array_fill(0, count($ontsBuscarUnicas), '?'));
-            
-            // Validando que esté en más de un teléfono diferente y con Calificador_Edo = 'COMPLETADA'
-            $sqlTacDup = "SELECT Num__Serie, GROUP_CONCAT(DISTINCT TELEFONO ORDER BY TELEFONO SEPARATOR ', ') AS telefonos_asociados
-                          FROM qm_tac 
-                          WHERE Num__Serie IN ($placeholdersOnt)
-                            AND Calificador_Edo = 'COMPLETADA'
-                          GROUP BY Num__Serie 
-                          HAVING COUNT(DISTINCT TELEFONO) > 1";
-            
-            // Usamos la conexión 'analisis' donde se encuentra qm_tac
-            $registrosTacDup = $this->runQuery($sqlTacDup, array_values($ontsBuscarUnicas), 'analisis');
+            $ontsChunks = array_chunk(array_values($ontsBuscarUnicas), 500);
+            unset($ontsBuscarUnicas);
 
-            foreach ($registrosTacDup as $dup) {
-                $mapaOntsDuplicadasTac[trim($dup['Num__Serie'])] = [
-                    'serie_tac' => trim($dup['Num__Serie']),
-                    'telefonos' => $dup['telefonos_asociados']
-                ];
+            foreach ($ontsChunks as $ontChunk) {
+                $placeholdersOnt = implode(',', array_fill(0, count($ontChunk), '?'));
+
+                // Validando que esté en más de un teléfono diferente y con Calificador_Edo = 'COMPLETADA'
+                $sqlTacDup = "SELECT Num__Serie, GROUP_CONCAT(DISTINCT TELEFONO ORDER BY TELEFONO SEPARATOR ', ') AS telefonos_asociados
+                              FROM qm_tac 
+                              WHERE Num__Serie IN ($placeholdersOnt)
+                                AND Calificador_Edo = 'COMPLETADA'
+                              GROUP BY Num__Serie 
+                              HAVING COUNT(DISTINCT TELEFONO) > 1";
+
+                // Usamos la conexión 'analisis' donde se encuentra qm_tac
+                $registrosTacDup = $this->runQuery($sqlTacDup, $ontChunk, 'analisis');
+
+                foreach ($registrosTacDup as $dup) {
+                    $serieDupNorm = strtoupper(trim($dup['Num__Serie']));
+                    $mapaOntsDuplicadasTac[$serieDupNorm] = [
+                        'serie_tac' => trim($dup['Num__Serie']),
+                        'telefonos' => $dup['telefonos_asociados']
+                    ];
+                }
+                unset($registrosTacDup);
             }
+            unset($ontsChunks);
         }
 
         // -------------------------------------------------------------
         // 1. RESCATE Y VALIDACIÓN DE CONTRATISTAS ACTIVOS POR EXPEDIENTE
         // -------------------------------------------------------------
-        $expedientesUnicos = [];
-        foreach ($registros as $reg) {
-            $exp = $reg['Expediente'] ?? null;
-            if (!empty($exp)) {
-                $expedientesUnicos[$exp] = $exp;
-            }
-        }
-
         $mapTecnicosInfo = [];
         if (!empty($expedientesUnicos)) {
-            $placeholders = implode(',', array_fill(0, count($expedientesUnicos), '?'));
-            
-            $sqlTec = "SELECT t.NExpediente, c.idContratistas, 
-                       TRIM(CONCAT_WS(' ', c.Contratista, c.apellido_paterno, c.apellido_materno)) AS ContratistaCompleto 
-                       FROM tecnicos t 
-                       INNER JOIN contratistas c ON t.FK_Contratista_Tecnico = c.idContratistas 
-                       WHERE t.NExpediente IN ($placeholders) 
-                         AND t.Estatus_Tecnico = 'ACTIVO'";
-            
-            $stmtTec = $conexion->prepare($sqlTec);
-            $stmtTec->execute(array_values($expedientesUnicos));
-            $resultadosTec = $stmtTec->fetchAll(PDO::FETCH_ASSOC);
+            $expChunks = array_chunk(array_values($expedientesUnicos), 500);
+            unset($expedientesUnicos);
 
-            foreach ($resultadosTec as $rowTec) {
-                $mapTecnicosInfo[$rowTec['NExpediente']] = [
-                    'idContratista' => $rowTec['idContratistas'],
-                    'Contratista'   => $rowTec['ContratistaCompleto']
-                ];
+            foreach ($expChunks as $expChunk) {
+                $placeholders = implode(',', array_fill(0, count($expChunk), '?'));
+
+                $sqlTec = "SELECT t.NExpediente, c.idContratistas, 
+                           TRIM(CONCAT_WS(' ', c.Contratista, c.apellido_paterno, c.apellido_materno)) AS ContratistaCompleto 
+                           FROM tecnicos t 
+                           INNER JOIN contratistas c ON t.FK_Contratista_Tecnico = c.idContratistas 
+                           WHERE t.NExpediente IN ($placeholders) 
+                             AND t.Estatus_Tecnico = 'ACTIVO'";
+
+                $stmtTec = $conexion->prepare($sqlTec);
+                $stmtTec->execute($expChunk);
+                $resultadosTec = $stmtTec->fetchAll(PDO::FETCH_ASSOC);
+                $stmtTec->closeCursor();
+
+                foreach ($resultadosTec as $rowTec) {
+                    $mapTecnicosInfo[(string)$rowTec['NExpediente']] = [
+                        'idContratista' => $rowTec['idContratistas'],
+                        'Contratista'   => $rowTec['ContratistaCompleto']
+                    ];
+                }
+                unset($resultadosTec);
             }
+            unset($expChunks);
         }
 
         $conexion->beginTransaction();
 
         $batchSize = 200;
-        $senalamientos = [];
-        $navegaciones  = [];
 
         // -------------------------------------------------------------
-        // 2. INSERCIÓN / ACTUALIZACIÓN EN PRODUCCIÓN DIARIA
+        // 2. INSERCIÓN / ACTUALIZACIÓN EN PRODUCCIÓN DIARIA, NAVEGACIÓN Y SEÑALAMIENTOS POR LOTE
         // -------------------------------------------------------------
         $sqlDiariaBase = "INSERT INTO seg_produccion_diaria (
                             Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
@@ -616,11 +628,36 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                 Tiene_Senalamiento = VALUES(Tiene_Senalamiento),
                 Fecha_Insercion = NOW()";
 
+        $sqlNavBase = "INSERT INTO seg_produccion_navegacion (
+                        Folio_Pisa, TELEFONO, FECHA_LIQ, DID_ACTIVO, Estatus_Navegacion,
+                        Flag_Navega, Num__Serie_Eci, FECHA_ULTIMO_EVENTO, F_CONSULTA, Fecha_Evaluacion
+                    ) VALUES ";
+
+        $sqlNavDuplicate = " ON DUPLICATE KEY UPDATE
+                        DID_ACTIVO = VALUES(DID_ACTIVO),
+                        Estatus_Navegacion = VALUES(Estatus_Navegacion),
+                        Flag_Navega = VALUES(Flag_Navega),
+                        Num__Serie_Eci = VALUES(Num__Serie_Eci),
+                        FECHA_ULTIMO_EVENTO = VALUES(FECHA_ULTIMO_EVENTO),
+                        F_CONSULTA = VALUES(F_CONSULTA),
+                        Fecha_Evaluacion = NOW()";
+
+        $sqlSenalBase = "INSERT INTO seg_produccion_senalamiento (
+                        Folio_Pisa, TELEFONO, FECHA_LIQ, Tipo_Senalamiento, Detalle, Fecha_Registro
+                    ) VALUES ";
+
         $chunks = array_chunk($registros, $batchSize);
+        unset($registros);
+
+        $contadorBloques = 0;
 
         foreach ($chunks as $chunk) {
             $values = [];
             $params = [];
+            $valuesNav = [];
+            $paramsNav = [];
+            $senalamientos = [];
+            $foliosLote = [];
 
             foreach ($chunk as $reg) {
                 $tel        = trim($reg['TELEFONO'] ?? '');
@@ -629,7 +666,11 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                 $expediente = $reg['Expediente'] ?? null;
                 $serieProd  = trim($reg['Num__Serie'] ?? '');
                 $nsEnviado  = trim($reg['NS_Enviado'] ?? '');
-                
+
+                if ($folioPisa !== '') {
+                    $foliosLote[$folioPisa] = $folioPisa;
+                }
+
                 // Datos iniciales que vienen en el registro
                 $idContratistaInput = $reg['idContratista'] ?? null;
                 $contratistaInput   = trim($reg['Contratista'] ?? '');
@@ -640,8 +681,8 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                 $contrAnterior      = null;
 
                 // Validación y cruce con el contratista ACTIVO oficial por Expediente
-                if (!empty($expediente) && isset($mapTecnicosInfo[$expediente])) {
-                    $infoOficial = $mapTecnicosInfo[$expediente];
+                if (!empty($expediente) && isset($mapTecnicosInfo[(string)$expediente])) {
+                    $infoOficial = $mapTecnicosInfo[(string)$expediente];
                     $idOficial = $infoOficial['idContratista'];
                     $nombreOficial = trim($infoOficial['Contratista']);
 
@@ -706,18 +747,20 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                     }
                 }
 
-                // Acumulamos datos para seg_produccion_navegacion
-                $navegaciones[] = [
-                    'Folio_Pisa'          => $folioPisa,
-                    'TELEFONO'            => $tel,
-                    'FECHA_LIQ'           => $fechaLiq,
-                    'DID_ACTIVO'          => $didActivo,
-                    'Estatus_Navegacion'  => $estatusNav,
-                    'Flag_Navega'         => $flagNavega,
-                    'Num__Serie_Eci'      => $serieEci,
-                    'FECHA_ULTIMO_EVENTO' => $fEvento,
-                    'F_CONSULTA'          => $fConsulta
-                ];
+                // Acumulamos datos del lote para seg_produccion_navegacion
+                $valuesNav[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+                array_push(
+                    $paramsNav,
+                    $folioPisa,
+                    $tel,
+                    $fechaLiq,
+                    $didActivo,
+                    $estatusNav,
+                    $flagNavega,
+                    $serieEci,
+                    $fEvento,
+                    $fConsulta
+                );
 
                 // Evaluación de Señalamientos
                 $hayDiscrepanciaSeries = false;
@@ -854,110 +897,78 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                 );
             }
 
-            $stmtDiaria = $conexion->prepare($sqlDiariaBase . implode(',', $values) . $sqlDiariaDuplicate);
-            $stmtDiaria->execute($params);
-        }
+            if (!empty($values)) {
+                $stmtDiaria = $conexion->prepare($sqlDiariaBase . implode(',', $values) . $sqlDiariaDuplicate);
+                $stmtDiaria->execute($params);
+                $stmtDiaria->closeCursor();
+            }
 
-        // -------------------------------------------------------------
-        // 3. ACTUALIZACIÓN DINÁMICA EN SEGUIMIENTO DE NAVEGACIÓN
-        // -------------------------------------------------------------
-        if (!empty($navegaciones)) {
-            $chunksNav = array_chunk($navegaciones, $batchSize);
-            $sqlNavBase = "INSERT INTO seg_produccion_navegacion (
-                            Folio_Pisa, TELEFONO, FECHA_LIQ, DID_ACTIVO, Estatus_Navegacion,
-                            Flag_Navega, Num__Serie_Eci, FECHA_ULTIMO_EVENTO, F_CONSULTA, Fecha_Evaluacion
-                        ) VALUES ";
-
-            $sqlNavDuplicate = " ON DUPLICATE KEY UPDATE
-                            DID_ACTIVO = VALUES(DID_ACTIVO),
-                            Estatus_Navegacion = VALUES(Estatus_Navegacion),
-                            Flag_Navega = VALUES(Flag_Navega),
-                            Num__Serie_Eci = VALUES(Num__Serie_Eci),
-                            FECHA_ULTIMO_EVENTO = VALUES(FECHA_ULTIMO_EVENTO),
-                            F_CONSULTA = VALUES(F_CONSULTA),
-                            Fecha_Evaluacion = NOW()";
-
-            foreach ($chunksNav as $chunk) {
-                $valuesNav = [];
-                $paramsNav = [];
-
-                foreach ($chunk as $nav) {
-                    $valuesNav[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
-                    array_push(
-                        $paramsNav,
-                        $nav['Folio_Pisa'],
-                        $nav['TELEFONO'],
-                        $nav['FECHA_LIQ'],
-                        $nav['DID_ACTIVO'],
-                        $nav['Estatus_Navegacion'],
-                        $nav['Flag_Navega'],
-                        $nav['Num__Serie_Eci'],
-                        $nav['FECHA_ULTIMO_EVENTO'],
-                        $nav['F_CONSULTA']
-                    );
-                }
-
+            if (!empty($valuesNav)) {
                 $stmtNav = $conexion->prepare($sqlNavBase . implode(',', $valuesNav) . $sqlNavDuplicate);
                 $stmtNav->execute($paramsNav);
+                $stmtNav->closeCursor();
             }
-        }
 
-        // -------------------------------------------------------------
-        // 4. LIMPIEZA Y REFRESH DE SEÑALAMIENTOS
-        // -------------------------------------------------------------
-        $foliosLote = array_unique(array_column($registros, 'Folio_Pisa'));
-        if (!empty($foliosLote)) {
-            $phFolios = implode(',', array_fill(0, count($foliosLote), '?'));
-            
-            // Limpiar navegación
-            $stmtClean = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
-                                           WHERE Folio_Pisa IN ($phFolios) 
-                                             AND Tipo_Senalamiento = 'SIN NAVEGACION EN ESCI'");
-            $stmtClean->execute(array_values($foliosLote));
+            // Limpieza y refresh de señalamientos para los folios de este lote
+            if (!empty($foliosLote)) {
+                $phFolios = implode(',', array_fill(0, count($foliosLote), '?'));
+                $valoresFolios = array_values($foliosLote);
 
-            // Limpiar series diferentes viejas
-            $stmtCleanSerie = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
-                                                 WHERE Folio_Pisa IN ($phFolios) 
-                                                   AND Tipo_Senalamiento IN ('NUMEROS DE SERIE DIFERENTES', 'NUMEROS DE SERIE DIFERENTES PARA EL TELEFONO')");
-            $stmtCleanSerie->execute(array_values($foliosLote));
+                $stmtClean = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
+                                               WHERE Folio_Pisa IN ($phFolios) 
+                                                 AND Tipo_Senalamiento = 'SIN NAVEGACION EN ESCI'");
+                $stmtClean->execute($valoresFolios);
+                $stmtClean->closeCursor();
 
-            // Limpiar almacén viejo de este lote para recalcular correctamente
-            $stmtCleanAlm = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
-                                                WHERE Folio_Pisa IN ($phFolios) 
-                                                  AND Tipo_Senalamiento = 'NO ENCONTRADO EN ALMACEN'");
-            $stmtCleanAlm->execute(array_values($foliosLote));
+                $stmtCleanSerie = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
+                                                     WHERE Folio_Pisa IN ($phFolios) 
+                                                       AND Tipo_Senalamiento IN ('NUMEROS DE SERIE DIFERENTES', 'NUMEROS DE SERIE DIFERENTES PARA EL TELEFONO')");
+                $stmtCleanSerie->execute($valoresFolios);
+                $stmtCleanSerie->closeCursor();
 
-            // Limpiar señalamientos de duplicidad viejos de este lote para recalcular
-            $stmtCleanDup = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
-                                                WHERE Folio_Pisa IN ($phFolios) 
-                                                  AND Tipo_Senalamiento IN ('ONT PRODUCCION DUPLICADA', 'ONT DE COBRO DUPLICADA', 'ONT DUPLICADA EN TAC')");
-            $stmtCleanDup->execute(array_values($foliosLote));
-        }
+                $stmtCleanAlm = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
+                                                    WHERE Folio_Pisa IN ($phFolios) 
+                                                      AND Tipo_Senalamiento = 'NO ENCONTRADO EN ALMACEN'");
+                $stmtCleanAlm->execute($valoresFolios);
+                $stmtCleanAlm->closeCursor();
 
-        if (!empty($senalamientos)) {
-            $chunksSenalamiento = array_chunk($senalamientos, $batchSize);
-            $sqlSenalBase = "INSERT INTO seg_produccion_senalamiento (
-                            Folio_Pisa, TELEFONO, FECHA_LIQ, Tipo_Senalamiento, Detalle, Fecha_Registro
-                        ) VALUES ";
+                $stmtCleanDup = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
+                                                    WHERE Folio_Pisa IN ($phFolios) 
+                                                      AND Tipo_Senalamiento IN ('ONT PRODUCCION DUPLICADA', 'ONT DE COBRO DUPLICADA', 'ONT DUPLICADA EN TAC')");
+                $stmtCleanDup->execute($valoresFolios);
+                $stmtCleanDup->closeCursor();
+            }
 
-            foreach ($chunksSenalamiento as $chunk) {
-                $valuesSen = [];
-                $paramsSen = [];
+            if (!empty($senalamientos)) {
+                $chunksSenalamiento = array_chunk($senalamientos, $batchSize);
 
-                foreach ($chunk as $sen) {
-                    $valuesSen[] = "(?, ?, ?, ?, ?, NOW())";
-                    array_push(
-                        $paramsSen,
-                        $sen['Folio_Pisa'],
-                        $sen['TELEFONO'],
-                        $sen['FECHA_LIQ'],
-                        $sen['Tipo_Senalamiento'],
-                        $sen['Detalle']
-                    );
+                foreach ($chunksSenalamiento as $chunkSen) {
+                    $valuesSen = [];
+                    $paramsSen = [];
+
+                    foreach ($chunkSen as $sen) {
+                        $valuesSen[] = "(?, ?, ?, ?, ?, NOW())";
+                        array_push(
+                            $paramsSen,
+                            $sen['Folio_Pisa'],
+                            $sen['TELEFONO'],
+                            $sen['FECHA_LIQ'],
+                            $sen['Tipo_Senalamiento'],
+                            $sen['Detalle']
+                        );
+                    }
+
+                    $stmtSenal = $conexion->prepare($sqlSenalBase . implode(',', $valuesSen));
+                    $stmtSenal->execute($paramsSen);
+                    $stmtSenal->closeCursor();
                 }
+            }
 
-                $stmtSenal = $conexion->prepare($sqlSenalBase . implode(',', $valuesSen));
-                $stmtSenal->execute($paramsSen);
+            unset($values, $params, $valuesNav, $paramsNav, $senalamientos, $foliosLote, $chunksSenalamiento);
+
+            $contadorBloques++;
+            if ($contadorBloques % 20 === 0) {
+                gc_collect_cycles();
             }
         }
 
@@ -972,6 +983,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         return false;
     }
 }
+
 
     // CODIGO ANTERIOR /////
 
