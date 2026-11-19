@@ -1888,9 +1888,8 @@ public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = '', 
 }
 
 /**
- * Consulta la producción diaria aplicando todos los filtros dinámicos
- */
-
+     * Consulta la producción diaria aplicando todos los filtros dinámicos
+     */
     public function ExportarFechas($fechaInicio = null, $fechaFin = null, $idContratista = null, $tipoTarea = null, $area = null, $division = null, $cope = null)
     {
         $sql = "SELECT 
@@ -2003,12 +2002,10 @@ public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = '', 
             }
         }
 
-        $sql .= " GROUP BY p.Folio_Pisa, p.TELEFONO, p.FECHA_LIQ";
         $sql .= " ORDER BY p.FECHA_LIQ DESC";
 
         return $this->runQuery($sql, $params, 'erpprint');
     }
-
 
 
 }
