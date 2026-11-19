@@ -39,13 +39,32 @@ class ClassConsultasProduccion extends Conexion
                     $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
                 }
             }
+
+            echo '<pre>';
+            echo "SQL:\n" . $sql . "\nParams:\n";
+            print_r($params);
+            echo '</pre>';
+
             $stmt->execute();
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $rows = array();
+            $contador = 0;
+            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                $rows[] = $row;
+                $contador++;
+                if ($contador % 10000 === 0) {
+                    echo '<pre>Cargando filas... ' . $contador . ' | Memoria: ' . round(memory_get_usage(true) / 1048576, 2) . ' MB</pre>';
+                }
+            }
+
             if (method_exists($stmt, 'closeCursor')) {
                 $stmt->closeCursor();
             }
             return $rows;
         } catch (PDOException $e) {
+            echo '<pre>';
+            var_dump($e->getMessage());
+            echo '</pre>';
             return array();
         }
     }
