@@ -10,52 +10,6 @@ class ClassConsultasProduccion extends Conexion
 {
     protected function runQuery($sql, $params = array(), $conexionTipo = 'default')
     {
-        $inicioTiempo = microtime(true);
-        $memInicial   = memory_get_usage(true);
-
-        // Detectar qué función de la clase o script invocó runQuery
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 6);
-        $callerInfo = "Desconocido";
-        foreach ($trace as $frame) {
-            $func = $frame['function'] ?? '';
-            if ($func !== 'runQuery' && $func !== 'runExecute') {
-                $clase  = $frame['class'] ?? '';
-                $archivo = isset($frame['file']) ? basename($frame['file']) : 'N/A';
-                $linea   = $frame['line'] ?? 'N/A';
-                $callerInfo = ($clase ? $clase . "::" : "") . $func . "() en {$archivo}:{$linea}";
-                break;
-            }
-        }
-
-        $imprimirDebug = function ($nivel, $titulo, $detalleExtra = []) use ($conexionTipo, $sql, $params, $callerInfo, $inicioTiempo, $memInicial) {
-            $duracionMs = round((microtime(true) - $inicioTiempo) * 1000, 2);
-            $memActualMb = round(memory_get_usage(true) / 1048576, 2);
-            $memPicoMb   = round(memory_get_peak_usage(true) / 1048576, 2);
-            $memLimit    = ini_get('memory_limit');
-            $maxExec     = ini_get('max_execution_time');
-
-            $colores = [
-                'ERROR'      => '#ff4d4d',
-                'ADVERTENCIA'=> '#ffcc00',
-                'INFO'       => '#4da6ff',
-            ];
-            $color = $colores[$nivel] ?? '#00ff88';
-
-            echo "<pre style='background:#121212;color:#f1f1f1;border-left:5px solid {$color};padding:12px;margin:10px 0;font-family:Consolas,monospace;font-size:12px;white-space:pre-wrap;'>";
-            echo "<strong style='color:{$color};'>[{$nivel} - runQuery] {$titulo}</strong>\n";
-            echo "<strong>Función que llamó / Origen:</strong> {$callerInfo}\n";
-            echo "<strong>Tipo de conexión:</strong> {$conexionTipo} | <strong>Tiempo:</strong> {$duracionMs} ms | <strong>Memoria actual/pico:</strong> {$memActualMb} MB / {$memPicoMb} MB (Límite PHP: {$memLimit}, max_exec: {$maxExec}s)\n";
-            echo "<strong>Cantidad de parámetros:</strong> " . count($params) . "\n";
-
-            if (!empty($detalleExtra)) {
-                echo "<strong>Detalles adicionales:</strong>\n" . print_r($detalleExtra, true);
-            }
-
-            echo "<strong>SQL:</strong>\n" . trim($sql) . "\n";
-            echo "<strong>Parámetros:</strong>\n" . print_r($params, true);
-            echo "</pre>";
-        };
-
         switch ($conexionTipo) {
             case 'analisis':
             case 'analytics':
@@ -75,127 +29,29 @@ class ClassConsultasProduccion extends Conexion
                 break;
         }
 
-        if (!$conexion || !($conexion instanceof PDO)) {
-            $imprimirDebug('ERROR', 'Fallo de conexión: no se obtuvo una instancia PDO válida', [
-                'tipo_conexion_pdo' => gettype($conexion)
-            ]);
-            return array();
-        }
-
         try {
             $stmt = $conexion->prepare($sql);
-            if ($stmt === false) {
-                $imprimirDebug('ERROR', 'Fallo al preparar la consulta ($conexion->prepare devolvió false)', [
-                    'pdo_error_info' => $conexion->errorInfo()
-                ]);
-                return array();
-            }
-
             foreach ($params as $key => $val) {
-                $tipoParam = PDO::PARAM_STR;
-                if (is_int($val)) {
-                    $tipoParam = PDO::PARAM_INT;
-                } elseif (is_bool($val)) {
-                    $tipoParam = PDO::PARAM_BOOL;
-                } elseif (is_null($val)) {
-                    $tipoParam = PDO::PARAM_NULL;
-                }
-
                 if (is_int($key)) {
-                    $stmt->bindValue($key + 1, $val, $tipoParam);
+                    $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
                 } else {
                     $param = ':' . ltrim($key, ':');
-                    $stmt->bindValue($param, $val, $tipoParam);
+                    $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
                 }
             }
-
-            $ejecuto = $stmt->execute();
-            if ($ejecuto === false) {
-                $imprimirDebug('ERROR', 'Fallo al ejecutar la consulta ($stmt->execute devolvió false)', [
-                    'stmt_error_info' => $stmt->errorInfo(),
-                    'pdo_error_info'  => $conexion->errorInfo()
-                ]);
-                return array();
-            }
-
+            $stmt->execute();
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
             if (method_exists($stmt, 'closeCursor')) {
                 $stmt->closeCursor();
             }
-
-            if (empty($rows)) {
-                $imprimirDebug('ADVERTENCIA', 'La consulta ejecutó pero devolvió 0 filas (conjunto vacío)');
-            }
-
             return $rows;
         } catch (PDOException $e) {
-            $imprimirDebug('ERROR', 'TRUENE / ERROR DE SQL (PDOException)', [
-                'mensaje_sql' => $e->getMessage(),
-                'codigo_pdo'  => $e->getCode(),
-                'error_info'  => $e->errorInfo ?? null,
-                'archivo_pdo' => $e->getFile() . ':' . $e->getLine(),
-                'trace_sql'   => $e->getTraceAsString()
-            ]);
-            return array();
-        } catch (Throwable $t) {
-            $imprimirDebug('ERROR', 'TRUENE INESPERADO (Throwable / Límite de recursos o PHP)', [
-                'mensaje' => $t->getMessage(),
-                'codigo'  => $t->getCode(),
-                'archivo' => $t->getFile() . ':' . $t->getLine(),
-                'trace'   => $t->getTraceAsString()
-            ]);
             return array();
         }
     }
 
     protected function runExecute($sql, $params = array(), $conexionTipo = 'default')
     {
-        $inicioTiempo = microtime(true);
-
-        // Detectar qué función de la clase o script invocó runExecute
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 6);
-        $callerInfo = "Desconocido";
-        foreach ($trace as $frame) {
-            $func = $frame['function'] ?? '';
-            if ($func !== 'runQuery' && $func !== 'runExecute') {
-                $clase  = $frame['class'] ?? '';
-                $archivo = isset($frame['file']) ? basename($frame['file']) : 'N/A';
-                $linea   = $frame['line'] ?? 'N/A';
-                $callerInfo = ($clase ? $clase . "::" : "") . $func . "() en {$archivo}:{$linea}";
-                break;
-            }
-        }
-
-        $imprimirDebug = function ($nivel, $titulo, $detalleExtra = []) use ($conexionTipo, $sql, $params, $callerInfo, $inicioTiempo) {
-            $duracionMs = round((microtime(true) - $inicioTiempo) * 1000, 2);
-            $memActualMb = round(memory_get_usage(true) / 1048576, 2);
-            $memPicoMb   = round(memory_get_peak_usage(true) / 1048576, 2);
-            $memLimit    = ini_get('memory_limit');
-            $maxExec     = ini_get('max_execution_time');
-
-            $colores = [
-                'ERROR'      => '#ff4d4d',
-                'ADVERTENCIA'=> '#ffcc00',
-                'INFO'       => '#4da6ff',
-            ];
-            $color = $colores[$nivel] ?? '#00ff88';
-
-            echo "<pre style='background:#121212;color:#f1f1f1;border-left:5px solid {$color};padding:12px;margin:10px 0;font-family:Consolas,monospace;font-size:12px;white-space:pre-wrap;'>";
-            echo "<strong style='color:{$color};'>[{$nivel} - runExecute] {$titulo}</strong>\n";
-            echo "<strong>Función que llamó / Origen:</strong> {$callerInfo}\n";
-            echo "<strong>Tipo de conexión:</strong> {$conexionTipo} | <strong>Tiempo:</strong> {$duracionMs} ms | <strong>Memoria actual/pico:</strong> {$memActualMb} MB / {$memPicoMb} MB (Límite PHP: {$memLimit}, max_exec: {$maxExec}s)\n";
-            echo "<strong>Cantidad de parámetros:</strong> " . count($params) . "\n";
-
-            if (!empty($detalleExtra)) {
-                echo "<strong>Detalles adicionales:</strong>\n" . print_r($detalleExtra, true);
-            }
-
-            echo "<strong>SQL:</strong>\n" . trim($sql) . "\n";
-            echo "<strong>Parámetros:</strong>\n" . print_r($params, true);
-            echo "</pre>";
-        };
-
         switch ($conexionTipo) {
             case 'analisis':
             case 'analytics':
@@ -215,78 +71,23 @@ class ClassConsultasProduccion extends Conexion
                 break;
         }
 
-        if (!$conexion || !($conexion instanceof PDO)) {
-            $imprimirDebug('ERROR', 'Fallo de conexión: no se obtuvo una instancia PDO válida', [
-                'tipo_conexion_pdo' => gettype($conexion)
-            ]);
-            return 0;
-        }
-
         try {
             $stmt = $conexion->prepare($sql);
-            if ($stmt === false) {
-                $imprimirDebug('ERROR', 'Fallo al preparar la sentencia ($conexion->prepare devolvió false)', [
-                    'pdo_error_info' => $conexion->errorInfo()
-                ]);
-                return 0;
-            }
-
             foreach ($params as $key => $val) {
-                $tipoParam = PDO::PARAM_STR;
-                if (is_int($val)) {
-                    $tipoParam = PDO::PARAM_INT;
-                } elseif (is_bool($val)) {
-                    $tipoParam = PDO::PARAM_BOOL;
-                } elseif (is_null($val)) {
-                    $tipoParam = PDO::PARAM_NULL;
-                }
-
                 if (is_int($key)) {
-                    $stmt->bindValue($key + 1, $val, $tipoParam);
+                    $stmt->bindValue($key + 1, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
                 } else {
                     $param = ':' . ltrim($key, ':');
-                    $stmt->bindValue($param, $val, $tipoParam);
+                    $stmt->bindValue($param, $val, is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR);
                 }
             }
-
-            $ejecuto = $stmt->execute();
-            if ($ejecuto === false) {
-                $imprimirDebug('ERROR', 'Fallo al ejecutar la sentencia ($stmt->execute devolvió false)', [
-                    'stmt_error_info' => $stmt->errorInfo(),
-                    'pdo_error_info'  => $conexion->errorInfo()
-                ]);
-                return 0;
-            }
-
-            $filasAfectadas = $stmt->rowCount();
-            $lastId = (int)$conexion->lastInsertId();
-
-            if ($filasAfectadas === 0) {
-                $imprimirDebug('ADVERTENCIA', 'La sentencia ejecutó pero afectó 0 filas (rowCount = 0)', [
-                    'last_insert_id' => $lastId
-                ]);
-            }
-
-            return $lastId;
+            $stmt->execute();
+            return (int)$conexion->lastInsertId();
         } catch (PDOException $e) {
-            $imprimirDebug('ERROR', 'TRUENE / ERROR DE SQL (PDOException)', [
-                'mensaje_sql' => $e->getMessage(),
-                'codigo_pdo'  => $e->getCode(),
-                'error_info'  => $e->errorInfo ?? null,
-                'archivo_pdo' => $e->getFile() . ':' . $e->getLine(),
-                'trace_sql'   => $e->getTraceAsString()
-            ]);
-            return 0;
-        } catch (Throwable $t) {
-            $imprimirDebug('ERROR', 'TRUENE INESPERADO (Throwable / Límite de recursos o PHP)', [
-                'mensaje' => $t->getMessage(),
-                'codigo'  => $t->getCode(),
-                'archivo' => $t->getFile() . ':' . $t->getLine(),
-                'trace'   => $t->getTraceAsString()
-            ]);
             return 0;
         }
     }
+
 
     /**
  * Obtiene la lista completa de contratistas con su nombre completo
