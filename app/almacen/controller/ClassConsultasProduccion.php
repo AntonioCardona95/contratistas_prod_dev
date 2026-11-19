@@ -1888,8 +1888,9 @@ public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = '', 
 }
 
 /**
-     * Consulta la producción diaria aplicando todos los filtros dinámicos
-     */
+ * Consulta la producción diaria aplicando todos los filtros dinámicos
+ */
+
     public function ExportarFechas($fechaInicio = null, $fechaFin = null, $idContratista = null, $tipoTarea = null, $area = null, $division = null, $cope = null)
     {
         $sql = "SELECT 
@@ -1915,7 +1916,6 @@ public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = '', 
                     p.DISTRITO,
                     p.TERMINAL,
                     p.Tiene_Senalamiento,
-                    s.idSenalamiento,
                     s.Tipo_Senalamiento,
                     s.Detalle AS Detalle_Senalamiento,
                     CONCAT_WS(' ', c_asig.Contratista, c_asig.apellido_paterno, c_asig.apellido_materno) AS Contratista_Asignado,
@@ -2003,10 +2003,12 @@ public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = '', 
             }
         }
 
-        $sql .= " ORDER BY p.FECHA_LIQ DESC, s.idSenalamiento ASC";
+        $sql .= " GROUP BY p.Folio_Pisa, p.TELEFONO, p.FECHA_LIQ";
+        $sql .= " ORDER BY p.FECHA_LIQ DESC";
 
         return $this->runQuery($sql, $params, 'erpprint');
     }
+
 
 
 }
