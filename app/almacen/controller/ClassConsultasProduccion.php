@@ -1892,6 +1892,17 @@ public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = '', 
      */
     public function ExportarFechas($fechaInicio = null, $fechaFin = null, $idContratista = null, $tipoTarea = null, $area = null, $division = null, $cope = null)
     {
+        // --- DEBUG 1: Parámetros recibidos ---
+        echo "<pre style='background:#111;color:#0f0;padding:15px;font-size:13px;'>";
+        echo "=== DEBUG ExportarFechas ===\n";
+        echo "fechaInicio: " . var_export($fechaInicio, true) . "\n";
+        echo "fechaFin:    " . var_export($fechaFin, true) . "\n";
+        echo "idContratista: " . var_export($idContratista, true) . "\n";
+        echo "tipoTarea:   " . var_export($tipoTarea, true) . "\n";
+        echo "area:        " . var_export($area, true) . "\n";
+        echo "division:    " . var_export($division, true) . "\n";
+        echo "cope:        " . var_export($cope, true) . "\n";
+
         $sql = "SELECT 
                     p.Expediente,
                     p.Folio_Pisa,
@@ -1956,6 +1967,8 @@ public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = '', 
             $sql .= " AND p.FECHA_LIQ BETWEEN :fechaInicio AND :fechaFin";
             $params[':fechaInicio'] = $fechaInicio . " 00:00:00";
             $params[':fechaFin']    = $fechaFin . " 23:59:59";
+        } else {
+            echo "AVISO: fechaInicio o fechaFin llegaron vacíos.\n";
         }
 
         if (!empty($idContratista) && $idContratista != 0) {
@@ -2004,7 +2017,26 @@ public function ObtenerDetalleOrdenesPorArea($idContratista, $fechaInicio = '', 
 
         $sql .= " ORDER BY p.FECHA_LIQ DESC";
 
-        return $this->runQuery($sql, $params, 'erpprint');
+        // --- DEBUG 2: SQL final y parámetros ---
+        echo "\nSQL armado:\n" . $sql . "\n";
+        echo "\nParams:\n" . print_r($params, true);
+
+        $rows = $this->runQuery($sql, $params, 'erpprint');
+
+        // --- DEBUG 3: Conteo y búsqueda del folio 78792563 ---
+        echo "\nTotal filas devueltas por runQuery: " . count($rows) . "\n";
+
+        $encontrados = array_filter($rows, function ($r) {
+            return (string)($r['Folio_Pisa'] ?? '') === '78792563' || (string)($r['TELEFONO'] ?? '') === '8345343108';
+        });
+
+        echo "Coincidencias con Folio_Pisa 78792563 o TELEFONO 8345343108: " . count($encontrados) . "\n";
+        if (!empty($encontrados)) {
+            print_r(array_values($encontrados));
+        }
+
+        echo "</pre>";
+        die("Fin del debug en ExportarFechas");
     }
 
 
