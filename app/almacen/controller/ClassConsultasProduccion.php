@@ -482,10 +482,20 @@ public function CountProduccionPorFechas(
 
 public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
 {
-     echo '<pre>';
-    echo 'Cantidad de $registros: ' . count($registros) . PHP_EOL;
-    echo 'Cantidad de $mapExistentes: ' . count($mapExistentes) . PHP_EOL;
-    echo 'Cantidad de $mapEciDetalle: ' . count($mapEciDetalle) . PHP_EOL;
+    echo '<pre>';
+
+    echo '$registros:' . PHP_EOL;
+    echo '  Cantidad: ' . count($registros) . PHP_EOL;
+    echo '  Memoria: ' . round(strlen(serialize($registros)) / 1024 / 1024, 2) . ' MB' . PHP_EOL . PHP_EOL;
+
+    echo '$mapExistentes:' . PHP_EOL;
+    echo '  Cantidad: ' . count($mapExistentes) . PHP_EOL;
+    echo '  Memoria: ' . round(strlen(serialize($mapExistentes)) / 1024 / 1024, 2) . ' MB' . PHP_EOL . PHP_EOL;
+
+    echo '$mapEciDetalle:' . PHP_EOL;
+    echo '  Cantidad: ' . count($mapEciDetalle) . PHP_EOL;
+    echo '  Memoria: ' . round(strlen(serialize($mapEciDetalle)) / 1024 / 1024, 2) . ' MB' . PHP_EOL;
+
     echo '</pre>';
     die();
     if (empty($registros)) return true;
