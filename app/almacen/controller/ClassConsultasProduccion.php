@@ -504,7 +504,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         // -------------------------------------------------------------
         // 0.1. RECOLECTAR Y CONSULTAR SERIES DUPLICADAS EN TAC (qm_tac)
         // -------------------------------------------------------------
-        /*$ontsBuscarUnicas = [];
+        $ontsBuscarUnicas = [];
         foreach ($registros as $reg) {
             $serieProd = strtoupper(trim($reg['Num__Serie'] ?? ''));
             $nsEnviado = strtoupper(trim($reg['NS_Enviado'] ?? ''));
@@ -515,74 +515,9 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
             if (!empty($nsEnviado) && !$this->esSerieInvalida($nsEnviado)) {
                 $ontsBuscarUnicas[$nsEnviado] = $nsEnviado;
             }
-        } */
+        }
 
-            echo "<hr>";
-echo "<h3>PASO 5 - CONSTRUYENDO ONTS UNICAS</h3>";
-
-echo "Registros a revisar: " . count($registros) . "<br>";
-
-echo "Memoria antes: "
-    . round(memory_get_usage(true)/1024/1024, 2)
-    . " MB<br><br>";
-
-flush();
-
-$ontsBuscarUnicas = [];
-
-$contadorDebug = 0;
-
-foreach ($registros as $reg) {
-
-    $serieProd = strtoupper(trim($reg['Num__Serie'] ?? ''));
-    $nsEnviado = strtoupper(trim($reg['NS_Enviado'] ?? ''));
-
-    if (!empty($serieProd) && !$this->esSerieInvalida($serieProd)) {
-        $ontsBuscarUnicas[$serieProd] = $serieProd;
-    }
-
-    if (!empty($nsEnviado) && !$this->esSerieInvalida($nsEnviado)) {
-        $ontsBuscarUnicas[$nsEnviado] = $nsEnviado;
-    }
-
-    $contadorDebug++;
-
-    if ($contadorDebug % 10000 == 0) {
-
-        echo "Procesados: {$contadorDebug}<br>";
-
-        echo "ONTs únicas actuales: "
-            . count($ontsBuscarUnicas)
-            . "<br>";
-
-        echo "Memoria actual: "
-            . round(memory_get_usage(true)/1024/1024, 2)
-            . " MB<br>";
-
-        flush();
-    }
-}
-
-echo "<br>";
-echo "PASO 6 - ONTS UNICAS TERMINADAS<br>";
-
-echo "Total ONTs únicas: "
-    . count($ontsBuscarUnicas)
-    . "<br>";
-
-echo "Memoria después: "
-    . round(memory_get_usage(true)/1024/1024,2)
-    . " MB<br>";
-
-echo "Memoria pico: "
-    . round(memory_get_peak_usage(true)/1024/1024,2)
-    . " MB<br>";
-
-flush();
-
-die('DEBUG DETENIDO EN PASO 6');
-
-        $mapaOntsDuplicadasTac = [];
+       /* $mapaOntsDuplicadasTac = [];
         if (!empty($ontsBuscarUnicas)) {
             $placeholdersOnt = implode(',', array_fill(0, count($ontsBuscarUnicas), '?'));
             
@@ -603,7 +538,78 @@ die('DEBUG DETENIDO EN PASO 6');
                     'telefonos' => $dup['telefonos_asociados']
                 ];
             }
-        }
+        } */
+
+            $mapaOntsDuplicadasTac = [];
+
+echo "<hr>";
+echo "<h3>PASO 7 - CONSULTA TAC DUPLICADOS</h3>";
+
+echo "ONTs a consultar: "
+    . count($ontsBuscarUnicas)
+    . "<br>";
+
+echo "Memoria antes consulta: "
+    . round(memory_get_usage(true)/1024/1024,2)
+    . " MB<br>";
+
+flush();
+
+if (!empty($ontsBuscarUnicas)) {
+
+    $placeholdersOnt = implode(
+        ',',
+        array_fill(0, count($ontsBuscarUnicas), '?')
+    );
+
+    echo "Placeholders generados<br>";
+
+    echo "Memoria antes runQuery: "
+        . round(memory_get_usage(true)/1024/1024,2)
+        . " MB<br>";
+
+    flush();
+
+    $registrosTacDup = $this->runQuery(
+        $sqlTacDup,
+        array_values($ontsBuscarUnicas),
+        'analisis'
+    );
+
+    echo "runQuery terminada<br>";
+
+    echo "Registros obtenidos: "
+        . count($registrosTacDup)
+        . "<br>";
+
+    echo "Memoria despues runQuery: "
+        . round(memory_get_usage(true)/1024/1024,2)
+        . " MB<br>";
+
+    flush();
+
+    foreach ($registrosTacDup as $dup) {
+
+        $mapaOntsDuplicadasTac[
+            trim($dup['Num__Serie'])
+        ] = [
+            'serie_tac' => trim($dup['Num__Serie']),
+            'telefonos' => $dup['telefonos_asociados']
+        ];
+    }
+
+    echo "Mapa duplicados generado<br>";
+
+    echo "Total mapa duplicados: "
+        . count($mapaOntsDuplicadasTac)
+        . "<br>";
+
+    echo "Memoria final: "
+        . round(memory_get_usage(true)/1024/1024,2)
+        . " MB<br>";
+}
+
+die('DEBUG DETENIDO EN PASO 7');
 
         // -------------------------------------------------------------
         // 1. RESCATE Y VALIDACIÓN DE CONTRATISTAS ACTIVOS POR EXPEDIENTE
