@@ -89,6 +89,112 @@ class ClassConsultasProduccion extends Conexion
     }
 
 
+    // NUEVA FUNCION //
+    /**
+     * Obtiene los registros de seg_ns_prod_eval (conexión 'analisis' vía runQuery)
+     * y los inserta/actualiza en seg_produccion_diaria (conexión 'default' vía runExecute) en lotes.
+     */
+    
+    public function SincronizarProduccionDiariaPorRango($fechaInicio, $fechaFin, int $tamanoLote = 500): array
+    {
+        if (empty(trim((string)$fechaInicio)) || empty(trim((string)$fechaFin))) {
+            return [
+                'total'      => 0,
+                'procesados' => 0
+            ];
+        }
+
+        $registros = $this->GetProduccionPorFechas($fechaInicio, $fechaFin);
+
+        if (empty($registros)) {
+            return [
+                'total'      => 0,
+                'procesados' => 0
+            ];
+        }
+
+        $sqlInsertBase = "INSERT INTO seg_produccion_diaria (
+                            Expediente, Folio_Pisa, TELEFONO, Tipo_de_Tarea, NOM_CT,
+                            FECHA_LIQ, FECHA_LIQD, Semana, Sem, Anio,
+                            idContratista, Contratista, Tecnico, NOM_DIVISION, NOM_AREA,
+                            Num__Serie, NS_Enviado, DISTRITO, TERMINAL, Fecha_Insercion
+                          ) VALUES ";
+
+        $sqlOnDuplicate = " ON DUPLICATE KEY UPDATE
+                            Expediente = VALUES(Expediente),
+                            Tipo_de_Tarea = VALUES(Tipo_de_Tarea),
+                            NOM_CT = VALUES(NOM_CT),
+                            FECHA_LIQD = VALUES(FECHA_LIQD),
+                            Semana = VALUES(Semana),
+                            Sem = VALUES(Sem),
+                            Anio = VALUES(Anio),
+                            idContratista = VALUES(idContratista),
+                            Contratista = VALUES(Contratista),
+                            Tecnico = VALUES(Tecnico),
+                            NOM_DIVISION = VALUES(NOM_DIVISION),
+                            NOM_AREA = VALUES(NOM_AREA),
+                            Num__Serie = VALUES(Num__Serie),
+                            NS_Enviado = VALUES(NS_Enviado),
+                            DISTRITO = VALUES(DISTRITO),
+                            TERMINAL = VALUES(TERMINAL),
+                            Fecha_Insercion = CURRENT_TIMESTAMP";
+
+        $total = count($registros);
+        $procesados = 0;
+
+        foreach (array_chunk($registros, $tamanoLote) as $lote) {
+            $placeholdersLote = [];
+            $params = [];
+            $idx = 0;
+
+            foreach ($lote as $reg) {
+                $placeholdersLote[] = "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)";
+
+                $valoresFila = [
+                    $reg['Expediente'] ?? null,
+                    $reg['Folio_Pisa'],
+                    $reg['TELEFONO'],
+                    $reg['Tipo_de_Tarea'] ?? null,
+                    $reg['NOM_CT'] ?? null,
+                    $reg['FECHA_LIQ'],
+                    $reg['FECHA_LIQD'] ?? null,
+                    $reg['Semana'] ?? null,
+                    $reg['Sem'] ?? null,
+                    $reg['Anio'] ?? null,
+                    $reg['idContratista'] ?? null,
+                    $reg['Contratista'] ?? null,
+                    $reg['Tecnico'] ?? null,
+                    $reg['NOM_DIVISION'] ?? null,
+                    $reg['NOM_AREA'] ?? null,
+                    $reg['Num__Serie'] ?? null,
+                    $reg['NS_Enviado'] ?? null,
+                    $reg['DISTRITO'] ?? null,
+                    $reg['TERMINAL'] ?? null
+                ];
+
+                foreach ($valoresFila as $val) {
+                    $params[$idx++] = $val;
+                }
+            }
+
+            $sqlLote = $sqlInsertBase . implode(', ', $placeholdersLote) . $sqlOnDuplicate;
+            $this->runExecute($sqlLote, $params, 'default');
+            $procesados += count($lote);
+        }
+
+        return [
+            'total'      => $total,
+            'procesados' => $procesados
+        ];
+    }
+    
+
+
+
+
+
+
+
     /**
  * Obtiene la lista completa de contratistas con su nombre completo
  */
