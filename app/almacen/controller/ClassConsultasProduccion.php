@@ -488,7 +488,6 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
     echo '</pre>';
     die('Fin de prueba'); */
     if (empty($registros)) return true;
-    $this->ok("Inicio, registros recibidos: " . count($registros));
 
     $conexion = $this->conexion(); // Conexión 'erpprint' (Base ERP)
 
@@ -531,7 +530,6 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
             
             // Usamos la conexión 'analisis' donde se encuentra qm_tac
             $registrosTacDup = $this->runQuery($sqlTacDup, array_values($ontsBuscarUnicas), 'analisis');
-            $this->ok("Consulta qm_tac, filas: " . count($registrosTacDup));
 
             foreach ($registrosTacDup as $dup) {
                 $mapaOntsDuplicadasTac[trim($dup['Num__Serie'])] = [
@@ -566,7 +564,6 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
             $stmtTec = $conexion->prepare($sqlTec);
             $stmtTec->execute(array_values($expedientesUnicos));
             $resultadosTec = $stmtTec->fetchAll(PDO::FETCH_ASSOC);
-            $this->ok("Consulta técnicos, filas: " . count($resultadosTec));
 
             foreach ($resultadosTec as $rowTec) {
                 $mapTecnicosInfo[$rowTec['NExpediente']] = [
@@ -859,8 +856,6 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
 
             $stmtDiaria = $conexion->prepare($sqlDiariaBase . implode(',', $values) . $sqlDiariaDuplicate);
             $stmtDiaria->execute($params);
-            $this->ok("Lote producción diaria. Señalamientos acumulados: " . count($senalamientos) . ", navegaciones: " . count($navegaciones));
-            
         }
 
         // -------------------------------------------------------------
@@ -976,13 +971,6 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         error_log("Error en InsertBatchProduccionYSenalamiento: " . $e->getMessage());
         return false;
     }
-}
-
-private function ok($mensaje)
-{
-    $mb = round(memory_get_usage(true) / 1048576);
-    echo "✅ OK - $mensaje (memoria: {$mb} MB)<br>";
-    flush();
 }
 
     // CODIGO ANTERIOR /////
