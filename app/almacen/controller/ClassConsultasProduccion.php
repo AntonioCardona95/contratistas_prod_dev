@@ -95,12 +95,17 @@ class ClassConsultasProduccion extends Conexion
      * y los inserta/actualiza en seg_produccion_diaria (conexión 'default' vía runExecute) en lotes.
      */
     
-    public function SincronizarProduccionDiariaPorRango($fechaInicio, $fechaFin, int $tamanoLote = 500): array
+    /**
+     * Obtiene los registros de seg_ns_prod_eval (conexión 'analisis' vía runQuery)
+     * y los inserta/actualiza en seg_produccion_diaria (conexión 'default' vía runExecute) en lotes.
+     */
+    public function SincronizarProduccionDiariaPorRango($fechaInicio, $fechaFin, int $tamanoLote = 250): array
     {
         if (empty(trim((string)$fechaInicio)) || empty(trim((string)$fechaFin))) {
             return [
                 'total'      => 0,
-                'procesados' => 0
+                'procesados' => 0,
+                'errores_lotes' => 0
             ];
         }
 
@@ -109,7 +114,8 @@ class ClassConsultasProduccion extends Conexion
         if (empty($registros)) {
             return [
                 'total'      => 0,
-                'procesados' => 0
+                'procesados' => 0,
+                'errores_lotes' => 0
             ];
         }
 
@@ -141,6 +147,8 @@ class ClassConsultasProduccion extends Conexion
 
         $total = count($registros);
         $procesados = 0;
+        $erroresLotes = 0;
+        $tamanoLote = max(1, $tamanoLote);
 
         foreach (array_chunk($registros, $tamanoLote) as $lote) {
             $placeholdersLote = [];
@@ -178,16 +186,21 @@ class ClassConsultasProduccion extends Conexion
             }
 
             $sqlLote = $sqlInsertBase . implode(', ', $placeholdersLote) . $sqlOnDuplicate;
+
+            // runExecute devuelve lastInsertId() (que en clave compuesta es 0) o 0 en catch.
+            // Si quieres detectar fallos reales, es ideal que en runExecute registres error_log($e->getMessage()) en el catch.
             $this->runExecute($sqlLote, $params, 'default');
             $procesados += count($lote);
         }
 
+        unset($registros);
+
         return [
-            'total'      => $total,
-            'procesados' => $procesados
+            'total'         => $total,
+            'procesados'    => $procesados,
+            'errores_lotes' => $erroresLotes
         ];
     }
-    
 
 
 
