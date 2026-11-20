@@ -528,19 +528,8 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                             AND Calificador_Edo = 'COMPLETADA'
                           GROUP BY Num__Serie 
                           HAVING COUNT(DISTINCT TELEFONO) > 1";
-            
-            // Usamos la conexión 'analisis' donde se encuentra qm_tac
-          /*  $registrosTacDup = $this->runQuery($sqlTacDup, array_values($ontsBuscarUnicas), 'analisis');
 
-            foreach ($registrosTacDup as $dup) {
-                $mapaOntsDuplicadasTac[trim($dup['Num__Serie'])] = [
-                    'serie_tac' => trim($dup['Num__Serie']),
-                    'telefonos' => $dup['telefonos_asociados']
-                ];
-            }
-        } */
-
-            echo "<hr>";
+                          echo "<hr>";
 echo "<h3>PASO 7 - ANTES DE runQuery TAC</h3>";
 
 echo "ONTs a consultar: " . count($ontsBuscarUnicas) . "<br>";
@@ -550,15 +539,12 @@ echo "Memoria antes runQuery: "
     . " MB<br>";
 
 flush();
+            
+            // Usamos la conexión 'analisis' donde se encuentra qm_tac
+            $registrosTacDup = $this->runQuery($sqlTacDup, array_values($ontsBuscarUnicas), 'analisis');
 
-$registrosTacDup = $this->runQuery(
-    $sqlTacDup,
-    array_values($ontsBuscarUnicas),
-    'analisis'
-);
-
-echo "<br>";
-echo "PASO 8 - runQuery TERMINADO<br>";
+            echo "<br>";
+echo "<h3>PASO 8 - RUNQUERY TERMINADO</h3>";
 
 echo "Registros encontrados: "
     . count($registrosTacDup)
@@ -570,28 +556,17 @@ echo "Memoria despues runQuery: "
 
 flush();
 
-foreach ($registrosTacDup as $dup) {
+die('DEBUG DETENIDO EN PASO 8');
 
-    $mapaOntsDuplicadasTac[trim($dup['Num__Serie'])] = [
-        'serie_tac' => trim($dup['Num__Serie']),
-        'telefonos' => $dup['telefonos_asociados']
-    ];
-}
+            foreach ($registrosTacDup as $dup) {
+                $mapaOntsDuplicadasTac[trim($dup['Num__Serie'])] = [
+                    'serie_tac' => trim($dup['Num__Serie']),
+                    'telefonos' => $dup['telefonos_asociados']
+                ];
+            }
+        }
 
-echo "<br>";
-echo "PASO 9 - MAPA DUPLICADOS GENERADO<br>";
-
-echo "Elementos en mapa: "
-    . count($mapaOntsDuplicadasTac)
-    . "<br>";
-
-echo "Memoria actual: "
-    . round(memory_get_usage(true)/1024/1024,2)
-    . " MB<br>";
-
-flush();
-
-die('DEBUG DETENIDO EN PASO 9');
+        
 
         // -------------------------------------------------------------
         // 1. RESCATE Y VALIDACIÓN DE CONTRATISTAS ACTIVOS POR EXPEDIENTE
