@@ -483,46 +483,6 @@ public function CountProduccionPorFechas(
 
 public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
 {
-     echo '<pre style="background:#000;color:#00ff00;padding:10px;">';
-
-    echo "========== DEBUG PRODUCCION ==========\n";
-    echo "Hora: " . date('Y-m-d H:i:s') . "\n\n";
-
-    echo "TOTAL REGISTROS: " . count($registros) . "\n";
-    echo "TOTAL MAP EXISTENTES: " . count($mapExistentes) . "\n";
-    echo "TOTAL MAP ECI: " . count($mapEciDetalle) . "\n\n";
-
-    echo "MEMORIA ACTUAL: "
-        . round(memory_get_usage(true) / 1024 / 1024, 2)
-        . " MB\n";
-
-    echo "MEMORIA PICO: "
-        . round(memory_get_peak_usage(true) / 1024 / 1024, 2)
-        . " MB\n";
-
-    echo "\nPASO 0: INICIO FUNCION OK\n";
-
-    flush();
-
-    if (empty($registros)) {
-        die("MURIO: REGISTROS VACIOS");
-    }
-
-    echo "PASO 1: ANTES DE CONEXION()\n";
-
-    flush();
-
-    $conexion = $this->conexion();
-
-    echo "PASO 2: CONEXION OK\n";
-
-    echo "MEMORIA: "
-        . round(memory_get_usage(true) / 1024 / 1024, 2)
-        . " MB\n";
-
-    flush();
-
-    die('DEBUG DETENIDO EN PASO 2');
     /*echo '<pre>';
     print_r(array_slice($registros, -10));
     echo '</pre>';
@@ -535,10 +495,63 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         // -------------------------------------------------------------
         // 0. NORMALIZAR MAPA DE ALMACÉN A MAYÚSCULAS (Evita problemas de minúsculas)
         // -------------------------------------------------------------
-        $mapExistentesNorm = [];
+
+       /* $mapExistentesNorm = [];
         foreach ($mapExistentes as $k => $v) {
             $mapExistentesNorm[strtoupper(trim((string)$k))] = $v;
-        }
+        } */
+
+            echo "<hr>";
+echo "<h3>PASO 3 - NORMALIZANDO MAP EXISTENTES</h3>";
+
+echo "Elementos en mapExistentes: " . count($mapExistentes) . "<br>";
+
+echo "Memoria antes: "
+    . round(memory_get_usage(true) / 1024 / 1024, 2)
+    . " MB<br><br>";
+
+flush();
+
+$mapExistentesNorm = [];
+
+$contadorDebug = 0;
+
+foreach ($mapExistentes as $k => $v) {
+
+    $mapExistentesNorm[strtoupper(trim((string)$k))] = $v;
+
+    $contadorDebug++;
+
+    if ($contadorDebug % 10000 == 0) {
+
+        echo "Normalizados: {$contadorDebug}<br>";
+
+        echo "Memoria actual: "
+            . round(memory_get_usage(true) / 1024 / 1024, 2)
+            . " MB<br>";
+
+        flush();
+    }
+}
+
+echo "<br>";
+echo "PASO 4 - NORMALIZACION TERMINADA<br>";
+
+echo "Total normalizados: "
+    . count($mapExistentesNorm)
+    . "<br>";
+
+echo "Memoria despues: "
+    . round(memory_get_usage(true) / 1024 / 1024, 2)
+    . " MB<br>";
+
+echo "Memoria pico: "
+    . round(memory_get_peak_usage(true) / 1024 / 1024, 2)
+    . " MB<br>";
+
+flush();
+
+die('DEBUG DETENIDO EN PASO 4');
 
         // -------------------------------------------------------------
         // 0.1. RECOLECTAR Y CONSULTAR SERIES DUPLICADAS EN TAC (qm_tac)
