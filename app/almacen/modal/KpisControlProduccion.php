@@ -120,22 +120,9 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         $mapExistentes = array_flip($existentesEnAlmacen);
 
         // Paso D: Procesar inserción/actualización de producción, navegación y señalamientos
-        /*$consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes, $mapEciDetalle); */
-
-        foreach (array_chunk($registros, 5000) as $i => $bloque) {
-            $ok = $consultas->InsertBatchProduccionYSenalamiento($bloque, $mapExistentes, $mapEciDetalle);
-            if (!$ok) {
-                error_log("Falló el bloque " . ($i + 1) . " de la sincronización de producción");
-            }
-            unset($bloque);
-        }
-
-        // Liberar memoria antes de las consultas de conteo
-        unset($registros, $telefonos, $mapEciDetalle, $seriesABuscar, $existentesEnAlmacen, $mapExistentes);
+        $consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes, $mapEciDetalle);
     }
 }
-
-        
 
 // PRODUCCION POR FECHAS SELECCIONADAS
 $TotalProduccionFechas = 0;
