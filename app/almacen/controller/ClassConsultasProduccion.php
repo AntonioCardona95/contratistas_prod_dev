@@ -482,23 +482,19 @@ public function CountProduccionPorFechas(
 
 public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
 {
-    echo '<pre>';
-
-    echo '$registros:' . PHP_EOL;
-    echo '  Cantidad: ' . count($registros) . PHP_EOL;
-    echo '  Memoria: ' . round(strlen(serialize($registros)) / 1024 / 1024, 2) . ' MB' . PHP_EOL . PHP_EOL;
-
-    echo '$mapExistentes:' . PHP_EOL;
-    echo '  Cantidad: ' . count($mapExistentes) . PHP_EOL;
-    echo '  Memoria: ' . round(strlen(serialize($mapExistentes)) / 1024 / 1024, 2) . ' MB' . PHP_EOL . PHP_EOL;
-
-    echo '$mapEciDetalle:' . PHP_EOL;
-    echo '  Cantidad: ' . count($mapEciDetalle) . PHP_EOL;
-    echo '  Memoria: ' . round(strlen(serialize($mapEciDetalle)) / 1024 / 1024, 2) . ' MB' . PHP_EOL;
-
-    echo '</pre>';
-    die();
-    if (empty($registros)) return true;
+   /*$registros:
+   Cantidad: 5000
+   Memoria: 2.96 MB */
+   
+   /*$mapExistentes:
+   Cantidad: 120923
+   Memoria: 3.24 MB */
+   
+   /*$mapEciDetalle:
+   Cantidad: 144346
+   Memoria: 32.68 MB */
+   
+   if (empty($registros)) return true;
 
     $conexion = $this->conexion(); // Conexión 'erpprint' (Base ERP)
 
