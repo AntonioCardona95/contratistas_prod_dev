@@ -480,37 +480,30 @@ public function CountProduccionPorFechas(
     }
 
 
+
 public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
 {
-   /*$registros:
-   Cantidad: 5000
-   Memoria: 2.96 MB */
-   
-   /*$mapExistentes:
-   Cantidad: 120923
-   Memoria: 3.24 MB */
-   
-   /*$mapEciDetalle:
-   Cantidad: 144346
-   Memoria: 32.68 MB */
-   
-   if (empty($registros)) return true;
+    /*echo '<pre>';
+    print_r(array_slice($registros, -10));
+    echo '</pre>';
+    die('Fin de prueba'); */
+    if (empty($registros)) return true;
 
     $conexion = $this->conexion(); // Conexión 'erpprint' (Base ERP)
 
     try {
-        
-        // 0. NORMALIZAR MAPA DE ALMACÉN A MAYÚSCULAS
+        // -------------------------------------------------------------
+        // 0. NORMALIZAR MAPA DE ALMACÉN A MAYÚSCULAS (Evita problemas de minúsculas)
+        // -------------------------------------------------------------
         $mapExistentesNorm = [];
         foreach ($mapExistentes as $k => $v) {
             $mapExistentesNorm[strtoupper(trim((string)$k))] = $v;
         }
-        /*Cantidad de $mapExistentes: 120923
-        Memoria aprox de $mapExistentes: 3.24 MB */
 
+        // -------------------------------------------------------------
         // 0.1. RECOLECTAR Y CONSULTAR SERIES DUPLICADAS EN TAC (qm_tac)
+        // -------------------------------------------------------------
         $ontsBuscarUnicas = [];
-        
         foreach ($registros as $reg) {
             $serieProd = strtoupper(trim($reg['Num__Serie'] ?? ''));
             $nsEnviado = strtoupper(trim($reg['NS_Enviado'] ?? ''));
@@ -523,30 +516,19 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
             }
         }
 
-        /*$registros
-        Cantidad: 5000
-        Memoria: 2.96 MB
-
-        $ontsBuscarUnicas
-        Cantidad: 4223
-        Memoria: 0.16 MB
-
-        Memoria actual proceso: 810.02 MB
-        Pico memoria: 839.02 MB */
-
         $mapaOntsDuplicadasTac = [];
         if (!empty($ontsBuscarUnicas)) {
             $placeholdersOnt = implode(',', array_fill(0, count($ontsBuscarUnicas), '?'));
-
-            // Series en más de un teléfono diferente y con Calificador_Edo = 'COMPLETADA'
+            
+            // Validando que esté en más de un teléfono diferente y con Calificador_Edo = 'COMPLETADA'
             $sqlTacDup = "SELECT Num__Serie, GROUP_CONCAT(DISTINCT TELEFONO ORDER BY TELEFONO SEPARATOR ', ') AS telefonos_asociados
                           FROM qm_tac 
                           WHERE Num__Serie IN ($placeholdersOnt)
                             AND Calificador_Edo = 'COMPLETADA'
                           GROUP BY Num__Serie 
                           HAVING COUNT(DISTINCT TELEFONO) > 1";
-
-            // Conexión 'analisis' donde se encuentra qm_tac
+            
+            // Usamos la conexión 'analisis' donde se encuentra qm_tac
             $registrosTacDup = $this->runQuery($sqlTacDup, array_values($ontsBuscarUnicas), 'analisis');
 
             foreach ($registrosTacDup as $dup) {
@@ -555,9 +537,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                     'telefonos' => $dup['telefonos_asociados']
                 ];
             }
-            unset($registrosTacDup);
         }
-        unset($ontsBuscarUnicas);
 
         // -------------------------------------------------------------
         // 1. RESCATE Y VALIDACIÓN DE CONTRATISTAS ACTIVOS POR EXPEDIENTE
@@ -573,14 +553,14 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         $mapTecnicosInfo = [];
         if (!empty($expedientesUnicos)) {
             $placeholders = implode(',', array_fill(0, count($expedientesUnicos), '?'));
-
+            
             $sqlTec = "SELECT t.NExpediente, c.idContratistas, 
                        TRIM(CONCAT_WS(' ', c.Contratista, c.apellido_paterno, c.apellido_materno)) AS ContratistaCompleto 
                        FROM tecnicos t 
                        INNER JOIN contratistas c ON t.FK_Contratista_Tecnico = c.idContratistas 
                        WHERE t.NExpediente IN ($placeholders) 
                          AND t.Estatus_Tecnico = 'ACTIVO'";
-
+            
             $stmtTec = $conexion->prepare($sqlTec);
             $stmtTec->execute(array_values($expedientesUnicos));
             $resultadosTec = $stmtTec->fetchAll(PDO::FETCH_ASSOC);
@@ -591,9 +571,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                     'Contratista'   => $rowTec['ContratistaCompleto']
                 ];
             }
-            unset($resultadosTec, $stmtTec);
         }
-        unset($expedientesUnicos);
 
         $conexion->beginTransaction();
 
@@ -651,7 +629,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                 $expediente = $reg['Expediente'] ?? null;
                 $serieProd  = trim($reg['Num__Serie'] ?? '');
                 $nsEnviado  = trim($reg['NS_Enviado'] ?? '');
-
+                
                 // Datos iniciales que vienen en el registro
                 $idContratistaInput = $reg['idContratista'] ?? null;
                 $contratistaInput   = trim($reg['Contratista'] ?? '');
@@ -672,14 +650,14 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                         $contratistaFinal   = $nombreOficial;
                     } else {
                         $coincideId = ((int)$idContratistaInput === (int)$idOficial);
-
+                        
                         $nombreRegNorm = preg_replace('/\s+/', ' ', mb_strtoupper($contratistaInput));
                         $nombreOfiNorm = preg_replace('/\s+/', ' ', mb_strtoupper($nombreOficial));
 
                         if (!$coincideId || $nombreRegNorm !== $nombreOfiNorm) {
                             $idContrAnterior    = $idContratistaInput;
                             $contrAnterior      = $reg['Contratista'];
-
+                            
                             $idContratistaFinal = $idOficial;
                             $contratistaFinal   = $nombreOficial;
                         }
@@ -694,7 +672,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                 $nsEnviadoEsValida = !$this->esSerieInvalida($nsEnviado);
                 $eciEsValida       = $serieEci !== null && !$this->esSerieInvalida($serieEci);
 
-                // Normalizamos series a mayúsculas
+                // Normalizamos series a mayúsculas para las búsquedas y validaciones de almacén
                 $sProdNorm = strtoupper(trim((string)$serieProd));
                 $sEnvNorm  = strtoupper(trim((string)$nsEnviado));
                 $sEciNorm  = strtoupper(trim((string)$serieEci));
@@ -704,7 +682,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                 $existeEciEnAlmacen  = $eciEsValida && isset($mapExistentesNorm[$sEciNorm]);
                 $existeEnvEnAlmacen  = $nsEnviadoEsValida && isset($mapExistentesNorm[$sEnvNorm]);
 
-                // Estatus de Navegación
+                // Estatus de Navegación Actualizado
                 $didActivo = $eciInfo['DID_ACTIVO'] ?? null;
                 $fEvento   = $eciInfo['FECHA_ULTIMO_EVENTO'] ?? null;
                 $fConsulta = $eciInfo['F_CONSULTA'] ?? null;
@@ -748,6 +726,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                 $valEnviado = $nsEnviadoEsValida ? $nsEnviado : (!empty($nsEnviado) ? $nsEnviado : 'SIN DATO');
                 $valEci     = $eciEsValida ? $serieEci : (!empty($serieEci) ? $serieEci : 'SIN DATO');
 
+                // Comparamos usando las versiones normalizadas en mayúsculas
                 $difProdEci = ($prodEsValida && $eciEsValida && $sProdNorm !== $sEciNorm);
                 $difEnvEci  = ($nsEnviadoEsValida && $eciEsValida && $sEnvNorm !== $sEciNorm);
                 $difProdEnv = ($prodEsValida && $nsEnviadoEsValida && $sProdNorm !== $sEnvNorm);
@@ -803,12 +782,13 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                 }
 
                 // -------------------------------------------------------------
-                // VALIDACIÓN DE ONT DUPLICADA EN TAC (PRODUCCIÓN / COBRO)
+                // VALIDACIÓN INTELIGENTE DE ONT DUPLICADA EN TAC (PRODUCCIÓN / COBRO)
                 // -------------------------------------------------------------
                 $esProdDuplicadaTac = false;
                 $esEnvDuplicadoTac  = false;
 
                 if ($prodEsValida && $nsEnviadoEsValida && $sProdNorm === $sEnvNorm) {
+                    // Si producción y cobro son exactamente la misma serie, evaluamos una sola vez
                     if (isset($mapaOntsDuplicadasTac[$sProdNorm])) {
                         $esProdDuplicadaTac = true;
                         $datosDup = $mapaOntsDuplicadasTac[$sProdNorm];
@@ -821,6 +801,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                         ];
                     }
                 } else {
+                    // Si son diferentes o una no es válida, evaluamos cada una por separado
                     if ($prodEsValida && isset($mapaOntsDuplicadasTac[$sProdNorm])) {
                         $esProdDuplicadaTac = true;
                         $datosDup = $mapaOntsDuplicadasTac[$sProdNorm];
@@ -875,11 +856,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
 
             $stmtDiaria = $conexion->prepare($sqlDiariaBase . implode(',', $values) . $sqlDiariaDuplicate);
             $stmtDiaria->execute($params);
-
-            // Liberar memoria del lote
-            unset($values, $params, $stmtDiaria);
         }
-        unset($chunks, $mapExistentesNorm, $mapTecnicosInfo, $mapaOntsDuplicadasTac);
 
         // -------------------------------------------------------------
         // 3. ACTUALIZACIÓN DINÁMICA EN SEGUIMIENTO DE NAVEGACIÓN
@@ -922,10 +899,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
 
                 $stmtNav = $conexion->prepare($sqlNavBase . implode(',', $valuesNav) . $sqlNavDuplicate);
                 $stmtNav->execute($paramsNav);
-
-                unset($valuesNav, $paramsNav, $stmtNav);
             }
-            unset($chunksNav, $navegaciones);
         }
 
         // -------------------------------------------------------------
@@ -934,35 +908,31 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         $foliosLote = array_unique(array_column($registros, 'Folio_Pisa'));
         if (!empty($foliosLote)) {
             $phFolios = implode(',', array_fill(0, count($foliosLote), '?'));
-            $foliosParams = array_values($foliosLote);
-
+            
             // Limpiar navegación
             $stmtClean = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
                                            WHERE Folio_Pisa IN ($phFolios) 
                                              AND Tipo_Senalamiento = 'SIN NAVEGACION EN ESCI'");
-            $stmtClean->execute($foliosParams);
+            $stmtClean->execute(array_values($foliosLote));
 
             // Limpiar series diferentes viejas
             $stmtCleanSerie = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
                                                  WHERE Folio_Pisa IN ($phFolios) 
                                                    AND Tipo_Senalamiento IN ('NUMEROS DE SERIE DIFERENTES', 'NUMEROS DE SERIE DIFERENTES PARA EL TELEFONO')");
-            $stmtCleanSerie->execute($foliosParams);
+            $stmtCleanSerie->execute(array_values($foliosLote));
 
-            // Limpiar almacén viejo de este lote para recalcular
+            // Limpiar almacén viejo de este lote para recalcular correctamente
             $stmtCleanAlm = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
                                                 WHERE Folio_Pisa IN ($phFolios) 
                                                   AND Tipo_Senalamiento = 'NO ENCONTRADO EN ALMACEN'");
-            $stmtCleanAlm->execute($foliosParams);
+            $stmtCleanAlm->execute(array_values($foliosLote));
 
-            // Limpiar señalamientos de duplicidad viejos de este lote
+            // Limpiar señalamientos de duplicidad viejos de este lote para recalcular
             $stmtCleanDup = $conexion->prepare("DELETE FROM seg_produccion_senalamiento 
                                                 WHERE Folio_Pisa IN ($phFolios) 
                                                   AND Tipo_Senalamiento IN ('ONT PRODUCCION DUPLICADA', 'ONT DE COBRO DUPLICADA', 'ONT DUPLICADA EN TAC')");
-            $stmtCleanDup->execute($foliosParams);
-
-            unset($stmtClean, $stmtCleanSerie, $stmtCleanAlm, $stmtCleanDup, $foliosParams);
+            $stmtCleanDup->execute(array_values($foliosLote));
         }
-        unset($foliosLote);
 
         if (!empty($senalamientos)) {
             $chunksSenalamiento = array_chunk($senalamientos, $batchSize);
@@ -988,23 +958,21 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
 
                 $stmtSenal = $conexion->prepare($sqlSenalBase . implode(',', $valuesSen));
                 $stmtSenal->execute($paramsSen);
-
-                unset($valuesSen, $paramsSen, $stmtSenal);
             }
-            unset($chunksSenalamiento, $senalamientos);
         }
 
         $conexion->commit();
         return true;
 
-    } catch (Throwable $e) {
-        if (isset($conexion) && $conexion->inTransaction()) {
+    } catch (Exception $e) {
+        if ($conexion->inTransaction()) {
             $conexion->rollBack();
         }
-        error_log("Error en InsertBatchProduccionYSenalamiento: " . $e->getMessage() . " (línea " . $e->getLine() . ")");
+        error_log("Error en InsertBatchProduccionYSenalamiento: " . $e->getMessage());
         return false;
     }
 }
+
     // CODIGO ANTERIOR /////
 
     /**
