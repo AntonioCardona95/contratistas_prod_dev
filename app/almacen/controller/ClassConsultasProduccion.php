@@ -499,13 +499,20 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
     $conexion = $this->conexion(); // Conexión 'erpprint' (Base ERP)
 
     try {
-        // -------------------------------------------------------------
+        
         // 0. NORMALIZAR MAPA DE ALMACÉN A MAYÚSCULAS
-        // -------------------------------------------------------------
         $mapExistentesNorm = [];
         foreach ($mapExistentes as $k => $v) {
             $mapExistentesNorm[strtoupper(trim((string)$k))] = $v;
         }
+
+        echo '<pre>';
+echo '=== DESPUÉS DE NORMALIZAR $mapExistentes ===' . PHP_EOL;
+echo 'Cantidad de $mapExistentes: ' . count($mapExistentes) . PHP_EOL;
+echo 'Memoria aprox de $mapExistentes: ' . round(strlen(serialize($mapExistentes)) / 1024 / 1024, 2) . ' MB' . PHP_EOL;
+echo '</pre>';
+
+die();
 
         // -------------------------------------------------------------
         // 0.1. RECOLECTAR Y CONSULTAR SERIES DUPLICADAS EN TAC (qm_tac)
