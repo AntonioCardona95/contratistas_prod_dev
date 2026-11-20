@@ -495,68 +495,16 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         // -------------------------------------------------------------
         // 0. NORMALIZAR MAPA DE ALMACÉN A MAYÚSCULAS (Evita problemas de minúsculas)
         // -------------------------------------------------------------
-
-       /* $mapExistentesNorm = [];
+        
+        $mapExistentesNorm = [];
         foreach ($mapExistentes as $k => $v) {
             $mapExistentesNorm[strtoupper(trim((string)$k))] = $v;
-        } */
-
-            echo "<hr>";
-echo "<h3>PASO 3 - NORMALIZANDO MAP EXISTENTES</h3>";
-
-echo "Elementos en mapExistentes: " . count($mapExistentes) . "<br>";
-
-echo "Memoria antes: "
-    . round(memory_get_usage(true) / 1024 / 1024, 2)
-    . " MB<br><br>";
-
-flush();
-
-$mapExistentesNorm = [];
-
-$contadorDebug = 0;
-
-foreach ($mapExistentes as $k => $v) {
-
-    $mapExistentesNorm[strtoupper(trim((string)$k))] = $v;
-
-    $contadorDebug++;
-
-    if ($contadorDebug % 10000 == 0) {
-
-        echo "Normalizados: {$contadorDebug}<br>";
-
-        echo "Memoria actual: "
-            . round(memory_get_usage(true) / 1024 / 1024, 2)
-            . " MB<br>";
-
-        flush();
-    }
-}
-
-echo "<br>";
-echo "PASO 4 - NORMALIZACION TERMINADA<br>";
-
-echo "Total normalizados: "
-    . count($mapExistentesNorm)
-    . "<br>";
-
-echo "Memoria despues: "
-    . round(memory_get_usage(true) / 1024 / 1024, 2)
-    . " MB<br>";
-
-echo "Memoria pico: "
-    . round(memory_get_peak_usage(true) / 1024 / 1024, 2)
-    . " MB<br>";
-
-flush();
-
-die('DEBUG DETENIDO EN PASO 4');
+        }
 
         // -------------------------------------------------------------
         // 0.1. RECOLECTAR Y CONSULTAR SERIES DUPLICADAS EN TAC (qm_tac)
         // -------------------------------------------------------------
-        $ontsBuscarUnicas = [];
+        /*$ontsBuscarUnicas = [];
         foreach ($registros as $reg) {
             $serieProd = strtoupper(trim($reg['Num__Serie'] ?? ''));
             $nsEnviado = strtoupper(trim($reg['NS_Enviado'] ?? ''));
@@ -567,7 +515,72 @@ die('DEBUG DETENIDO EN PASO 4');
             if (!empty($nsEnviado) && !$this->esSerieInvalida($nsEnviado)) {
                 $ontsBuscarUnicas[$nsEnviado] = $nsEnviado;
             }
-        }
+        } */
+
+            echo "<hr>";
+echo "<h3>PASO 5 - CONSTRUYENDO ONTS UNICAS</h3>";
+
+echo "Registros a revisar: " . count($registros) . "<br>";
+
+echo "Memoria antes: "
+    . round(memory_get_usage(true)/1024/1024, 2)
+    . " MB<br><br>";
+
+flush();
+
+$ontsBuscarUnicas = [];
+
+$contadorDebug = 0;
+
+foreach ($registros as $reg) {
+
+    $serieProd = strtoupper(trim($reg['Num__Serie'] ?? ''));
+    $nsEnviado = strtoupper(trim($reg['NS_Enviado'] ?? ''));
+
+    if (!empty($serieProd) && !$this->esSerieInvalida($serieProd)) {
+        $ontsBuscarUnicas[$serieProd] = $serieProd;
+    }
+
+    if (!empty($nsEnviado) && !$this->esSerieInvalida($nsEnviado)) {
+        $ontsBuscarUnicas[$nsEnviado] = $nsEnviado;
+    }
+
+    $contadorDebug++;
+
+    if ($contadorDebug % 10000 == 0) {
+
+        echo "Procesados: {$contadorDebug}<br>";
+
+        echo "ONTs únicas actuales: "
+            . count($ontsBuscarUnicas)
+            . "<br>";
+
+        echo "Memoria actual: "
+            . round(memory_get_usage(true)/1024/1024, 2)
+            . " MB<br>";
+
+        flush();
+    }
+}
+
+echo "<br>";
+echo "PASO 6 - ONTS UNICAS TERMINADAS<br>";
+
+echo "Total ONTs únicas: "
+    . count($ontsBuscarUnicas)
+    . "<br>";
+
+echo "Memoria después: "
+    . round(memory_get_usage(true)/1024/1024,2)
+    . " MB<br>";
+
+echo "Memoria pico: "
+    . round(memory_get_peak_usage(true)/1024/1024,2)
+    . " MB<br>";
+
+flush();
+
+die('DEBUG DETENIDO EN PASO 6');
 
         $mapaOntsDuplicadasTac = [];
         if (!empty($ontsBuscarUnicas)) {
