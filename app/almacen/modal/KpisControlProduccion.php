@@ -122,14 +122,12 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         // Paso D: Procesar inserción/actualización de producción, navegación y señalamientos
         /*$consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes, $mapEciDetalle); */
 
+        // Paso D: Procesar inserción/actualización por bloques para no agotar la memoria
 foreach (array_chunk($registros, 5000) as $bloque) {
-    $consultas->InsertBatchProduccionYSenalamiento(
-        $bloque,
-        $mapExistentes,
-        $mapEciDetalle
-    );
-
+    $consultas->InsertBatchProduccionYSenalamiento($bloque, $mapExistentes, $mapEciDetalle);
     unset($bloque);
+}
+    }
 }
 
 // PRODUCCION POR FECHAS SELECCIONADAS
