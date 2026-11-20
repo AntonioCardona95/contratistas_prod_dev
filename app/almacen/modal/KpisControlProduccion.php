@@ -87,10 +87,11 @@ if (!empty($idContratistaSeleccionado)) {
 // PROCESAMIENTO Y ACTUALIZACIÓN SI SE ENVIARON FECHAS POR POST
 $TotalSinNavegacion = 0;
 if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
-    // Conteo de 'Sin Navegación' en el rango de fechas
+   
+// Conteo de 'Sin Navegación' en el rango de fechas
     $TotalSinNavegacion = (int)$consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
 
-    // Obtener los registros de producción del periodo y procesar la sincronización
+    // Obtener los registros de producción de la tabla seg_ns_prod_eval BD LOCAL PRODUCCION
     $registros = $consultas->GetProduccionPorFechas($Fecha1, $Fecha2);
 
     if (!empty($registros)) {
