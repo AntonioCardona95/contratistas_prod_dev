@@ -536,18 +536,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
 
         $mapaOntsDuplicadasTac = [];
         if (!empty($ontsBuscarUnicas)) {
-                echo '<pre>';
-    echo '=== INICIO BLOQUE TAC ===' . PHP_EOL;
-    echo '$ontsBuscarUnicas: ' . count($ontsBuscarUnicas) . PHP_EOL;
-    echo 'Memoria $ontsBuscarUnicas: ' . round(strlen(serialize($ontsBuscarUnicas)) / 1024 / 1024, 2) . ' MB' . PHP_EOL;
-    echo '</pre>';
             $placeholdersOnt = implode(',', array_fill(0, count($ontsBuscarUnicas), '?'));
-
-
-             echo '<pre>';
-    echo '$placeholdersOnt generado para: ' . count($ontsBuscarUnicas) . ' parámetros' . PHP_EOL;
-    echo '</pre>';
-
 
             // Series en más de un teléfono diferente y con Calificador_Edo = 'COMPLETADA'
             $sqlTacDup = "SELECT Num__Serie, GROUP_CONCAT(DISTINCT TELEFONO ORDER BY TELEFONO SEPARATOR ', ') AS telefonos_asociados
@@ -560,21 +549,12 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
             // Conexión 'analisis' donde se encuentra qm_tac
             $registrosTacDup = $this->runQuery($sqlTacDup, array_values($ontsBuscarUnicas), 'analisis');
 
-            echo '<pre>';
-    echo '$registrosTacDup: ' . count($registrosTacDup) . PHP_EOL;
-    echo 'Memoria $registrosTacDup: ' . round(strlen(serialize($registrosTacDup)) / 1024 / 1024, 2) . ' MB' . PHP_EOL;
-    echo '</pre>';
-
             foreach ($registrosTacDup as $dup) {
                 $mapaOntsDuplicadasTac[trim($dup['Num__Serie'])] = [
                     'serie_tac' => trim($dup['Num__Serie']),
                     'telefonos' => $dup['telefonos_asociados']
                 ];
             }
-            echo '<pre>';
-    echo '$mapaOntsDuplicadasTac: ' . count($mapaOntsDuplicadasTac) . PHP_EOL;
-    echo 'Memoria $mapaOntsDuplicadasTac: ' . round(strlen(serialize($mapaOntsDuplicadasTac)) / 1024 / 1024, 2) . ' MB' . PHP_EOL;
-    echo '</pre>';
             unset($registrosTacDup);
         }
         unset($ontsBuscarUnicas);
