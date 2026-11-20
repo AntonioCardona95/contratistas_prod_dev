@@ -482,17 +482,10 @@ public function CountProduccionPorFechas(
 
 public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
 {
-    echo '<pre>';
-
-    echo "TOTAL \$registros: " . count($registros) . PHP_EOL;
-    print_r($registros);
-
-    echo PHP_EOL . "TOTAL \$mapExistentes: " . count($mapExistentes) . PHP_EOL;
-    print_r($mapExistentes);
-
-    echo PHP_EOL . "TOTAL \$mapEciDetalle: " . count($mapEciDetalle) . PHP_EOL;
-    print_r($mapEciDetalle);
-
+     echo '<pre>';
+    echo 'Cantidad de $registros: ' . count($registros) . PHP_EOL;
+    echo 'Cantidad de $mapExistentes: ' . count($mapExistentes) . PHP_EOL;
+    echo 'Cantidad de $mapEciDetalle: ' . count($mapEciDetalle) . PHP_EOL;
     echo '</pre>';
     die();
     if (empty($registros)) return true;
@@ -500,8 +493,9 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
     $conexion = $this->conexion(); // Conexión 'erpprint' (Base ERP)
 
     try {
-       
+        // -------------------------------------------------------------
         // 0. NORMALIZAR MAPA DE ALMACÉN A MAYÚSCULAS
+        // -------------------------------------------------------------
         $mapExistentesNorm = [];
         foreach ($mapExistentes as $k => $v) {
             $mapExistentesNorm[strtoupper(trim((string)$k))] = $v;
