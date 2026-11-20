@@ -495,7 +495,6 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         // -------------------------------------------------------------
         // 0. NORMALIZAR MAPA DE ALMACÉN A MAYÚSCULAS (Evita problemas de minúsculas)
         // -------------------------------------------------------------
-        
         $mapExistentesNorm = [];
         foreach ($mapExistentes as $k => $v) {
             $mapExistentesNorm[strtoupper(trim((string)$k))] = $v;
@@ -528,8 +527,6 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                             AND Calificador_Edo = 'COMPLETADA'
                           GROUP BY Num__Serie 
                           HAVING COUNT(DISTINCT TELEFONO) > 1";
-
-                          
             
             // Usamos la conexión 'analisis' donde se encuentra qm_tac
             $registrosTacDup = $this->runQuery($sqlTacDup, array_values($ontsBuscarUnicas), 'analisis');
