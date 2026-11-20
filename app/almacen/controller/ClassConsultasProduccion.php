@@ -510,6 +510,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
 
         // 0.1. RECOLECTAR Y CONSULTAR SERIES DUPLICADAS EN TAC (qm_tac)
         $ontsBuscarUnicas = [];
+        
         foreach ($registros as $reg) {
             $serieProd = strtoupper(trim($reg['Num__Serie'] ?? ''));
             $nsEnviado = strtoupper(trim($reg['NS_Enviado'] ?? ''));
@@ -523,13 +524,23 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         }
 
         echo '<pre>';
-echo 'BLOQUE 0.1' . PHP_EOL;
-echo 'Entradas por Num__Serie: ' . $contadorSerieProd . PHP_EOL;
-echo 'Entradas por NS_Enviado: ' . $contadorNsEnviado . PHP_EOL;
-echo 'Total ONTs únicas: ' . count($ontsBuscarUnicas) . PHP_EOL;
-echo 'Memoria ONTs únicas: ' . round(strlen(serialize($ontsBuscarUnicas)) / 1024 / 1024, 2) . ' MB' . PHP_EOL;
+echo '=== PUNTO DE CONTROL 0.1 ===' . PHP_EOL;
+
+echo '$registros' . PHP_EOL;
+echo 'Cantidad: ' . count($registros) . PHP_EOL;
+echo 'Memoria: ' . round(strlen(serialize($registros)) / 1024 / 1024, 2) . ' MB' . PHP_EOL . PHP_EOL;
+
+echo '$ontsBuscarUnicas' . PHP_EOL;
+echo 'Cantidad: ' . count($ontsBuscarUnicas) . PHP_EOL;
+echo 'Memoria: ' . round(strlen(serialize($ontsBuscarUnicas)) / 1024 / 1024, 2) . ' MB' . PHP_EOL . PHP_EOL;
+
+echo 'Memoria actual proceso: ' . round(memory_get_usage(true) / 1024 / 1024, 2) . ' MB' . PHP_EOL;
+echo 'Pico memoria: ' . round(memory_get_peak_usage(true) / 1024 / 1024, 2) . ' MB' . PHP_EOL;
+
 echo '</pre>';
 die();
+
+        
 
         $mapaOntsDuplicadasTac = [];
         if (!empty($ontsBuscarUnicas)) {
