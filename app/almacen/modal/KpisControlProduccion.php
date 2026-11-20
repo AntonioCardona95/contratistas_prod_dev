@@ -122,13 +122,20 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         // Paso D: Procesar inserción/actualización de producción, navegación y señalamientos
         /*$consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes, $mapEciDetalle); */
 
-        // Paso D: Procesar inserción/actualización por bloques para no agotar la memoria
-foreach (array_chunk($registros, 5000) as $bloque) {
-    $consultas->InsertBatchProduccionYSenalamiento($bloque, $mapExistentes, $mapEciDetalle);
-    unset($bloque);
-}
+        foreach (array_chunk($registros, 5000) as $i => $bloque) {
+            $ok = $consultas->InsertBatchProduccionYSenalamiento($bloque, $mapExistentes, $mapEciDetalle);
+            if (!$ok) {
+                error_log("Falló el bloque " . ($i + 1) . " de la sincronización de producción");
+            }
+            unset($bloque);
+        }
+
+        // Liberar memoria antes de las consultas de conteo
+        unset($registros, $telefonos, $mapEciDetalle, $seriesABuscar, $existentesEnAlmacen, $mapExistentes);
     }
 }
+
+        
 
 // PRODUCCION POR FECHAS SELECCIONADAS
 $TotalProduccionFechas = 0;
