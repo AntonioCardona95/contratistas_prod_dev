@@ -483,6 +483,46 @@ public function CountProduccionPorFechas(
 
 public function InsertBatchProduccionYSenalamiento(array $registros, array $mapExistentes, array $mapEciDetalle)
 {
+     echo '<pre style="background:#000;color:#00ff00;padding:10px;">';
+
+    echo "========== DEBUG PRODUCCION ==========\n";
+    echo "Hora: " . date('Y-m-d H:i:s') . "\n\n";
+
+    echo "TOTAL REGISTROS: " . count($registros) . "\n";
+    echo "TOTAL MAP EXISTENTES: " . count($mapExistentes) . "\n";
+    echo "TOTAL MAP ECI: " . count($mapEciDetalle) . "\n\n";
+
+    echo "MEMORIA ACTUAL: "
+        . round(memory_get_usage(true) / 1024 / 1024, 2)
+        . " MB\n";
+
+    echo "MEMORIA PICO: "
+        . round(memory_get_peak_usage(true) / 1024 / 1024, 2)
+        . " MB\n";
+
+    echo "\nPASO 0: INICIO FUNCION OK\n";
+
+    flush();
+
+    if (empty($registros)) {
+        die("MURIO: REGISTROS VACIOS");
+    }
+
+    echo "PASO 1: ANTES DE CONEXION()\n";
+
+    flush();
+
+    $conexion = $this->conexion();
+
+    echo "PASO 2: CONEXION OK\n";
+
+    echo "MEMORIA: "
+        . round(memory_get_usage(true) / 1024 / 1024, 2)
+        . " MB\n";
+
+    flush();
+
+    die('DEBUG DETENIDO EN PASO 2');
     /*echo '<pre>';
     print_r(array_slice($registros, -10));
     echo '</pre>';
