@@ -529,21 +529,13 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                           GROUP BY Num__Serie 
                           HAVING COUNT(DISTINCT TELEFONO) > 1";
 
-                          echo "<hr>";
-echo "<h3>PASO 7 - ANTES DE runQuery TAC</h3>";
+                          $registrosTacDup = $this->runQuery(
+    $sqlTacDup,
+    array_values($ontsBuscarUnicas),
+    'analisis'
+);
 
-echo "ONTs a consultar: " . count($ontsBuscarUnicas) . "<br>";
-
-echo "Memoria antes runQuery: "
-    . round(memory_get_usage(true)/1024/1024,2)
-    . " MB<br>";
-
-flush();
-            
-            // Usamos la conexión 'analisis' donde se encuentra qm_tac
-            $registrosTacDup = $this->runQuery($sqlTacDup, array_values($ontsBuscarUnicas), 'analisis');
-
-            echo "<br>";
+echo "<br>";
 echo "<h3>PASO 8 - RUNQUERY TERMINADO</h3>";
 
 echo "Registros encontrados: "
@@ -556,7 +548,40 @@ echo "Memoria despues runQuery: "
 
 flush();
 
-die('DEBUG DETENIDO EN PASO 8');
+echo "<br>";
+echo "<h3>PASO 9 - CREANDO MAPA DUPLICADOS</h3>";
+
+echo "Memoria antes foreach: "
+    . round(memory_get_usage(true)/1024/1024,2)
+    . " MB<br>";
+
+flush();
+
+foreach ($registrosTacDup as $dup) {
+
+    $mapaOntsDuplicadasTac[trim($dup['Num__Serie'])] = [
+        'serie_tac' => trim($dup['Num__Serie']),
+        'telefonos' => $dup['telefonos_asociados']
+    ];
+}
+
+echo "<br>";
+echo "<h3>PASO 10 - FOREACH TERMINADO</h3>";
+
+echo "Duplicados cargados: "
+    . count($mapaOntsDuplicadasTac)
+    . "<br>";
+
+echo "Memoria despues foreach: "
+    . round(memory_get_usage(true)/1024/1024,2)
+    . " MB<br>";
+
+flush();
+
+die('DEBUG DETENIDO EN PASO 10');
+            
+            // Usamos la conexión 'analisis' donde se encuentra qm_tac
+          /*  $registrosTacDup = $this->runQuery($sqlTacDup, array_values($ontsBuscarUnicas), 'analisis');
 
             foreach ($registrosTacDup as $dup) {
                 $mapaOntsDuplicadasTac[trim($dup['Num__Serie'])] = [
@@ -564,9 +589,7 @@ die('DEBUG DETENIDO EN PASO 8');
                     'telefonos' => $dup['telefonos_asociados']
                 ];
             }
-        }
-
-        
+        } */
 
         // -------------------------------------------------------------
         // 1. RESCATE Y VALIDACIÓN DE CONTRATISTAS ACTIVOS POR EXPEDIENTE
