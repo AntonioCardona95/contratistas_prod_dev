@@ -508,11 +508,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         /*Cantidad de $mapExistentes: 120923
         Memoria aprox de $mapExistentes: 3.24 MB */
 
-        
-
-        // -------------------------------------------------------------
         // 0.1. RECOLECTAR Y CONSULTAR SERIES DUPLICADAS EN TAC (qm_tac)
-        // -------------------------------------------------------------
         $ontsBuscarUnicas = [];
         foreach ($registros as $reg) {
             $serieProd = strtoupper(trim($reg['Num__Serie'] ?? ''));
@@ -525,6 +521,15 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                 $ontsBuscarUnicas[$nsEnviado] = $nsEnviado;
             }
         }
+
+        echo '<pre>';
+echo 'BLOQUE 0.1' . PHP_EOL;
+echo 'Entradas por Num__Serie: ' . $contadorSerieProd . PHP_EOL;
+echo 'Entradas por NS_Enviado: ' . $contadorNsEnviado . PHP_EOL;
+echo 'Total ONTs únicas: ' . count($ontsBuscarUnicas) . PHP_EOL;
+echo 'Memoria ONTs únicas: ' . round(strlen(serialize($ontsBuscarUnicas)) / 1024 / 1024, 2) . ' MB' . PHP_EOL;
+echo '</pre>';
+die();
 
         $mapaOntsDuplicadasTac = [];
         if (!empty($ontsBuscarUnicas)) {
