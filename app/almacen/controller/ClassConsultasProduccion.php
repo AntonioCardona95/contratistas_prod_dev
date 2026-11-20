@@ -505,14 +505,10 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
         foreach ($mapExistentes as $k => $v) {
             $mapExistentesNorm[strtoupper(trim((string)$k))] = $v;
         }
+        /*Cantidad de $mapExistentes: 120923
+        Memoria aprox de $mapExistentes: 3.24 MB */
 
-        echo '<pre>';
-echo '=== DESPUÉS DE NORMALIZAR $mapExistentes ===' . PHP_EOL;
-echo 'Cantidad de $mapExistentes: ' . count($mapExistentes) . PHP_EOL;
-echo 'Memoria aprox de $mapExistentes: ' . round(strlen(serialize($mapExistentes)) / 1024 / 1024, 2) . ' MB' . PHP_EOL;
-echo '</pre>';
-
-die();
+        
 
         // -------------------------------------------------------------
         // 0.1. RECOLECTAR Y CONSULTAR SERIES DUPLICADAS EN TAC (qm_tac)
