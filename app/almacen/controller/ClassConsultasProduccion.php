@@ -517,7 +517,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
             }
         }
 
-       /* $mapaOntsDuplicadasTac = [];
+        $mapaOntsDuplicadasTac = [];
         if (!empty($ontsBuscarUnicas)) {
             $placeholdersOnt = implode(',', array_fill(0, count($ontsBuscarUnicas), '?'));
             
@@ -530,7 +530,7 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
                           HAVING COUNT(DISTINCT TELEFONO) > 1";
             
             // Usamos la conexión 'analisis' donde se encuentra qm_tac
-            $registrosTacDup = $this->runQuery($sqlTacDup, array_values($ontsBuscarUnicas), 'analisis');
+          /*  $registrosTacDup = $this->runQuery($sqlTacDup, array_values($ontsBuscarUnicas), 'analisis');
 
             foreach ($registrosTacDup as $dup) {
                 $mapaOntsDuplicadasTac[trim($dup['Num__Serie'])] = [
@@ -540,76 +540,58 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
             }
         } */
 
-            $mapaOntsDuplicadasTac = [];
+            echo "<hr>";
+echo "<h3>PASO 7 - ANTES DE runQuery TAC</h3>";
 
-echo "<hr>";
-echo "<h3>PASO 7 - CONSULTA TAC DUPLICADOS</h3>";
+echo "ONTs a consultar: " . count($ontsBuscarUnicas) . "<br>";
 
-echo "ONTs a consultar: "
-    . count($ontsBuscarUnicas)
-    . "<br>";
-
-echo "Memoria antes consulta: "
+echo "Memoria antes runQuery: "
     . round(memory_get_usage(true)/1024/1024,2)
     . " MB<br>";
 
 flush();
 
-if (!empty($ontsBuscarUnicas)) {
+$registrosTacDup = $this->runQuery(
+    $sqlTacDup,
+    array_values($ontsBuscarUnicas),
+    'analisis'
+);
 
-    $placeholdersOnt = implode(
-        ',',
-        array_fill(0, count($ontsBuscarUnicas), '?')
-    );
+echo "<br>";
+echo "PASO 8 - runQuery TERMINADO<br>";
 
-    echo "Placeholders generados<br>";
+echo "Registros encontrados: "
+    . count($registrosTacDup)
+    . "<br>";
 
-    echo "Memoria antes runQuery: "
-        . round(memory_get_usage(true)/1024/1024,2)
-        . " MB<br>";
+echo "Memoria despues runQuery: "
+    . round(memory_get_usage(true)/1024/1024,2)
+    . " MB<br>";
 
-    flush();
+flush();
 
-    $registrosTacDup = $this->runQuery(
-        $sqlTacDup,
-        array_values($ontsBuscarUnicas),
-        'analisis'
-    );
+foreach ($registrosTacDup as $dup) {
 
-    echo "runQuery terminada<br>";
-
-    echo "Registros obtenidos: "
-        . count($registrosTacDup)
-        . "<br>";
-
-    echo "Memoria despues runQuery: "
-        . round(memory_get_usage(true)/1024/1024,2)
-        . " MB<br>";
-
-    flush();
-
-    foreach ($registrosTacDup as $dup) {
-
-        $mapaOntsDuplicadasTac[
-            trim($dup['Num__Serie'])
-        ] = [
-            'serie_tac' => trim($dup['Num__Serie']),
-            'telefonos' => $dup['telefonos_asociados']
-        ];
-    }
-
-    echo "Mapa duplicados generado<br>";
-
-    echo "Total mapa duplicados: "
-        . count($mapaOntsDuplicadasTac)
-        . "<br>";
-
-    echo "Memoria final: "
-        . round(memory_get_usage(true)/1024/1024,2)
-        . " MB<br>";
+    $mapaOntsDuplicadasTac[trim($dup['Num__Serie'])] = [
+        'serie_tac' => trim($dup['Num__Serie']),
+        'telefonos' => $dup['telefonos_asociados']
+    ];
 }
 
-die('DEBUG DETENIDO EN PASO 7');
+echo "<br>";
+echo "PASO 9 - MAPA DUPLICADOS GENERADO<br>";
+
+echo "Elementos en mapa: "
+    . count($mapaOntsDuplicadasTac)
+    . "<br>";
+
+echo "Memoria actual: "
+    . round(memory_get_usage(true)/1024/1024,2)
+    . " MB<br>";
+
+flush();
+
+die('DEBUG DETENIDO EN PASO 9');
 
         // -------------------------------------------------------------
         // 1. RESCATE Y VALIDACIÓN DE CONTRATISTAS ACTIVOS POR EXPEDIENTE
