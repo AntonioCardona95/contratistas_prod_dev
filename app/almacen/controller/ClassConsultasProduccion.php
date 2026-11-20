@@ -487,9 +487,8 @@ public function InsertBatchProduccionYSenalamiento(array $registros, array $mapE
     $conexion = $this->conexion(); // Conexión 'erpprint' (Base ERP)
 
     try {
-        // -------------------------------------------------------------
+       
         // 0. NORMALIZAR MAPA DE ALMACÉN A MAYÚSCULAS
-        // -------------------------------------------------------------
         $mapExistentesNorm = [];
         foreach ($mapExistentes as $k => $v) {
             $mapExistentesNorm[strtoupper(trim((string)$k))] = $v;
