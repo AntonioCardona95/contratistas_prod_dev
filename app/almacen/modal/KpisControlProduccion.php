@@ -120,8 +120,16 @@ if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
         $mapExistentes = array_flip($existentesEnAlmacen);
 
         // Paso D: Procesar inserción/actualización de producción, navegación y señalamientos
-        $consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes, $mapEciDetalle);
-    }
+        /*$consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes, $mapEciDetalle); */
+
+foreach (array_chunk($registros, 5000) as $bloque) {
+    $consultas->InsertBatchProduccionYSenalamiento(
+        $bloque,
+        $mapExistentes,
+        $mapEciDetalle
+    );
+
+    unset($bloque);
 }
 
 // PRODUCCION POR FECHAS SELECCIONADAS
