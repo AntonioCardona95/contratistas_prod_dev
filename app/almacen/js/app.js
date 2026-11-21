@@ -150,6 +150,98 @@ function LoadKpisControl(ejecutar) {
     });
 }
 
+
+function CopiaLoadKpisControl(ejecutar) {
+    // 1. Convertimos los datos del formulario de fechas a un String/Objeto
+    var parametros = $("#FormQueryUnidades").serialize();
+
+    // 2. Contratista
+    var selectContratista = $('#selectContratista').val();
+    if (selectContratista) {
+        parametros += '&selectContratista=' + encodeURIComponent(selectContratista);
+    }
+
+    // 3. Tipo de Tarea
+    var TipoTarea = $('#TipoTarea').val();
+    if (TipoTarea) {
+        parametros += '&TipoTarea=' + encodeURIComponent(TipoTarea);
+    }
+
+    // 4. Área (Obtenemos ID y Nombre del Option seleccionado)
+    var selectArea = $('#selectArea').val();
+    var nombreArea = $('#selectArea option:selected').data('nombre') || $('#selectArea option:selected').text();
+    nombreArea = $.trim(nombreArea);
+
+    if (selectArea) {
+        parametros += '&selectArea=' + encodeURIComponent(selectArea);
+    }
+    if (nombreArea && selectArea && nombreArea !== '-- Seleccione un área --') {
+        parametros += '&nombreArea=' + encodeURIComponent(nombreArea);
+    }
+
+    // 5. División (Solo se envía si hay un valor seleccionado real)
+    var selectDivision = $('#selectDivision').val();
+    var nombreDivision = $('#selectDivision option:selected').data('nombre') || $('#selectDivision option:selected').text();
+    nombreDivision = $.trim(nombreDivision);
+
+    if (selectDivision && selectDivision !== '' && nombreDivision !== '-- Seleccione una división --' && nombreDivision !== 'No hay división para esta área') {
+        parametros += '&selectDivision=' + encodeURIComponent(selectDivision);
+        if (nombreDivision) {
+            parametros += '&nombreDivision=' + encodeURIComponent(nombreDivision);
+        }
+    } else {
+        nombreDivision = '';
+    }
+
+    // 6. Cope (Solo se envía si hay un valor seleccionado real)
+    var selectCope = $('#selectCope').val();
+    var nombreCope = $('#selectCope option:selected').data('nombre') || $('#selectCope option:selected').text();
+    nombreCope = $.trim(nombreCope);
+
+    if (selectCope && selectCope !== '' && nombreCope !== '-- Seleccione un cope --' && nombreCope !== 'No hay copes en esta área') {
+        parametros += '&selectCope=' + encodeURIComponent(selectCope);
+        if (nombreCope) {
+            parametros += '&nombreCope=' + encodeURIComponent(nombreCope);
+        }
+    } else {
+        nombreCope = '';
+    }
+
+    // 7. Fechas
+    var fechascard1 = $('#fechascard1').val();
+    var fechascard2 = $('#fechascard2').val();
+
+    if (fechascard1) {
+        parametros += '&fechascard1=' + encodeURIComponent(fechascard1);
+    }
+    if (fechascard2) {
+        parametros += '&fechascard2=' + encodeURIComponent(fechascard2);
+    }
+
+    // 8. Bandera ejecutar
+    if (ejecutar) {
+        parametros += '&ejecutar=1';
+    }
+
+    $("#LoadKpisControl").fadeIn('slow');
+
+    // 9. Llamada principal para refrescar KPIs
+    return $.ajax({
+        type: 'POST',
+        url: 'modal/KpisControlProduccion.php',
+        data: parametros,
+        beforeSend: function(objeto) {
+            $("#LoadKpisControl").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
+        },
+        success: function(data) {
+            $("#LoadKpisControl").html(data);
+        },
+        error: function(xhr, status, error) {
+            // Manejo silencioso o notificación en UI si lo requieres
+        }
+    });
+}
+
 /*function LoadKpisControl(ejecutar) {
     console.log("Entró a LoadKpisControl");
 
