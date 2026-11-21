@@ -14,7 +14,7 @@ if (empty($tbFecha1)) $tbFecha1 = $defaultFecha1 ?? ($_POST['Fecha1'] ?? '');
 if (empty($tbFecha2)) $tbFecha2 = $defaultFecha2 ?? ($_POST['Fecha2'] ?? '');
 
 // Nombre de la función JS a invocar
-$onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'LoadKpisControl';
+$onchange_fn = !empty($topbar_onchange) ? $topbar_onchange : 'CopiaLoadKpisControl';
 $topbar_hide_search = !empty($topbar_hide_search);
 ?>
 
@@ -138,7 +138,7 @@ function ejecutarFiltradoProduccion() {
     if (text) text.innerText = 'Procesando...';
 
     // Se pasa true para activar 'ejecutar = 1' en el POST
-    Promise.resolve(LoadKpisControl(true)).then(function() {
+    Promise.resolve(CopiaLoadKpisControl(true)).then(function() {
         btn.disabled = false;
         if (icon) icon.className = 'fas fa-play fa-sm mr-1';
         if (text) text.innerText = 'Ejecutar Producción';
