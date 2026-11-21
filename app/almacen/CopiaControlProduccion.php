@@ -85,7 +85,7 @@
                 <!-- TOPBAR CON FILTROS Y ACCIONES GLOBALES -->
                 <?php
                     
-                    include_once(__DIR__ . '/../components/TopBarControl.php');
+                    include_once(__DIR__ . '/../components/CopiaTopBarControl.php');
                 ?>
 
                 <!-- INICIO DEL CONTENIDO DE LA PÁGINA -->
