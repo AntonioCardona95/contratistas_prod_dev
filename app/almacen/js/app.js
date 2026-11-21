@@ -152,6 +152,7 @@ function LoadKpisControl(ejecutar) {
 
 
 function CopiaLoadKpisControl(ejecutar) {
+    console.log('ENTRO A LA FUNCION COPIA LOAD KPIS CONTROL');
     // 1. Convertimos los datos del formulario de fechas a un String/Objeto
     var parametros = $("#FormQueryUnidades").serialize();
 
