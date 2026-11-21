@@ -8,6 +8,24 @@
     // Sesión
     session_start();
 
+    echo "<pre>";
+echo "ENTRO A CopiaKpisControlProduccion.php\n\n";
+
+echo "Fecha1: ";
+var_dump($_POST['fechascard1'] ?? null);
+
+echo "\n";
+
+echo "Fecha2: ";
+var_dump($_POST['fechascard2'] ?? null);
+
+echo "\n\nPOST COMPLETO:\n";
+print_r($_POST);
+
+echo "</pre>";
+
+die();
+
     // Dependencias
     require_once("controller/ClassOps.php");
     require_once(__DIR__ . '/../config/ContratistaContexto.php');
