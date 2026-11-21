@@ -1,0 +1,531 @@
+
+<?php
+// Validar que la sesión no esté activa Y que los encabezados no se hayan enviado aún
+if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+    session_start();
+}
+
+define('WP_DEBUG', true);
+define('WP_DEBUG_DISPLAY', false);
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+require_once("../controller/ClassConsultasProduccion.php");
+require_once("../controller/ClassIndex.php");
+require_once(__DIR__ . '/../../config/ContratistaContexto.php');
+
+$Contratista = $_SESSION['Contratista'] ?? null;
+$idContratistas = obtenerIdContratistaContexto();
+
+// RECIBIMOS PARAMETROS
+$Fecha1 = $_POST['Fecha1'] ?? '';
+$Fecha2 = $_POST['Fecha2'] ?? '';
+
+$Area        = $_POST['selectArea'] ?? '';
+$nombreArea = $_POST['nombreArea'] ?? '';
+$nombreDivision = $_POST['nombreDivision'] ?? '';
+$nombreCope     = $_POST['nombreCope'] ?? '';
+/*echo '<pre>';
+var_dump($Area);
+var_dump($nombreArea);
+var_dump($nombreDivision);
+var_dump($nombreCope);
+echo '</pre>'; */
+
+
+
+
+$Division    = $_POST['selectDivision'] ?? '';
+$Cope        = $_POST['selectCope'] ?? '';
+$TipoTarea = $_POST['TipoTarea'] ?? '';
+
+// FECHAS INDEPENDIENTES DE LAS CARDS
+$fechascard1 = $_POST['fechascard1'] ?? '';
+$fechascard2 = $_POST['fechascard2'] ?? '';
+
+if (!empty($fechascard1)) {
+    $fechascard1 = $fechascard1 . " 00:00:00";
+}
+if (!empty($fechascard2)) {
+    $fechascard2 = $fechascard2 . " 23:59:59";
+}
+
+$mes_anterior = date('Y-m-d', strtotime('-3 month'));
+
+if (!empty($Fecha1) && !empty($Fecha2)) {
+    $Fecha1 = $_POST['Fecha1'] . " 00:00:00";
+    $Fecha2 = $_POST['Fecha2'] . " 23:59:59";
+} else {
+    $Fecha1 = $mes_anterior . " 00:00:00";
+    $Fecha2 = date('Y-m-d') . " 23:59:59";
+}
+
+$idContratistaSeleccionado = $_POST['selectContratista'] ?? null;
+
+// INSTANCIAS DE LAS CLASES
+$index = new Index();
+$consultas = new ClassConsultasProduccion();
+
+// CONSULTA DE DETALLE POR ÁREA DE LA TABLA seg_produccion_diaria
+// CONSULTA DE DETALLE POR ÁREA DE LA TABLA seg_produccion_diaria
+$detalleArea = [];
+if (!empty($idContratistaSeleccionado)) {
+    // Embohasa avei umi fecha ne función-pe
+    $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea(
+        $idContratistaSeleccionado, 
+        $fechascard1, 
+        $fechascard2
+    );
+}
+/*$detalleArea = [];
+if (!empty($idContratistaSeleccionado)) {
+    $detalleArea = $consultas->ObtenerDetalleOrdenesPorArea($idContratistaSeleccionado);
+} */
+
+// PROCESAMIENTO Y ACTUALIZACIÓN SI SE ENVIARON FECHAS POR POST
+$TotalSinNavegacion = 0;
+if (!empty($_POST['Fecha1']) && !empty($_POST['Fecha2'])) {
+   
+// Conteo de 'Sin Navegación' en el rango de fechas
+    $TotalSinNavegacion = (int)$consultas->CountSinNavegacionPorFechas($Fecha1, $Fecha2);
+
+    // Obtener los registros de producción de la tabla seg_ns_prod_eval BD LOCAL PRODUCCION
+    $registros = $consultas->GetProduccionPorFechas($Fecha1, $Fecha2);
+
+    if (!empty($registros)) {
+        // Paso A: Mapear datos detallados de ESCI por teléfono
+        $telefonos = array_column($registros, 'TELEFONO');
+        $mapEciDetalle = $consultas->GetDetalleEciPorTelefonos($telefonos);
+
+        // Paso B: Recolectar números de serie válidos (Producción + ESCI)
+        $seriesABuscar = [];
+        foreach ($registros as $reg) {
+            $tel = trim($reg['TELEFONO'] ?? '');
+            $serieProd = trim($reg['Num__Serie'] ?? '');
+            
+            $eciInfo  = $mapEciDetalle[$tel] ?? null;
+            $serieEci = $eciInfo['M_SERIE'] ?? null;
+
+            if (!$consultas->esSerieInvalida($serieProd)) {
+                $seriesABuscar[] = $serieProd;
+            }
+            if ($serieEci !== null && !$consultas->esSerieInvalida($serieEci)) {
+                $seriesABuscar[] = $serieEci;
+            }
+        }
+
+        // Paso C: Consultar existencia en almacén
+        $existentesEnAlmacen = $consultas->GetNumSeriesEnAlmacen($seriesABuscar);
+        $mapExistentes = array_flip($existentesEnAlmacen);
+
+        // Paso D: Procesar inserción/actualización de producción, navegación y señalamientos
+        $consultas->InsertBatchProduccionYSenalamiento($registros, $mapExistentes, $mapEciDetalle);
+    }
+}
+
+// PRODUCCION POR FECHAS SELECCIONADAS
+$TotalProduccionFechas = 0;
+$qrProduccionFechas = $consultas->CountProduccionPorFechas(
+    $Fecha1, 
+    $Fecha2, 
+    $fechascard1, 
+    $fechascard2, 
+    $idContratistaSeleccionado,
+    $TipoTarea,
+    $nombreArea,
+    $nombreDivision,
+    $nombreCope
+);
+
+if (is_array($qrProduccionFechas)) {
+    if (!empty($qrProduccionFechas)) {
+        foreach ($qrProduccionFechas as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalProduccionFechas = (int)$row['TOTAL'];
+            }
+        }
+    }
+} else {
+    $TotalProduccionFechas = (int)$qrProduccionFechas;
+}
+
+// TOTAL ONT SIN ENTRADA A ALMACÉN
+$TotalOntSinAlmacen = 0;
+$qrOntSinAlmacen = $consultas->CountOntSinEntradaAlmacen(
+    $Fecha1, 
+    $Fecha2, 
+    $fechascard1, 
+    $fechascard2, 
+    $idContratistaSeleccionado,
+    $nombreArea,
+    $nombreDivision,
+    $nombreCope
+);
+
+if (is_array($qrOntSinAlmacen)) {
+    if (!empty($qrOntSinAlmacen)) {
+        foreach ($qrOntSinAlmacen as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalOntSinAlmacen = (int)$row['TOTAL'];
+            }
+        }
+    }
+} else {
+    $TotalOntSinAlmacen = (int)$qrOntSinAlmacen;
+}
+
+// TOTAL ONT CON ENTRADA A ALMACÉN
+$TotalOntConAlmacen = 0;
+$qrOntConAlmacen = $consultas->CountOntConEntradaAlmacen(
+    $Fecha1, 
+    $Fecha2, 
+    $fechascard1, 
+    $fechascard2, 
+    $idContratistaSeleccionado,
+    $nombreArea,
+    $nombreDivision,
+    $nombreCope
+);
+
+if (is_array($qrOntConAlmacen)) {
+    if (!empty($qrOntConAlmacen)) {
+        foreach ($qrOntConAlmacen as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalOntConAlmacen = (int)$row['TOTAL'];
+            }
+        }
+    }
+} else {
+    $TotalOntConAlmacen = (int)$qrOntConAlmacen;
+}
+
+// TOTAL PRODUCCION HISTORICO
+$TotalProduccion = 0;
+$qrProduccionTotal = $consultas->CountProduccionTotal();
+if (is_array($qrProduccionTotal)) {
+    if (!empty($qrProduccionTotal)) {
+        foreach ($qrProduccionTotal as $row) {
+            if (isset($row['TOTAL'])) {
+                $TotalProduccion = (int)$row['TOTAL'];
+            }
+        }
+    }
+} else {
+    $TotalProduccion = (int)$qrProduccionTotal;
+}
+
+
+// CONSULTA DE DATOS BASE DE TODAS LAS DIVISIONES (PARA LA GRÁFICA)
+$chart_divisiones_raw = $consultas->CountOntAlmacenPorDivision(
+    $Fecha1, 
+    $Fecha2, 
+    $fechascard1, 
+    $fechascard2, 
+    $idContratistaSeleccionado
+);
+
+$chart_div_labels = [];
+$chart_div_con_almacen = [];
+$chart_div_sin_almacen = [];
+
+if (!empty($chart_divisiones_raw) && is_array($chart_divisiones_raw)) {
+    foreach ($chart_divisiones_raw as $row) {
+        $chart_div_labels[]      = trim((string)$row['DIVISION']);
+        $chart_div_con_almacen[] = (int)$row['CON_ALMACEN'];
+        $chart_div_sin_almacen[] = (int)$row['SIN_ALMACEN'];
+    }
+}
+
+?>
+
+<link rel="stylesheet" href="css/kpisdashboard.css">
+<link rel="stylesheet" href="css/estiloscardexcel.css">
+
+<!-- Content Row KPI Cards -->
+<div class="row kpi-cards-row">
+
+    <!-- Card 0: Total Producción -->
+    <div class="col-xl col-md-6 mb-4">
+        <a href="#" class="kpi-card-link">
+            <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #343a40;">
+                <div class="kpi-card-body">
+                    <div class="kpi-card-icon"><i class="fas fa-industry"></i></div>
+                    <div class="kpi-card-label">Total Producción</div>
+                    <div class="kpi-card-number"><?php echo number_format($TotalProduccion); ?></div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+<!-- Card 1: Producción Por Fechas -->
+<!-- Card 1: Producción Por Fechas -->
+<div class="col-xl col-md-6 mb-4">
+    <div class="kpi-card kpi-card-dark position-relative" style="border-left: 4px solid #17a2b8;">
+        <!-- Botón de Excel en la esquina superior derecha -->
+        <button type="button" 
+                id="btnExportarLiquidadas" 
+                class="btn-excel-top-right" 
+                title="Exportar resultado a Excel">
+            <i class="fas fa-file-excel"></i>
+            <span>Excel</span>
+        </button>
+
+        <div class="kpi-card-body">
+            <!-- Icono del calendario arriba a la izquierda -->
+            <div class="kpi-card-icon mb-3">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+
+            <!-- Etiquetas y Valores de la Card -->
+            <div class="kpi-card-label">TOTAL DE LIQUIDADAS</div>
+            <div class="kpi-card-number"><?php echo number_format($TotalProduccionFechas); ?></div>
+        </div>
+    </div>
+</div>
+    <!-- Card 2: ONT Sin Entrada a Almacén -->
+    <div class="col-xl col-md-6 mb-4">
+        <a href="#" class="kpi-card-link">
+            <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #dc3545;">
+                <div class="kpi-card-body">
+                    <div class="kpi-card-icon"><i class="fas fa-boxes"></i></div>
+                    <div class="kpi-card-label">ONT sin Entrada a Almacén</div>
+                    <div class="kpi-card-number"><?php echo number_format($TotalOntSinAlmacen); ?></div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Card 3: ONT Con Entrada a Almacén -->
+    <div class="col-xl col-md-6 mb-4">
+        <a href="#" class="kpi-card-link">
+            <div class="kpi-card kpi-card-dark" style="border-left: 4px solid #28a745;">
+                <div class="kpi-card-body">
+                    <div class="kpi-card-icon"><i class="fas fa-warehouse"></i></div>
+                    <div class="kpi-card-label">ONT con Entrada a Almacén</div>
+                    <div class="kpi-card-number"><?php echo number_format($TotalOntConAlmacen); ?></div>
+                </div>
+            </div>
+        </a>
+    </div>
+
+</div>
+
+<!-- Fila de Gráficas por División -->
+<div class="row">
+  <!-- GRÁFICA: ONT sin entrada a almacén por División -->
+  <div class="col-xl-6 mb-4">
+    <div class="card shadow h-100">
+      <div class="card-header"><strong>ONT sin entrada a almacén por División</strong></div>
+      <div class="card-body chart-area">
+        <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de divisiones">
+          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 115); ?>px;">
+            <canvas id="chartOntSinAlmacenDiv"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRÁFICA: ONT con entrada a almacén por División -->
+  <div class="col-xl-6 mb-4">
+    <div class="card shadow h-100">
+      <div class="card-header"><strong>ONT con entrada a almacén por División</strong></div>
+      <div class="card-body chart-area">
+        <div class="technician-chart-scroll" aria-label="Desplazamiento horizontal de divisiones">
+          <div class="technician-chart-inner" style="width: <?php echo max(100, count($chart_div_labels) * 115); ?>px;">
+            <canvas id="chartOntConAlmacenDiv"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NUEVA TARJETA: DETALLE DE ÓRDENES POR ÁREA -->
+<div class="row" id="contenedorTablaDetalle">
+    <div class="col-12 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3 bg-white d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary" id="tituloDetalleContratista">
+                    <i class="fas fa-table mr-1"></i> Detalle de Órdenes por Área
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover text-center align-middle" id="tablaDetalleArea" width="100%" cellspacing="0">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Área</th>
+                                <th>División</th>
+                                <th>Cope</th>
+                                <th>Altas</th>
+                                <th>Migraciones</th>
+                                <th>Cambios de domicilio</th>
+                                <th>Quejas</th>
+                                <th>A4</th>
+                                <th>Total ONTs en Almacén</th>
+                                <th>Total ONTs No Entraron Almacén</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyDetalleArea">
+    <?php if (!empty($detalleArea)): ?>
+        <?php foreach ($detalleArea as $row): ?>
+            <tr>
+                <td><?php echo htmlspecialchars($row['Area'] ?? 'N/A'); ?></td>
+                <td><?php echo htmlspecialchars($row['Division'] ?? 'N/A'); ?></td>
+                <td><?php echo htmlspecialchars($row['Cope'] ?? 'N/A'); ?></td>
+                <td class="font-weight-bold text-primary"><?php echo number_format($row['Altas'] ?? 0); ?></td>
+                <td><?php echo number_format($row['Migraciones'] ?? 0); ?></td>
+                <td><?php echo number_format($row['CambiosDomicilio'] ?? 0); ?></td>
+                <td><?php echo number_format($row['Quejas'] ?? 0); ?></td>
+                <td><?php echo number_format($row['A4'] ?? 0); ?></td>
+                <td class="table-success font-weight-bold"><?php echo number_format($row['TotalConAlmacen'] ?? 0); ?></td>
+                <td class="table-danger font-weight-bold"><?php echo number_format($row['TotalSinAlmacen'] ?? 0); ?></td>
+            </tr>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <tr>
+            <td colspan="10" class="text-muted font-italic py-4">
+                No se encontraron registros de producciones para el contratista seleccionado.
+            </td>
+        </tr>
+    <?php endif; ?>
+</tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="js/exportexcelcardfechas.js?v=<?php echo time(); ?>"></script>
+<script>
+(function () {
+  // Carga de Divisiones
+  var labelsDivisiones = <?php echo json_encode($chart_div_labels, JSON_UNESCAPED_UNICODE); ?>;
+  var conAlmacenDivisiones = <?php echo json_encode($chart_div_con_almacen, JSON_NUMERIC_CHECK); ?>;
+  var sinAlmacenDivisiones = <?php echo json_encode($chart_div_sin_almacen, JSON_NUMERIC_CHECK); ?>;
+
+  var charts = [];
+  var colors = {
+    danger: '#c0392b',
+    warning: '#b7791f',
+    info: '#147d92',
+    primary: '#185abc',
+    success: '#25834b'
+  };
+
+  function makeChart(id, type, labels, datasets, options) {
+    var canvas = document.getElementById(id);
+
+    if (!canvas) {
+      return;
+    }
+
+    charts.push(new Chart(canvas, {
+      type: type,
+      data: {
+        labels: labels,
+        datasets: datasets
+      },
+      options: options || {}
+    }));
+  }
+
+  var common = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: {
+          usePointStyle: true,
+          padding: 18
+        }
+      },
+      tooltip: {
+        backgroundColor: '#182235',
+        titleColor: '#ffffff',
+        bodyColor: '#e6eaf0',
+        padding: 12,
+        cornerRadius: 8,
+        displayColors: true
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: {
+          color: '#edf0f4'
+        },
+        ticks: {
+          color: '#596579'
+        }
+      },
+      x: {
+        grid: {
+          display: false
+        },
+        ticks: {
+          color: '#596579',
+          maxRotation: 0,
+          minRotation: 0,
+          autoSkip: false,
+          callback: function (value) {
+            var label = this.getLabelForValue(value);
+            var words = label.split(' ');
+            var lines = [];
+            var currentLine = '';
+
+            words.forEach(function (word) {
+              if ((currentLine + ' ' + word).trim().length > 16 && currentLine) {
+                lines.push(currentLine);
+                currentLine = word;
+              } else {
+                currentLine = (currentLine + ' ' + word).trim();
+              }
+            });
+
+            if (currentLine) {
+              lines.push(currentLine);
+            }
+
+            return lines.slice(0, 3);
+          }
+        }
+      }
+    }
+  };
+
+  // 1. ONT SIN ENTRADA A ALMACÉN POR DIVISIÓN
+  makeChart(
+    'chartOntSinAlmacenDiv',
+    'bar',
+    labelsDivisiones,
+    [{
+      label: 'ONT sin entrada a almacén',
+      data: sinAlmacenDivisiones,
+      backgroundColor: colors.danger,
+      borderRadius: 8,
+      borderSkipped: false
+    }],
+    common
+  );
+
+  // 2. ONT CON ENTRADA A ALMACÉN POR DIVISIÓN
+  makeChart(
+    'chartOntConAlmacenDiv',
+    'bar',
+    labelsDivisiones,
+    [{
+      label: 'ONT con entrada a almacén',
+      data: conAlmacenDivisiones,
+      backgroundColor: colors.success,
+      borderRadius: 8,
+      borderSkipped: false
+    }],
+    common
+  );
+})();
+</script>
