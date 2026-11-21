@@ -5,7 +5,7 @@ echo "ENTRO A CopiaKpisControlProduccion.php\n\n";
 print_r($_POST);
 
 echo "</pre>";
-die();
+
     // Configuración inicial
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
