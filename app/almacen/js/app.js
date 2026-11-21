@@ -223,7 +223,7 @@ function CopiaLoadKpisControl(ejecutar) {
         parametros += '&ejecutar=1';
     }
 
-    $("#LoadKpisControl").fadeIn('slow');
+    $("#CopiaLoadKpisControl").fadeIn('slow');
 
     // 9. Llamada principal para refrescar KPIs
     return $.ajax({
@@ -231,10 +231,10 @@ function CopiaLoadKpisControl(ejecutar) {
         url: 'modal/KpisControlProduccion.php',
         data: parametros,
         beforeSend: function(objeto) {
-            $("#LoadKpisControl").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
+            $("#CopiaLoadKpisControl").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
         },
         success: function(data) {
-            $("#LoadKpisControl").html(data);
+            $("#CopiaLoadKpisControl").html(data);
         },
         error: function(xhr, status, error) {
             // Manejo silencioso o notificación en UI si lo requieres
