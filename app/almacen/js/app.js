@@ -228,7 +228,7 @@ function CopiaLoadKpisControl(ejecutar) {
     // 9. Llamada principal para refrescar KPIs
     return $.ajax({
         type: 'POST',
-        url: 'modal/KpisControlProduccion.php',
+        url: 'modal/CopiaKpisControlProduccion.php',
         data: parametros,
         beforeSend: function(objeto) {
             $("#CopiaLoadKpisControl").html("<center><img src='img/caleidoscopio.gif' alt='Cargando...' style='max-width: 800px; height: auto;'></center>");
