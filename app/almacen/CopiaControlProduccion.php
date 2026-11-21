@@ -113,7 +113,7 @@
                 <label for="fechascard2" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-calendar-alt mr-1"></i> Fecha Final:
                 </label>
-                <input type="date" class="form-control" id="fechascard2" name="fechascard2" onchange="LoadKpisControl();">
+                <input type="date" class="form-control" id="fechascard2" name="fechascard2" onchange="CopiaLoadKpisControl();">
             </div>
 
             <!-- CONTRATISTA -->
@@ -121,7 +121,7 @@
                 <label for="selectContratista" class="font-weight-bold text-primary mb-1">
                     <i class="fas fa-user-tie mr-1"></i> Seleccionar Contratista:
                 </label>
-                <select class="form-control select2-busqueda" id="selectContratista" name="selectContratista" data-placeholder="-- Seleccionar Contratista --" onchange="LimpiarSelectoresUbicacion(); LoadKpisControl();">
+                <select class="form-control select2-busqueda" id="selectContratista" name="selectContratista" data-placeholder="-- Seleccionar Contratista --" onchange="LimpiarSelectoresUbicacion(); CopiaLoadKpisControl();">
                     <option value=""></option>
                     <?php foreach ($listaContratistas as $row): ?>
                         <option value="<?= htmlspecialchars($row['idContratistas']) ?>">
@@ -136,7 +136,7 @@
     <label for="TipoTarea" class="font-weight-bold text-primary mb-1">
         <i class="fas fa-tasks mr-1"></i> Seleccione Tipo de tarea:
     </label>
-    <select name="TipoTarea" id="TipoTarea" class="form-control select2-busqueda" onchange="LoadKpisControl();">
+    <select name="TipoTarea" id="TipoTarea" class="form-control select2-busqueda" onchange="CopiaLoadKpisControl();">
         <option value="">-- Seleccionar Tipo de Tarea --</option>
         <option value="QUEJAS">QUEJAS</option>
         <option value="ALTAS">ALTAS</option>
@@ -248,6 +248,6 @@
             width: '100%'
         });
 
-        LoadKpisControl();
+        CopiaLoadKpisControl();
     });
 </script>
