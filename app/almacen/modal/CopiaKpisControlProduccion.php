@@ -5,6 +5,8 @@ if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
     session_start();
 }
 
+echo "<h2>ENTRÓ AL ARCHIVO CORRECTAMENTE</h2>";
+
 define('WP_DEBUG', true);
 define('WP_DEBUG_DISPLAY', false);
 
@@ -22,6 +24,17 @@ $idContratistas = obtenerIdContratistaContexto();
 // RECIBIMOS PARAMETROS
 $Fecha1 = $_POST['Fecha1'] ?? '';
 $Fecha2 = $_POST['Fecha2'] ?? '';
+
+echo "<pre>";
+echo "===== DEBUG DE ENTRADA =====\n";
+echo "Contratista SESSION: " . var_export($Contratista, true) . "\n";
+echo "idContratistas: " . var_export($idContratistas, true) . "\n";
+echo "Fecha1: " . var_export($Fecha1, true) . "\n";
+echo "Fecha2: " . var_export($Fecha2, true) . "\n";
+
+echo "\nPOST COMPLETO:\n";
+print_r($_POST);
+echo "</pre>";
 
 $Area        = $_POST['selectArea'] ?? '';
 $nombreArea = $_POST['nombreArea'] ?? '';
